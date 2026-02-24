@@ -1,7 +1,7 @@
 # CourierAssist - Status Postępu
 
 **Ostatnia aktualizacja**: 2026-02-24
-**Obecny etap**: Setup - ustalanie zasad pracy
+**Obecny etap**: Krok 0 ukończony - przejście do Kroku 1
 **Folder projektu**: `/Users/krzysztof/Desktop/CourierAssist/`
 **Cel**: Beta APK do testów na telefonie z Androidem
 
@@ -10,7 +10,7 @@
 ## 📊 Ogólny status: 0% → Beta
 
 ```
-[ ] Krok 0: Środowisko
+[x] Krok 0: Środowisko
 [ ] Krok 1: Szkielet + uprawnienia
 [ ] Krok 2: MediaProjection capture
 [ ] Krok 3: OCR (ML Kit)
@@ -30,33 +30,46 @@
 - [x] **RULES.md** - zasady współpracy + Git workflow - 2026-02-24
 - [x] **README.md** - wprowadzenie dla nowych członków zespołu - 2026-02-24
 - [x] **PLAN.md** - zaktualizowany o info dla nowych - 2026-02-24
+- [x] **Krok 0: Instalacja środowiska** (Sonnet 4.5) - 2026-02-24
+  - Android Studio zainstalowane
+  - JDK 17 zainstalowane
+  - Zmienne środowiskowe skonfigurowane
+  - Dokumentacja: `docs/step0-completed.md`
 
 ---
 
 ## 🔄 W trakcie
 
-**Krzysztof:** Gotowy do Kroku 0 (może używać Claude)
+**Krzysztof:** Krok 0 ukończony - ręczna konfiguracja Android Studio (może używać Claude)
 **Tata:** - (może używać AI lub pracować ręcznie)
 **Łukasz:** - (może używać Copilot/Antigravity/inne lub ręcznie)
 
-**Uwaga:** Podział zadań do ustalenia - sprawdzajcie tę sekcję przed pracą!
+**Uwaga:** Po zakończeniu ręcznej konfiguracji Android Studio - gotowi do Kroku 1
 
 ---
 
 ## 📋 Kolejne kroki
 
-**Krok 0: Instalacja środowiska** ⚡ Sonnet
-- Zainstalować Android Studio
-- Zainstalować JDK 17
-- Skonfigurować zmienne środowiskowe
-- Podłączyć telefon Android
-- Test: `adb devices`
+**Ręczna konfiguracja (przed Krokiem 1):**
+- [ ] Uruchomić Android Studio
+- [ ] Zainstalować Android SDK (Setup Wizard)
+- [ ] Skonfigurować JDK 17 w Android Studio
+- [ ] Podłączyć telefon Android (USB debugging)
+- [ ] Test: `adb devices`
+- Zobacz: `docs/step0-completed.md`
+
+**Krok 1: Szkielet projektu + uprawnienia** ⚡ Sonnet
+- Stworzyć projekt Android Studio
+- Dodać uprawnienia (MediaProjection, Overlay, Notifications)
+- MainActivity z Start/Stop
+- ScreenCaptureService
 
 ---
 
 ## ⚠️ Problemy / Notatki
 
 - **iCloud Drive issue**: Zdecydowano użyć lokalnego folderu `~/Desktop/CourierAssist/` zamiast iCloud Drive z powodu problemów z synchronizacją
+- **JDK 17 sudo link**: JDK wymaga sudo do systemowego linkowania - zamiast tego skonfigurujemy ręcznie w Android Studio (prostsze)
 
 ---
 
@@ -66,9 +79,11 @@
 ~/Desktop/CourierAssist/
 ├── PLAN.md               ✅ Pełny plan 8 kroków
 ├── PROGRESS.md           ✅ Ten plik - tracking statusu
-├── RULES.md              ⏳ Zasady pracy (do stworzenia)
+├── RULES.md              ✅ Zasady współpracy
+├── README.md             ✅ Wprowadzenie dla nowych
+├── docs/                 ✅ Dokumentacja techniczna
+│   └── step0-completed.md ✅ Krok 0 - instrukcje
 ├── CourierAssist/        ⏳ Projekt Android Studio (Krok 1)
-├── docs/                 ⏳ Dokumentacja techniczna
 └── testing/              ⏳ Screenshoty testowe
     ├── glovo/
     ├── ubereats/
@@ -79,6 +94,6 @@
 
 ## 🎯 Następna akcja
 
-**TERAZ**: Ustalić zasady pracy z Claude Code przed implementacją.
+**TERAZ**: Ręczna konfiguracja Android Studio + SDK + telefon (zobacz `docs/step0-completed.md`)
 
-**POTEM**: Krok 0 - Instalacja środowiska (Sonnet 4.5)
+**POTEM**: Krok 1 - Szkielet projektu + uprawnienia (Sonnet 4.5)
