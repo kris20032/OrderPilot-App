@@ -271,6 +271,21 @@ ZAWSZE. BEZ WYJĄTKÓW. NAWET JEŚLI UŻYTKOWNIK NIE WSPOMNI.
 
 ---
 
+## 7. Środowisko pracy — VSCode vs Android Studio
+
+**Podział narzędzi:**
+
+- **VSCode + Claude Code** — służy wyłącznie do pisania i edycji kodu wspólnie z AI (Claude). Tu tworzymy pliki, omawiamy architekturę, generujemy implementacje.
+- **Android Studio** — docelowe środowisko do budowania, kompilowania i uruchamiania aplikacji na telefonie. Każdy wygenerowany kod jest otwierany, budowany i testowany w Android Studio.
+
+**Dla AI asystenta:**
+- Kod piszemy w VSCode (przez Claude Code)
+- Nigdy nie zakładaj że AI może bezpośrednio uruchomić aplikację na urządzeniu
+- Instrukcje uruchomienia zawsze formułuj jako kroki do wykonania ręcznie w Android Studio lub przez `adb`
+- Build i instalacja APK = zadanie użytkownika w Android Studio, nie AI
+
+---
+
 ## Lokalizacja projektu
 
 **Folder:** `/Users/krzysztof/Desktop/CourierAssist/`
