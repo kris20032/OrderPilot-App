@@ -1,7 +1,7 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-02-26
-**Obecny etap:** TASK 4.2.1 ukończone — przejście do TASK 5.1.1
+**Obecny etap:** TASK 5.1.1 ukończone — przejście do TASK 6.1.1
 **Cel:** Beta APK do testów na telefonie z Androidem
 
 ---
@@ -16,8 +16,8 @@
 | 4 | TASK 2.1.1 — AccessibilityService | ✅ Ukończone |
 | 5 | TASK 4.1.1 — OfferParser interface | ✅ Ukończone |
 | 6 | TASK 4.2.1 — UberParser | ✅ Ukończone |
-| 7 | TASK 5.1.1 — Overlay | ⏳ Następny |
-| 8 | TASK 6.1.1 — Integracja | |
+| 7 | TASK 5.1.1 — Overlay | ✅ Ukończone |
+| 8 | TASK 6.1.1 — Integracja | ⏳ Następny |
 | 9 | TASK 7.1.1 — START/STOP UI | |
 
 Szczegóły zadań: [`docs/TASKS.md`](docs/TASKS.md)
@@ -35,12 +35,13 @@ Szczegóły zadań: [`docs/TASKS.md`](docs/TASKS.md)
 - [x] TASK 2.1.1: CourierAccessibilityService (Uber Driver filter, manifest, config) — 2026-02-26
 - [x] TASK 4.1.1: OfferParser interface (canHandle, parse) — 2026-02-26
 - [x] TASK 4.2.1: UberParser + ParserRegistry (PL/EN/UKR, regex) — 2026-02-26
+- [x] TASK 5.1.1: SystemOverlayManager (TYPE_APPLICATION_OVERLAY, kolory, layout) — 2026-02-26
 
 ---
 
 ## W trakcie
 
-**Krzysztof:** TASK 5.1.1 — Overlay
+**Krzysztof:** TASK 6.1.1 — Integracja
 **Tata:** —
 **Łukasz:** —
 
@@ -77,4 +78,4 @@ CourierAssist-App/
 
 ## Następna akcja
 
-**TERAZ:** TASK 5.1.1 — Overlay (Sonnet)
+**TERAZ:** TASK 6.1.1 — Integracja (Opus)
