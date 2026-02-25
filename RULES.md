@@ -10,8 +10,8 @@
 
 **Co robię po usłyszeniu trigger phrase:**
 1. Czytam `PROGRESS.md` - sprawdzam obecny etap
-2. Czytam `PLAN.md` - sprawdzam co jest do zrobienia
-3. Informuję Cię: "Jesteśmy na Kroku X: [nazwa]. Ostatnia aktualizacja: [data]. Kontynuujemy?"
+2. Czytam `docs/PLAN.md` + `docs/TASKS.md` - sprawdzam co jest do zrobienia
+3. Informuję Cię: "Jesteśmy na TASK X.X.X: [nazwa]. Ostatnia aktualizacja: [data]. Kontynuujemy?"
 
 ---
 
@@ -22,21 +22,19 @@
 
 ### Kiedy używać którego modelu:
 
-**🎯 Opus 4.6** - skomplikowane zadania:
-- Krok 2: MediaProjection (VirtualDisplay, ImageReader, edge cases)
-- Krok 3: OCR (ML Kit integration, preprocessing, optymalizacja)
-- Krok 5: Parsery (regex engineering na prawdziwych danych OCR)
-- Krok 7: Integracja end-to-end (łączenie komponentów, debugowanie)
+**Opus 4.6** - skomplikowane zadania:
+- TASK 2.1.1: AccessibilityService (konfiguracja, edge cases)
+- TASK 4.2.1: UberParser (parsowanie drzewa UI, regex, multi-język)
+- TASK 6.1.1: Integracja end-to-end (pipeline, debugowanie)
 - Debugowanie trudnych problemów
 - Decyzje architektoniczne
 
-**⚡ Sonnet 4.5** - implementacja według spec:
-- Krok 0: Instalacja środowiska (powtarzalne kroki)
-- Krok 1: Szkielet projektu (boilerplate, uprawnienia)
-- Krok 4: Overlay layout (XML + prosty serwis)
-- Krok 6: Kalkulator opłacalności (matematyka)
-- Krok 8: Build scripts, dystrybucja APK
-- UI screens (Settings, History)
+**Sonnet** - implementacja według spec:
+- TASK 1.1.1: Inicjalizacja projektu (boilerplate)
+- TASK 3.1.1: Modele domenowe (data class, enum)
+- TASK 3.2.1: OfferAnalyzer (matematyka)
+- TASK 5.1.1: Overlay (XML + WindowManager)
+- TASK 7.1.1: START/STOP UI
 - Testy jednostkowe
 
 ---
@@ -94,14 +92,14 @@
 #### 🟢 PODCZAS PRACY:
 
 - Commituj po każdym logicznym kroku (nie czekaj do końca!)
-- Format: `git commit -m "Krok X: Opis zmiany"`
-- Przykład: `git commit -m "Krok 3: Dodano OcrEngine + preprocessing"`
+- Format: `git commit -m "TASK X.X.X: Opis zmiany"`
+- Przykład: `git commit -m "TASK 3.2.1: Dodano OfferAnalyzer"`
 
 #### 🔴 NA KOŃCU KAŻDEJ SESJI (PO ZAKOŃCZENIU PRACY):
 
 **MUSISZ:**
 1. `git add .` - dodać wszystkie zmiany
-2. `git commit -m "Krok X ukończony: [opis]"` - commit końcowy
+2. `git commit -m "TASK X.X.X ukończony: [opis]"` - commit końcowy
 3. `git push` - wypchnąć na GitHub
 4. Zaktualizować `PROGRESS.md` - oznacz co zrobione
 5. Commit + push `PROGRESS.md`
@@ -141,7 +139,7 @@ git pull
 **PO zakończeniu pracy:**
 ```bash
 git add .
-git commit -m "Krok X: Opis co zrobiłeś"
+git commit -m "TASK X.X.X: Opis co zrobiłeś"
 git push
 ```
 
@@ -156,14 +154,14 @@ git push
 ### Zasady commitów:
 
 **Kiedy commitować:**
-- Po zakończeniu każdego kroku z PLAN.md
+- Po zakończeniu każdego TASKu z TASKS.md
 - Po naprawieniu buga
 - Po dodaniu nowej funkcjonalności
 - Przed końcem sesji (ZAWSZE!)
 
 **Format commit message:**
 ```
-Krok X: Krótki opis (max 50 znaków)
+TASK X.X.X: Krótki opis (max 50 znaków)
 
 Opcjonalnie dłuższy opis:
 - Co zostało dodane
@@ -173,10 +171,10 @@ Opcjonalnie dłuższy opis:
 
 **Przykłady:**
 ```bash
-git commit -m "Krok 0: Zainstalowano Android Studio + JDK 17"
-git commit -m "Krok 2: Dodano ScreenCaptureManager z detekcją zmian"
-git commit -m "Krok 5: GlovoParser - regex dla kwoty i dystansu"
-git commit -m "Fix: Poprawiono overlay self-capture issue"
+git commit -m "TASK 1.1.1: Inicjalizacja projektu Android"
+git commit -m "TASK 3.1.1: Dodano modele domenowe"
+git commit -m "TASK 4.2.1: UberParser - regex dla kwoty i czasu"
+git commit -m "Fix: Poprawiono overlay z-index issue"
 ```
 
 ### Podział pracy (kto co robi):
@@ -186,7 +184,7 @@ git commit -m "Fix: Poprawiono overlay self-capture issue"
 **Aktualny podział zadań:** Sprawdź `PROGRESS.md` sekcja "🔄 W trakcie"
 
 **Przykładowy podział (może się zmienić):**
-- **Krzysztof:** Główna implementacja (capture, OCR, parsery, overlay)
+- **Krzysztof:** Główna implementacja (AccessibilityService, parsery, overlay)
 - **Tata:** Testowanie na prawdziwych zleceniach + feedback
 - **Łukasz:** UI, settings, helper functions
 
@@ -205,7 +203,7 @@ git commit -m "Fix: Poprawiono overlay self-capture issue"
 
 **Różne pliki = zero konfliktów:**
 - Ustalcie kto nad którymi plikami pracuje (sprawdź `PROGRESS.md`)
-- Przykład: jeden robi `capture/`, drugi `ui/`, trzeci testuje
+- Przykład: jeden robi `parser/`, drugi `ui/`, trzeci testuje
 - Jeśli pracujecie nad różnymi plikami = zero konfliktów!
 
 ### Jeśli wystąpi konflikt:
@@ -247,13 +245,13 @@ ZAWSZE. BEZ WYJĄTKÓW. NAWET JEŚLI UŻYTKOWNIK NIE WSPOMNI.
 **Zasada: Zwięźle, ale zrozumiale**
 
 ### Na początku kroku:
-> "Krok X: [nazwa kroku]. Tworzę [co tworzę]. Model: [Opus/Sonnet]"
+> "TASK X.X.X: [nazwa]. Tworzę [co tworzę]. Model: [Opus/Sonnet]"
 
 ### Podczas implementacji:
 > "Dodaję [plik/funkcjonalność] - [1 zdanie co robi]"
 
 ### Po skończeniu:
-> "✅ Krok X gotowy. Test: [jak zweryfikować]. Następny krok: [co dalej]"
+> "TASK X.X.X gotowy. Test: [jak zweryfikować]. Następny: [co dalej]"
 
 ### Przy problemie:
 > "⚠️ Problem: [krótki opis]. Propozycja: [rozwiązanie]. OK?"
@@ -326,7 +324,7 @@ testing/
 
 ### Projekt Android (`app/` po stworzeniu)
 ```
-app/src/main/java/com/courierassist/
+app/src/main/java/com/courierassist/app/
 ├── domain/      ← Offer, Platform, AnalysisResult, ProfitLevel
 ├── engine/      ← OfferAnalyzer
 ├── parser/      ← OfferParser, ParserRegistry, UberParser, WoltParser, GlovoParser
@@ -342,7 +340,7 @@ app/src/main/res/
 └── values/      ← kolory, stringi, style
 ```
 
-**Zasada:** każdy nowy plik Kotlin trafia do odpowiedniej warstwy. Nie tworzyć plików bezpośrednio w `com.courierassist/` — zawsze w podfolderze warstwy.
+**Zasada:** każdy nowy plik Kotlin trafia do odpowiedniej warstwy. Nie tworzyć plików bezpośrednio w `com.courierassist.app/` — zawsze w podfolderze warstwy.
 
 ---
 
@@ -350,7 +348,7 @@ app/src/main/res/
 
 1. User pisze trigger phrase (np. "wróćmy do aplikacji dla kurierów")
 2. Czytam `PROGRESS.md` + `RULES.md` + `docs/ARCHITECTURE.md`
-3. Informuję: "Jesteśmy na Etapie X, ostatnia aktualizacja [data]. Kontynuujemy?"
+3. Informuję: "Jesteśmy na TASK X.X.X, ostatnia aktualizacja [data]. Kontynuujemy?"
 4. User potwierdza
 5. Sprawdzam jaki model jest potrzebny, informuję o zmianie jeśli trzeba
 6. Zaczynam pracę

@@ -2,11 +2,15 @@
 .idea/
 *.iml
 
-# Android build
-CourierAssist/.gradle/
-CourierAssist/app/build/
-CourierAssist/build/
-CourierAssist/local.properties
+# Gradle
+.gradle/
+build/
+local.properties
+
+# Android build artifacts
+*.apk
+*.ap_
+*.aab
 
 # macOS
 .DS_Store
