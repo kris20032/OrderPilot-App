@@ -7,17 +7,17 @@
 
 ## Kolejność realizacji
 
-| # | Task | Trudność | Zależności |
-|---|------|----------|-----------|
-| 1 | TASK 1.1.1 — Inicjalizacja projektu | 1/5 | brak |
-| 2 | TASK 3.1.1 — Modele domenowe | 1/5 | Projekt |
-| 3 | TASK 3.2.1 — OfferAnalyzer | 2/5 | Domain |
-| 4 | TASK 2.1.1 — AccessibilityService | 3/5 | Projekt |
-| 5 | TASK 4.1.1 — OfferParser interface | 1/5 | Domain |
-| 6 | TASK 4.2.1 — UberParser | 5/5 | Accessibility + Domain |
-| 7 | TASK 5.1.1 — Overlay | 4/5 | Accessibility |
-| 8 | TASK 6.1.1 — Integracja | 5/5 | Parser + Overlay + Analyzer |
-| 9 | TASK 7.1.1 — START/STOP UI | 3/5 | Accessibility |
+| # | Task | Trudność | Model | Zależności |
+|---|------|----------|-------|-----------|
+| 1 | TASK 1.1.1 — Inicjalizacja projektu | 1/5 | Sonnet | brak |
+| 2 | TASK 3.1.1 — Modele domenowe | 1/5 | Sonnet | Projekt |
+| 3 | TASK 3.2.1 — OfferAnalyzer | 2/5 | Sonnet | Domain |
+| 4 | TASK 2.1.1 — AccessibilityService | 3/5 | Opus | Projekt |
+| 5 | TASK 4.1.1 — OfferParser interface | 1/5 | Sonnet | Domain |
+| 6 | TASK 4.2.1 — UberParser | 5/5 | Opus | Accessibility + Domain |
+| 7 | TASK 5.1.1 — Overlay | 4/5 | Sonnet | Accessibility |
+| 8 | TASK 6.1.1 — Integracja | 5/5 | Opus | Parser + Overlay + Analyzer |
+| 9 | TASK 7.1.1 — START/STOP UI | 3/5 | Sonnet | Accessibility |
 
 ---
 

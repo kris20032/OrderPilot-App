@@ -196,8 +196,8 @@ git commit -m "Fix: Poprawiono overlay z-index issue"
 ```markdown
 ## 🔄 W trakcie
 
-**Krzysztof:** Krok 3 - OCR implementation
-**Tata:** Testowanie Kroku 2
+**Krzysztof:** TASK 4.2.1 - UberParser
+**Tata:** Testowanie na realnych zleceniach
 **Łukasz:** Wolny
 ```
 
