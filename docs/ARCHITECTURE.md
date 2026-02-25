@@ -3,7 +3,7 @@
 ## Podział na warstwy
 
 ```
-com.courier.analyzer
+com.courierassist.app
 │
 ├── ui/
 ├── service/

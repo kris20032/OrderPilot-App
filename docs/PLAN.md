@@ -1,8 +1,9 @@
 # Plan implementacji — CourierAssist
 
-**Stack:** Kotlin, Jetpack Compose, AccessibilityService, WindowManager overlay
+**Stack:** Kotlin, ViewBinding + XML, AccessibilityService, WindowManager overlay
 **Min SDK:** 26 (Android 8.0)
-**Package:** `com.courierassist`
+**Package:** `com.courierassist.app`
+**Zadania:** szczegóły w `docs/TASKS.md`
 **Architektura:** szczegóły w `docs/ARCHITECTURE.md`
 
 ---
@@ -23,7 +24,7 @@ Stworzyć nowy projekt Android Studio (Empty Activity, Kotlin, Gradle KTS).
 
 **Struktura pakietów:**
 ```
-com.courierassist/
+com.courierassist.app/
 ├── domain/
 ├── engine/
 ├── parser/
