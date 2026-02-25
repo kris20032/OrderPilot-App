@@ -1,7 +1,7 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-02-26
-**Obecny etap:** TASK 4.1.1 ukończone — przejście do TASK 4.2.1
+**Obecny etap:** TASK 4.2.1 ukończone — przejście do TASK 5.1.1
 **Cel:** Beta APK do testów na telefonie z Androidem
 
 ---
@@ -15,8 +15,8 @@
 | 3 | TASK 3.2.1 — OfferAnalyzer | ✅ Ukończone |
 | 4 | TASK 2.1.1 — AccessibilityService | ✅ Ukończone |
 | 5 | TASK 4.1.1 — OfferParser interface | ✅ Ukończone |
-| 6 | TASK 4.2.1 — UberParser | ⏳ Następny |
-| 7 | TASK 5.1.1 — Overlay | |
+| 6 | TASK 4.2.1 — UberParser | ✅ Ukończone |
+| 7 | TASK 5.1.1 — Overlay | ⏳ Następny |
 | 8 | TASK 6.1.1 — Integracja | |
 | 9 | TASK 7.1.1 — START/STOP UI | |
 
@@ -34,12 +34,13 @@ Szczegóły zadań: [`docs/TASKS.md`](docs/TASKS.md)
 - [x] TASK 3.2.1: OfferAnalyzer (GREEN/YELLOW/RED, safe division) — 2026-02-26
 - [x] TASK 2.1.1: CourierAccessibilityService (Uber Driver filter, manifest, config) — 2026-02-26
 - [x] TASK 4.1.1: OfferParser interface (canHandle, parse) — 2026-02-26
+- [x] TASK 4.2.1: UberParser + ParserRegistry (PL/EN/UKR, regex) — 2026-02-26
 
 ---
 
 ## W trakcie
 
-**Krzysztof:** TASK 4.2.1 — UberParser
+**Krzysztof:** TASK 5.1.1 — Overlay
 **Tata:** —
 **Łukasz:** —
 
@@ -76,4 +77,4 @@ CourierAssist-App/
 
 ## Następna akcja
 
-**TERAZ:** TASK 4.2.1 — UberParser (Opus)
+**TERAZ:** TASK 5.1.1 — Overlay (Sonnet)
