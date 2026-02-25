@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">CourierAssist</string>
+    <string name="accessibility_service_description">CourierAssist analyzes delivery offers and shows profitability overlay.</string>
 </resources>
