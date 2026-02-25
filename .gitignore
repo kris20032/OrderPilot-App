@@ -1,0 +1,12 @@
+# IDE
+.idea/
+*.iml
+
+# Android build
+CourierAssist/.gradle/
+CourierAssist/app/build/
+CourierAssist/build/
+CourierAssist/local.properties
+
+# macOS
+.DS_Store
