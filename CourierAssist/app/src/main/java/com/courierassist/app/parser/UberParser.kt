@@ -1,5 +1,6 @@
 package com.courierassist.app.parser
 
+import android.util.Log
 import android.view.accessibility.AccessibilityNodeInfo
 import com.courierassist.app.domain.Offer
 import com.courierassist.app.domain.Platform
@@ -7,6 +8,7 @@ import com.courierassist.app.domain.Platform
 class UberParser : OfferParser {
 
     companion object {
+        private const val TAG = "CourierAssist"
         const val UBER_DRIVER_PACKAGE = "com.ubercab.driver"
 
         // Regex for amount: "35 zł", "35.00 PLN", "35,50 zł", "₴150"
@@ -39,6 +41,9 @@ class UberParser : OfferParser {
         val texts = mutableListOf<String>()
         collectTexts(rootNode, texts)
 
+        Log.d(TAG, "UberParser: collected ${texts.size} texts")
+        texts.forEach { Log.d(TAG, "  text: '$it'") }
+
         var amount: Double? = null
         var minutes: Int? = null
         var hasAcceptButton = false
@@ -46,33 +51,42 @@ class UberParser : OfferParser {
         for (text in texts) {
             val lower = text.lowercase()
 
-            // Check for accept button
             if (!hasAcceptButton) {
                 for (acceptText in ACCEPT_TEXTS) {
                     if (lower.contains(acceptText)) {
                         hasAcceptButton = true
+                        Log.d(TAG, "UberParser: Accept button found: '$text'")
                         break
                     }
                 }
             }
 
-            // Extract amount
             if (amount == null) {
-                amount = extractAmount(text)
+                val found = extractAmount(text)
+                if (found != null) {
+                    amount = found
+                    Log.d(TAG, "UberParser: Amount found: $amount from '$text'")
+                }
             }
 
-            // Extract time
             if (minutes == null) {
-                minutes = extractMinutes(text)
+                val found = extractMinutes(text)
+                if (found != null) {
+                    minutes = found
+                    Log.d(TAG, "UberParser: Minutes found: $minutes from '$text'")
+                }
             }
         }
 
-        // Only return Offer if we have all required data
+        Log.d(TAG, "UberParser result: amount=$amount minutes=$minutes hasAccept=$hasAcceptButton")
+
         if (amount == null || minutes == null || !hasAcceptButton) {
+            Log.d(TAG, "UberParser: returning null — missing data")
             return null
         }
 
         if (amount <= 0 || minutes <= 0) {
+            Log.d(TAG, "UberParser: returning null — invalid values")
             return null
         }
 
