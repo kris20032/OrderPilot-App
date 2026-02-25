@@ -192,9 +192,17 @@ Używa:
 - `FLAG_NOT_TOUCHABLE`
 - `FLAG_NOT_FOCUSABLE`
 
-Logika:
-- jeśli oferta znika → `hide()`
-- debounce 300ms
+**Wygląd:**
+- Pozycja: góra ekranu
+- Tło: czarne 70% opacity (domyślnie, konfigurowalne)
+- Kliknięcia przechodzą na aplikację pod spodem
+- Format: `🟢 42 zł/h | 35 zł | 50 min` lub `🔴 28 zł/h – NIEOPŁACALNE`
+
+**Logika znikania (kiedy `hide()`):**
+- Przyciski „Akceptuj / Odrzuć" znikną z ekranu
+- Wykryto zmianę ekranu (inny widok w aplikacji kurierskiej)
+- Aplikacja kurierska przeszła do innego widoku (np. mapa nawigacji)
+- Debounce 300ms
 
 ### OverlayViewFactory.kt
 Tworzy widok zależnie od `ProfitLevel`.

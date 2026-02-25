@@ -108,6 +108,22 @@ Opcjonalnie: Firebase App Distribution
 
 ---
 
+## Plan testów i publikacji
+
+**Faza 1 — Internal testing:**
+- 5-10 kurierów
+- Różne telefony (Android 8-14+)
+- Różne wersje aplikacji kurierskich
+- Feedback przez zespół
+
+**Faza 2 — Zamknięta beta (Google Play):**
+- Szersze testy
+- Zbieranie crashlogi
+
+**Faza 3 — Publiczna publikacja**
+
+---
+
 ## Legenda modeli
 - 🎯 **Opus 4.6** — skomplikowane: parsery, integracja, billing
 - ⚡ **Sonnet** — boilerplate, UI, build scripts
