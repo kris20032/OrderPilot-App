@@ -1,7 +1,7 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-02-26
-**Obecny etap:** TASK 6.1.1 ukończone — przejście do TASK 7.1.1
+**Obecny etap:** WSZYSTKIE TASKI UKOŃCZONE — gotowe do pierwszego buildu APK
 **Cel:** Beta APK do testów na telefonie z Androidem
 
 ---
@@ -18,7 +18,7 @@
 | 6 | TASK 4.2.1 — UberParser | ✅ Ukończone |
 | 7 | TASK 5.1.1 — Overlay | ✅ Ukończone |
 | 8 | TASK 6.1.1 — Integracja | ✅ Ukończone |
-| 9 | TASK 7.1.1 — START/STOP UI | ⏳ Następny |
+| 9 | TASK 7.1.1 — START/STOP UI | ✅ Ukończone |
 
 Szczegóły zadań: [`docs/TASKS.md`](docs/TASKS.md)
 
@@ -37,12 +37,13 @@ Szczegóły zadań: [`docs/TASKS.md`](docs/TASKS.md)
 - [x] TASK 4.2.1: UberParser + ParserRegistry (PL/EN/UKR, regex) — 2026-02-26
 - [x] TASK 5.1.1: SystemOverlayManager (TYPE_APPLICATION_OVERLAY, kolory, layout) — 2026-02-26
 - [x] TASK 6.1.1: Integracja pipeline (event→parser→analyzer→overlay, debounce 300ms) — 2026-02-26
+- [x] TASK 7.1.1: MainActivity START/STOP UI (ViewBinding, SharedPreferences) — 2026-02-26
 
 ---
 
 ## W trakcie
 
-**Krzysztof:** TASK 7.1.1 — START/STOP UI
+**Krzysztof:** Build APK + testy na urządzeniu
 **Tata:** —
 **Łukasz:** —
 
@@ -79,4 +80,8 @@ CourierAssist-App/
 
 ## Następna akcja
 
-**TERAZ:** TASK 7.1.1 — START/STOP UI (Sonnet)
+**TERAZ:** Build APK w Android Studio + testy na telefonie
+1. Build → Generate Signed APK (lub Run na podłączonym telefonie)
+2. Włączyć CourierAssist w Settings → Accessibility
+3. Przyznać uprawnienie overlay (Settings → Apps → Special app access)
+4. Uruchomić Uber Driver i sprawdzić czy overlay się pojawia
