@@ -1,7 +1,7 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-02-26
-**Obecny etap:** TASK 1.1.1 ukończone — przejście do TASK 3.1.1
+**Obecny etap:** TASK 3.1.1 ukończone — przejście do TASK 3.2.1
 **Cel:** Beta APK do testów na telefonie z Androidem
 
 ---
@@ -11,8 +11,8 @@
 | # | Task | Status |
 |---|------|--------|
 | 1 | TASK 1.1.1 — Inicjalizacja projektu | ✅ Ukończone |
-| 2 | TASK 3.1.1 — Modele domenowe | ⏳ Następny |
-| 3 | TASK 3.2.1 — OfferAnalyzer | |
+| 2 | TASK 3.1.1 — Modele domenowe | ✅ Ukończone |
+| 3 | TASK 3.2.1 — OfferAnalyzer | ⏳ Następny |
 | 4 | TASK 2.1.1 — AccessibilityService | |
 | 5 | TASK 4.1.1 — OfferParser interface | |
 | 6 | TASK 4.2.1 — UberParser | |
@@ -30,12 +30,13 @@ Szczegóły zadań: [`docs/TASKS.md`](docs/TASKS.md)
 - [x] Dokumentacja: RULES.md, README.md, ARCHITECTURE.md, PLAN.md, TASKS.md — 2026-02-25
 - [x] Architektura: zdecydowano AccessibilityService (zamiast MediaProjection+OCR) — 2026-02-25
 - [x] TASK 1.1.1: Inicjalizacja projektu Android (Kotlin, ViewBinding, minSdk 26) — 2026-02-26
+- [x] TASK 3.1.1: Modele domenowe (Offer, Platform, AnalysisResult, ProfitLevel) — 2026-02-26
 
 ---
 
 ## W trakcie
 
-**Krzysztof:** TASK 3.1.1 — Modele domenowe
+**Krzysztof:** TASK 3.2.1 — OfferAnalyzer
 **Tata:** —
 **Łukasz:** —
 
@@ -72,4 +73,4 @@ CourierAssist-App/
 
 ## Następna akcja
 
-**TERAZ:** TASK 3.1.1 — Modele domenowe (Sonnet)
+**TERAZ:** TASK 3.2.1 — OfferAnalyzer (Sonnet)
