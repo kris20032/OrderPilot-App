@@ -291,21 +291,70 @@ ZAWSZE. BEZ WYJĄTKÓW. NAWET JEŚLI UŻYTKOWNIK NIE WSPOMNI.
 **Folder:** `/Users/krzysztof/Desktop/CourierAssist/`
 
 **Kluczowe pliki:**
-- `PLAN.md` - pełny plan 8 kroków
+- `docs/PLAN.md` - plan etapów implementacji
+- `docs/ARCHITECTURE.md` - architektura modułowa
 - `PROGRESS.md` - tracking statusu (ZAWSZE czytam po restarcie)
 - `RULES.md` - ten plik (ZAWSZE czytam po restarcie)
+
+---
+
+## 8. Gdzie co tworzyć — ZASADY STRUKTURY REPO
+
+**Obowiązuje wszystkich (AI + ludzie). Przed dodaniem pliku sprawdź tę sekcję.**
+
+### Repo root (`/CourierAssist-App/`)
+Tylko pliki nawigacyjne — nic więcej:
+- `README.md` — wstęp, jak zacząć
+- `RULES.md` — zasady (ten plik)
+- `PROGRESS.md` — status kroków
+
+### `docs/`
+Cała dokumentacja projektu:
+- `PLAN.md` — plan etapów
+- `ARCHITECTURE.md` — architektura modułowa
+- `TASKS.md` — backlog zadań (po dodaniu)
+- Inne pliki `.md` z decyzjami technicznymi
+
+### `testing/`
+Wyłącznie screenshoty i dane testowe z aplikacji kurierskich:
+```
+testing/
+├── glovo/
+├── ubereats/
+└── wolt/
+```
+
+### Projekt Android (`app/` po stworzeniu)
+```
+app/src/main/java/com/courierassist/
+├── domain/      ← Offer, Platform, AnalysisResult, ProfitLevel
+├── engine/      ← OfferAnalyzer
+├── parser/      ← OfferParser, ParserRegistry, UberParser, WoltParser, GlovoParser
+├── service/     ← CourierAccessibilityService, OfferVisibilityDetector
+├── overlay/     ← OverlayManager, SystemOverlayManager, OverlayViewFactory
+├── settings/    ← ThresholdConfig, SettingsRepository, SharedPrefsSettingsRepository
+├── billing/     ← FeatureGate, BillingManager
+└── ui/          ← MainActivity, SettingsActivity
+
+app/src/main/res/
+├── xml/         ← accessibility_service_config.xml
+├── layout/      ← pliki XML layoutów overlay
+└── values/      ← kolory, stringi, style
+```
+
+**Zasada:** każdy nowy plik Kotlin trafia do odpowiedniej warstwy. Nie tworzyć plików bezpośrednio w `com.courierassist/` — zawsze w podfolderze warstwy.
 
 ---
 
 ## Workflow po restarcie Claude Code
 
 1. User pisze trigger phrase (np. "wróćmy do aplikacji dla kurierów")
-2. Czytam `PROGRESS.md` + `RULES.md`
-3. Informuję: "Jesteśmy na Kroku X, ostatnia aktualizacja [data]. Kontynuujemy?"
+2. Czytam `PROGRESS.md` + `RULES.md` + `docs/ARCHITECTURE.md`
+3. Informuję: "Jesteśmy na Etapie X, ostatnia aktualizacja [data]. Kontynuujemy?"
 4. User potwierdza
 5. Sprawdzam jaki model jest potrzebny, informuję o zmianie jeśli trzeba
 6. Zaczynam pracę
 
 ---
 
-**Ostatnia aktualizacja:** 2026-02-24
+**Ostatnia aktualizacja:** 2026-02-25
