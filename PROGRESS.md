@@ -1,7 +1,7 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-02-26
-**Obecny etap:** TASK 5.1.1 ukończone — przejście do TASK 6.1.1
+**Obecny etap:** TASK 6.1.1 ukończone — przejście do TASK 7.1.1
 **Cel:** Beta APK do testów na telefonie z Androidem
 
 ---
@@ -17,8 +17,8 @@
 | 5 | TASK 4.1.1 — OfferParser interface | ✅ Ukończone |
 | 6 | TASK 4.2.1 — UberParser | ✅ Ukończone |
 | 7 | TASK 5.1.1 — Overlay | ✅ Ukończone |
-| 8 | TASK 6.1.1 — Integracja | ⏳ Następny |
-| 9 | TASK 7.1.1 — START/STOP UI | |
+| 8 | TASK 6.1.1 — Integracja | ✅ Ukończone |
+| 9 | TASK 7.1.1 — START/STOP UI | ⏳ Następny |
 
 Szczegóły zadań: [`docs/TASKS.md`](docs/TASKS.md)
 
@@ -36,12 +36,13 @@ Szczegóły zadań: [`docs/TASKS.md`](docs/TASKS.md)
 - [x] TASK 4.1.1: OfferParser interface (canHandle, parse) — 2026-02-26
 - [x] TASK 4.2.1: UberParser + ParserRegistry (PL/EN/UKR, regex) — 2026-02-26
 - [x] TASK 5.1.1: SystemOverlayManager (TYPE_APPLICATION_OVERLAY, kolory, layout) — 2026-02-26
+- [x] TASK 6.1.1: Integracja pipeline (event→parser→analyzer→overlay, debounce 300ms) — 2026-02-26
 
 ---
 
 ## W trakcie
 
-**Krzysztof:** TASK 6.1.1 — Integracja
+**Krzysztof:** TASK 7.1.1 — START/STOP UI
 **Tata:** —
 **Łukasz:** —
 
@@ -78,4 +79,4 @@ CourierAssist-App/
 
 ## Następna akcja
 
-**TERAZ:** TASK 6.1.1 — Integracja (Opus)
+**TERAZ:** TASK 7.1.1 — START/STOP UI (Sonnet)
