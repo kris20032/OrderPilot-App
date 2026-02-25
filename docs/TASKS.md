@@ -15,9 +15,10 @@
 | 4 | TASK 2.1.1 — AccessibilityService | 3/5 | Opus | Projekt |
 | 5 | TASK 4.1.1 — OfferParser interface | 1/5 | Sonnet | Domain |
 | 6 | TASK 4.2.1 — UberParser | 5/5 | Opus | Accessibility + Domain |
-| 7 | TASK 5.1.1 — Overlay | 4/5 | Sonnet | Accessibility |
-| 8 | TASK 6.1.1 — Integracja | 5/5 | Opus | Parser + Overlay + Analyzer |
-| 9 | TASK 7.1.1 — START/STOP UI | 3/5 | Sonnet | Accessibility |
+| 7 | TASK 2.4.1 — OfferVisibilityDetector | 2/5 | Sonnet | Parser + Domain |
+| 8 | TASK 5.1.1 — Overlay | 4/5 | Sonnet | Accessibility |
+| 9 | TASK 6.1.1 — Integracja | 5/5 | Opus | Parser + Overlay + Analyzer |
+| 10 | TASK 7.1.1 — START/STOP UI | 3/5 | Sonnet | Accessibility |
 
 ---
 
@@ -83,6 +84,28 @@ Stworzyć AccessibilityService:
 - [ ] Nasłuchuje TYPE_WINDOW_CONTENT_CHANGED
 
 **Trudność:** 3/5 | **Kolejność:** 4
+
+---
+
+### STORY 2.4 — Detekcja widoczności oferty
+
+#### TASK 2.4.1 — OfferVisibilityDetector
+
+**Plik:** `parser/OfferVisibilityDetector.kt`
+
+**Opis:**
+- Metoda: `isOfferVisible(rootNode: AccessibilityNodeInfo): Boolean`
+- Zwraca `true` tylko gdy w UI jest przycisk Accept/Akceptuj ORAZ layout oferty
+- Obsługa PL/EN/UKR
+- Parser działa tylko jeśli zwraca `true`
+
+**Checklist:**
+- [ ] Działa dla PL/EN/UKR
+- [ ] Nie blokuje głównej pętli Accessibility
+- [ ] Odseparowana od parsera
+- [ ] Zwraca false gdy brak przycisku Accept
+
+**Trudność:** 2/5 | **Kolejność:** 7
 
 ---
 
