@@ -51,7 +51,7 @@ class UberOcrParser {
             }
         }
 
-        if (amount == null || minutes == null || !hasAccept) {
+        if (amount == null || minutes == null) {
             Log.d(TAG, "UberOcrParser: incomplete — amount=$amount minutes=$minutes hasAccept=$hasAccept")
             return null
         }
