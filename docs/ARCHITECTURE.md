@@ -7,8 +7,11 @@ com.courierassist.app
 │
 ├── ui/
 ├── service/
+├── capture/                  ← NOWE (Screenshot + Crop)
+├── ocr/                      ← NOWE (ML Kit wrapper)
 ├── parser/
-│     ├── UberParser
+│     ├── UberOcrParser         ← NOWE (regex na OCR output)
+│     ├── UberParser            ← STARY (deprecated, zachowany)
 │     ├── WoltParser
 │     └── GlovoParser
 ├── domain/
@@ -31,7 +34,8 @@ Tu nie ma Androida. Sama matematyka.
 data class Offer(
     val platform: Platform,
     val amount: Double,
-    val estimatedMinutes: Int
+    val estimatedMinutes: Int,
+    val distanceKm: Double? = null   // opcjonalne, z OCR
 )
 ```
 
@@ -124,13 +128,18 @@ interface OfferParser {
 }
 ```
 
-### UberParser.kt (ETAP 1)
-Zawiera:
-- rozpoznanie przycisków „Accept"
-- parsowanie kwoty
-- parsowanie czasu
+### UberOcrParser.kt (aktywny — OCR pipeline)
+Parsuje tekst zwrócony przez ML Kit. Szuka:
+- kwoty: `(\d+[.,]\d+)\s*zł` → `14.64`
+- czasu: `(\d+)\s*min` → `26`
+- dystansu: `\((\d+[.,]\d+)\s*km\)` → `5.6`
+- przycisku accept: `akceptuj` / `accept` / `прийняти`
 
-Zwraca `Offer` albo `null`.
+Zwraca `Offer` albo `null` (jeśli brak kwoty/czasu lub przycisku accept).
+
+### UberParser.kt (deprecated — parsowanie drzewa UI)
+Zachowany w kodzie, ale nie używany. Uber Driver nie eksponuje tekstu
+przez `AccessibilityNodeInfo` (Canvas/Compose rendering) — dlatego przeszliśmy na OCR.
 
 ### WoltParser.kt (ETAP 2)
 ### GlovoParser.kt (ETAP 3)
@@ -150,27 +159,64 @@ Dodanie nowej platformy = dopisanie klasy i rejestracja.
 
 ---
 
+## 4b. CAPTURE LAYER (Screenshot + Crop)
+
+### ScreenCaptureManager.kt
+Robi screenshot całego ekranu na żądanie przez `AccessibilityService.takeScreenshot()`.
+- Wymaga API 30 (Android 11)
+- Konwertuje hardware bitmap → software bitmap (ARGB_8888) wymagany przez ML Kit
+- Throttle 1s — nie robi screenshota częściej niż raz na sekundę
+
+### PopupCropper.kt
+Wycina dolne 60% screenshota — tam gdzie pojawia się popup oferty Uber.
+- `CROP_START_RATIO = 0.40` (start od 40% wysokości ekranu)
+- Statyczny crop — wystarczy dla typowego layout popupu Uber
+- Przyszłościowo: dynamiczne wykrywanie krawędzi
+
+---
+
+## 4c. OCR ENGINE (ML Kit)
+
+### OcrEngine.kt
+Wrapper na Google ML Kit Text Recognition (on-device, Latin script).
+- Bundled w APK (`com.google.mlkit:text-recognition:16.0.1`) — ~5 MB, działa offline
+- Asynchroniczny, czas ~100–200ms na typowym telefonie
+- Zwraca `List<String>` (linie tekstu z wszystkich bloków)
+- Loguje raw OCR output do Logcat: `OCR lines: [...]`
+
+---
+
 ## 5. ACCESSIBILITY SERVICE (rdzeń aplikacji)
 
 ### CourierAccessibilityService.kt
 
 Odpowiedzialność:
-- nasłuchiwanie zmian UI
-- wykrywanie czy to Uber/Wolt/Glovo
-- wywołanie parsera
-- wywołanie analizy
-- pokazanie overlay
+- nasłuchiwanie zmian UI (tylko pakiet `com.ubercab.driver`)
+- triggerowanie pipeline'u OCR przy każdym `TYPE_WINDOW_STATE_CHANGED`
+- debounce 500ms (screenshot + OCR trwa ~200–300ms)
+- pokazanie/chowanie overlay
 
-```kotlin
-override fun onAccessibilityEvent(event: AccessibilityEvent) {
-    val packageName = event.packageName?.toString() ?: return
-    val parser = parserRegistry.getParser(packageName) ?: return
-    val root = rootInActiveWindow ?: return
-    val offer = parser.parse(root) ?: return
-    val result = offerAnalyzer.analyze(offer)
-    overlayManager.show(result, offer)
-}
+**Aktualny pipeline (OCR):**
 ```
+AccessibilityEvent (Uber, TYPE_WINDOW_STATE_CHANGED)
+    ↓ debounce 500ms
+ScreenCaptureManager.capture()       ← AccessibilityService.takeScreenshot()
+    ↓ Bitmap (ARGB_8888)
+PopupCropper.crop(bitmap)             ← dolne 60% ekranu
+    ↓ Bitmap (popup)
+OcrEngine.recognize(croppedBitmap)    ← ML Kit Text Recognition (on-device, Latin)
+    ↓ List<String>
+UberOcrParser.parse(lines)            ← regex: kwota / czas / dystans / accept
+    ↓ Offer?
+OfferAnalyzer.analyze(offer)          ← bez zmian
+    ↓ AnalysisResult
+SystemOverlayManager.show(...)        ← belka: "34 zł/h | 14.64 zł | 26 min | 5.6 km"
+```
+
+**Wymagania API:**
+- `takeScreenshot()` — API 30+ (Android 11), minSdk=30
+- `@RequiresApi(Build.VERSION_CODES.R)` na klasie serwisu
+- `canTakeScreenshot="true"` w accessibility_config.xml (wymagane od API 33)
 
 ---
 
@@ -194,9 +240,9 @@ Używa:
 
 **Wygląd:**
 - Pozycja: góra ekranu
-- Tło: czarne 70% opacity (domyślnie, konfigurowalne)
+- Tło: kolor zależny od ProfitLevel (zielony/żółty/czerwony, 80% opacity)
 - Kliknięcia przechodzą na aplikację pod spodem
-- Format: `🟢 42 zł/h | 35 zł | 50 min` lub `🔴 28 zł/h – NIEOPŁACALNE`
+- Format: `★ 42 zł/h | 14.64 zł | 26 min | 5.6 km` (dystans opcjonalny — jeśli OCR wykrył)
 
 **Logika znikania (kiedy `hide()`):**
 - Przyciski „Akceptuj / Odrzuć" znikną z ekranu

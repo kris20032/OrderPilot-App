@@ -53,9 +53,10 @@ class SystemOverlayManager(private val context: Context) : OverlayManager {
         }
         val zlPerHourFormatted = String.format("%.0f", result.zlPerHour)
         val amountFormatted = String.format("%.2f", offer.amount)
+        val distancePart = offer.distanceKm?.let { " | ${String.format("%.1f", it)} km" } ?: ""
 
         view.findViewById<TextView>(R.id.tv_overlay_text).text =
-            "$label ${zlPerHourFormatted} zł/h | ${amountFormatted} zł | ${offer.estimatedMinutes} min"
+            "$label ${zlPerHourFormatted} zł/h | ${amountFormatted} zł | ${offer.estimatedMinutes} min$distancePart"
 
         try {
             windowManager.addView(view, layoutParams)

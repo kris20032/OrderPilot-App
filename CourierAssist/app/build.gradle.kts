@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.courierassist.app"
-        minSdk = 26
+        minSdk = 30
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -47,4 +47,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // ML Kit Text Recognition (bundled, on-device, works offline)
+    implementation("com.google.mlkit:text-recognition:16.0.1")
 }

@@ -19,6 +19,19 @@
 | 8 | TASK 5.1.1 — Overlay | 4/5 | Sonnet | Accessibility |
 | 9 | TASK 6.1.1 — Integracja | 5/5 | Opus | Parser + Overlay + Analyzer |
 | 10 | TASK 7.1.1 — START/STOP UI | 3/5 | Sonnet | Accessibility |
+| 11 | TASK A.1 — minSdk → 30 | 1/5 | Sonnet | — |
+| 12 | TASK A.2 — Zależność ML Kit bundled | 1/5 | Sonnet | — |
+| 13 | TASK A.3 — accessibility_config canTakeScreenshot | 1/5 | Sonnet | — |
+| 14 | TASK B.1 — ScreenCaptureManager | 2/5 | Sonnet | A.1, A.3 |
+| 15 | TASK B.2 — PopupCropper | 1/5 | Sonnet | B.1 |
+| 16 | TASK C.1 — OcrEngine (ML Kit wrapper) | 2/5 | Sonnet | A.2 |
+| 17 | TASK D.1 — UberOcrParser | 3/5 | Opus | C.1 |
+| 18 | TASK D.2 — Offer +distanceKm | 1/5 | Sonnet | D.1 |
+| 19 | TASK D.3 — Overlay +dystans | 1/5 | Sonnet | D.2 |
+| 20 | TASK E.1 — Nowy pipeline w CourierAccessibilityService | 4/5 | Opus | B.1, B.2, C.1, D.1 |
+| 21 | TASK E.2 — Usunąć stary UberParser flow | 1/5 | Sonnet | E.1 |
+| 22 | TASK F.1 — Test z hardcoded screenshot | 2/5 | Sonnet | E.1 |
+| 23 | TASK F.2 — Test na telefonie Taty | 2/5 | Opus | F.1 |
 
 ---
 
@@ -30,6 +43,13 @@ Parser → Domain
 Accessibility → Parser
 Overlay → Domain
 Integracja → wszystko
+
+# OCR pipeline (Etapy A–F)
+A.1, A.2, A.3 → B.1, B.2, C.1
+B.1 + B.2 + C.1 → D.1
+D.1 → D.2 → D.3
+D.1 + B.1 + B.2 + C.1 → E.1 → E.2
+E.1 → F.1 → F.2
 ```
 
 ---
