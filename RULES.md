@@ -65,6 +65,15 @@
 - `main` = kod który się buduje i nie crashuje. Nigdy nie commituj bezpośrednio na main nowej funkcji ani niezweryfikowanego fixu.
 - Każda zmiana = osobny branch → testuj → merge do main gdy działa.
 
+### 🔒 Ochrona POC na `main`
+
+**Od 2026-02-27 `main` zawiera działający POC (MediaProjection + OCR + belka).**
+
+- **ZAKAZ** modyfikowania kodu w `app/` bezpośrednio na `main`
+- **KAŻDE** ulepszenie, fix, eksperyment = nowy branch (`feature/...`, `fix/...`, `test/...`)
+- Do `main` trafia tylko dokumentacja (`PROGRESS.md`, `RULES.md`, `docs/`)
+- Jeśli AI lub człowiek chce zmienić kod = STOP, stwórz branch, dopiero wtedy koduj
+
 ### Zespół:
 - **Krzysztof** - główna implementacja (używa Claude)
 - **Tata** - testowanie na prawdziwych zleceniach
@@ -269,4 +278,4 @@ app/src/main/res/
 
 ---
 
-**Ostatnia aktualizacja:** 2026-02-26
+**Ostatnia aktualizacja:** 2026-02-27
