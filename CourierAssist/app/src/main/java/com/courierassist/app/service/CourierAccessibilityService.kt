@@ -49,7 +49,9 @@ class CourierAccessibilityService : AccessibilityService() {
         Log.d(TAG, "Event: pkg=$packageName type=${event.eventType} enabled=${isEnabled()}")
 
         if (!isEnabled()) return
-        if (event.eventType != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) return
+        val eventType = event.eventType
+        if (eventType != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED &&
+            eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
 
         // Debounce
         pendingRunnable?.let { handler.removeCallbacks(it) }
@@ -70,28 +72,61 @@ class CourierAccessibilityService : AccessibilityService() {
 
         Log.d(TAG, "Parser found for: $packageName")
 
-        val rootNode = rootInActiveWindow
-        if (rootNode == null) {
-            Log.d(TAG, "rootInActiveWindow is null!")
+        // Scan ALL windows — popup may be in a separate window
+        val rootNodes = getAllRootNodes()
+        Log.d(TAG, "Found ${rootNodes.size} windows to scan")
+
+        if (rootNodes.isEmpty()) {
+            Log.d(TAG, "No root nodes found in any window!")
             hideOverlayIfShowing()
             return
         }
 
-        Log.d(TAG, "Root node OK — logging full node tree:")
-        logNodeTree(rootNode, 0)
+        for ((index, rootNode) in rootNodes.withIndex()) {
+            Log.d(TAG, "--- Window $index ---")
+            logNodeTree(rootNode, 0)
 
-        val offer = parser.parse(rootNode)
-        if (offer == null) {
-            Log.d(TAG, "Parser returned null — offer not detected")
-            hideOverlayIfShowing()
-            return
+            val offer = parser.parse(rootNode)
+            if (offer != null) {
+                Log.d(TAG, "Offer detected in window $index: amount=${offer.amount} minutes=${offer.estimatedMinutes}")
+                val result = offerAnalyzer.analyze(offer)
+                overlayManager.show(result, offer)
+                isShowingOverlay = true
+                Log.d(TAG, "Overlay shown: ${result.zlPerHour} zł/h → ${result.level}")
+                return
+            }
         }
 
-        Log.d(TAG, "Offer detected: amount=${offer.amount} minutes=${offer.estimatedMinutes}")
-        val result = offerAnalyzer.analyze(offer)
-        overlayManager.show(result, offer)
-        isShowingOverlay = true
-        Log.d(TAG, "Overlay shown: ${result.zlPerHour} zł/h → ${result.level}")
+        Log.d(TAG, "Parser returned null for all windows — offer not detected")
+        hideOverlayIfShowing()
+    }
+
+    private fun getAllRootNodes(): List<AccessibilityNodeInfo> {
+        val nodes = mutableListOf<AccessibilityNodeInfo>()
+
+        // Try getWindows() first — returns all windows on screen
+        try {
+            val allWindows = windows
+            Log.d(TAG, "getWindows() returned ${allWindows.size} windows")
+            for (window in allWindows) {
+                val root = window.root
+                if (root != null) {
+                    nodes.add(root)
+                }
+            }
+        } catch (e: Exception) {
+            Log.d(TAG, "getWindows() failed: ${e.message}")
+        }
+
+        // Fallback: if no windows found, try rootInActiveWindow
+        if (nodes.isEmpty()) {
+            val root = rootInActiveWindow
+            if (root != null) {
+                nodes.add(root)
+            }
+        }
+
+        return nodes
     }
 
     private fun logNodeTree(node: AccessibilityNodeInfo, depth: Int) {
