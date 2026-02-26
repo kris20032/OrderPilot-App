@@ -56,187 +56,101 @@
 
 ---
 
-## 4. Git workflow - ZASADY DLA WSZYSTKICH ⚠️
+## 4. Git workflow — GitHub Flow ⚠️
 
 **🚨 PRZECZYTAJ TO PRZED PRACĄ - DOTYCZY WSZYSTKICH 🚨**
 
+### Zasada nadrzędna: `main` jest zawsze stabilny
+
+- `main` = kod który się buduje i nie crashuje. Nigdy nie commituj bezpośrednio na main nowej funkcji ani niezweryfikowanego fixu.
+- Każda zmiana = osobny branch → testuj → merge do main gdy działa.
+
 ### Zespół:
-- **Krzysztof** - główna implementacja (może używać Claude/innego AI)
-- **Tata** - testowanie na prawdziwych zleceniach (może używać AI lub nie)
-- **Łukasz (przyjaciel)** - wsparcie (może używać Copilot/Antigravity/inne AI lub nie)
+- **Krzysztof** - główna implementacja (używa Claude)
+- **Tata** - testowanie na prawdziwych zleceniach
+- **Łukasz** - wsparcie
 
-**Podział zadań:** Sprawdź `PROGRESS.md` sekcja "🔄 W trakcie" - tam jest aktualny podział.
-
----
-
-### 🤖 JEŚLI PRACUJESZ Z AI (Claude / Copilot / Antigravity / inne)
-
-**AI ASYSTENT - PRZECZYTAJ I ZASTOSUJ:**
-
-#### 🔴 NA POCZĄTKU KAŻDEJ SESJI (PRZED JAKĄKOLWIEK PRACĄ):
-
-**MUSISZ:**
-1. Uruchomić `git pull` - pobrać najnowszą wersję z GitHub
-2. Poczekać na wynik i sprawdzić czy są konflikty
-3. Jeśli są konflikty → rozwiązać NAJPIERW, potem pracować
-4. Przeczytać `PROGRESS.md` - sprawdzić co inni robią
-5. Dopiero potem rozpocząć pracę
-
-**Poinformuj użytkownika:**
-> "⚠️ UWAGA: Pobieram najnowszą wersję z GitHub (`git pull`)..."
->
-> [wynik git pull]
->
-> "✅ Kod zaktualizowany. Sprawdzam PROGRESS.md - kto co robi..."
-
-#### 🟢 PODCZAS PRACY:
-
-- Commituj po każdym logicznym kroku (nie czekaj do końca!)
-- Format: `git commit -m "TASK X.X.X: Opis zmiany"`
-- Przykład: `git commit -m "TASK 3.2.1: Dodano OfferAnalyzer"`
-
-#### 🔴 NA KOŃCU KAŻDEJ SESJI (PO ZAKOŃCZENIU PRACY):
-
-**MUSISZ:**
-1. `git add .` - dodać wszystkie zmiany
-2. `git commit -m "TASK X.X.X ukończony: [opis]"` - commit końcowy
-3. `git push` - wypchnąć na GitHub
-4. Zaktualizować `PROGRESS.md` - oznacz co zrobione
-5. Commit + push `PROGRESS.md`
-
-**Poinformuj użytkownika:**
-> "✅ Krok X ukończony. Wysyłam zmiany na GitHub..."
->
-> `git add .`
-> `git commit -m "..."`
-> `git push`
->
-> "✅ Kod wysłany. Reszta zespołu może pobrać (`git pull`)."
-
-#### 🚨 PRZYPOMINAJ UŻYTKOWNIKOWI:
-
-**AI powinien przypominać:**
-- "⚠️ Zanim zacznę pracę, wykonuję `git pull`"
-- "⚠️ Po zakończeniu kroku, robię `git push`"
-- **Nawet jeśli użytkownik o tym nie wspomni!**
+**Aktualny podział zadań:** `PROGRESS.md` sekcja "Aktywne branche"
 
 ---
 
-### 👥 JEŚLI PRACUJESZ BEZ AI (ręcznie)
+### Nazewnictwo branchy:
 
-**PRZED rozpoczęciem pracy:**
-```bash
-cd ~/Desktop/CourierAssist  # lub gdzie masz projekt
-git pull
 ```
-
-**Przeczytaj:**
-- `PROGRESS.md` - sprawdź co inni robią (unikniesz konfliktów)
-
-**PODCZAS pracy:**
-- Commituj często: `git commit -am "Opis zmiany"`
-
-**PO zakończeniu pracy:**
-```bash
-git add .
-git commit -m "TASK X.X.X: Opis co zrobiłeś"
-git push
-```
-
-**Zaktualizuj PROGRESS.md:**
-- Oznacz co zrobiłeś jako ukończone
-- Zapisz i wypchnij: `git add PROGRESS.md && git commit -m "Update progress" && git push`
-
----
-
-### 🔧 Dla wszystkich (AI + ludzie):
-
-### Zasady commitów:
-
-**Kiedy commitować:**
-- Po zakończeniu każdego TASKu z TASKS.md
-- Po naprawieniu buga
-- Po dodaniu nowej funkcjonalności
-- Przed końcem sesji (ZAWSZE!)
-
-**Format commit message:**
-```
-TASK X.X.X: Krótki opis (max 50 znaków)
-
-Opcjonalnie dłuższy opis:
-- Co zostało dodane
-- Co zostało zmienione
-- Jakie problemy rozwiązano
+feature/opis-funkcji     ← nowa funkcja
+fix/opis-buga            ← naprawa błędu
+test/opis-eksperymentu   ← eksperymenty, nigdy nie trafia do main
 ```
 
 **Przykłady:**
+```
+fix/accessibility-windows
+feature/fake-uber-driver
+feature/wolt-parser
+fix/overlay-not-showing
+```
+
+---
+
+### Workflow każdej sesji (AI + ludzie):
+
+#### PRZED pracą:
 ```bash
-git commit -m "TASK 1.1.1: Inicjalizacja projektu Android"
-git commit -m "TASK 3.1.1: Dodano modele domenowe"
-git commit -m "TASK 4.2.1: UberParser - regex dla kwoty i czasu"
-git commit -m "Fix: Poprawiono overlay z-index issue"
+git pull                    # pobierz najnowszą wersję
+git status                  # sprawdź na jakim branchu jesteś
+```
+Przeczytaj `PROGRESS.md` → sprawdź aktywne branche i kto co robi.
+
+#### ZACZYNAJĄC nowe zadanie:
+```bash
+git checkout -b fix/opis    # stwórz nowy branch
+# lub
+git checkout -b feature/opis
 ```
 
-### Podział pracy (kto co robi):
-
-**⚠️ Status:** TBD - do ustalenia przez zespół
-
-**Aktualny podział zadań:** Sprawdź `PROGRESS.md` sekcja "🔄 W trakcie"
-
-**Przykładowy podział (może się zmienić):**
-- **Krzysztof:** Główna implementacja (AccessibilityService, parsery, overlay)
-- **Tata:** Testowanie na prawdziwych zleceniach + feedback
-- **Łukasz:** UI, settings, helper functions
-
-**Zasada:** Przed rozpoczęciem pracy sprawdź `PROGRESS.md` - tam jest info kto czym się zajmuje teraz.
-
-### Unikanie konfliktów:
-
-**PROGRESS.md - każdy edytuje swoją sekcję:**
-```markdown
-## 🔄 W trakcie
-
-**Krzysztof:** TASK 4.2.1 - UberParser
-**Tata:** Testowanie na realnych zleceniach
-**Łukasz:** Wolny
+#### PODCZAS pracy:
+```bash
+git commit -m "opis zmiany" # commituj po każdym logicznym kroku
 ```
 
-**Różne pliki = zero konfliktów:**
-- Ustalcie kto nad którymi plikami pracuje (sprawdź `PROGRESS.md`)
-- Przykład: jeden robi `parser/`, drugi `ui/`, trzeci testuje
-- Jeśli pracujecie nad różnymi plikami = zero konfliktów!
+#### PO zakończeniu (gdy działa):
+```bash
+git push -u origin nazwa-brancha   # wypchnij branch na GitHub
+# Następnie merge do main przez GitHub PR lub lokalnie:
+git checkout main
+git merge nazwa-brancha
+git push
+```
+Zaktualizuj `PROGRESS.md` — oznacz branch jako ukończony.
+
+---
+
+### Wyjątek: kiedy można commitować bezpośrednio na main:
+- Aktualizacja dokumentacji (`PROGRESS.md`, `RULES.md`, `docs/`)
+- Drobne poprawki (literówka, komentarz)
 
 ### Jeśli wystąpi konflikt:
-
 ```bash
 git pull --rebase
-# Rozwiąż konflikty w plikach
+# Rozwiąż konflikty
 git add .
 git rebase --continue
 git push
 ```
+**AI:** Jeśli konflikt → zatrzymaj się i poinformuj użytkownika.
 
-**AI Asystent:** Jeśli konflikt → zatrzymaj się i poinformuj użytkownika.
-
-### GitHub repo info:
-
-**Nazwa:** `CourierAssist-App`
-**Typ:** Private
-**Collaborators:** tata + przyjaciel (dodani w Settings)
-**Branch:** `main`
+### GitHub repo:
+**Nazwa:** `CourierAssist-App` | **Typ:** Private | **Branch główny:** `main`
 
 ---
 
-**🚨 KLUCZOWA ZASADA DLA WSZYSTKICH AI:**
-
+**🚨 KLUCZOWE DLA AI:**
 ```
-PRZED PRACĄ → `git pull`
-PO PRACY → `git push`
-
-ZAWSZE. BEZ WYJĄTKÓW. NAWET JEŚLI UŻYTKOWNIK NIE WSPOMNI.
+1. git pull na początku sesji
+2. Nowe zadanie = nowy branch
+3. Merge do main tylko gdy działa
+4. git push na końcu sesji
 ```
-
-**Dotyczy:** Claude, Copilot, Antigravity, Cursor, i wszystkich innych AI asystentów.
 
 ---
 
@@ -355,4 +269,4 @@ app/src/main/res/
 
 ---
 
-**Ostatnia aktualizacja:** 2026-02-25
+**Ostatnia aktualizacja:** 2026-02-26

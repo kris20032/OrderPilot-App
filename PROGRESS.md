@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-02-26
-**Obecny etap:** WSZYSTKIE TASKI UKOŃCZONE — gotowe do pierwszego buildu APK
-**Cel:** Beta APK do testów na telefonie z Androidem
+**Obecny etap:** Debugowanie — popup Uber Driver nie jest wykrywany przez AccessibilityService
+**Cel:** Zdiagnozować i naprawić odczyt popupu zlecenia w Uber Driver.
 
 ---
 
@@ -41,47 +41,39 @@ Szczegóły zadań: [`docs/TASKS.md`](docs/TASKS.md)
 
 ---
 
+## Aktywne branche
+
+| Branch | Cel | Status | Kto |
+|--------|-----|--------|-----|
+| `main` | Stabilna baza | ✅ Aktualny | — |
+| `fix/accessibility-windows` | Fix: getWindows() zamiast rootInActiveWindow | 🔄 Do przetestowania na telefonie | Krzysztof |
+| `feature/fake-uber-driver` | Aplikacja testowa symulująca popup Uber | 📋 Zaplanowany | — |
+
+> Nowe zadanie = nowy branch. Szczegóły: `RULES.md` sekcja 4.
+
+---
+
 ## W trakcie
 
-**Krzysztof:** Build APK + testy na urządzeniu
-**Tata:** —
+**Krzysztof:** Test brancha `fix/accessibility-windows` na telefonie Taty — czy popup zlecenia jest teraz wykrywany.
+**Tata:** Oczekiwanie na nową wersję APK.
 **Łukasz:** —
 
 ---
 
 ## Problemy / Notatki
 
-- Zdecydowano: AccessibilityService zamiast MediaProjection+OCR (lżejsze, szybsze, dokładniejsze)
-- Package zmieniony: `com.courierassist` → `com.courierassist.app`
-- UI zmieniony: ViewBinding + XML (zamiast Jetpack Compose)
+- **Diagnoza (2026-02-26):** Popup zlecenia Uber Driver pojawia się w osobnym oknie systemu. `rootInActiveWindow` zwracało drzewo głównego okna (puste gdy popup aktywny). Fix: `getAllRootNodes()` skanuje wszystkie okna przez `getWindows()` + flaga `flagRetrieveInteractiveWindows`.
+- **Wdrożono GitHub Flow** (2026-02-26): od teraz każda zmiana = osobny branch, merge do main tylko gdy działa.
+- Zdecydowano: AccessibilityService zamiast MediaProjection+OCR
+- Package: `com.courierassist.app`, UI: ViewBinding + XML
 - Pierwsza platforma: Uber (potem Wolt, Glovo)
-
----
-
-## Struktura repo
-
-```
-CourierAssist-App/
-├── .gitignore
-├── README.md
-├── RULES.md
-├── PROGRESS.md      ← ten plik
-├── docs/
-│   ├── ARCHITECTURE.md
-│   ├── PLAN.md
-│   └── TASKS.md
-└── testing/
-    ├── glovo/
-    ├── ubereats/
-    └── wolt/
-```
 
 ---
 
 ## Następna akcja
 
-**TERAZ:** Build APK w Android Studio + testy na telefonie
-1. Build → Generate Signed APK (lub Run na podłączonym telefonie)
-2. Włączyć CourierAssist w Settings → Accessibility
-3. Przyznać uprawnienie overlay (Settings → Apps → Special app access)
-4. Uruchomić Uber Driver i sprawdzić czy overlay się pojawia
+1. Build APK z brancha `fix/accessibility-windows` w Android Studio
+2. Wyłącz i włącz CourierAssist w Settings → Accessibility (nowy config XML)
+3. Test na telefonie Taty — poczekaj na zlecenie, sprawdź logcat
+4. Jeśli działa → merge do main. Jeśli nie → kolejna diagnoza z logów.
