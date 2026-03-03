@@ -10,7 +10,7 @@
 
 **Co robię po usłyszeniu trigger phrase:**
 1. Czytam `PROGRESS.md` - sprawdzam obecny etap
-2. Czytam `docs/PLAN.md` + `docs/TASKS.md` - sprawdzam co jest do zrobienia
+2. Czytam `docs/PLAN.md` - sprawdzam co jest do zrobienia
 3. Informuję Cię: "Jesteśmy na TASK X.X.X: [nazwa]. Ostatnia aktualizacja: [data]. Kontynuujemy?"
 
 ---

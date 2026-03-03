@@ -1,7 +1,7 @@
 # CourierAssist — Architektura Techniczna v1
 
 **Data:** 2026-02-27
-**Status:** Do przeglądu przez zespół
+**Status:** Zatwierdzona
 
 ---
 

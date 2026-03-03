@@ -162,7 +162,7 @@ Każdy parser ma zestaw regex/słowników per język platformy.
 - **Target SDK:** latest stable
 - **Język:** Kotlin
 - **UI:** ViewBinding + XML (bez Compose)
-- **Architektura:** moduły Gradle (core, capture, ocr, parser, analyzer, overlay, config, app)
+- **Architektura:** jeden moduł Gradle `:app` z pakietami warstw (di, domain, engine, parser, capture, ocr, pipeline, service, overlay, settings, billing, ui)
 - **Wydajność:** <1s od popupu do belki, minimalne zużycie baterii/RAM/CPU
 - **Uprawnienia:** Accessibility Service, MediaProjection, System Alert Window (overlay)
 

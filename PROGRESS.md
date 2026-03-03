@@ -47,9 +47,16 @@ Pełny plan: `docs/PLAN.md` (14 epiców, 40 tasków)
 | Branch | Cel | Status | Kto |
 |--------|-----|--------|-----|
 | `main` | Stabilna baza z działającym POC | ✅ Zablokowany (tylko docs) | — |
-| `feature/fake-uber-driver` | Aplikacja testowa FakeUberDriver | ✅ Gotowa | — |
 
 > Nowe zadanie = nowy branch. Od teraz ŻADNYCH zmian bezpośrednio na main.
+
+## Archiwalne branche (referencja, nie rozwijane)
+
+| Branch | Cel | Notatka |
+|--------|-----|---------|
+| `feature/fake-uber-driver` | Aplikacja testowa FakeUberDriver | Gotowa, używana do testów E2E |
+| `lukasz` | POC: MediaProjection + OCR pipeline | Zmerge'owany do main |
+| `feature/ocr` | Eksperymenty z OCR (remote only) | Stary, prawdopodobnie wchłonięty przez lukasz |
 
 ---
 
