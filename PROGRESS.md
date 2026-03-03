@@ -1,35 +1,31 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-02-27
-**Obecny etap:** Proof of Concept działa — belka pokazuje się na telefonie przy popupie FakeUberDriver
-**Cel następny:** Przepisanie aplikacji od zera na nowym branchu — czysta, produkcyjna wersja
+**Obecny etap:** POC ukończony — zaczynamy właściwą aplikację od zera
+**Cel następny:** Ustalenie planu i architektury dla produkcyjnej wersji → nowy branch
 
 ---
 
-## Status zadań
-
-| # | Task | Status |
-|---|------|--------|
-| 1 | TASK 1.1.1 — Inicjalizacja projektu | ✅ Ukończone |
-| 2 | TASK 3.1.1 — Modele domenowe | ✅ Ukończone |
-| 3 | TASK 3.2.1 — OfferAnalyzer | ✅ Ukończone |
-| 4 | TASK 2.1.1 — AccessibilityService | ✅ Ukończone |
-| 5 | TASK 4.1.1 — OfferParser interface | ✅ Ukończone |
-| 6 | TASK 4.2.1 — UberParser | ✅ Ukończone |
-| 7 | TASK 5.1.1 — Overlay | ✅ Ukończone |
-| 8 | TASK 6.1.1 — Integracja | ✅ Ukończone |
-| 9 | TASK 7.1.1 — START/STOP UI | ✅ Ukończone |
-| 10 | POC — MediaProjection + OCR pipeline | ✅ Działa na FakeUberDriver |
-
----
-
-## Ukończone
+## Faza POC — ZAKOŃCZONA
 
 - [x] Etap 0: Android Studio + JDK 17 zainstalowane — 2026-02-24
 - [x] Dokumentacja: RULES.md, README.md, ARCHITECTURE.md, PLAN.md, TASKS.md — 2026-02-25
-- [x] TASK 1.1.1 — TASK 7.1.1: Pełny pipeline AccessibilityService — 2026-02-26
-- [x] FakeUberDriver: aplikacja testowa symulująca popup Uber (osobny projekt, branch feature/fake-uber-driver) — 2026-02-26
+- [x] FakeUberDriver: aplikacja testowa symulująca popup Uber — 2026-02-26
 - [x] **POC MediaProjection + OCR: belka pojawia się na telefonie przy popupie FakeUberDriver** — 2026-02-27
+
+POC udowodnił że pipeline działa. Kod POC zostaje na `main` jako punkt odniesienia — NIE kontynuujemy go.
+
+---
+
+## Właściwa aplikacja — DO ZROBIENIA
+
+Plan i architektura: do ustalenia (sesja po POC).
+
+| # | Task | Status |
+|---|------|--------|
+| — | Plan właściwej aplikacji | Do ustalenia |
+| — | Architektura właściwej aplikacji | Do ustalenia |
+| — | Implementacja | Nie zaczęta |
 
 ---
 
@@ -37,8 +33,7 @@
 
 | Branch | Cel | Status | Kto |
 |--------|-----|--------|-----|
-| `main` | Stabilna baza z działającym POC | ✅ Aktualny | — |
-| `lukasz` | Gałąź robocza Łukasza (MediaProjection + OCR) | ✅ Zmergowana do main | Łukasz |
+| `main` | Stabilna baza z działającym POC | ✅ Zablokowany (tylko docs) | — |
 | `feature/fake-uber-driver` | Aplikacja testowa FakeUberDriver | ✅ Gotowa | — |
 
 > Nowe zadanie = nowy branch. Od teraz ŻADNYCH zmian bezpośrednio na main.
@@ -101,23 +96,7 @@ SystemOverlayManager — pokazuje belkę na górze ekranu z kolorem:
 
 ---
 
-## Plan następnego etapu
-
-**Nowy branch od zera** — czysta, produkcyjna wersja aplikacji:
-
-1. Przepisać `CourierAccessibilityService` — dodać wykrywanie zniknięcia popupu (chować belkę gdy popup znika)
-2. Produkcyjny `ScreenCaptureService` — lepsze zarządzanie cyklem życia, restart po utracie uprawnień
-3. Przetestować na prawdziwej aplikacji Uber Driver (telefon Taty z aktywnym kontem kuriera)
-4. Dopasować `PopupCropper` do rzeczywistego layoutu Ubera
-5. Dopasować `UberOcrParser` do rzeczywistego formatu tekstu Ubera
-6. Dodać chowanie belki (timeout lub wykrywanie zniknięcia popupu)
-
----
-
 ## Następna akcja
 
-1. Zainstalować obie aplikacje na telefonie Taty (prawdziwy kurier Uber)
-2. Przetestować z prawdziwym zleceniem Uber Driver
-3. Zebrać logi i debug_crop.png — zobaczyć jak wygląda prawdziwy popup
-4. Na podstawie testów: nowy branch z poprawkami
+Ustalić plan i architekturę właściwej aplikacji → stworzyć nowy branch → zacząć implementację od zera.
 

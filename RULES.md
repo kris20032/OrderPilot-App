@@ -184,7 +184,20 @@ git push
 
 ---
 
-## 6. Testowanie i budowanie APK
+## 6. Wymagania wydajnościowe
+
+**Priorytet: szybkość działania + minimalne zużycie zasobów telefonu.**
+
+- **Czas reakcji:** od pojawienia się popupu do wyświetlenia belki — jak najkrócej (cel <1s)
+- **Zużycie baterii:** minimalne. Nie robić nic gdy nie ma aktywnych zleceń. Zero pollingu.
+- **RAM:** minimalne alokacje w hot path (pipeline screenshot → OCR → overlay)
+- **CPU:** unikać zbędnych operacji — nie przetwarzaj gdy nie musisz
+- **Przy każdym TASK:** rozważ wpływ na wydajność. Jeśli istnieje prostsza/szybsza alternatywa — wybierz ją.
+- **Nie optymalizuj przedwcześnie** — ale też nie pisz kodu który z natury jest wolny gdy szybsza wersja jest równie prosta.
+
+---
+
+## 7. Testowanie i budowanie APK
 
 **Status:** TBD - ustalimy jak dotrzemy do odpowiedniego etapu
 
@@ -192,7 +205,7 @@ git push
 
 ---
 
-## 7. Środowisko pracy — VSCode vs Android Studio
+## 8. Środowisko pracy — VSCode vs Android Studio
 
 **Podział narzędzi:**
 
@@ -219,7 +232,7 @@ git push
 
 ---
 
-## 8. Gdzie co tworzyć — ZASADY STRUKTURY REPO
+## 9. Gdzie co tworzyć — ZASADY STRUKTURY REPO
 
 **Obowiązuje wszystkich (AI + ludzie). Przed dodaniem pliku sprawdź tę sekcję.**
 
