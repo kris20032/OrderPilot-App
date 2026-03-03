@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-02-27
-**Obecny etap:** POC ukończony — zaczynamy właściwą aplikację od zera
-**Cel następny:** Ustalenie planu i architektury dla produkcyjnej wersji → nowy branch
+**Ostatnia aktualizacja:** 2026-03-03
+**Obecny etap:** Plan zatwierdzony — gotowi do implementacji
+**Cel następny:** EPIC 1 — Fundament projektu (branch `feature/production-app`)
 
 ---
 
@@ -17,15 +17,28 @@ POC udowodnił że pipeline działa. Kod POC zostaje na `main` jako punkt odnies
 
 ---
 
-## Właściwa aplikacja — DO ZROBIENIA
+## Właściwa aplikacja — produkcja
 
-Plan i architektura: do ustalenia (sesja po POC).
-
-| # | Task | Status |
+| # | Etap | Status |
 |---|------|--------|
-| — | Plan właściwej aplikacji | Do ustalenia |
-| — | Architektura właściwej aplikacji | Do ustalenia |
-| — | Implementacja | Nie zaczęta |
+| ✅ | Architektura (`docs/ARCHITECTURE.md`) | Gotowa (2026-02-27) |
+| ✅ | Plan implementacji (`docs/PLAN.md` v2) | Zatwierdzony (2026-03-03) |
+| — | EPIC 1: Fundament (Gradle, Manifest, DI, Logger) | Nie zaczęty |
+| — | EPIC 2: Domain (modele danych) | Nie zaczęty |
+| — | EPIC 3: Settings (ustawienia + repo) | Nie zaczęty |
+| — | EPIC 4: Engine (analiza + filtrowanie) | Nie zaczęty |
+| — | EPIC 5: Parser (OCR parser Uber) | Nie zaczęty |
+| — | EPIC 6: Capture (MediaProjection) | Nie zaczęty |
+| — | EPIC 7: OCR (ML Kit wrapper) | Nie zaczęty |
+| — | EPIC 8: Overlay (belka) | Nie zaczęty |
+| — | EPIC 9: Pipeline (orkiestracja) | Nie zaczęty |
+| — | EPIC 10: Service (AccessibilityService) | Nie zaczęty |
+| — | EPIC 11: UI — MainActivity | Nie zaczęty |
+| — | EPIC 12: UI — SettingsActivity | Nie zaczęty |
+| — | EPIC 13: Billing stub + weryfikacja DI | Nie zaczęty |
+| — | EPIC 14: Testy E2E + polish | Nie zaczęty |
+
+Pełny plan: `docs/PLAN.md` (14 epiców, 40 tasków)
 
 ---
 
@@ -98,5 +111,5 @@ SystemOverlayManager — pokazuje belkę na górze ekranu z kolorem:
 
 ## Następna akcja
 
-Ustalić plan i architekturę właściwej aplikacji → stworzyć nowy branch → zacząć implementację od zera.
+Stworzyć branch `feature/production-app` → zacząć EPIC 1 (Fundament projektu).
 

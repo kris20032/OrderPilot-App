@@ -261,19 +261,29 @@ testing/
 ### Projekt Android (`app/` po stworzeniu)
 ```
 app/src/main/java/com/courierassist/app/
-├── domain/      ← Offer, Platform, AnalysisResult, ProfitLevel
-├── engine/      ← OfferAnalyzer
-├── parser/      ← OfferParser, ParserRegistry, UberParser, WoltParser, GlovoParser
-├── service/     ← CourierAccessibilityService, OfferVisibilityDetector
-├── overlay/     ← OverlayManager, SystemOverlayManager, OverlayViewFactory
-├── settings/    ← ThresholdConfig, SettingsRepository, SharedPrefsSettingsRepository
-├── billing/     ← FeatureGate, BillingManager
+├── di/          ← ServiceLocator, CourierAssistApp, AppLog
+├── domain/      ← Offer, Platform, AnalysisResult, ProfitLevel, MetricType, AppLanguage, ThemeMode
+├── engine/      ← OfferAnalyzer, OfferFilter
+├── parser/      ← OcrOfferParser, UberOcrParser, ParserRegistry
+├── capture/     ← ScreenCaptureService, PopupCropper
+├── ocr/         ← OcrEngine
+├── pipeline/    ← PipelineOrchestrator
+├── service/     ← CourierAccessibilityService, EventThrottler
+├── overlay/     ← OverlayManager, SystemOverlayManager, OverlayViewFactory, OverlayAutoHider
+├── settings/    ← AppSettings, SettingsRepository, SharedPrefsSettingsRepository
+├── billing/     ← FeatureGate
 └── ui/          ← MainActivity, SettingsActivity
 
+app/src/test/java/com/courierassist/app/
+├── engine/      ← OfferAnalyzerTest, OfferFilterTest
+├── parser/      ← UberOcrParserTest, ParserRegistryTest
+├── settings/    ← AppSettingsTest
+└── service/     ← EventThrottlerTest
+
 app/src/main/res/
-├── xml/         ← accessibility_service_config.xml
-├── layout/      ← pliki XML layoutów overlay
-└── values/      ← kolory, stringi, style
+├── xml/         ← accessibility_config.xml
+├── layout/      ← activity_main, activity_settings, overlay_offer
+└── values/      ← kolory, stringi, style, themes
 ```
 
 **Zasada:** każdy nowy plik Kotlin trafia do odpowiedniej warstwy. Nie tworzyć plików bezpośrednio w `com.courierassist.app/` — zawsze w podfolderze warstwy.
