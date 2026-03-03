@@ -244,9 +244,9 @@ Tylko pliki nawigacyjne — nic więcej:
 
 ### `docs/`
 Cała dokumentacja projektu:
-- `PLAN.md` — plan etapów
+- `PLAN.md` — plan implementacji produkcyjnej (14 epiców, 40 tasków)
 - `ARCHITECTURE.md` — architektura modułowa
-- `TASKS.md` — backlog zadań (po dodaniu)
+- `PRODUCT_SPEC.md` — specyfikacja produktu
 - Inne pliki `.md` z decyzjami technicznymi
 
 ### `testing/`
@@ -301,4 +301,4 @@ app/src/main/res/
 
 ---
 
-**Ostatnia aktualizacja:** 2026-02-27
+**Ostatnia aktualizacja:** 2026-03-03

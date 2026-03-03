@@ -23,14 +23,14 @@ Działa przez AccessibilityService — zero ryzyka bana, bez API.
 ```
 CourierAssist-App/
 ├── README.md
-├── RULES.md         ← zasady współpracy (PRZECZYTAJ)
-├── PROGRESS.md      ← aktualny status
+├── RULES.md             ← zasady współpracy (PRZECZYTAJ)
+├── PROGRESS.md          ← aktualny status
 ├── docs/
-│   ├── PLAN.md          ← plan etapów implementacji
+│   ├── PLAN.md          ← plan implementacji produkcyjnej (14 epiców, 40 tasków)
 │   ├── ARCHITECTURE.md  ← architektura modułowa
-│   └── TASKS.md         ← lista zadań (backlog)
+│   └── PRODUCT_SPEC.md  ← specyfikacja produktu
 └── testing/
-    ├── glovo/       ← screenshoty testowe
+    ├── glovo/           ← screenshoty testowe
     ├── ubereats/
     └── wolt/
 ```

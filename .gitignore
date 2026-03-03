@@ -14,3 +14,7 @@ local.properties
 
 # macOS
 .DS_Store
+
+# Lokalne kopie branchy POC (nie commitować)
+FakeUberDriver 2/
+LukaszBranch/
