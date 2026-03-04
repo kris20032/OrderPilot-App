@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-03-04
-**Obecny etap:** Implementacja produkcyjna — EPIC 3 ukończony
-**Cel następny:** EPIC 4 — Engine (analiza + filtrowanie)
+**Obecny etap:** Implementacja produkcyjna — EPIC 4 ukończony
+**Cel następny:** EPIC 5 — Parser (OCR parser Uber)
 
 ---
 
@@ -26,7 +26,7 @@ POC udowodnił że pipeline działa. Kod POC zostaje na `main` jako punkt odnies
 | ✅ | EPIC 1: Fundament (Gradle, Manifest, DI, Logger) | Ukończony (2026-03-04) |
 | ✅ | EPIC 2: Domain (modele danych) | Ukończony (2026-03-04) |
 | ✅ | EPIC 3: Settings (ustawienia + repo) | Ukończony (2026-03-04) |
-| — | EPIC 4: Engine (analiza + filtrowanie) | Nie zaczęty |
+| ✅ | EPIC 4: Engine (analiza + filtrowanie) | Ukończony (2026-03-04) |
 | — | EPIC 5: Parser (OCR parser Uber) | Nie zaczęty |
 | — | EPIC 6: Capture (MediaProjection) | Nie zaczęty |
 | — | EPIC 7: OCR (ML Kit wrapper) | Nie zaczęty |
@@ -47,7 +47,7 @@ Pełny plan: `docs/PLAN.md` (14 epiców, 40 tasków)
 | Branch | Cel | Status | Kto |
 |--------|-----|--------|-----|
 | `main` | Stabilna baza z działającym POC | ✅ Zablokowany (tylko docs) | — |
-| `feature/production-app` | Produkcyjna aplikacja (14 epiców) | 🔄 W trakcie (EPIC 1-3 ✅) | Krzysztof |
+| `feature/production-app` | Produkcyjna aplikacja (14 epiców) | 🔄 W trakcie (EPIC 1-4 ✅) | Krzysztof |
 
 > Nowe zadanie = nowy branch. Od teraz ŻADNYCH zmian bezpośrednio na main.
 
@@ -119,5 +119,5 @@ SystemOverlayManager — pokazuje belkę na górze ekranu z kolorem:
 
 ## Następna akcja
 
-EPIC 4 — Engine: `OfferAnalyzer`, `OfferFilter` + unit testy.
+EPIC 5 — Parser: `UberOcrParser` + unit testy (regex dla PL/UK/EN).
 
