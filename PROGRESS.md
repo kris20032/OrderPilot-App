@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-03
-**Obecny etap:** Plan zatwierdzony — gotowi do implementacji
-**Cel następny:** EPIC 1 — Fundament projektu (branch `feature/production-app`)
+**Ostatnia aktualizacja:** 2026-03-04
+**Obecny etap:** Implementacja produkcyjna — EPIC 2 ukończony
+**Cel następny:** EPIC 3 — Settings (ustawienia + repo)
 
 ---
 
@@ -23,8 +23,8 @@ POC udowodnił że pipeline działa. Kod POC zostaje na `main` jako punkt odnies
 |---|------|--------|
 | ✅ | Architektura (`docs/ARCHITECTURE.md`) | Gotowa (2026-02-27) |
 | ✅ | Plan implementacji (`docs/PLAN.md` v2) | Zatwierdzony (2026-03-03) |
-| — | EPIC 1: Fundament (Gradle, Manifest, DI, Logger) | Nie zaczęty |
-| — | EPIC 2: Domain (modele danych) | Nie zaczęty |
+| ✅ | EPIC 1: Fundament (Gradle, Manifest, DI, Logger) | Ukończony (2026-03-04) |
+| ✅ | EPIC 2: Domain (modele danych) | Ukończony (2026-03-04) |
 | — | EPIC 3: Settings (ustawienia + repo) | Nie zaczęty |
 | — | EPIC 4: Engine (analiza + filtrowanie) | Nie zaczęty |
 | — | EPIC 5: Parser (OCR parser Uber) | Nie zaczęty |
@@ -47,6 +47,7 @@ Pełny plan: `docs/PLAN.md` (14 epiców, 40 tasków)
 | Branch | Cel | Status | Kto |
 |--------|-----|--------|-----|
 | `main` | Stabilna baza z działającym POC | ✅ Zablokowany (tylko docs) | — |
+| `feature/production-app` | Produkcyjna aplikacja (14 epiców) | 🔄 W trakcie (EPIC 1-2 ✅) | Krzysztof |
 
 > Nowe zadanie = nowy branch. Od teraz ŻADNYCH zmian bezpośrednio na main.
 
@@ -118,5 +119,5 @@ SystemOverlayManager — pokazuje belkę na górze ekranu z kolorem:
 
 ## Następna akcja
 
-Stworzyć branch `feature/production-app` → zacząć EPIC 1 (Fundament projektu).
+EPIC 3 — Settings: `AppSettings`, `SettingsRepository`, `SharedPrefsSettingsRepository` + unit testy.
 
