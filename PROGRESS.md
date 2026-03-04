@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-03-04
-**Obecny etap:** Implementacja produkcyjna — EPIC 5 ukończony
-**Cel następny:** EPIC 6 — Capture (MediaProjection)
+**Obecny etap:** Implementacja produkcyjna — EPIC 6 ukończony
+**Cel następny:** EPIC 7 — OCR (ML Kit wrapper)
 
 ---
 
@@ -28,7 +28,7 @@ POC udowodnił że pipeline działa. Kod POC zostaje na `main` jako punkt odnies
 | ✅ | EPIC 3: Settings (ustawienia + repo) | Ukończony (2026-03-04) |
 | ✅ | EPIC 4: Engine (analiza + filtrowanie) | Ukończony (2026-03-04) |
 | ✅ | EPIC 5: Parser (OCR parser Uber) | Ukończony (2026-03-04) |
-| — | EPIC 6: Capture (MediaProjection) | Nie zaczęty |
+| ✅ | EPIC 6: Capture (MediaProjection) | Ukończony (2026-03-04) |
 | — | EPIC 7: OCR (ML Kit wrapper) | Nie zaczęty |
 | — | EPIC 8: Overlay (belka) | Nie zaczęty |
 | — | EPIC 9: Pipeline (orkiestracja) | Nie zaczęty |
@@ -47,7 +47,7 @@ Pełny plan: `docs/PLAN.md` (14 epiców, 40 tasków)
 | Branch | Cel | Status | Kto |
 |--------|-----|--------|-----|
 | `main` | Stabilna baza z działającym POC | ✅ Zablokowany (tylko docs) | — |
-| `feature/production-app` | Produkcyjna aplikacja (14 epiców) | 🔄 W trakcie (EPIC 1-5 ✅) | Krzysztof |
+| `feature/production-app` | Produkcyjna aplikacja (14 epiców) | 🔄 W trakcie (EPIC 1-6 ✅) | Krzysztof |
 
 > Nowe zadanie = nowy branch. Od teraz ŻADNYCH zmian bezpośrednio na main.
 
@@ -119,5 +119,5 @@ SystemOverlayManager — pokazuje belkę na górze ekranu z kolorem:
 
 ## Następna akcja
 
-EPIC 6 — Capture: `ScreenCaptureService` (MediaProjection) + `PopupCropper`.
+EPIC 7 — OCR: `OcrEngine` (ML Kit wrapper).
 
