@@ -1,68 +1,51 @@
 package com.courierassist.app.parser
 
-import android.util.Log
+import com.courierassist.app.di.AppLog
+import com.courierassist.app.domain.AppLanguage
 import com.courierassist.app.domain.Offer
 import com.courierassist.app.domain.Platform
 
-class UberOcrParser {
+class UberOcrParser : OcrOfferParser {
 
-    companion object {
-        private const val TAG = "CourierAssist"
+    override val platform = Platform.UBER
+    override val supportedPackages = setOf("com.ubercab.driver", "com.ubercab.eats")
 
-        // "14,64 zł" or "14.64 zł"
-        private val AMOUNT_REGEX = Regex("""(\d+[.,]\d+)\s*zł""", RegexOption.IGNORE_CASE)
+    private data class RegexSet(val amount: Regex, val time: Regex, val distance: Regex)
 
-        // "26 min" — usually inside "Łącznie 26 min (5.6 km)"
-        private val TIME_REGEX = Regex("""(\d+)\s*min""", RegexOption.IGNORE_CASE)
+    private val regexSets = mapOf(
+        AppLanguage.PL to RegexSet(
+            amount = Regex("""(\d+[.,]\d+)\s*zł""", RegexOption.IGNORE_CASE),
+            time = Regex("""(\d+)\s*min""", RegexOption.IGNORE_CASE),
+            distance = Regex("""\((\d+[.,]\d+)\s*km\)""", RegexOption.IGNORE_CASE)
+        ),
+        AppLanguage.UK to RegexSet(
+            amount = Regex("""(\d+[.,]\d+)\s*грн"""),
+            time = Regex("""(\d+)\s*хв"""),
+            distance = Regex("""\((\d+[.,]\d+)\s*км\)""")
+        ),
+        AppLanguage.EN to RegexSet(
+            amount = Regex("""(\d+[.,]\d+)\s*(?:zł|PLN)""", RegexOption.IGNORE_CASE),
+            time = Regex("""(\d+)\s*min""", RegexOption.IGNORE_CASE),
+            distance = Regex("""\((\d+[.,]\d+)\s*km\)""", RegexOption.IGNORE_CASE)
+        )
+    )
 
-        // "(5.6 km)" or "(5,6 km)"
-        private val DISTANCE_REGEX = Regex("""\((\d+[.,]\d+)\s*km\)""", RegexOption.IGNORE_CASE)
-
-        // Accept button in PL / EN / UK
-        private val ACCEPT_TEXTS = listOf("akceptuj", "accept", "прийняти")
-    }
-
-    fun parse(ocrLines: List<String>): Offer? {
-        if (ocrLines.isEmpty()) return null
-
-        var amount: Double? = null
-        var minutes: Int? = null
-        var distanceKm: Double? = null
-        var hasAccept = false
-
-        for (line in ocrLines) {
-            if (amount == null) {
-                AMOUNT_REGEX.find(line)?.let {
-                    amount = it.groupValues[1].replace(",", ".").toDoubleOrNull()
-                }
-            }
-            if (minutes == null) {
-                TIME_REGEX.find(line)?.let {
-                    minutes = it.groupValues[1].toIntOrNull()
-                }
-            }
-            if (distanceKm == null) {
-                DISTANCE_REGEX.find(line)?.let {
-                    distanceKm = it.groupValues[1].replace(",", ".").toDoubleOrNull()
-                }
-            }
-            if (!hasAccept && ACCEPT_TEXTS.any { line.lowercase().contains(it) }) {
-                hasAccept = true
-            }
-        }
-
-        if (amount == null || minutes == null) {
-            Log.d(TAG, "UberOcrParser: incomplete — amount=$amount minutes=$minutes hasAccept=$hasAccept")
+    override fun parse(ocrLines: List<String>, language: AppLanguage): Offer? {
+        val regex = regexSets[language] ?: regexSets[AppLanguage.PL]!!
+        val text = ocrLines.joinToString(" ")
+        val amount = regex.amount.find(text)?.groupValues?.get(1)?.toDoubleLocale() ?: run {
+            AppLog.w(AppLog.TAG_PARSER, "No amount found")
             return null
         }
-
-        val offer = Offer(
-            platform = Platform.UBER,
-            amount = amount!!,
-            estimatedMinutes = minutes!!,
-            distanceKm = distanceKm
-        )
-        Log.d(TAG, "UberOcrParser: parsed offer=$offer")
+        val minutes = regex.time.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: run {
+            AppLog.w(AppLog.TAG_PARSER, "No time found")
+            return null
+        }
+        val distance = regex.distance.find(text)?.groupValues?.get(1)?.toDoubleLocale()
+        val offer = Offer(Platform.UBER, amount, minutes, distance)
+        AppLog.d(AppLog.TAG_PARSER, "Parsed offer: $offer")
         return offer
     }
+
+    private fun String.toDoubleLocale(): Double? = replace(",", ".").toDoubleOrNull()
 }

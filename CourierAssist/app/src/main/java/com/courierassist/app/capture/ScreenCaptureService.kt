@@ -1,8 +1,5 @@
 package com.courierassist.app.capture
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -16,28 +13,33 @@ import android.media.projection.MediaProjectionManager
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.courierassist.app.di.AppLog
+import com.courierassist.app.di.CourierAssistApp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 class ScreenCaptureService : Service() {
 
     companion object {
-        private const val TAG = "CourierAssist"
-        private const val CHANNEL_ID = "screen_capture_channel"
-        private const val NOTIFICATION_ID = 1001
         const val EXTRA_RESULT_CODE = "result_code"
         const val EXTRA_RESULT_DATA = "result_data"
+        private const val NOTIFICATION_ID = 1001
 
-        // Singleton dostęp dla AccessibilityService
         @Volatile
         var instance: ScreenCaptureService? = null
 
-        fun startCapture(context: Context, resultCode: Int, resultData: Intent) {
+        fun startCapture(context: Context, resultCode: Int, data: Intent) {
             val intent = Intent(context, ScreenCaptureService::class.java).apply {
                 putExtra(EXTRA_RESULT_CODE, resultCode)
-                putExtra(EXTRA_RESULT_DATA, resultData)
+                putExtra(EXTRA_RESULT_DATA, data)
             }
             context.startForegroundService(intent)
+        }
+
+        fun stopCapture(context: Context) {
+            context.stopService(Intent(context, ScreenCaptureService::class.java))
         }
     }
 
@@ -48,36 +50,31 @@ class ScreenCaptureService : Service() {
     override fun onCreate() {
         super.onCreate()
         instance = this
-        createNotificationChannel()
         startForeground(NOTIFICATION_ID, buildNotification())
-        Log.d(TAG, "ScreenCaptureService created")
+        AppLog.d(AppLog.TAG_CAPTURE, "ScreenCaptureService created")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val resultCode = intent?.getIntExtra(EXTRA_RESULT_CODE, 0) ?: 0
         val resultData = intent?.getParcelableExtra<Intent>(EXTRA_RESULT_DATA)
-
         if (resultCode != 0 && resultData != null) {
             setupMediaProjection(resultCode, resultData)
         } else {
-            Log.w(TAG, "ScreenCaptureService: brak tokenu MediaProjection")
+            AppLog.w(AppLog.TAG_CAPTURE, "Missing MediaProjection token")
         }
-
         return START_NOT_STICKY
     }
 
     private fun setupMediaProjection(resultCode: Int, resultData: Intent) {
         val manager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         val projection = manager.getMediaProjection(resultCode, resultData) ?: run {
-            Log.w(TAG, "getMediaProjection returned null")
+            AppLog.w(AppLog.TAG_CAPTURE, "getMediaProjection returned null")
             return
         }
         mediaProjection = projection
-
-        // API 34+ wymaga rejestracji callbacku PRZED createVirtualDisplay
         projection.registerCallback(object : MediaProjection.Callback() {
             override fun onStop() {
-                Log.d(TAG, "MediaProjection stopped")
+                AppLog.w(AppLog.TAG_CAPTURE, "MediaProjection stopped")
                 virtualDisplay?.release()
                 imageReader?.close()
                 virtualDisplay = null
@@ -86,94 +83,57 @@ class ScreenCaptureService : Service() {
         }, Handler(Looper.getMainLooper()))
 
         val metrics = resources.displayMetrics
-        val width = metrics.widthPixels
-        val height = metrics.heightPixels
-        val density = metrics.densityDpi
-
-        imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
-
+        imageReader = ImageReader.newInstance(metrics.widthPixels, metrics.heightPixels, PixelFormat.RGBA_8888, 2)
         virtualDisplay = projection.createVirtualDisplay(
             "CourierAssistCapture",
-            width, height, density,
+            metrics.widthPixels, metrics.heightPixels, metrics.densityDpi,
             DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-            imageReader?.surface,
-            null, null
+            imageReader?.surface, null, null
         )
-
-        Log.d(TAG, "MediaProjection setup: ${width}x${height}")
-    }
-
-    fun capture(callback: (Bitmap?) -> Unit) {
-        if (imageReader == null) {
-            Log.w(TAG, "capture: imageReader is null")
-            callback(null)
-            return
-        }
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            val image = imageReader?.acquireLatestImage()
-            if (image == null) {
-                Log.w(TAG, "ImageReader: brak klatki")
-                callback(null)
-                return@postDelayed
-            }
-
-            try {
-                val planes = image.planes
-                val buffer = planes[0].buffer
-                val pixelStride = planes[0].pixelStride
-                val rowStride = planes[0].rowStride
-                val rowPadding = rowStride - pixelStride * image.width
-
-                val bitmap = Bitmap.createBitmap(
-                    image.width + rowPadding / pixelStride,
-                    image.height,
-                    Bitmap.Config.ARGB_8888
-                )
-                bitmap.copyPixelsFromBuffer(buffer)
-
-                val cropped = Bitmap.createBitmap(bitmap, 0, 0, image.width, image.height)
-                bitmap.recycle()
-
-                Log.d(TAG, "Screenshot captured: ${cropped.width}x${cropped.height}")
-                callback(cropped)
-            } finally {
-                image.close()
-            }
-        }, 200)
+        AppLog.d(AppLog.TAG_CAPTURE, "MediaProjection setup: ${metrics.widthPixels}x${metrics.heightPixels}")
     }
 
     fun isReady(): Boolean = imageReader != null
 
+    suspend fun capture(): Bitmap? = withContext(Dispatchers.IO) {
+        delay(200)
+        val image = imageReader?.acquireLatestImage() ?: run {
+            AppLog.w(AppLog.TAG_CAPTURE, "No frame available")
+            return@withContext null
+        }
+        try {
+            val plane = image.planes[0]
+            val rowPadding = plane.rowStride - plane.pixelStride * image.width
+            val bitmap = Bitmap.createBitmap(
+                image.width + rowPadding / plane.pixelStride,
+                image.height,
+                Bitmap.Config.ARGB_8888
+            )
+            bitmap.copyPixelsFromBuffer(plane.buffer)
+            val cropped = Bitmap.createBitmap(bitmap, 0, 0, image.width, image.height)
+            bitmap.recycle()
+            AppLog.d(AppLog.TAG_CAPTURE, "Screenshot captured: ${cropped.width}x${cropped.height}")
+            cropped
+        } finally {
+            image.close()
+        }
+    }
+
     override fun onDestroy() {
-        super.onDestroy()
         instance = null
         virtualDisplay?.release()
         mediaProjection?.stop()
         imageReader?.close()
-        Log.d(TAG, "ScreenCaptureService destroyed")
+        AppLog.d(AppLog.TAG_CAPTURE, "ScreenCaptureService destroyed")
+        super.onDestroy()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    private fun createNotificationChannel() {
-        val channel = NotificationChannel(
-            CHANNEL_ID,
-            "Nagrywanie ekranu",
-            NotificationManager.IMPORTANCE_LOW
-        ).apply {
-            description = "CourierAssist analizuje oferty"
-        }
-        val manager = getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannel(channel)
-    }
-
-    private fun buildNotification(): Notification {
-        return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("CourierAssist aktywny")
-            .setContentText("Analizowanie ofert Uber Driver")
-            .setSmallIcon(android.R.drawable.ic_menu_compass)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .build()
-    }
+    private fun buildNotification() = NotificationCompat.Builder(this, CourierAssistApp.CHANNEL_ID)
+        .setContentTitle("CourierAssist aktywny")
+        .setContentText("Analizowanie ofert")
+        .setSmallIcon(android.R.drawable.ic_menu_compass)
+        .setPriority(NotificationCompat.PRIORITY_LOW)
+        .build()
 }

@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-03-04
-**Obecny etap:** Implementacja produkcyjna — EPIC 2 ukończony
-**Cel następny:** EPIC 3 — Settings (ustawienia + repo)
+**Obecny etap:** Implementacja produkcyjna — EPIC 3 ukończony
+**Cel następny:** EPIC 4 — Engine (analiza + filtrowanie)
 
 ---
 
@@ -25,7 +25,7 @@ POC udowodnił że pipeline działa. Kod POC zostaje na `main` jako punkt odnies
 | ✅ | Plan implementacji (`docs/PLAN.md` v2) | Zatwierdzony (2026-03-03) |
 | ✅ | EPIC 1: Fundament (Gradle, Manifest, DI, Logger) | Ukończony (2026-03-04) |
 | ✅ | EPIC 2: Domain (modele danych) | Ukończony (2026-03-04) |
-| — | EPIC 3: Settings (ustawienia + repo) | Nie zaczęty |
+| ✅ | EPIC 3: Settings (ustawienia + repo) | Ukończony (2026-03-04) |
 | — | EPIC 4: Engine (analiza + filtrowanie) | Nie zaczęty |
 | — | EPIC 5: Parser (OCR parser Uber) | Nie zaczęty |
 | — | EPIC 6: Capture (MediaProjection) | Nie zaczęty |
@@ -47,7 +47,7 @@ Pełny plan: `docs/PLAN.md` (14 epiców, 40 tasków)
 | Branch | Cel | Status | Kto |
 |--------|-----|--------|-----|
 | `main` | Stabilna baza z działającym POC | ✅ Zablokowany (tylko docs) | — |
-| `feature/production-app` | Produkcyjna aplikacja (14 epiców) | 🔄 W trakcie (EPIC 1-2 ✅) | Krzysztof |
+| `feature/production-app` | Produkcyjna aplikacja (14 epiców) | 🔄 W trakcie (EPIC 1-3 ✅) | Krzysztof |
 
 > Nowe zadanie = nowy branch. Od teraz ŻADNYCH zmian bezpośrednio na main.
 
@@ -119,5 +119,5 @@ SystemOverlayManager — pokazuje belkę na górze ekranu z kolorem:
 
 ## Następna akcja
 
-EPIC 3 — Settings: `AppSettings`, `SettingsRepository`, `SharedPrefsSettingsRepository` + unit testy.
+EPIC 4 — Engine: `OfferAnalyzer`, `OfferFilter` + unit testy.
 

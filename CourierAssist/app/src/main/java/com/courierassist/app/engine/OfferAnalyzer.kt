@@ -4,21 +4,18 @@ import com.courierassist.app.domain.AnalysisResult
 import com.courierassist.app.domain.Offer
 import com.courierassist.app.domain.ProfitLevel
 
-class OfferAnalyzer(
-    private val greenMin: Double = 40.0,
-    private val yellowMin: Double = 32.0
-) {
-    fun analyze(offer: Offer): AnalysisResult {
+class OfferAnalyzer {
+    fun analyze(offer: Offer, thresholds: com.courierassist.app.settings.ThresholdConfig): AnalysisResult {
         if (offer.estimatedMinutes <= 0) {
-            return AnalysisResult(zlPerHour = 0.0, level = ProfitLevel.RED)
+            return AnalysisResult(offer = offer, zlPerHour = 0.0, zlPerKm = null, level = ProfitLevel.RED)
         }
-        val hours = offer.estimatedMinutes / 60.0
-        val zlPerHour = offer.amount / hours
+        val zlPerHour = offer.amount / (offer.estimatedMinutes / 60.0)
+        val zlPerKm = offer.distanceKm?.let { offer.amount / it }
         val level = when {
-            zlPerHour >= greenMin -> ProfitLevel.GREEN
-            zlPerHour >= yellowMin -> ProfitLevel.YELLOW
+            zlPerHour >= thresholds.greenMinZlPerHour -> ProfitLevel.GREEN
+            zlPerHour >= thresholds.yellowMinZlPerHour -> ProfitLevel.YELLOW
             else -> ProfitLevel.RED
         }
-        return AnalysisResult(zlPerHour = zlPerHour, level = level)
+        return AnalysisResult(offer = offer, zlPerHour = zlPerHour, zlPerKm = zlPerKm, level = level)
     }
 }
