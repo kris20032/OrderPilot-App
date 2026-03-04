@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-03-04
-**Obecny etap:** Implementacja produkcyjna — EPIC 11 ukończony
-**Cel następny:** EPIC 12 — UI (SettingsActivity)
+**Obecny etap:** Implementacja produkcyjna — EPIC 12 ukończony
+**Cel następny:** EPIC 13 — Billing stub + weryfikacja DI
 
 ---
 
@@ -34,7 +34,7 @@ POC udowodnił że pipeline działa. Kod POC zostaje na `main` jako punkt odnies
 | ✅ | EPIC 9: Pipeline (orkiestracja) | Ukończony (2026-03-04) |
 | ✅ | EPIC 10: Service (AccessibilityService) | Ukończony (2026-03-04) |
 | ✅ | EPIC 11: UI — MainActivity | Ukończony (2026-03-04) |
-| — | EPIC 12: UI — SettingsActivity | Nie zaczęty |
+| ✅ | EPIC 12: UI — SettingsActivity | Ukończony (2026-03-04) |
 | — | EPIC 13: Billing stub + weryfikacja DI | Nie zaczęty |
 | — | EPIC 14: Testy E2E + polish | Nie zaczęty |
 
@@ -47,7 +47,7 @@ Pełny plan: `docs/PLAN.md` (14 epiców, 40 tasków)
 | Branch | Cel | Status | Kto |
 |--------|-----|--------|-----|
 | `main` | Stabilna baza z działającym POC | ✅ Zablokowany (tylko docs) | — |
-| `feature/production-app` | Produkcyjna aplikacja (14 epiców) | 🔄 W trakcie (EPIC 1-11 ✅) | Krzysztof |
+| `feature/production-app` | Produkcyjna aplikacja (14 epiców) | 🔄 W trakcie (EPIC 1-12 ✅) | Krzysztof |
 
 > Nowe zadanie = nowy branch. Od teraz ŻADNYCH zmian bezpośrednio na main.
 
@@ -119,5 +119,5 @@ SystemOverlayManager — pokazuje belkę na górze ekranu z kolorem:
 
 ## Następna akcja
 
-EPIC 12 — UI: `SettingsActivity` (ustawienia progów, filtrów, wyświetlania).
+EPIC 13 — Billing stub + weryfikacja DI + EventThrottler unit testy.
 

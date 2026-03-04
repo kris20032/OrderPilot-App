@@ -31,6 +31,9 @@ class MainActivity : Activity() {
         binding.btnToggle.setOnClickListener {
             if (isRunning) stopCapture() else startCapture()
         }
+        binding.btnSettings.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
     }
 
     override fun onResume() {

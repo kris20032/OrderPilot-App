@@ -6,4 +6,20 @@
     <string name="status_running">Status: ACTIVE</string>
     <string name="status_stopped">Status: STOPPED</string>
     <string name="accessibility_hint">Enable CourierAssist in:\nSettings → Accessibility → Installed apps</string>
+
+    <!-- SettingsActivity -->
+    <string name="settings_open">Ustawienia</string>
+    <string name="settings_thresholds_header">Progi zł/h</string>
+    <string name="settings_green_threshold">Zielony od (zł/h)</string>
+    <string name="settings_yellow_threshold">Żółty od (zł/h)</string>
+    <string name="settings_metrics_header">Co wyświetlać na belce</string>
+    <string name="metric_zl_per_hour">zł/h</string>
+    <string name="metric_zl_per_km">zł/km</string>
+    <string name="metric_amount">Kwota</string>
+    <string name="metric_time">Czas (min)</string>
+    <string name="metric_distance">Dystans (km)</string>
+    <string name="settings_language_header">Język aplikacji Uber</string>
+    <string name="settings_save">Zapisz</string>
+    <string name="settings_saved">Ustawienia zapisane</string>
+    <string name="settings_validation_error">Próg zielony musi być wyższy niż żółty</string>
 </resources>

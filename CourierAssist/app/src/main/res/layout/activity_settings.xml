@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Progi zł/h -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_thresholds_header"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_green_threshold"
+            android:layout_marginBottom="4dp" />
+
+        <EditText
+            android:id="@+id/et_green_threshold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_yellow_threshold"
+            android:layout_marginBottom="4dp" />
+
+        <EditText
+            android:id="@+id/et_yellow_threshold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Co wyświetlać na belce -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_metrics_header"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <CheckBox
+            android:id="@+id/cb_metric_zl_per_hour"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/metric_zl_per_hour" />
+
+        <CheckBox
+            android:id="@+id/cb_metric_zl_per_km"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/metric_zl_per_km" />
+
+        <CheckBox
+            android:id="@+id/cb_metric_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/metric_amount" />
+
+        <CheckBox
+            android:id="@+id/cb_metric_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/metric_time" />
+
+        <CheckBox
+            android:id="@+id/cb_metric_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/metric_distance"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Język -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_language_header"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <RadioGroup
+            android:id="@+id/rg_language"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp">
+
+            <RadioButton
+                android:id="@+id/rb_lang_pl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Polski (zł)" />
+
+            <RadioButton
+                android:id="@+id/rb_lang_uk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Українська (грн)" />
+
+            <RadioButton
+                android:id="@+id/rb_lang_en"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="English (PLN)" />
+
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_save" />
+
+    </LinearLayout>
+
+</ScrollView>
