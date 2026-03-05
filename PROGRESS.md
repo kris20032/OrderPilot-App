@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-04
-**Obecny etap:** Implementacja produkcyjna — EPIC 13 ukończony
-**Cel następny:** EPIC 14 — Testy E2E + polish (model: Opus)
+**Ostatnia aktualizacja:** 2026-03-05
+**Obecny etap:** Implementacja produkcyjna — EPIC 14 ukończony
+**Cel następny:** Merge do main, dalszy rozwój
 
 ---
 
@@ -36,7 +36,7 @@ POC udowodnił że pipeline działa. Kod POC zostaje na `main` jako punkt odnies
 | ✅ | EPIC 11: UI — MainActivity | Ukończony (2026-03-04) |
 | ✅ | EPIC 12: UI — SettingsActivity | Ukończony (2026-03-04) |
 | ✅ | EPIC 13: Billing stub + weryfikacja DI | Ukończony (2026-03-04) |
-| — | EPIC 14: Testy E2E + polish | Nie zaczęty |
+| ✅ | EPIC 14: Testy E2E + polish | Ukończony (2026-03-05) |
 
 Pełny plan: `docs/PLAN.md` (14 epiców, 40 tasków)
 
@@ -47,7 +47,7 @@ Pełny plan: `docs/PLAN.md` (14 epiców, 40 tasków)
 | Branch | Cel | Status | Kto |
 |--------|-----|--------|-----|
 | `main` | Stabilna baza z działającym POC | ✅ Zablokowany (tylko docs) | — |
-| `feature/production-app` | Produkcyjna aplikacja (14 epiców) | 🔄 W trakcie (EPIC 1-13 ✅) | Krzysztof |
+| `feature/production-app` | Produkcyjna aplikacja (14 epiców) | ✅ Ukończony (EPIC 1-14) | Krzysztof |
 
 > Nowe zadanie = nowy branch. Od teraz ŻADNYCH zmian bezpośrednio na main.
 
@@ -117,7 +117,15 @@ SystemOverlayManager — pokazuje belkę na górze ekranu z kolorem:
 
 ---
 
+## Znane problemy (do naprawienia w przyszłych wersjach)
+
+| Problem | Priorytet |
+|---------|-----------|
+| START czasem wymaga 2 kliknięć (race condition onResume/onActivityResult) | Średni |
+| Belka zostaje chwilę po zniknięciu popupu (brak detekcji zamknięcia popupu) | Niski |
+| Po reinstalacji APK trzeba ręcznie toggle accessibility off/on | Niski |
+
 ## Następna akcja
 
-EPIC 14 — Testy E2E + polish (model: Opus). Przełącz model przed startem!
+Merge `feature/production-app` do `main`.
 

@@ -31,6 +31,10 @@ class PipelineOrchestrator(
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     fun process(packageName: String) {
+        if (overlayManager.isShowing()) {
+            AppLog.d(AppLog.TAG_PIPELINE, "Overlay already visible, skipping")
+            return
+        }
         scope.launch {
             val capture = captureService() ?: run {
                 AppLog.w(AppLog.TAG_PIPELINE, "ScreenCaptureService not ready")

@@ -55,6 +55,10 @@ class ScreenCaptureService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (mediaProjection != null) {
+            AppLog.w(AppLog.TAG_CAPTURE, "MediaProjection already set up, ignoring duplicate start")
+            return START_NOT_STICKY
+        }
         val resultCode = intent?.getIntExtra(EXTRA_RESULT_CODE, 0) ?: 0
         val resultData = intent?.getParcelableExtra<Intent>(EXTRA_RESULT_DATA)
         if (resultCode != 0 && resultData != null) {
