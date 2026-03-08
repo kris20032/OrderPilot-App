@@ -119,6 +119,41 @@
 
         </RadioGroup>
 
+        <!-- Wygląd belki -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_overlay_header"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:id="@+id/tv_opacity_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp" />
+
+        <SeekBar
+            android:id="@+id/sb_opacity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:id="@+id/tv_display_time_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp" />
+
+        <SeekBar
+            android:id="@+id/sb_display_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="55"
+            android:layout_marginBottom="32dp" />
+
         <Button
             android:id="@+id/btn_save"
             android:layout_width="match_parent"

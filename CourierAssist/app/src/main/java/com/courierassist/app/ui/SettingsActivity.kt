@@ -10,6 +10,7 @@ import com.courierassist.app.domain.AppLanguage
 import com.courierassist.app.domain.MetricType
 import com.courierassist.app.settings.DisplayConfig
 import com.courierassist.app.settings.ThresholdConfig
+import android.widget.SeekBar
 
 class SettingsActivity : Activity() {
 
@@ -21,7 +22,26 @@ class SettingsActivity : Activity() {
         setContentView(binding.root)
 
         loadSettings()
+        setupSliders()
         binding.btnSave.setOnClickListener { saveSettings() }
+    }
+
+    private fun setupSliders() {
+        binding.sbOpacity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
+                binding.tvOpacityLabel.text = getString(R.string.settings_opacity, progress)
+            }
+            override fun onStartTrackingTouch(sb: SeekBar?) {}
+            override fun onStopTrackingTouch(sb: SeekBar?) {}
+        })
+        binding.sbDisplayTime.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
+                val seconds = progress + 5
+                binding.tvDisplayTimeLabel.text = getString(R.string.settings_display_time, seconds)
+            }
+            override fun onStartTrackingTouch(sb: SeekBar?) {}
+            override fun onStopTrackingTouch(sb: SeekBar?) {}
+        })
     }
 
     private fun loadSettings() {
@@ -37,6 +57,12 @@ class SettingsActivity : Activity() {
         binding.cbMetricAmount.isChecked = MetricType.AMOUNT in metrics
         binding.cbMetricTime.isChecked = MetricType.TIME in metrics
         binding.cbMetricDistance.isChecked = MetricType.DISTANCE in metrics
+
+        binding.sbOpacity.progress = settings.display.overlayOpacity
+        binding.tvOpacityLabel.text = getString(R.string.settings_opacity, settings.display.overlayOpacity)
+
+        binding.sbDisplayTime.progress = settings.display.displayTimeSeconds - 5
+        binding.tvDisplayTimeLabel.text = getString(R.string.settings_display_time, settings.display.displayTimeSeconds)
 
         val langRadio = when (settings.language) {
             AppLanguage.PL -> R.id.rb_lang_pl
@@ -77,7 +103,9 @@ class SettingsActivity : Activity() {
             ),
             display = DisplayConfig(
                 visibleMetrics = metrics,
-                themeMode = current.display.themeMode
+                themeMode = current.display.themeMode,
+                overlayOpacity = binding.sbOpacity.progress,
+                displayTimeSeconds = binding.sbDisplayTime.progress + 5
             )
         )
         ServiceLocator.settingsRepository.save(updated)

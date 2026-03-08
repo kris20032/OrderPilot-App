@@ -87,7 +87,7 @@ class PipelineOrchestrator(
 
             withContext(Dispatchers.Main) {
                 overlayManager.show(result, settings.display)
-                overlayAutoHider.onOverlayShown(scope)
+                overlayAutoHider.onOverlayShown(scope, settings.display.displayTimeSeconds * 1000L)
             }
         }
     }

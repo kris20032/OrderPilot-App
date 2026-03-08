@@ -31,11 +31,13 @@ object OverlayViewFactory {
 
         textView.text = parts.joinToString(" | ")
         textView.setTextColor(Color.WHITE)
+        textView.setShadowLayer(3f, 1f, 1f, Color.BLACK)
 
+        val alpha = (config.overlayOpacity / 100f * 255).toInt()
         val bgColor = when (result.level) {
-            ProfitLevel.GREEN  -> 0xCC4CAF50.toInt()
-            ProfitLevel.YELLOW -> 0xCCFF9800.toInt()
-            ProfitLevel.RED    -> 0xCCF44336.toInt()
+            ProfitLevel.GREEN  -> Color.argb(alpha, 0x4C, 0xAF, 0x50)
+            ProfitLevel.YELLOW -> Color.argb(alpha, 0xFF, 0x98, 0x00)
+            ProfitLevel.RED    -> Color.argb(alpha, 0xF4, 0x43, 0x36)
         }
         view.setBackgroundColor(bgColor)
         return view

@@ -19,6 +19,9 @@
     <string name="metric_time">Czas (min)</string>
     <string name="metric_distance">Dystans (km)</string>
     <string name="settings_language_header">Język aplikacji Uber</string>
+    <string name="settings_overlay_header">Wygląd belki</string>
+    <string name="settings_opacity">Przezroczystość: %d%%</string>
+    <string name="settings_display_time">Czas wyświetlania: %d s</string>
     <string name="settings_save">Zapisz</string>
     <string name="settings_saved">Ustawienia zapisane</string>
     <string name="settings_validation_error">Próg zielony musi być wyższy niż żółty</string>

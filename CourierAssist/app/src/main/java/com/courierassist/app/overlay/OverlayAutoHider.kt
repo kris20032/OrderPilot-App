@@ -9,12 +9,11 @@ import kotlinx.coroutines.withContext
 
 class OverlayAutoHider(
     private val overlayManager: OverlayManager,
-    private val hideDelayMs: Long = 15_000L,
     private val onHidden: () -> Unit = {}
 ) {
     private var hideJob: Job? = null
 
-    fun onOverlayShown(scope: CoroutineScope) {
+    fun onOverlayShown(scope: CoroutineScope, hideDelayMs: Long = 15_000L) {
         hideJob?.cancel()
         hideJob = scope.launch {
             delay(hideDelayMs)
