@@ -65,6 +65,32 @@ Każda osoba (lub AI) która wejdzie do repo powinna wiedzieć dokładnie co zos
 
 ---
 
+## 3b. Sesja porządkowa — ZASADA OBOWIĄZKOWA DLA AI
+
+**Co to jest:** Przegląd spójności całego projektu. AI robi to samodzielnie i informuje użytkownika że to robi.
+
+**Kiedy:** Po każdych 5 zakończonych zadaniach (bugfix / feature / Jira task). AI liczy ukończone zadania i sam inicjuje sesję — użytkownik nie musi o tym pamiętać.
+
+**Co AI sprawdza i ewentualnie poprawia:**
+1. `PROGRESS.md` — czy lista zadań, branche i statusy są spójne z rzeczywistością
+2. `RULES.md` — czy zasady są nadal aktualne, czy coś wymaga korekty
+3. Branche na GitHubie — czy są przestarzałe branch'e do odnotowania
+4. Otwarte zadania — czy kolejność priorytetów jest nadal sensowna
+5. Historia commitów — czy ostatnie wpisy są zrozumiałe dla nowej osoby
+
+**Czego AI NIE robi w sesji porządkowej:**
+- Nie czyta każdego pliku kodu
+- Nie zmienia kodu aplikacji
+- Nie sprawdza czy kod się kompiluje
+
+**Jak AI informuje użytkownika:**
+> "Mamy 3 ukończone zadania od ostatniej sesji porządkowej. Robię przegląd projektu — zaraz raport."
+Po sprawdzeniu: krótki raport co poprawiono (lub "wszystko OK, nic do zmiany").
+
+**Commit po sesji:** Jeśli były zmiany — jeden commit z opisem `docs: sesja porządkowa`.
+
+---
+
 ## 4. Git workflow — GitHub Flow ⚠️
 
 **🚨 PRZECZYTAJ TO PRZED PRACĄ - DOTYCZY WSZYSTKICH 🚨**
