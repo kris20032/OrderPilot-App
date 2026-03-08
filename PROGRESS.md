@@ -1,7 +1,7 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-03-08
-**Obecny etap:** Bugfixy po testach na telefonie — KAN-14 następne w kolejce
+**Obecny etap:** Bugfixy po testach na telefonie — KAN-12 następne w kolejce
 **Aktywny branch:** `feature/production-app`
 
 ---
@@ -50,14 +50,15 @@ Ojciec testował aplikację na fizycznym telefonie (2026-03-06/07). Zgłosił 5 
 
 | Zadanie | Opis | Efekt | Data | Branch |
 |---------|------|-------|------|--------|
-| Fix krytyczny: wygaszanie ekranu | App przestawała działać po wygaszeniu ekranu (ScreenCaptureService ginął) | WakeLock trzyma serwis przy życiu. Flaga `isProjectionLost` + powiadomienie pozwala wznowić bez restartu app | 2026-03-08 | `fix/screen-off-survival` → merged do `feature/production-app` |
+| Fix krytyczny: wygaszanie ekranu | App przestawała działać po wygaszeniu ekranu (ScreenCaptureService ginął) | WakeLock trzyma serwis przy życiu. Flaga `isProjectionLost` + powiadomienie pozwala wznowić bez restartu app | 2026-03-08 | `fix/screen-off-survival` → merged |
 | Optymalizacja latencji pipeline | Belka pojawiała się z opóźnieniem ~2s | firstShotDelay 300→100ms, captureDelay 200→100ms, cooldown 5s→3s. Wynik: ~1.3s (bottleneck: ML Kit OCR ~700ms) | 2026-03-08 | `fix/screen-off-survival` → merged |
+| KAN-14: odświeżanie belki | Belka nie aktualizowała się przy nowym zamówieniu gdy poprzednia była widoczna | Usunięto guard `isShowing()` z PipelineOrchestrator — `show()` już wywołuje `hide()` wewnętrznie | 2026-03-08 | `fix/kan-14-overlay-refresh` → merged |
 
 ### Otwarte zadania
 
 | ID | Opis | Priorytet | Status |
 |----|------|-----------|--------|
-| KAN-14 | Belka nie aktualizuje się przy kolejnym zamówieniu — wymaga zamknięcia i ponownego otwarcia app | Wysoki | Nie rozpoczęte |
+| ~~KAN-14~~ | ~~Belka nie aktualizuje się przy kolejnym zamówieniu~~ | ~~Wysoki~~ | ✅ Ukończone 2026-03-08 |
 | Bug | Po reinstalacji APK trzeba ręcznie toggle accessibility OFF→ON. START czasem wymaga 2 kliknięć | Średni | Nie rozpoczęte |
 | KAN-12 | Dark mode — belka nie wyświetla się poprawnie w trybie ciemnym | Średni | Nie rozpoczęte |
 | KAN-11 | Uproszczenie startu — dialog MediaProjection przy każdym uruchomieniu jest mylący dla użytkownika | Średni | Nie rozpoczęte |
@@ -123,6 +124,4 @@ SystemOverlayManager pokazuje belkę na górze ekranu:
 
 ## Co dalej
 
-**Następne:** KAN-14 — belka nie aktualizuje się przy nowym zamówieniu (rekomendowany model: Sonnet)
-
-**Kolejność priorytetów:** KAN-14 → Bug accessibility/START → KAN-12 → KAN-11 → KAN-13 → KAN-15
+**Następne:** Bug accessibility/START → KAN-12 → KAN-11 → KAN-13 → KAN-15
