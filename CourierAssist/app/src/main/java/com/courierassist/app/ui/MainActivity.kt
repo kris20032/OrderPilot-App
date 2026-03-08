@@ -65,6 +65,7 @@ class MainActivity : Activity() {
             startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")))
             return
         }
+        Toast.makeText(this, "Zezwól na nagrywanie ekranu — to pozwala analizować oferty", Toast.LENGTH_SHORT).show()
         val manager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         startActivityForResult(manager.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION)
     }
