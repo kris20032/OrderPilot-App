@@ -1,14 +1,11 @@
 package com.courierassist.app.ui
 
-import android.accessibilityservice.AccessibilityServiceInfo
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.view.accessibility.AccessibilityManager
 import android.widget.Toast
 import com.courierassist.app.R
 import com.courierassist.app.capture.ScreenCaptureService
@@ -18,6 +15,7 @@ class MainActivity : Activity() {
 
     private lateinit var binding: ActivityMainBinding
     private var isRunning = false
+    private var pendingStart = false
 
     companion object {
         private const val REQUEST_MEDIA_PROJECTION = 1001
@@ -41,9 +39,10 @@ class MainActivity : Activity() {
         if (ScreenCaptureService.isProjectionLost) {
             ScreenCaptureService.stopCapture(this)
             isRunning = false
+            pendingStart = false
             updateUi()
             Toast.makeText(this, "Nagrywanie ekranu zostało przerwane. Kliknij START żeby wznowić.", Toast.LENGTH_LONG).show()
-        } else {
+        } else if (!pendingStart) {
             isRunning = ScreenCaptureService.instance != null
             updateUi()
         }
@@ -51,7 +50,7 @@ class MainActivity : Activity() {
 
     private fun startCapture() {
         if (!isAccessibilityEnabled()) {
-            Toast.makeText(this, "Włącz CourierAssist w Ustawieniach → Dostępność", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Włącz CourierAssist w Ustawieniach → Dostępność\n\nJeśli właśnie zainstalowałeś aplikację: wyłącz i włącz ponownie przełącznik dostępności.", Toast.LENGTH_LONG).show()
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
             return
         }
@@ -67,15 +66,19 @@ class MainActivity : Activity() {
     private fun stopCapture() {
         ScreenCaptureService.stopCapture(this)
         isRunning = false
+        pendingStart = false
         updateUi()
     }
 
     @Suppress("OVERRIDE_DEPRECATION")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_MEDIA_PROJECTION && resultCode == RESULT_OK && data != null) {
+            pendingStart = true
             ScreenCaptureService.startCapture(this, resultCode, data)
             isRunning = true
             updateUi()
+        } else {
+            pendingStart = false
         }
     }
 
