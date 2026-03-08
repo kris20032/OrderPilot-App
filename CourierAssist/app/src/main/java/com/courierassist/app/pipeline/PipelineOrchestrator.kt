@@ -3,6 +3,7 @@ package com.courierassist.app.pipeline
 import com.courierassist.app.capture.PopupCropper
 import com.courierassist.app.capture.ScreenCaptureService
 import com.courierassist.app.di.AppLog
+import com.courierassist.app.domain.AnalysisResult
 import com.courierassist.app.engine.OfferAnalyzer
 import com.courierassist.app.engine.OfferFilter
 import com.courierassist.app.ocr.OcrEngine
@@ -29,6 +30,7 @@ class PipelineOrchestrator(
     private val settingsRepository: SettingsRepository
 ) {
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    @Volatile private var lastResult: AnalysisResult? = null
 
     fun process(packageName: String) {
         scope.launch {
@@ -77,12 +79,20 @@ class PipelineOrchestrator(
             val tTotal = System.currentTimeMillis()
             AppLog.d(AppLog.TAG_PIPELINE, "Analyzed: ${result.zlPerHour} zł/h → ${result.level} [total ${tTotal - t0}ms]")
 
+            if (result == lastResult) {
+                AppLog.d(AppLog.TAG_PIPELINE, "Same result as before, skipping overlay update")
+                return@launch
+            }
+            lastResult = result
+
             withContext(Dispatchers.Main) {
                 overlayManager.show(result, settings.display)
                 overlayAutoHider.onOverlayShown(scope)
             }
         }
     }
+
+    fun onOverlayHidden() { lastResult = null }
 
     fun cancel() = scope.cancel()
 }

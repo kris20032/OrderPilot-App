@@ -35,7 +35,7 @@ object ServiceLocator {
         popupCropper = PopupCropper()
         ocrEngine = OcrEngine()
         overlayManager = SystemOverlayManager(context)
-        overlayAutoHider = OverlayAutoHider(overlayManager)
+        overlayAutoHider = OverlayAutoHider(overlayManager, onHidden = { pipelineOrchestrator.onOverlayHidden() })
         pipelineOrchestrator = PipelineOrchestrator(
             captureService = { ScreenCaptureService.instance },
             popupCropper = popupCropper,
