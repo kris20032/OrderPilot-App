@@ -19,6 +19,7 @@ class CourierAccessibilityService : AccessibilityService() {
     override fun onServiceConnected() {
         pipeline = ServiceLocator.pipelineOrchestrator
         throttler = EventThrottler()
+        isConnected = true
         AppLog.d(AppLog.TAG_SERVICE, "AccessibilityService connected")
     }
 
@@ -35,11 +36,16 @@ class CourierAccessibilityService : AccessibilityService() {
     override fun onInterrupt() {}
 
     override fun onDestroy() {
+        isConnected = false
         scope.cancel()
         super.onDestroy()
     }
 
     companion object {
+        @Volatile
+        var isConnected = false
+            private set
+
         private val watchedPackages = setOf("com.ubercab.driver", "com.ubercab.eats")
     }
 }

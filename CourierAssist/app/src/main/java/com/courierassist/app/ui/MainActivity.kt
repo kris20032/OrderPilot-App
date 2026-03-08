@@ -10,6 +10,7 @@ import android.widget.Toast
 import com.courierassist.app.R
 import com.courierassist.app.capture.ScreenCaptureService
 import com.courierassist.app.databinding.ActivityMainBinding
+import com.courierassist.app.service.CourierAccessibilityService
 
 class MainActivity : Activity() {
 
@@ -50,7 +51,12 @@ class MainActivity : Activity() {
 
     private fun startCapture() {
         if (!isAccessibilityEnabled()) {
-            Toast.makeText(this, "Włącz CourierAssist w Ustawieniach → Dostępność\n\nJeśli właśnie zainstalowałeś aplikację: wyłącz i włącz ponownie przełącznik dostępności.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Włącz CourierAssist w Ustawieniach → Dostępność", Toast.LENGTH_LONG).show()
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            return
+        }
+        if (!CourierAccessibilityService.isConnected) {
+            Toast.makeText(this, "Wyłącz i włącz ponownie przełącznik CourierAssist w Ustawieniach → Dostępność", Toast.LENGTH_LONG).show()
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
             return
         }
