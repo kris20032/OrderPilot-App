@@ -53,13 +53,14 @@ Ojciec testował aplikację na fizycznym telefonie (2026-03-06/07). Zgłosił 5 
 | Fix krytyczny: wygaszanie ekranu | App przestawała działać po wygaszeniu ekranu (ScreenCaptureService ginął) | WakeLock trzyma serwis przy życiu. Flaga `isProjectionLost` + powiadomienie pozwala wznowić bez restartu app | 2026-03-08 | `fix/screen-off-survival` → merged |
 | Optymalizacja latencji pipeline | Belka pojawiała się z opóźnieniem ~2s | firstShotDelay 300→100ms, captureDelay 200→100ms, cooldown 5s→3s. Wynik: ~1.3s (bottleneck: ML Kit OCR ~700ms) | 2026-03-08 | `fix/screen-off-survival` → merged |
 | KAN-14: odświeżanie belki | Belka nie aktualizowała się przy nowym zamówieniu gdy poprzednia była widoczna | Usunięto guard `isShowing()` z PipelineOrchestrator — `show()` już wywołuje `hide()` wewnętrznie | 2026-03-08 | `fix/kan-14-overlay-refresh` → merged |
+| Bug: START + accessibility | START wymagał 2 kliknięć (race condition onResume/onActivityResult). Toggle OFF/ON po reinstalacji — ograniczenie Androida przy sideloadingu | `pendingStart` flaga blokuje nadpisanie stanu przez onResume. Flaga `isConnected` wykrywa stan "enabled ale nie connected" z celowym toastem | 2026-03-08 | `fix/start-button-race-condition` + `fix/accessibility-detection` → merged |
 
 ### Otwarte zadania
 
 | ID | Opis | Priorytet | Status |
 |----|------|-----------|--------|
 | ~~KAN-14~~ | ~~Belka nie aktualizuje się przy kolejnym zamówieniu~~ | ~~Wysoki~~ | ✅ Ukończone 2026-03-08 |
-| Bug | Po reinstalacji APK trzeba ręcznie toggle accessibility OFF→ON. START czasem wymaga 2 kliknięć | Średni | Nie rozpoczęte |
+| ~~Bug~~ | ~~START 2 kliknięcia + accessibility toggle po reinstalacji~~ | ~~Średni~~ | ✅ Ukończone 2026-03-08 |
 | KAN-12 | Dark mode — belka nie wyświetla się poprawnie w trybie ciemnym | Średni | Nie rozpoczęte |
 | KAN-11 | Uproszczenie startu — dialog MediaProjection przy każdym uruchomieniu jest mylący dla użytkownika | Średni | Nie rozpoczęte |
 | KAN-13 | Suwak przezroczystości belki w ustawieniach | Niski | Nie rozpoczęte |
@@ -124,4 +125,4 @@ SystemOverlayManager pokazuje belkę na górze ekranu:
 
 ## Co dalej
 
-**Następne:** Bug accessibility/START → KAN-12 → KAN-11 → KAN-13 → KAN-15
+**Następne:** KAN-12 → KAN-11 → KAN-13 → KAN-15
