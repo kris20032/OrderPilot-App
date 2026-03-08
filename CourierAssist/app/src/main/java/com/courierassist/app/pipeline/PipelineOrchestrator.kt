@@ -36,6 +36,7 @@ class PipelineOrchestrator(
             return
         }
         scope.launch {
+            val t0 = System.currentTimeMillis()
             val capture = captureService() ?: run {
                 AppLog.w(AppLog.TAG_PIPELINE, "ScreenCaptureService not ready")
                 return@launch
@@ -46,13 +47,16 @@ class PipelineOrchestrator(
                 AppLog.w(AppLog.TAG_PIPELINE, "Screenshot null")
                 return@launch
             }
-            AppLog.d(AppLog.TAG_PIPELINE, "Screenshot captured")
+            val tCapture = System.currentTimeMillis()
+            AppLog.d(AppLog.TAG_PIPELINE, "Screenshot captured [${tCapture - t0}ms]")
 
             val cropped = popupCropper.crop(screenshot)
             screenshot.recycle()
 
             val ocrLines = ocrEngine.recognize(cropped)
             cropped.recycle()
+            val tOcr = System.currentTimeMillis()
+            AppLog.d(AppLog.TAG_PIPELINE, "OCR done [${tOcr - tCapture}ms, total ${tOcr - t0}ms]")
             if (ocrLines.isEmpty()) {
                 AppLog.w(AppLog.TAG_PIPELINE, "OCR returned no lines")
                 return@launch
@@ -74,7 +78,8 @@ class PipelineOrchestrator(
             }
 
             val result = offerAnalyzer.analyze(offer, settings.thresholdsFor(offer.platform))
-            AppLog.d(AppLog.TAG_PIPELINE, "Analyzed: ${result.zlPerHour} zł/h → ${result.level}")
+            val tTotal = System.currentTimeMillis()
+            AppLog.d(AppLog.TAG_PIPELINE, "Analyzed: ${result.zlPerHour} zł/h → ${result.level} [total ${tTotal - t0}ms]")
 
             withContext(Dispatchers.Main) {
                 overlayManager.show(result, settings.display)

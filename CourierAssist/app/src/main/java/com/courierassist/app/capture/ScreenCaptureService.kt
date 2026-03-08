@@ -1,5 +1,6 @@
 package com.courierassist.app.capture
 
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -13,9 +14,11 @@ import android.media.projection.MediaProjectionManager
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import com.courierassist.app.di.AppLog
 import com.courierassist.app.di.CourierAssistApp
+import com.courierassist.app.ui.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -26,11 +29,17 @@ class ScreenCaptureService : Service() {
         const val EXTRA_RESULT_CODE = "result_code"
         const val EXTRA_RESULT_DATA = "result_data"
         private const val NOTIFICATION_ID = 1001
+        private const val WAKELOCK_TAG = "CourierAssist::ScreenCapture"
 
         @Volatile
         var instance: ScreenCaptureService? = null
 
+        @Volatile
+        var isProjectionLost = false
+            private set
+
         fun startCapture(context: Context, resultCode: Int, data: Intent) {
+            isProjectionLost = false
             val intent = Intent(context, ScreenCaptureService::class.java).apply {
                 putExtra(EXTRA_RESULT_CODE, resultCode)
                 putExtra(EXTRA_RESULT_DATA, data)
@@ -39,6 +48,7 @@ class ScreenCaptureService : Service() {
         }
 
         fun stopCapture(context: Context) {
+            isProjectionLost = false
             context.stopService(Intent(context, ScreenCaptureService::class.java))
         }
     }
@@ -46,11 +56,13 @@ class ScreenCaptureService : Service() {
     private var mediaProjection: MediaProjection? = null
     private var virtualDisplay: VirtualDisplay? = null
     private var imageReader: ImageReader? = null
+    private var wakeLock: PowerManager.WakeLock? = null
 
     override fun onCreate() {
         super.onCreate()
         instance = this
-        startForeground(NOTIFICATION_ID, buildNotification())
+        acquireWakeLock()
+        startForeground(NOTIFICATION_ID, buildActiveNotification())
         AppLog.d(AppLog.TAG_CAPTURE, "ScreenCaptureService created")
     }
 
@@ -78,11 +90,13 @@ class ScreenCaptureService : Service() {
         mediaProjection = projection
         projection.registerCallback(object : MediaProjection.Callback() {
             override fun onStop() {
-                AppLog.w(AppLog.TAG_CAPTURE, "MediaProjection stopped")
+                AppLog.w(AppLog.TAG_CAPTURE, "MediaProjection stopped by system")
+                isProjectionLost = true
                 virtualDisplay?.release()
                 imageReader?.close()
                 virtualDisplay = null
                 imageReader = null
+                showLostNotification()
             }
         }, Handler(Looper.getMainLooper()))
 
@@ -94,13 +108,18 @@ class ScreenCaptureService : Service() {
             DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
             imageReader?.surface, null, null
         )
+        isProjectionLost = false
         AppLog.d(AppLog.TAG_CAPTURE, "MediaProjection setup: ${metrics.widthPixels}x${metrics.heightPixels}")
     }
 
-    fun isReady(): Boolean = imageReader != null
+    fun isReady(): Boolean = imageReader != null && !isProjectionLost
 
     suspend fun capture(): Bitmap? = withContext(Dispatchers.IO) {
-        delay(200)
+        if (isProjectionLost) {
+            AppLog.w(AppLog.TAG_CAPTURE, "Projection lost, cannot capture")
+            return@withContext null
+        }
+        delay(100)
         val image = imageReader?.acquireLatestImage() ?: run {
             AppLog.w(AppLog.TAG_CAPTURE, "No frame available")
             return@withContext null
@@ -123,21 +142,63 @@ class ScreenCaptureService : Service() {
         }
     }
 
+    private fun acquireWakeLock() {
+        val pm = getSystemService(POWER_SERVICE) as PowerManager
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG).apply {
+            acquire()
+        }
+        AppLog.d(AppLog.TAG_CAPTURE, "WakeLock acquired")
+    }
+
+    private fun releaseWakeLock() {
+        wakeLock?.let {
+            if (it.isHeld) it.release()
+            wakeLock = null
+        }
+    }
+
+    private fun buildActiveNotification() = NotificationCompat.Builder(this, CourierAssistApp.CHANNEL_ID)
+        .setContentTitle("CourierAssist aktywny")
+        .setContentText("Analizowanie ofert")
+        .setSmallIcon(android.R.drawable.ic_menu_compass)
+        .setPriority(NotificationCompat.PRIORITY_LOW)
+        .setOngoing(true)
+        .build()
+
+    private fun showLostNotification() {
+        val reopenIntent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, reopenIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val notification = NotificationCompat.Builder(this, CourierAssistApp.CHANNEL_ID)
+            .setContentTitle("CourierAssist — wznów nagrywanie")
+            .setContentText("Kliknij żeby ponownie uruchomić analizę ofert")
+            .setSmallIcon(android.R.drawable.ic_dialog_alert)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .build()
+
+        try {
+            startForeground(NOTIFICATION_ID, notification)
+        } catch (_: Exception) {
+            AppLog.w(AppLog.TAG_CAPTURE, "Failed to update notification")
+        }
+    }
+
     override fun onDestroy() {
         instance = null
+        isProjectionLost = false
         virtualDisplay?.release()
         mediaProjection?.stop()
         imageReader?.close()
+        releaseWakeLock()
         AppLog.d(AppLog.TAG_CAPTURE, "ScreenCaptureService destroyed")
         super.onDestroy()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
-
-    private fun buildNotification() = NotificationCompat.Builder(this, CourierAssistApp.CHANNEL_ID)
-        .setContentTitle("CourierAssist aktywny")
-        .setContentText("Analizowanie ofert")
-        .setSmallIcon(android.R.drawable.ic_menu_compass)
-        .setPriority(NotificationCompat.PRIORITY_LOW)
-        .build()
 }

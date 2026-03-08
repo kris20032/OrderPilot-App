@@ -7,8 +7,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class EventThrottler(
-    private val firstShotDelayMs: Long = 300L,
-    private val cooldownMs: Long = 5000L
+    private val firstShotDelayMs: Long = 100L,
+    private val cooldownMs: Long = 3000L
 ) {
     private var lastTriggerTime = 0L
     private var pendingJob: Job? = null

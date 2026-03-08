@@ -38,8 +38,15 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
-        isRunning = ScreenCaptureService.instance != null
-        updateUi()
+        if (ScreenCaptureService.isProjectionLost) {
+            ScreenCaptureService.stopCapture(this)
+            isRunning = false
+            updateUi()
+            Toast.makeText(this, "Nagrywanie ekranu zostało przerwane. Kliknij START żeby wznowić.", Toast.LENGTH_LONG).show()
+        } else {
+            isRunning = ScreenCaptureService.instance != null
+            updateUi()
+        }
     }
 
     private fun startCapture() {
