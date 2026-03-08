@@ -39,20 +39,29 @@
 
 ---
 
-## 3. Aktualizacja PROGRESS.md
+## 3. Aktualizacja PROGRESS.md — ZASADA OBOWIĄZKOWA
 
-**Kiedy aktualizuję:**
-- Na początku każdego kroku (status: 🔄 W trakcie)
-- Po zakończeniu kroku (status: ✅ Ukończone)
-- Gdy napotkam problem (sekcja: ⚠️ Problemy / Notatki)
+**PROGRESS.md musi zawsze odzwierciedlać rzeczywisty stan projektu na GitHubie.**
+Każda osoba (lub AI) która wejdzie do repo powinna wiedzieć dokładnie co zostało zrobione, co jest w toku i co zostało do zrobienia — bez pytania nikogo.
 
-**Co aktualizuję:**
-- Data ostatniej aktualizacji
-- Obecny etap
-- Checklisty ([ ] → [x])
-- Notatki o problemach/decyzjach
+**Kiedy AI aktualizuje PROGRESS.md:**
+- Po każdym merge'u lub commicie który kończy logiczny krok pracy
+- Gdy pojawia się nowy bug / zadanie (dodaj do sekcji "Otwarte zadania")
+- Gdy zadanie zostaje ukończone (przenieś do sekcji "Ukończone")
+- NIE co każdy commit z kodu — tylko przy sensownych kamieniach milowych
 
-**Cel:** Sam muszę wiedzieć gdzie jesteśmy bez pytania Cię.
+**Co zawsze aktualizuję:**
+- Data ostatniej aktualizacji (nagłówek)
+- Obecny etap / aktywna praca
+- Status aktywnych branchy
+- Lista otwartych zadań (Jira, bugfixy, nowe funkcje) z priorytetem
+- Lista ukończonych zadań z datą
+
+**Zasada dla bugfixów i zadań spoza planu epiców:**
+- Bugfixy i zadania z Jiry trafiają do osobnych sekcji w PROGRESS.md (nie do tabeli epiców)
+- Każdy fix ma wpis: co, kiedy, na jakim branchu, jaki efekt
+
+**Cel:** Nowa osoba otwiera PROGRESS.md i w 2 minuty wie co się dzieje. AI nie musi pytać użytkownika o stan projektu.
 
 ---
 

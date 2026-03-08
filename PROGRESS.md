@@ -1,15 +1,15 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-05
-**Obecny etap:** Implementacja produkcyjna — EPIC 14 ukończony
-**Cel następny:** Merge do main, dalszy rozwój
+**Ostatnia aktualizacja:** 2026-03-08
+**Obecny etap:** Bugfixy po testach na telefonie — KAN-14 następne w kolejce
+**Aktywny branch:** `feature/production-app`
 
 ---
 
 ## Faza POC — ZAKOŃCZONA
 
 - [x] Etap 0: Android Studio + JDK 17 zainstalowane — 2026-02-24
-- [x] Dokumentacja: RULES.md, README.md, ARCHITECTURE.md, PLAN.md, TASKS.md — 2026-02-25
+- [x] Dokumentacja: RULES.md, README.md, ARCHITECTURE.md, PLAN.md — 2026-02-25
 - [x] FakeUberDriver: aplikacja testowa symulująca popup Uber — 2026-02-26
 - [x] **POC MediaProjection + OCR: belka pojawia się na telefonie przy popupie FakeUberDriver** — 2026-02-27
 
@@ -17,7 +17,7 @@ POC udowodnił że pipeline działa. Kod POC zostaje na `main` jako punkt odnies
 
 ---
 
-## Właściwa aplikacja — produkcja
+## Właściwa aplikacja — EPIC 1–14 UKOŃCZONE
 
 | # | Etap | Status |
 |---|------|--------|
@@ -42,90 +42,87 @@ Pełny plan: `docs/PLAN.md` (14 epiców, 40 tasków)
 
 ---
 
+## Bugfixy i zadania po testach na fizycznym telefonie
+
+Ojciec testował aplikację na fizycznym telefonie (2026-03-06/07). Zgłosił 5 zadań Jira (KAN-11 do KAN-15) i 1 krytyczny bug (wygaszanie ekranu).
+
+### Ukończone
+
+| Zadanie | Opis | Efekt | Data | Branch |
+|---------|------|-------|------|--------|
+| Fix krytyczny: wygaszanie ekranu | App przestawała działać po wygaszeniu ekranu (ScreenCaptureService ginął) | WakeLock trzyma serwis przy życiu. Flaga `isProjectionLost` + powiadomienie pozwala wznowić bez restartu app | 2026-03-08 | `fix/screen-off-survival` → merged do `feature/production-app` |
+| Optymalizacja latencji pipeline | Belka pojawiała się z opóźnieniem ~2s | firstShotDelay 300→100ms, captureDelay 200→100ms, cooldown 5s→3s. Wynik: ~1.3s (bottleneck: ML Kit OCR ~700ms) | 2026-03-08 | `fix/screen-off-survival` → merged |
+
+### Otwarte zadania
+
+| ID | Opis | Priorytet | Status |
+|----|------|-----------|--------|
+| KAN-14 | Belka nie aktualizuje się przy kolejnym zamówieniu — wymaga zamknięcia i ponownego otwarcia app | Wysoki | Nie rozpoczęte |
+| Bug | Po reinstalacji APK trzeba ręcznie toggle accessibility OFF→ON. START czasem wymaga 2 kliknięć | Średni | Nie rozpoczęte |
+| KAN-12 | Dark mode — belka nie wyświetla się poprawnie w trybie ciemnym | Średni | Nie rozpoczęte |
+| KAN-11 | Uproszczenie startu — dialog MediaProjection przy każdym uruchomieniu jest mylący dla użytkownika | Średni | Nie rozpoczęte |
+| KAN-13 | Suwak przezroczystości belki w ustawieniach | Niski | Nie rozpoczęte |
+| KAN-15 | Suwak czasu wyświetlania belki w ustawieniach | Niski | Nie rozpoczęte |
+
+---
+
 ## Aktywne branche
 
-| Branch | Cel | Status | Kto |
-|--------|-----|--------|-----|
-| `main` | Stabilna baza z działającym POC | ✅ Zablokowany (tylko docs) | — |
-| `feature/production-app` | Produkcyjna aplikacja (14 epiców) | ✅ Ukończony (EPIC 1-14) | Krzysztof |
+| Branch | Cel | Status |
+|--------|-----|--------|
+| `feature/production-app` | Główny branch produkcyjny — tu trafia wszystko co działa | Aktywny |
+| `main` | Stabilna baza z POC | Zablokowany na zmiany kodu (tylko dokumentacja) |
 
-> Nowe zadanie = nowy branch. Od teraz ŻADNYCH zmian bezpośrednio na main.
+> Workflow: nowe zadanie → nowy branch `fix/...` lub `feature/...` → testuj na telefonie → merge do `feature/production-app`
 
-## Archiwalne branche (referencja, nie rozwijane)
+## Archiwalne branche
 
 | Branch | Cel | Notatka |
 |--------|-----|---------|
-| `feature/fake-uber-driver` | Aplikacja testowa FakeUberDriver | Gotowa, używana do testów E2E |
-| `lukasz` | POC: MediaProjection + OCR pipeline | Zmerge'owany do main |
-| `feature/ocr` | Eksperymenty z OCR (remote only) | Stary, prawdopodobnie wchłonięty przez lukasz |
+| `fix/screen-off-survival` | Fix wygaszania + optymalizacja latencji | Zmerge'owany do `feature/production-app` 2026-03-08 |
+| `feature/fake-uber-driver` | Aplikacja testowa FakeUberDriver 2 | Gotowa, używana do testów E2E |
+| `lukasz` | POC: MediaProjection + OCR pipeline | Zmerge'owany do `main` |
 
 ---
 
-## Co zostało udowodnione (POC — branch lukasz)
+## Kluczowe odkrycia techniczne (dla nowych osób)
 
-### Architektura pipeline OCR która działa:
+### Pipeline który działa:
 
 ```
-Uber Driver popup pojawia się (TYPE_APPLICATION_OVERLAY)
+Uber Driver popup pojawia się na ekranie
     ↓
-AccessibilityService wykrywa event (TYPE_WINDOW_CONTENT_CHANGED)
+CourierAccessibilityService wykrywa event (TYPE_WINDOW_CONTENT_CHANGED)
     ↓
-ScreenCaptureService (ForegroundService z typem mediaProjection)
-    robi screenshot przez MediaProjection API
+EventThrottler: czeka 100ms (firstShot), potem cooldown 3s
+    ↓
+ScreenCaptureService robi screenshot przez MediaProjection API
     → widzi WSZYSTKO na ekranie, w tym overlaye innych aplikacji
     ↓
-PopupCropper — przycina dolne 60% ekranu (tam gdzie jest popup)
+PopupCropper przycina dolne 60% ekranu (tam gdzie jest popup)
     ↓
-ML Kit OCR (TextRecognition) — rozpoznaje tekst z bitmapy
+ML Kit OCR rozpoznaje tekst z bitmapy (~700ms)
     ↓
-UberOcrParser — regex wyciąga: kwotę (zł), czas (min), dystans (km)
+UberOcrParser (regex) wyciąga: kwotę (zł), czas (min), dystans (km)
     ↓
-OfferAnalyzer — liczy zł/h = kwota / (minuty/60)
+OfferAnalyzer liczy zł/h = kwota / (minuty/60)
     ↓
-SystemOverlayManager — pokazuje belkę na górze ekranu z kolorem:
-    GREEN (≥40 zł/h), YELLOW (≥32 zł/h), RED (<32 zł/h)
+SystemOverlayManager pokazuje belkę na górze ekranu:
+    GREEN (≥40 zł/h) | YELLOW (≥32 zł/h) | RED (<32 zł/h)
+    Belka znika automatycznie po 5s (OverlayAutoHider)
 ```
 
-### Kluczowe odkrycia techniczne:
-
-1. **`takeScreenshot()` (AccessibilityService API) nie widzi overlayów innych aplikacji** — Android celowo to blokuje dla bezpieczeństwa. Uber Driver popup jest `TYPE_APPLICATION_OVERLAY`, więc screenshot był pusty.
-
-2. **MediaProjection API rozwiązuje ten problem** — robi screenshot identyczny z fizycznym przyciskiem, widzi wszystko. Wymaga jednorazowej zgody użytkownika ("Czy pozwolić nagrywać ekran?").
-
-3. **MediaProjection wymaga ForegroundService z typem `mediaProjection`** (Android API 34+) — AccessibilityService nie wystarczy. Dlatego stworzono `ScreenCaptureService`.
-
-4. **Emulator nie obsługuje `VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR`** — na emulatorze MediaProjection zwraca pusty/szary obraz. Na fizycznym telefonie działa poprawnie.
-
-5. **Timing screenshota jest krytyczny** — debounce od ostatniego eventu powodował screenshot PO zniknięciu popupu (popup generuje eventy co ~100ms, debounce 1500ms = screenshot 1500ms po ostatnim evencie = popup już zniknął). Fix: screenshot przy PIERWSZYM evencie (300ms delay), potem cooldown 5s.
-
-6. **OCR dokładnie odczytuje tekst polskiego Ubera** — kwoty z przecinkiem ("34,58 zł"), czas, dystans w nawiasach "(9,1 km)", "AKCEPTUJ".
+### Ważne ograniczenia techniczne:
+1. `takeScreenshot()` z AccessibilityService nie widzi overlayów innych app — stąd MediaProjection
+2. MediaProjection wymaga jednorazowej zgody użytkownika przy każdym uruchomieniu (Android 14+)
+3. Na emulatorze MediaProjection daje pusty obraz — testy tylko na fizycznym telefonie
+4. ML Kit OCR (~700ms) to bottleneck pipeline — trudny do obejścia bez zmiany silnika
+5. Po reinstalacji APK AccessibilityService wymaga ręcznego toggle OFF→ON (znane ograniczenie Androida)
 
 ---
 
-## Co NIE jest jeszcze gotowe / znane problemy
+## Co dalej
 
-| Problem | Priorytet |
-|---------|-----------|
-| Belka nie znika po zniknięciu popupu | Wysoki |
-| Nie testowane na prawdziwej aplikacji Uber Driver | Wysoki |
-| Brak automatycznego odświeżenia (kolejne zlecenia po cooldown 5s) | Średni |
-| Brak obsługi różnych rozmiarów ekranu w PopupCropper | Średni |
-| ScreenCaptureService nie restartuje się po wyłączeniu/włączeniu | Średni |
-| Brak obsługi Wolt, Glovo | Niski |
-| Brak ustawień progów zł/h | Niski |
-| Brak trybu nocnego/dziennego w overlau | Niski |
+**Następne:** KAN-14 — belka nie aktualizuje się przy nowym zamówieniu (rekomendowany model: Sonnet)
 
----
-
-## Znane problemy (do naprawienia w przyszłych wersjach)
-
-| Problem | Priorytet |
-|---------|-----------|
-| START czasem wymaga 2 kliknięć (race condition onResume/onActivityResult) | Średni |
-| Belka zostaje chwilę po zniknięciu popupu (brak detekcji zamknięcia popupu) | Niski |
-| Po reinstalacji APK trzeba ręcznie toggle accessibility off/on | Niski |
-
-## Następna akcja
-
-Merge `feature/production-app` do `main`.
-
+**Kolejność priorytetów:** KAN-14 → Bug accessibility/START → KAN-12 → KAN-11 → KAN-13 → KAN-15
