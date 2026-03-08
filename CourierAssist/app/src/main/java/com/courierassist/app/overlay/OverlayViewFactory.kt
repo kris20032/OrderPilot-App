@@ -1,6 +1,7 @@
 package com.courierassist.app.overlay
 
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
@@ -29,6 +30,7 @@ object OverlayViewFactory {
             parts += "%.1f km".format(result.offer.distanceKm)
 
         textView.text = parts.joinToString(" | ")
+        textView.setTextColor(Color.WHITE)
 
         val bgColor = when (result.level) {
             ProfitLevel.GREEN  -> 0xCC4CAF50.toInt()
