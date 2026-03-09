@@ -15,27 +15,24 @@
 
 ---
 
-## 2. Podział pracy: Opus 4.6 vs Sonnet 4.5
+## 2. Podział pracy: Opus 4.6 vs Sonnet 4.6
 
 ### Przed każdym krokiem:
 **Informuję Cię:** "Teraz rekomenduje zmianę na [Opus/Sonnet], daj znać jak to zrobisz i będziemy kontynuować"
 
 ### Kiedy używać którego modelu:
 
-**Opus 4.6** - skomplikowane zadania:
-- TASK 2.1.1: AccessibilityService (konfiguracja, edge cases)
-- TASK 4.2.1: UberParser (parsowanie drzewa UI, regex, multi-język)
-- TASK 6.1.1: Integracja end-to-end (pipeline, debugowanie)
-- Debugowanie trudnych problemów
-- Decyzje architektoniczne
+**Opus 4.6** - skomplikowane zadania wymagające głębokiej analizy:
+- Debugowanie nieoczywistych bugów (crashe, race conditions, pipeline)
+- Decyzje architektoniczne i refaktoring wielu plików
+- Analiza logów i diagnoza problemów z MediaProjection/AccessibilityService
+- Zadania gdzie pierwsze podejście może być złe i trzeba rozważyć wiele opcji
 
-**Sonnet** - implementacja według spec:
-- TASK 1.1.1: Inicjalizacja projektu (boilerplate)
-- TASK 3.1.1: Modele domenowe (data class, enum)
-- TASK 3.2.1: OfferAnalyzer (matematyka)
-- TASK 5.1.1: Overlay (XML + WindowManager)
-- TASK 7.1.1: START/STOP UI
-- Testy jednostkowe
+**Sonnet 4.6** - implementacja według jasnej specyfikacji:
+- Nowe funkcje UI (XML, layouty, Activity)
+- Bugfixy z jasno zidentyfikowaną przyczyną
+- Zmiany w jednym lub kilku plikach
+- Aktualizacje dokumentacji i konfiguracji
 
 ---
 

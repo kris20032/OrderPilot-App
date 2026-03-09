@@ -68,7 +68,8 @@ Brak — wszystkie zadania KAN-11 do KAN-15 zaimplementowane. Oczekiwanie na tes
 
 | Branch | Cel | Status |
 |--------|-----|--------|
-| `feature/production-app` | Główny branch produkcyjny — tu trafia wszystko co działa | Aktywny |
+| `feature/ui-redesign` | UI redesign + wielojęzyczność + bugfixy (2026-03-09) | Aktywny, lokalnie — do merge do `feature/production-app` po testach |
+| `feature/production-app` | Główny branch produkcyjny | Aktywny na GitHub |
 | `main` | Stabilna baza z POC | Zablokowany na zmiany kodu (tylko dokumentacja) |
 
 > Workflow: nowe zadanie → nowy branch `fix/...` lub `feature/...` → testuj na telefonie → merge do `feature/production-app`
@@ -92,14 +93,14 @@ Uber Driver popup pojawia się na ekranie
     ↓
 CourierAccessibilityService wykrywa event (TYPE_WINDOW_CONTENT_CHANGED)
     ↓
-EventThrottler: czeka 100ms (firstShot), potem cooldown 3s
+EventThrottler: czeka 100ms (firstShot), potem cooldown 1.5s
     ↓
 ScreenCaptureService robi screenshot przez MediaProjection API
     → widzi WSZYSTKO na ekranie, w tym overlaye innych aplikacji
     ↓
 PopupCropper przycina dolne 60% ekranu (tam gdzie jest popup)
     ↓
-ML Kit OCR rozpoznaje tekst z bitmapy (~700ms)
+ML Kit OCR rozpoznaje tekst z bitmapy (~200-300ms)
     ↓
 UberOcrParser (regex) wyciąga: kwotę (zł), czas (min), dystans (km)
     ↓
@@ -114,7 +115,7 @@ SystemOverlayManager pokazuje belkę na górze ekranu:
 1. `takeScreenshot()` z AccessibilityService nie widzi overlayów innych app — stąd MediaProjection
 2. MediaProjection wymaga jednorazowej zgody użytkownika przy każdym uruchomieniu (Android 14+)
 3. Na emulatorze MediaProjection daje pusty obraz — testy tylko na fizycznym telefonie
-4. ML Kit OCR (~700ms) to bottleneck pipeline — trudny do obejścia bez zmiany silnika
+4. ML Kit OCR (~200-300ms) — realna latencja ~350-420ms total
 5. Po reinstalacji APK AccessibilityService wymaga ręcznego toggle OFF→ON (znane ograniczenie Androida)
 
 ---
