@@ -25,7 +25,10 @@ class SystemOverlayManager(private val context: Context) : OverlayManager {
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSLUCENT
-        ).apply { gravity = Gravity.TOP }
+        ).apply {
+            gravity = Gravity.TOP
+            y = (48 * context.resources.displayMetrics.density).toInt()
+        }
         try {
             windowManager.addView(view, params)
             overlayView = view
