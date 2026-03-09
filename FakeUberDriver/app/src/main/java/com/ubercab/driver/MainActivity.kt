@@ -38,14 +38,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun selectedLanguage(): UberLanguage = when (binding.rgLanguage.checkedRadioButtonId) {
+        R.id.rbUK -> UberLanguage.UK
+        R.id.rbEN -> UberLanguage.EN
+        else -> UberLanguage.PL
+    }
+
     private fun sendOffer() {
-        val offer = OfferRandomizer.random()
+        val lang = selectedLanguage()
+        val offer = OfferRandomizer.random(lang)
         val intent = Intent(this, OfferOverlayService::class.java).apply {
             putExtra(OfferOverlayService.EXTRA_AMOUNT, offer.amount)
             putExtra(OfferOverlayService.EXTRA_TIME, offer.time)
             putExtra(OfferOverlayService.EXTRA_DISTANCE, offer.distance)
             putExtra(OfferOverlayService.EXTRA_PICKUP, offer.pickup)
             putExtra(OfferOverlayService.EXTRA_DROPOFF, offer.dropoff)
+            putExtra(OfferOverlayService.EXTRA_LANGUAGE, lang.name)
         }
         startService(intent)
         binding.tvStatus.text = "Wysłano: ${offer.amount} · ${offer.time} · ${offer.distance}"

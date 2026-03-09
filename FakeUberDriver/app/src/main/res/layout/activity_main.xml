@@ -15,6 +15,36 @@
         android:textStyle="bold"
         android:layout_marginBottom="32dp" />
 
+    <RadioGroup
+        android:id="@+id/rgLanguage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <RadioButton
+            android:id="@+id/rbPL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PL"
+            android:checked="true"
+            android:layout_marginEnd="12dp" />
+
+        <RadioButton
+            android:id="@+id/rbUK"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="UK"
+            android:layout_marginEnd="12dp" />
+
+        <RadioButton
+            android:id="@+id/rbEN"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="EN" />
+
+    </RadioGroup>
+
     <Button
         android:id="@+id/btnSendOffer"
         android:layout_width="match_parent"

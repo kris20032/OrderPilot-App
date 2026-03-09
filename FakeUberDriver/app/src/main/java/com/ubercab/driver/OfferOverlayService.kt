@@ -24,6 +24,7 @@ class OfferOverlayService : Service() {
         const val EXTRA_DISTANCE = "extra_distance"
         const val EXTRA_PICKUP = "extra_pickup"
         const val EXTRA_DROPOFF = "extra_dropoff"
+        const val EXTRA_LANGUAGE = "extra_language"
 
         private const val POPUP_DURATION_MS = 15_000L
     }
@@ -51,10 +52,19 @@ class OfferOverlayService : Service() {
             dropoff = intent?.getStringExtra(EXTRA_DROPOFF) ?: "Aleksandry Gabrysiak, Gdańsk"
         )
 
+        val language = intent?.getStringExtra(EXTRA_LANGUAGE)
+            ?.let { runCatching { UberLanguage.valueOf(it) }.getOrNull() }
+            ?: UberLanguage.PL
+        val totalLabel = when (language) {
+            UberLanguage.PL -> "Łącznie"
+            UberLanguage.UK -> "Разом"
+            UberLanguage.EN -> "Total"
+        }
+
         val binding = OverlayOfferBinding.inflate(LayoutInflater.from(this))
 
         binding.tvAmount.text = offer.amount
-        binding.tvTimeDistance.text = "Łącznie ${offer.time} (${offer.distance})"
+        binding.tvTimeDistance.text = "$totalLabel ${offer.time} (${offer.distance})"
         binding.tvPickup.text = offer.pickup
         binding.tvDropoff.text = offer.dropoff
 
