@@ -6,6 +6,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import com.courierassist.app.domain.AnalysisResult
+import com.courierassist.app.domain.AppLanguage
 import com.courierassist.app.settings.DisplayConfig
 
 class SystemOverlayManager(private val context: Context) : OverlayManager {
@@ -13,9 +14,9 @@ class SystemOverlayManager(private val context: Context) : OverlayManager {
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var overlayView: View? = null
 
-    override fun show(result: AnalysisResult, displayConfig: DisplayConfig) {
+    override fun show(result: AnalysisResult, displayConfig: DisplayConfig, language: AppLanguage) {
         hide()
-        val view = OverlayViewFactory.create(context, result, displayConfig)
+        val view = OverlayViewFactory.create(context, result, displayConfig, language)
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.WRAP_CONTENT,

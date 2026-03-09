@@ -1,22 +1,40 @@
 package com.courierassist.app.ui
 
-import android.app.Activity
+import android.animation.ObjectAnimator
+import android.content.Context
+import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
+import android.graphics.drawable.GradientDrawable
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import com.courierassist.app.R
 import com.courierassist.app.capture.ScreenCaptureService
 import com.courierassist.app.databinding.ActivityMainBinding
+import com.courierassist.app.di.ServiceLocator
+import com.courierassist.app.domain.AppLanguage
 import com.courierassist.app.service.CourierAccessibilityService
 
-class MainActivity : Activity() {
+class MainActivity : AppCompatActivity() {
+
+    override fun attachBaseContext(newBase: Context) {
+        val lang = try {
+            ServiceLocator.settingsRepository.load().language
+        } catch (_: Exception) {
+            AppLanguage.PL
+        }
+        super.attachBaseContext(LocaleHelper.wrap(newBase, lang))
+    }
 
     private lateinit var binding: ActivityMainBinding
     private var isRunning = false
     private var pendingStart = false
+    private var dotPulseAnimator: ObjectAnimator? = null
 
     companion object {
         private const val REQUEST_MEDIA_PROJECTION = 1001
@@ -42,11 +60,17 @@ class MainActivity : Activity() {
             isRunning = false
             pendingStart = false
             updateUi()
-            Toast.makeText(this, "Nagrywanie ekranu zostało przerwane. Kliknij START żeby wznowić.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Nagrywanie ekranu zostało przerwane. Kliknij Start żeby wznowić.", Toast.LENGTH_LONG).show()
         } else if (!pendingStart) {
             isRunning = ScreenCaptureService.instance != null
             updateUi()
         }
+        updateAccessibilityHint()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        dotPulseAnimator?.cancel()
     }
 
     private fun startCapture() {
@@ -91,7 +115,44 @@ class MainActivity : Activity() {
 
     private fun updateUi() {
         binding.tvStatus.setText(if (isRunning) R.string.status_running else R.string.status_stopped)
+        binding.tvStatusSubtitle.setText(if (isRunning) R.string.status_subtitle_running else R.string.status_subtitle_stopped)
         binding.btnToggle.setText(if (isRunning) R.string.btn_stop else R.string.btn_start)
+
+        val dotColor = if (isRunning) R.color.status_green else R.color.status_red
+        (binding.viewStatusDot.background as? GradientDrawable)?.setColor(
+            ContextCompat.getColor(this, dotColor)
+        )
+
+        dotPulseAnimator?.cancel()
+        if (isRunning) {
+            dotPulseAnimator = ObjectAnimator.ofFloat(binding.viewStatusDot, View.ALPHA, 1f, 0.25f).apply {
+                duration = 900
+                repeatMode = ObjectAnimator.REVERSE
+                repeatCount = ObjectAnimator.INFINITE
+                interpolator = AccelerateDecelerateInterpolator()
+                start()
+            }
+        } else {
+            binding.viewStatusDot.alpha = 1f
+        }
+
+        // Prosta animacja karty statusu przy zmianie stanu
+        binding.cardStatus.animate()
+            .scaleX(0.97f).scaleY(0.97f)
+            .setDuration(100)
+            .withEndAction {
+                binding.cardStatus.animate()
+                    .scaleX(1f).scaleY(1f)
+                    .setDuration(150)
+                    .start()
+            }.start()
+
+        updateAccessibilityHint()
+    }
+
+    private fun updateAccessibilityHint() {
+        binding.layoutAccessibilityHint.visibility =
+            if (isAccessibilityEnabled()) View.GONE else View.VISIBLE
     }
 
     private fun isAccessibilityEnabled(): Boolean {

@@ -119,6 +119,22 @@ SystemOverlayManager pokazuje belkę na górze ekranu:
 
 ---
 
+## UI Redesign i bugfixy — 2026-03-09
+
+| Zadanie | Opis | Status |
+|---------|------|--------|
+| Suwak czasu wyświetlania | Zakres 1–15s, krok 1s (było 5–60s) | ✅ |
+| Przycisk Zapisz | Przyklejony do dołu ekranu, poza ScrollView | ✅ |
+| Po zapisaniu | `finish()` natychmiast bez opóźnienia | ✅ |
+| Parser wielojęzyczny | Uniwersalny regex PL/UK/EN jednocześnie — nie zależy od języka Ubera | ✅ |
+| Belka wielojęzyczna | Tekst belki (zł/h, грн/год, PLN/h) według języka UI | ✅ |
+| Tłumaczenia UI | `values-uk/` i `values-en/` — cała aplikacja po ukraińsku/angielsku | ✅ |
+| Zmiana języka natychmiastowa | LocaleHelper + attachBaseContext, restart MainActivity przy zmianie języka | ✅ |
+| Fix mrugania belki | `lastResult` nie kasowany po ukryciu — wygasa po 60s | ✅ |
+| Cooldown 3s → 1.5s | Szybsza reakcja na nowe zlecenie | ✅ |
+
+Branch: `feature/ui-redesign`
+
 ## Co dalej
 
-Wszystkie zaplanowane zadania ukończone. Następny krok: testy na fizycznym telefonie przez tatę, zbieranie nowych bugów/feature requestów.
+Testy na fizycznym telefonie — wielojęzyczność (UK/EN), brak mrugania belki, zmiana języka.

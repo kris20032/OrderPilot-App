@@ -1,8 +1,10 @@
 package com.courierassist.app.ui
 
-import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
 import com.courierassist.app.R
 import com.courierassist.app.databinding.ActivitySettingsBinding
 import com.courierassist.app.di.ServiceLocator
@@ -10,9 +12,17 @@ import com.courierassist.app.domain.AppLanguage
 import com.courierassist.app.domain.MetricType
 import com.courierassist.app.settings.DisplayConfig
 import com.courierassist.app.settings.ThresholdConfig
-import android.widget.SeekBar
 
-class SettingsActivity : Activity() {
+class SettingsActivity : AppCompatActivity() {
+
+    override fun attachBaseContext(newBase: Context) {
+        val lang = try {
+            ServiceLocator.settingsRepository.load().language
+        } catch (_: Exception) {
+            AppLanguage.PL
+        }
+        super.attachBaseContext(LocaleHelper.wrap(newBase, lang))
+    }
 
     private lateinit var binding: ActivitySettingsBinding
 
@@ -21,27 +31,20 @@ class SettingsActivity : Activity() {
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.toolbar.setNavigationOnClickListener { finish() }
+
         loadSettings()
         setupSliders()
         binding.btnSave.setOnClickListener { saveSettings() }
     }
 
     private fun setupSliders() {
-        binding.sbOpacity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
-                binding.tvOpacityLabel.text = getString(R.string.settings_opacity, progress)
-            }
-            override fun onStartTrackingTouch(sb: SeekBar?) {}
-            override fun onStopTrackingTouch(sb: SeekBar?) {}
-        })
-        binding.sbDisplayTime.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
-                val seconds = progress + 5
-                binding.tvDisplayTimeLabel.text = getString(R.string.settings_display_time, seconds)
-            }
-            override fun onStartTrackingTouch(sb: SeekBar?) {}
-            override fun onStopTrackingTouch(sb: SeekBar?) {}
-        })
+        binding.slOpacity.addOnChangeListener { _, value, _ ->
+            binding.tvOpacityLabel.text = getString(R.string.settings_opacity, value.toInt())
+        }
+        binding.slDisplayTime.addOnChangeListener { _, value, _ ->
+            binding.tvDisplayTimeLabel.text = getString(R.string.settings_display_time, value.toInt())
+        }
     }
 
     private fun loadSettings() {
@@ -52,17 +55,20 @@ class SettingsActivity : Activity() {
         binding.etYellowThreshold.setText(t.yellowMinZlPerHour.toInt().toString())
 
         val metrics = settings.display.visibleMetrics
-        binding.cbMetricZlPerHour.isChecked = MetricType.ZL_PER_HOUR in metrics
-        binding.cbMetricZlPerKm.isChecked = MetricType.ZL_PER_KM in metrics
-        binding.cbMetricAmount.isChecked = MetricType.AMOUNT in metrics
-        binding.cbMetricTime.isChecked = MetricType.TIME in metrics
-        binding.cbMetricDistance.isChecked = MetricType.DISTANCE in metrics
+        binding.swMetricZlPerHour.isChecked = MetricType.ZL_PER_HOUR in metrics
+        binding.swMetricZlPerKm.isChecked = MetricType.ZL_PER_KM in metrics
+        binding.swMetricAmount.isChecked = MetricType.AMOUNT in metrics
+        binding.swMetricTime.isChecked = MetricType.TIME in metrics
+        binding.swMetricDistance.isChecked = MetricType.DISTANCE in metrics
 
-        binding.sbOpacity.progress = settings.display.overlayOpacity
-        binding.tvOpacityLabel.text = getString(R.string.settings_opacity, settings.display.overlayOpacity)
+        val opacityRaw = settings.display.overlayOpacity.toFloat()
+        val opacity = (Math.round((opacityRaw - 10f) / 5f) * 5f + 10f).coerceIn(10f, 100f)
+        binding.slOpacity.value = opacity
+        binding.tvOpacityLabel.text = getString(R.string.settings_opacity, opacity.toInt())
 
-        binding.sbDisplayTime.progress = settings.display.displayTimeSeconds - 5
-        binding.tvDisplayTimeLabel.text = getString(R.string.settings_display_time, settings.display.displayTimeSeconds)
+        val displayTime = settings.display.displayTimeSeconds.toFloat().coerceIn(1f, 15f)
+        binding.slDisplayTime.value = displayTime
+        binding.tvDisplayTimeLabel.text = getString(R.string.settings_display_time, displayTime.toInt())
 
         val langRadio = when (settings.language) {
             AppLanguage.PL -> R.id.rb_lang_pl
@@ -77,16 +83,16 @@ class SettingsActivity : Activity() {
         val yellow = binding.etYellowThreshold.text.toString().toDoubleOrNull()
 
         if (green == null || yellow == null || yellow >= green) {
-            Toast.makeText(this, R.string.settings_validation_error, Toast.LENGTH_SHORT).show()
+            Snackbar.make(binding.root, R.string.settings_validation_error, Snackbar.LENGTH_LONG).show()
             return
         }
 
         val metrics = mutableSetOf<MetricType>()
-        if (binding.cbMetricZlPerHour.isChecked) metrics += MetricType.ZL_PER_HOUR
-        if (binding.cbMetricZlPerKm.isChecked) metrics += MetricType.ZL_PER_KM
-        if (binding.cbMetricAmount.isChecked) metrics += MetricType.AMOUNT
-        if (binding.cbMetricTime.isChecked) metrics += MetricType.TIME
-        if (binding.cbMetricDistance.isChecked) metrics += MetricType.DISTANCE
+        if (binding.swMetricZlPerHour.isChecked) metrics += MetricType.ZL_PER_HOUR
+        if (binding.swMetricZlPerKm.isChecked) metrics += MetricType.ZL_PER_KM
+        if (binding.swMetricAmount.isChecked) metrics += MetricType.AMOUNT
+        if (binding.swMetricTime.isChecked) metrics += MetricType.TIME
+        if (binding.swMetricDistance.isChecked) metrics += MetricType.DISTANCE
 
         val language = when (binding.rgLanguage.checkedRadioButtonId) {
             R.id.rb_lang_uk -> AppLanguage.UK
@@ -104,12 +110,19 @@ class SettingsActivity : Activity() {
             display = DisplayConfig(
                 visibleMetrics = metrics,
                 themeMode = current.display.themeMode,
-                overlayOpacity = binding.sbOpacity.progress,
-                displayTimeSeconds = binding.sbDisplayTime.progress + 5
+                overlayOpacity = binding.slOpacity.value.toInt(),
+                displayTimeSeconds = binding.slDisplayTime.value.toInt()
             )
         )
+        val languageChanged = current.language != language
         ServiceLocator.settingsRepository.save(updated)
-        Toast.makeText(this, R.string.settings_saved, Toast.LENGTH_SHORT).show()
-        finish()
+        if (languageChanged) {
+            val intent = Intent(this, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+            finish()
+        } else {
+            finish()
+        }
     }
 }

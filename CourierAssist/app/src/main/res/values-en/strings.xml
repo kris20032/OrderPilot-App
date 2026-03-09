@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">CourierAssist</string>
+    <string name="accessibility_service_description">CourierAssist analyzes delivery offers and shows profitability overlay.</string>
+    <string name="btn_start">Start</string>
+    <string name="btn_stop">Stop</string>
+    <string name="status_running">Active</string>
+    <string name="status_stopped">Inactive</string>
+    <string name="status_subtitle_running">Monitoring Uber</string>
+    <string name="status_subtitle_stopped">Stopped</string>
+    <string name="accessibility_hint">Enable CourierAssist in:\nSettings → Accessibility → Installed apps</string>
+
+    <!-- SettingsActivity -->
+    <string name="settings_open">Settings</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_thresholds_header">PLN/h thresholds</string>
+    <string name="settings_green_threshold">Green from (PLN/h)</string>
+    <string name="settings_yellow_threshold">Yellow from (PLN/h)</string>
+    <string name="settings_metrics_header">What to show on overlay</string>
+    <string name="metric_zl_per_hour">PLN/h</string>
+    <string name="metric_zl_per_km">PLN/km</string>
+    <string name="metric_amount">Amount</string>
+    <string name="metric_time">Time (min)</string>
+    <string name="metric_distance">Distance (km)</string>
+    <string name="settings_language_header">App language</string>
+    <string name="settings_overlay_header">Overlay appearance</string>
+    <string name="settings_opacity">Opacity: %d%%</string>
+    <string name="settings_display_time">Display time: %d s</string>
+    <string name="settings_save">Save settings</string>
+    <string name="settings_saved">Settings saved</string>
+    <string name="settings_validation_error">Green threshold must be higher than yellow</string>
+</resources>

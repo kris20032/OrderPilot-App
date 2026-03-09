@@ -31,6 +31,8 @@ class PipelineOrchestrator(
 ) {
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     @Volatile private var lastResult: AnalysisResult? = null
+    @Volatile private var lastResultTime = 0L
+    private val resultExpiryMs = 60_000L // reset po 60s bez zlecenia
 
     fun process(packageName: String) {
         scope.launch {
@@ -65,7 +67,7 @@ class PipelineOrchestrator(
                 AppLog.w(AppLog.TAG_PIPELINE, "No parser for $packageName")
                 return@launch
             }
-            val offer = parser.parse(ocrLines, settings.language) ?: run {
+            val offer = parser.parse(ocrLines) ?: run {
                 AppLog.w(AppLog.TAG_PIPELINE, "Parser returned null")
                 return@launch
             }
@@ -79,20 +81,23 @@ class PipelineOrchestrator(
             val tTotal = System.currentTimeMillis()
             AppLog.d(AppLog.TAG_PIPELINE, "Analyzed: ${result.zlPerHour} zł/h → ${result.level} [total ${tTotal - t0}ms]")
 
+            val now = System.currentTimeMillis()
+            if (now - lastResultTime > resultExpiryMs) lastResult = null
             if (result == lastResult) {
                 AppLog.d(AppLog.TAG_PIPELINE, "Same result as before, skipping overlay update")
                 return@launch
             }
             lastResult = result
+            lastResultTime = now
 
             withContext(Dispatchers.Main) {
-                overlayManager.show(result, settings.display)
+                overlayManager.show(result, settings.display, settings.language)
                 overlayAutoHider.onOverlayShown(scope, settings.display.displayTimeSeconds * 1000L)
             }
         }
     }
 
-    fun onOverlayHidden() { lastResult = null }
+    fun onOverlayHidden() { /* lastResult zachowany — resetuje się po 60s bez zlecenia */ }
 
     fun cancel() = scope.cancel()
 }

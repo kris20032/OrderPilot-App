@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">CourierAssist</string>
+    <string name="accessibility_service_description">CourierAssist аналізує пропозиції доставки та показує оверлей прибутковості.</string>
+    <string name="btn_start">Старт</string>
+    <string name="btn_stop">Стоп</string>
+    <string name="status_running">Активний</string>
+    <string name="status_stopped">Неактивний</string>
+    <string name="status_subtitle_running">Моніторинг Uber</string>
+    <string name="status_subtitle_stopped">Зупинено</string>
+    <string name="accessibility_hint">Увімкніть CourierAssist у:\nНалаштування → Спеціальні можливості → Встановлені додатки</string>
+
+    <!-- SettingsActivity -->
+    <string name="settings_open">Налаштування</string>
+    <string name="settings_title">Налаштування</string>
+    <string name="settings_thresholds_header">Пороги грн/год</string>
+    <string name="settings_green_threshold">Зелений від (грн/год)</string>
+    <string name="settings_yellow_threshold">Жовтий від (грн/год)</string>
+    <string name="settings_metrics_header">Що показувати на панелі</string>
+    <string name="metric_zl_per_hour">грн/год</string>
+    <string name="metric_zl_per_km">грн/км</string>
+    <string name="metric_amount">Сума</string>
+    <string name="metric_time">Час (хв)</string>
+    <string name="metric_distance">Відстань (км)</string>
+    <string name="settings_language_header">Мова додатку</string>
+    <string name="settings_overlay_header">Вигляд панелі</string>
+    <string name="settings_opacity">Прозорість: %d%%</string>
+    <string name="settings_display_time">Час показу: %d с</string>
+    <string name="settings_save">Зберегти налаштування</string>
+    <string name="settings_saved">Налаштування збережено</string>
+    <string name="settings_validation_error">Зелений поріг має бути вищим за жовтий</string>
+</resources>

@@ -1,14 +1,17 @@
 <resources>
     <string name="app_name">CourierAssist</string>
     <string name="accessibility_service_description">CourierAssist analyzes delivery offers and shows profitability overlay.</string>
-    <string name="btn_start">START</string>
-    <string name="btn_stop">STOP</string>
-    <string name="status_running">Status: ACTIVE</string>
-    <string name="status_stopped">Status: STOPPED</string>
-    <string name="accessibility_hint">Enable CourierAssist in:\nSettings → Accessibility → Installed apps</string>
+    <string name="btn_start">Start</string>
+    <string name="btn_stop">Stop</string>
+    <string name="status_running">Active</string>
+    <string name="status_stopped">Inactive</string>
+    <string name="status_subtitle_running">Monitorowanie Uber</string>
+    <string name="status_subtitle_stopped">Zatrzymane</string>
+    <string name="accessibility_hint">Włącz CourierAssist w:\nUstawienia → Dostępność → Zainstalowane aplikacje</string>
 
     <!-- SettingsActivity -->
     <string name="settings_open">Ustawienia</string>
+    <string name="settings_title">Ustawienia</string>
     <string name="settings_thresholds_header">Progi zł/h</string>
     <string name="settings_green_threshold">Zielony od (zł/h)</string>
     <string name="settings_yellow_threshold">Żółty od (zł/h)</string>
@@ -18,11 +21,11 @@
     <string name="metric_amount">Kwota</string>
     <string name="metric_time">Czas (min)</string>
     <string name="metric_distance">Dystans (km)</string>
-    <string name="settings_language_header">Język aplikacji Uber</string>
+    <string name="settings_language_header">Język aplikacji</string>
     <string name="settings_overlay_header">Wygląd belki</string>
     <string name="settings_opacity">Przezroczystość: %d%%</string>
     <string name="settings_display_time">Czas wyświetlania: %d s</string>
-    <string name="settings_save">Zapisz</string>
+    <string name="settings_save">Zapisz ustawienia</string>
     <string name="settings_saved">Ustawienia zapisane</string>
     <string name="settings_validation_error">Próg zielony musi być wyższy niż żółty</string>
 </resources>

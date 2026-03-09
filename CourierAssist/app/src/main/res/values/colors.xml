@@ -2,4 +2,29 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Primary accent — ciepla mieta/szalwia -->
+    <color name="primary">#6BAF9A</color>
+    <color name="primary_dark">#4D9080</color>
+    <color name="primary_container">#E0F2EC</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="on_primary_container">#1A4D3F</color>
+
+    <!-- Tlo i powierzchnie -->
+    <color name="background">#F5F5F5</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#F0F4F2</color>
+
+    <!-- Tekst -->
+    <color name="on_background">#1A1A1A</color>
+    <color name="on_surface">#1A1A1A</color>
+    <color name="on_surface_variant">#666666</color>
+
+    <!-- Status -->
+    <color name="status_green">#4CAF50</color>
+    <color name="status_red">#EF5350</color>
+
+    <!-- Outline -->
+    <color name="outline">#CCCCCC</color>
+    <color name="outline_variant">#E8E8E8</color>
 </resources>
