@@ -65,12 +65,15 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         if (ScreenCaptureService.isProjectionLost) {
             ScreenCaptureService.stopCapture(this)
-            isRunning = false
             pendingStart = false
+            // Accessibility fallback nadal działa — nie ustawiaj Inactive
+            if (!CourierAccessibilityService.isConnected) {
+                isRunning = false
+                Toast.makeText(this, getString(R.string.toast_projection_lost), Toast.LENGTH_LONG).show()
+            }
             updateUi()
-            Toast.makeText(this, "Nagrywanie ekranu zostało przerwane. Kliknij Start żeby wznowić.", Toast.LENGTH_LONG).show()
         } else if (!pendingStart) {
-            isRunning = ScreenCaptureService.instance != null
+            isRunning = ScreenCaptureService.instance != null || CourierAccessibilityService.isConnected
             updateUi()
         }
         updateAccessibilityHint()
@@ -82,6 +85,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startCapture() {
+        CourierAccessibilityService.isUserStopped = false
         if (!CourierAccessibilityService.isConnected) {
             Toast.makeText(this, getString(R.string.accessibility_hint), Toast.LENGTH_LONG).show()
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
@@ -97,6 +101,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopCapture() {
+        CourierAccessibilityService.isUserStopped = true
         ScreenCaptureService.stopCapture(this)
         isRunning = false
         pendingStart = false

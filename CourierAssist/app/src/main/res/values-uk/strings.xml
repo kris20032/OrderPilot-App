@@ -8,6 +8,7 @@
     <string name="status_subtitle_running">Моніторинг Uber</string>
     <string name="status_subtitle_stopped">Зупинено</string>
     <string name="accessibility_hint">Увімкніть CourierAssist у:\nНалаштування → Спеціальні можливості → Встановлені додатки</string>
+    <string name="toast_projection_lost">Запис екрану було перервано. Натисніть Старт щоб відновити.</string>
 
     <!-- SetupActivity -->
     <string name="setup_subtitle">Налаштуйте додаток для правильної роботи у фоновому режимі.</string>

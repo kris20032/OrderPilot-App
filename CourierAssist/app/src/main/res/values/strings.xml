@@ -8,6 +8,7 @@
     <string name="status_subtitle_running">Monitorowanie Uber</string>
     <string name="status_subtitle_stopped">Zatrzymane</string>
     <string name="accessibility_hint">Włącz CourierAssist w:\nUstawienia → Dostępność → Zainstalowane aplikacje</string>
+    <string name="toast_projection_lost">Nagrywanie ekranu zostało przerwane. Kliknij Start żeby wznowić.</string>
 
     <!-- SetupActivity -->
     <string name="setup_subtitle">Skonfiguruj aplikację, aby działała poprawnie w tle.</string>

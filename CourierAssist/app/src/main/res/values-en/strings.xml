@@ -8,6 +8,7 @@
     <string name="status_subtitle_running">Monitoring Uber</string>
     <string name="status_subtitle_stopped">Stopped</string>
     <string name="accessibility_hint">Enable CourierAssist in:\nSettings → Accessibility → Installed apps</string>
+    <string name="toast_projection_lost">Screen recording was interrupted. Tap Start to resume.</string>
 
     <!-- SetupActivity -->
     <string name="setup_subtitle">Set up the app to work correctly in the background.</string>
