@@ -159,10 +159,23 @@ SystemOverlayManager pokazuje belkę na górze ekranu:
 
 Branch: `feature/ui-redesign`
 
+## Dual-mode accessibility fallback — 2026-03-10
+
+| Zadanie | Opis | Status |
+|---------|------|--------|
+| AccessibilityTextCollector | Nowa klasa: rekurencyjny obchód drzewa UI, zbiera text + contentDescription | ✅ |
+| Dual-mode w CourierAccessibilityService | Gdy MediaProjection niedostępna → czyta tekst z getRootInActiveWindow() → parsuje UberOcrParser → overlay | ✅ |
+| Test na telefonie taty (FakeUberApp) | Accessibility fallback działa! Po screen off parsuje zlecenia i pokazuje belkę | ✅ |
+| **Fix: mruganie belki w fallback** | Brak deduplikacji wyników — co ~1.6s ten sam wynik → show() → mruganie | Do implementacji |
+| **Fix: status Inactive po screen off** | onResume() ustawia Inactive mimo że accessibility fallback działa | Do implementacji |
+| **Fix: flaga isUserStopped** | Przycisk Stop musi wyłączać też accessibility fallback | Do implementacji |
+
+Branch: `feature/accessibility-fallback`
+
+Plan naprawy: `docs/IMPLEMENTATION_FIX_FALLBACK.md`
+
 ## Co dalej
 
-1. **Dual-mode accessibility fallback** — dodać ścieżkę text parsing do CourierAccessibilityService jako fallback gdy MediaProjection nie działa
+1. **Naprawić mruganie belki + status Inactive** — plan w `docs/IMPLEMENTATION_FIX_FALLBACK.md`
 2. **Setup wizard** — ekran konfiguracji uprawnień (overlay, accessibility, battery optimization, Samsung)
-3. **Testy na telefonie taty** (Android 16) — weryfikacja dual-mode po wygaszeniu ekranu
-
-Plan w `docs/PLAN.md`.
+3. **Test na prawdziwym Uberze** (jutro) — weryfikacja dual-mode z prawdziwymi zleceniami

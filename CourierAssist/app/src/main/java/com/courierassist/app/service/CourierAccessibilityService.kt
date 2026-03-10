@@ -5,6 +5,7 @@ import android.view.accessibility.AccessibilityEvent
 import com.courierassist.app.capture.ScreenCaptureService
 import com.courierassist.app.di.AppLog
 import com.courierassist.app.di.ServiceLocator
+import com.courierassist.app.domain.AnalysisResult
 import com.courierassist.app.pipeline.PipelineOrchestrator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +18,9 @@ class CourierAccessibilityService : AccessibilityService() {
     private lateinit var pipeline: PipelineOrchestrator
     private lateinit var throttler: EventThrottler
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    @Volatile private var lastResult: AnalysisResult? = null
+    @Volatile private var lastResultTime = 0L
+    private val resultExpiryMs = 60_000L
 
     override fun onServiceConnected() {
         pipeline = ServiceLocator.pipelineOrchestrator
@@ -30,6 +34,8 @@ class CourierAccessibilityService : AccessibilityService() {
         if (pkg !in watchedPackages) return
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED &&
             event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
+
+        if (isUserStopped) return
 
         AppLog.d(AppLog.TAG_SERVICE, "Event from $pkg")
 
@@ -76,6 +82,16 @@ class CourierAccessibilityService : AccessibilityService() {
             val result = ServiceLocator.offerAnalyzer.analyze(offer, settings.thresholdsFor(offer.platform))
             AppLog.d(AppLog.TAG_SERVICE, "Accessibility result: ${result.zlPerHour} zł/h → ${result.level}")
 
+            // Deduplikacja — nie pokazuj belki jeśli ten sam wynik
+            val now = System.currentTimeMillis()
+            if (now - lastResultTime > resultExpiryMs) lastResult = null
+            if (result == lastResult) {
+                AppLog.d(AppLog.TAG_SERVICE, "Accessibility: same result, skipping")
+                return
+            }
+            lastResult = result
+            lastResultTime = now
+
             scope.launch(Dispatchers.Main) {
                 ServiceLocator.overlayManager.show(result, settings.display, settings.language)
                 ServiceLocator.overlayAutoHider.onOverlayShown(scope, settings.display.displayTimeSeconds * 1000L)
@@ -97,6 +113,9 @@ class CourierAccessibilityService : AccessibilityService() {
         @Volatile
         var isConnected = false
             private set
+
+        @Volatile
+        var isUserStopped = false
 
         private val watchedPackages = setOf("com.ubercab.driver", "com.ubercab.eats")
     }
