@@ -5,8 +5,9 @@ import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
 import android.graphics.drawable.GradientDrawable
+import android.media.projection.MediaProjectionConfig
 import android.media.projection.MediaProjectionManager
-import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
@@ -42,6 +43,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (!SetupActivity.isSetupComplete(this)) {
+            startActivity(Intent(this, SetupActivity::class.java))
+            finish()
+            return
+        }
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -74,24 +82,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startCapture() {
-        if (!isAccessibilityEnabled()) {
-            Toast.makeText(this, "Włącz CourierAssist w Ustawieniach → Dostępność", Toast.LENGTH_LONG).show()
-            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-            return
-        }
         if (!CourierAccessibilityService.isConnected) {
-            Toast.makeText(this, "Wyłącz i włącz ponownie przełącznik CourierAssist w Ustawieniach → Dostępność", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.accessibility_hint), Toast.LENGTH_LONG).show()
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
             return
         }
-        if (!Settings.canDrawOverlays(this)) {
-            Toast.makeText(this, "Wymagane uprawnienie do wyświetlania nakładki", Toast.LENGTH_LONG).show()
-            startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")))
-            return
-        }
-        Toast.makeText(this, "Zezwól na nagrywanie ekranu — to pozwala analizować oferty", Toast.LENGTH_SHORT).show()
         val manager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-        startActivityForResult(manager.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION)
+        val captureIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            manager.createScreenCaptureIntent(MediaProjectionConfig.createConfigForDefaultDisplay())
+        } else {
+            manager.createScreenCaptureIntent()
+        }
+        startActivityForResult(captureIntent, REQUEST_MEDIA_PROJECTION)
     }
 
     private fun stopCapture() {

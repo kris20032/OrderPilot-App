@@ -9,6 +9,21 @@
     <string name="status_subtitle_stopped">Zatrzymane</string>
     <string name="accessibility_hint">Włącz CourierAssist w:\nUstawienia → Dostępność → Zainstalowane aplikacje</string>
 
+    <!-- SetupActivity -->
+    <string name="setup_subtitle">Skonfiguruj aplikację, aby działała poprawnie w tle.</string>
+    <string name="setup_overlay_title">Wyświetlanie nad innymi aplikacjami</string>
+    <string name="setup_overlay_desc">Wymagane do wyświetlania belki z wynikami nad aplikacją Uber.</string>
+    <string name="setup_accessibility_title">Usługa dostępności</string>
+    <string name="setup_accessibility_desc">Włącz CourierAssist w:\nUstawienia → Dostępność → Zainstalowane aplikacje → CourierAssist</string>
+    <string name="setup_battery_title">Działanie w tle</string>
+    <string name="setup_battery_desc">Wyłącz optymalizację baterii, aby aplikacja działała po wygaszeniu ekranu.</string>
+    <string name="setup_samsung_title">Samsung: ograniczenia baterii</string>
+    <string name="setup_samsung_desc">Otwórz informacje o aplikacji, wejdź w Bateria i ustaw „Bez ograniczeń".</string>
+    <string name="setup_open_app_info">Otwórz info o aplikacji</string>
+    <string name="setup_open_settings">Otwórz ustawienia</string>
+    <string name="setup_disable_restrictions">Wyłącz ograniczenia</string>
+    <string name="setup_continue">Kontynuuj</string>
+
     <!-- SettingsActivity -->
     <string name="settings_open">Ustawienia</string>
     <string name="settings_title">Ustawienia</string>

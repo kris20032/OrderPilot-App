@@ -9,6 +9,21 @@
     <string name="status_subtitle_stopped">Зупинено</string>
     <string name="accessibility_hint">Увімкніть CourierAssist у:\nНалаштування → Спеціальні можливості → Встановлені додатки</string>
 
+    <!-- SetupActivity -->
+    <string name="setup_subtitle">Налаштуйте додаток для правильної роботи у фоновому режимі.</string>
+    <string name="setup_overlay_title">Відображення поверх інших додатків</string>
+    <string name="setup_overlay_desc">Необхідно для відображення панелі з результатами поверх додатка Uber.</string>
+    <string name="setup_accessibility_title">Служба спеціальних можливостей</string>
+    <string name="setup_accessibility_desc">Увімкніть CourierAssist у:\nНалаштування → Спеціальні можливості → Встановлені додатки → CourierAssist</string>
+    <string name="setup_battery_title">Робота у фоновому режимі</string>
+    <string name="setup_battery_desc">Вимкніть оптимізацію батареї, щоб додаток працював після вимкнення екрана.</string>
+    <string name="setup_samsung_title">Samsung: обмеження батареї</string>
+    <string name="setup_samsung_desc">Відкрийте інформацію про додаток, перейдіть у Батарея та встановіть «Без обмежень».</string>
+    <string name="setup_open_settings">Відкрити налаштування</string>
+    <string name="setup_disable_restrictions">Вимкнути обмеження</string>
+    <string name="setup_open_app_info">Відкрити інфо про додаток</string>
+    <string name="setup_continue">Продовжити</string>
+
     <!-- SettingsActivity -->
     <string name="settings_open">Налаштування</string>
     <string name="settings_title">Налаштування</string>

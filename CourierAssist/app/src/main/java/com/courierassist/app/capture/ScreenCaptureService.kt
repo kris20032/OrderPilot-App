@@ -11,6 +11,7 @@ import android.hardware.display.VirtualDisplay
 import android.media.ImageReader
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -78,7 +79,7 @@ class ScreenCaptureService : Service() {
         } else {
             AppLog.w(AppLog.TAG_CAPTURE, "Missing MediaProjection token")
         }
-        return START_NOT_STICKY
+        return START_REDELIVER_INTENT
     }
 
     private fun setupMediaProjection(resultCode: Int, resultData: Intent) {
@@ -163,6 +164,11 @@ class ScreenCaptureService : Service() {
         .setSmallIcon(android.R.drawable.ic_menu_compass)
         .setPriority(NotificationCompat.PRIORITY_LOW)
         .setOngoing(true)
+        .apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            }
+        }
         .build()
 
     private fun showLostNotification() {
