@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-03-10
-**Obecny etap:** Dual-mode (Accessibility text fallback) + Setup Wizard
-**Aktywny branch:** `feature/ui-redesign`
+**Obecny etap:** Dual-mode accessibility fallback ✅ UKOŃCZONY. Następny: Setup Wizard + testy na prawdziwym Uberze
+**Aktywny branch:** `feature/production-app`
 
 ---
 
@@ -58,42 +58,50 @@ Ojciec testował aplikację na fizycznym telefonie (2026-03-06/07). Zgłosił 5 
 | KAN-11 | Dialog MediaProjection mylący dla użytkownika | Toast wyjaśniający przed dialogiem: "Zezwól na nagrywanie ekranu — to pozwala analizować oferty" | 2026-03-08 | `feature/production-app` |
 | KAN-13 + KAN-15 | Suwaki przezroczystości i czasu wyświetlania belki | `overlayOpacity` (0-100%) i `displayTimeSeconds` (5-60s) w DisplayConfig. Suwaki w SettingsActivity. Opacity → `view.alpha`, czas → dynamiczny `hideDelayMs` | 2026-03-08 | `feature/production-app` (niescommitowane) |
 
-### Otwarte zadania — Dual-mode + Kompatybilność Android 16
+### Dual-mode accessibility fallback — UKOŃCZONE 2026-03-10
 
-#### Kluczowe odkrycie: Reverse-engineering RideHelper (2026-03-10)
+| Zadanie | Opis | Status | Branch |
+|---------|------|--------|--------|
+| AccessibilityTextCollector.kt | Klasa do rekurencyjnego zbierania tekstu z drzewa UI (`getRootInActiveWindow()`) | ✅ | feature/accessibility-fallback |
+| CourierAccessibilityService: dual-mode logic | Jeśli MediaProjection niedostępna → fallback na text parsing z accessibility tree | ✅ | feature/accessibility-fallback |
+| Deduplikacja wyników (fix mrugania) | `lastResult` + `lastResultTime` aby nie wyświetlać tego samego wyniku co 1.6s | ✅ | feature/accessibility-fallback |
+| Fix statusu Inactive po screen off | `onResume()` sprawdza `CourierAccessibilityService.isConnected` zamiast ustawiać Inactive gdy accessibility działa | ✅ | feature/accessibility-fallback |
+| Flaga isUserStopped | Stop button teraz faktycznie wyłącza accessibility fallback | ✅ | feature/accessibility-fallback |
+| Toast strings (3 języki) | `toast_projection_lost` w `values/`, `values-en/`, `values-uk/` | ✅ | feature/accessibility-fallback |
+| FakeUberApp: format dystansu | Zmieniono `"%.1f km"` → `"(%.1f km)"` aby matchował regex parsera | ✅ | feature/accessibility-fallback |
 
-Analiza konkurencyjnej apki `com.malansoft.ridehelper` (RideHelper Asystent TAXI, Play Store, targetSdk=36) ujawniła jak rozwiązują problem wygaszenia ekranu:
+**Merge:** feature/accessibility-fallback → feature/production-app (commit 8a9109c) ✅
 
-**Dual-mode architecture:**
-1. **MediaProjection + OCR** — dokładne, ale ginie po screen off
-2. **AccessibilityService text parsing** — czyta tekst z drzewa UI (`getRootInActiveWindow()` + recursive `collectText(node)`) — **przeżywa screen off**, nie wymaga MediaProjection
+**Testowanie:** Ojciec testuje na Android 16 (SM-S911B). Po wygaszeniu ekranu — accessibility fallback parsuje tekst Ubera i wyświetla belkę bez MediaProjection.
 
-Gdy MediaProjection ginie, AccessibilityService automatycznie przejmuje. Obie ścieżki wysyłają dane w tym samym formacie do overlay.
+### Otwarte zadania — Setup Wizard + Kompatybilność Android 16
 
-Pełna analiza: `.claude/projects/.../memory/ridehelper-reverse-engineering.md`
+| Problem | Rozwiązanie | Status | Priorytet |
+|---------|-------------|--------|-----------|
+| Brak battery optimization | Setup wizard + `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Do implementacji | High |
+| Samsung agresywne usypianie | Setup wizard z instrukcją "Never sleeping apps" | Do implementacji | High |
+| SetupActivity jest (ale nie testowana) | Podpiąć do MainActivity + przetestować workflow | Do testów | Medium |
+| Test na prawdziwym Uberze | Czy accessibility fallback parsuje rzeczywiste zlecenia z Uber Driver | Do testów (jutro) | High |
 
-#### Plan naprawy
-
-| Problem | Rozwiązanie | Status |
-|---------|-------------|--------|
-| Serwis umiera po screen off | **Dual-mode**: dodać accessibility text parsing jako fallback (bez MediaProjection) | Do implementacji |
-| Dialog MediaProjection "jedna aplikacja" | `createConfigForDefaultDisplay()` (API 34+) | Już zaimplementowane |
-| Brak battery optimization | Setup wizard + `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Do implementacji |
-| Samsung agresywne usypianie | Setup wizard z instrukcją "Never sleeping apps" | Do implementacji |
-
-Pełny plan: `docs/PLAN.md`
+Plan: `docs/PLAN.md`
 
 ---
 
 ## Aktywne branche
 
-| Branch | Cel | Status |
-|--------|-----|--------|
-| `feature/ui-redesign` | UI redesign + wielojęzyczność + bugfixy (2026-03-09) | Aktywny, lokalnie — do merge do `feature/production-app` po testach |
-| `feature/production-app` | Główny branch produkcyjny | Aktywny na GitHub |
-| `main` | Stabilna baza z POC | Zablokowany na zmiany kodu (tylko dokumentacja) |
+| Branch | Cel | Status | Last Commit |
+|--------|-----|--------|-------------|
+| `feature/production-app` | Główny branch produkcyjny — zawiera wszystkie bugfixy + dual-mode | ✅ Aktywny na GitHub | 8a9109c (2026-03-10) |
+| `main` | Stabilna baza z POC | Zablokowany na zmiany kodu (tylko dokumentacja) | 285c209 |
 
 > Workflow: nowe zadanie → nowy branch `fix/...` lub `feature/...` → testuj na telefonie → merge do `feature/production-app`
+
+## Workflow branche (w pracy)
+
+| Branch | Cel | Status | Data |
+|--------|-----|--------|------|
+| `feature/accessibility-fallback` | Dual-mode: accessibility fallback + fixes (mruganie + Inactive) | ✅ Merged do production-app | 2026-03-10 |
+| `feature/ui-redesign` | UI redesign + wielojęzyczność + bugfixy | ✅ Merged do production-app (pośrednio) | 2026-03-09 |
 
 ## Archiwalne branche
 
@@ -159,24 +167,12 @@ SystemOverlayManager pokazuje belkę na górze ekranu:
 
 Branch: `feature/ui-redesign`
 
-## Dual-mode accessibility fallback — 2026-03-10
+## Co dalej — Priorytet
 
-| Zadanie | Opis | Status |
-|---------|------|--------|
-| AccessibilityTextCollector | Nowa klasa: rekurencyjny obchód drzewa UI, zbiera text + contentDescription | ✅ |
-| Dual-mode w CourierAccessibilityService | Gdy MediaProjection niedostępna → czyta tekst z getRootInActiveWindow() → parsuje UberOcrParser → overlay | ✅ |
-| Test na telefonie taty (FakeUberApp) | Accessibility fallback działa! Po screen off parsuje zlecenia i pokazuje belkę | ✅ |
-| Fix: mruganie belki w fallback | Deduplikacja `lastResult` w CourierAccessibilityService | ✅ |
-| Fix: status Inactive po screen off | onResume() nie ustawia Inactive gdy accessibility connected | ✅ |
-| Fix: flaga isUserStopped | Stop wyłącza accessibility fallback, Start wznawia | ✅ |
-| Fix: FakeUberApp — format dystansu | `(1.5 km)` zamiast `1.5 km` żeby parser go łapał | ✅ |
+1. **TEST na prawdziwym Uberze** (jutro) — czy accessibility fallback parsuje rzeczywiste zlecenia. Jeśli tak → prawie done.
+2. **Setup wizard** — jeśli nie istnieje flow. SetupActivity.kt jest w repo ale wymaga testów + podpięcia do MainActivity.
+3. **Ewentualne bugfixy** po testach z prawdziwym Uberem.
 
-Branch: `feature/accessibility-fallback`
+**Token budget:** ~20% weekly limit do 2026-03-15. Realistycznie: test Ubera + ewentualny bugfix + Setup wizard → 2-3 sesje.
 
-Plan naprawy: `docs/IMPLEMENTATION_FIX_FALLBACK.md`
-
-## Co dalej
-
-1. **Test na prawdziwym Uberze** — weryfikacja dual-mode z prawdziwymi zleceniami (jutro, tata testuje)
-2. **Merge feature/accessibility-fallback → feature/production-app** — po pozytywnych testach
-3. **Setup wizard** — ekran konfiguracji uprawnień (overlay, accessibility, battery, Samsung) — już zaimplementowany w SetupActivity, wymaga testów
+Plan w `docs/PLAN.md`.
