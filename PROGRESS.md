@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-08
-**Obecny etap:** Wszystkie KAN-y zaimplementowane — oczekiwanie na testy na telefonie
-**Aktywny branch:** `feature/production-app`
+**Ostatnia aktualizacja:** 2026-03-10
+**Obecny etap:** Dual-mode (Accessibility text fallback) + Setup Wizard
+**Aktywny branch:** `feature/ui-redesign`
 
 ---
 
@@ -58,9 +58,30 @@ Ojciec testował aplikację na fizycznym telefonie (2026-03-06/07). Zgłosił 5 
 | KAN-11 | Dialog MediaProjection mylący dla użytkownika | Toast wyjaśniający przed dialogiem: "Zezwól na nagrywanie ekranu — to pozwala analizować oferty" | 2026-03-08 | `feature/production-app` |
 | KAN-13 + KAN-15 | Suwaki przezroczystości i czasu wyświetlania belki | `overlayOpacity` (0-100%) i `displayTimeSeconds` (5-60s) w DisplayConfig. Suwaki w SettingsActivity. Opacity → `view.alpha`, czas → dynamiczny `hideDelayMs` | 2026-03-08 | `feature/production-app` (niescommitowane) |
 
-### Otwarte zadania
+### Otwarte zadania — Dual-mode + Kompatybilność Android 16
 
-Brak — wszystkie zadania KAN-11 do KAN-15 zaimplementowane. Oczekiwanie na testy na fizycznym telefonie.
+#### Kluczowe odkrycie: Reverse-engineering RideHelper (2026-03-10)
+
+Analiza konkurencyjnej apki `com.malansoft.ridehelper` (RideHelper Asystent TAXI, Play Store, targetSdk=36) ujawniła jak rozwiązują problem wygaszenia ekranu:
+
+**Dual-mode architecture:**
+1. **MediaProjection + OCR** — dokładne, ale ginie po screen off
+2. **AccessibilityService text parsing** — czyta tekst z drzewa UI (`getRootInActiveWindow()` + recursive `collectText(node)`) — **przeżywa screen off**, nie wymaga MediaProjection
+
+Gdy MediaProjection ginie, AccessibilityService automatycznie przejmuje. Obie ścieżki wysyłają dane w tym samym formacie do overlay.
+
+Pełna analiza: `.claude/projects/.../memory/ridehelper-reverse-engineering.md`
+
+#### Plan naprawy
+
+| Problem | Rozwiązanie | Status |
+|---------|-------------|--------|
+| Serwis umiera po screen off | **Dual-mode**: dodać accessibility text parsing jako fallback (bez MediaProjection) | Do implementacji |
+| Dialog MediaProjection "jedna aplikacja" | `createConfigForDefaultDisplay()` (API 34+) | Już zaimplementowane |
+| Brak battery optimization | Setup wizard + `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Do implementacji |
+| Samsung agresywne usypianie | Setup wizard z instrukcją "Never sleeping apps" | Do implementacji |
+
+Pełny plan: `docs/PLAN.md`
 
 ---
 
@@ -112,11 +133,13 @@ SystemOverlayManager pokazuje belkę na górze ekranu:
 ```
 
 ### Ważne ograniczenia techniczne:
-1. `takeScreenshot()` z AccessibilityService nie widzi overlayów innych app — stąd MediaProjection
-2. MediaProjection wymaga jednorazowej zgody użytkownika przy każdym uruchomieniu (Android 14+)
-3. Na emulatorze MediaProjection daje pusty obraz — testy tylko na fizycznym telefonie
-4. ML Kit OCR (~200-300ms) — realna latencja ~350-420ms total
-5. Po reinstalacji APK AccessibilityService wymaga ręcznego toggle OFF→ON (znane ograniczenie Androida)
+1. `takeScreenshot()` z AccessibilityService nie widzi overlayów innych app — stąd MediaProjection dla pełnego capture
+2. **ALE** `getRootInActiveWindow()` + `collectText()` **widzi tekst z popupów Ubera** — bo popup to okno aktywnej aplikacji, nie overlay
+3. MediaProjection wymaga jednorazowej zgody użytkownika przy każdym uruchomieniu (Android 14+)
+4. **MediaProjection ginie po wygaszeniu ekranu** (Android 14+ policy) — nie da się obejść
+5. Na emulatorze MediaProjection daje pusty obraz — testy tylko na fizycznym telefonie
+6. ML Kit OCR (~200-300ms) — realna latencja ~350-420ms total
+7. Po reinstalacji APK AccessibilityService wymaga ręcznego toggle OFF→ON (znane ograniczenie Androida)
 
 ---
 
@@ -138,4 +161,8 @@ Branch: `feature/ui-redesign`
 
 ## Co dalej
 
-Testy na fizycznym telefonie — wielojęzyczność (UK/EN), brak mrugania belki, zmiana języka.
+1. **Dual-mode accessibility fallback** — dodać ścieżkę text parsing do CourierAccessibilityService jako fallback gdy MediaProjection nie działa
+2. **Setup wizard** — ekran konfiguracji uprawnień (overlay, accessibility, battery optimization, Samsung)
+3. **Testy na telefonie taty** (Android 16) — weryfikacja dual-mode po wygaszeniu ekranu
+
+Plan w `docs/PLAN.md`.
