@@ -4,7 +4,8 @@ import com.courierassist.app.domain.AnalysisResult
 import com.courierassist.app.domain.Offer
 import com.courierassist.app.domain.ProfitLevel
 
-class OfferAnalyzer {
+class OfferAnalyzer
+{
     fun analyze(offer: Offer, thresholds: com.courierassist.app.settings.ThresholdConfig): AnalysisResult {
         if (offer.estimatedMinutes <= 0) {
             return AnalysisResult(offer = offer, zlPerHour = 0.0, zlPerKm = null, level = ProfitLevel.RED)
