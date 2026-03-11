@@ -13,7 +13,7 @@ class EventThrottler(
     private var lastTriggerTime = 0L
     private var pendingJob: Job? = null
 
-    fun onEvent(scope: CoroutineScope, action: () -> Unit) {
+    fun onEvent(scope: CoroutineScope, action: suspend () -> Unit) {
         val now = System.currentTimeMillis()
         if (now - lastTriggerTime < cooldownMs) return
         if (pendingJob?.isActive == true) return

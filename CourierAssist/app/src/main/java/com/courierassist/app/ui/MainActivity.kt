@@ -19,6 +19,7 @@ import com.courierassist.app.capture.ScreenCaptureService
 import com.courierassist.app.databinding.ActivityMainBinding
 import com.courierassist.app.di.ServiceLocator
 import com.courierassist.app.domain.AppLanguage
+import com.courierassist.app.overlay.SystemOverlayManager
 import com.courierassist.app.service.CourierAccessibilityService
 
 class MainActivity : AppCompatActivity() {
@@ -86,6 +87,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun startCapture() {
         CourierAccessibilityService.isUserStopped = false
+        (ServiceLocator.overlayManager as? SystemOverlayManager)?.showKeepAlive()
         if (!CourierAccessibilityService.isConnected) {
             Toast.makeText(this, getString(R.string.accessibility_hint), Toast.LENGTH_LONG).show()
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
@@ -102,6 +104,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun stopCapture() {
         CourierAccessibilityService.isUserStopped = true
+        (ServiceLocator.overlayManager as? SystemOverlayManager)?.hideKeepAlive()
         ScreenCaptureService.stopCapture(this)
         isRunning = false
         pendingStart = false

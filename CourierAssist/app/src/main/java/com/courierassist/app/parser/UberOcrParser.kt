@@ -10,12 +10,13 @@ class UberOcrParser : OcrOfferParser {
     override val supportedPackages = setOf("com.ubercab.driver", "com.ubercab.eats")
 
     // Uniwersalne regexy — łapią PL (zł), UK (грн), EN (PLN) jednocześnie
-    private val amountRegex = Regex("""(\d+[.,]\d+)\s*(?:zł|грн|PLN)""", RegexOption.IGNORE_CASE)
-    private val timeRegex = Regex("""(\d+)\s*(?:min|хв)""", RegexOption.IGNORE_CASE)
-    private val distanceRegex = Regex("""\((\d+[.,]\d+)\s*(?:km|км)\)""", RegexOption.IGNORE_CASE)
+    // [\s\u00A0]* — obsługuje zwykłą spację i non-breaking space (Uber używa \u00A0)
+    private val amountRegex = Regex("""(\d+[.,]\d+)[\s\u00A0]*(?:zł|грн|PLN)""", RegexOption.IGNORE_CASE)
+    private val timeRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв)""", RegexOption.IGNORE_CASE)
+    private val distanceRegex = Regex("""[\s\u00A0(](\d+[.,]\d+)[\s\u00A0]*(?:km|км)[\s\u00A0)]""", RegexOption.IGNORE_CASE)
 
     // Mapowanie waluty z tekstu OCR
-    private val currencyRegex = Regex("""\d+[.,]\d+\s*(zł|грн|PLN)""", RegexOption.IGNORE_CASE)
+    private val currencyRegex = Regex("""\d+[.,]\d+[\s\u00A0]*(zł|грн|PLN)""", RegexOption.IGNORE_CASE)
 
     override fun parse(ocrLines: List<String>): Offer? {
         val text = ocrLines.joinToString(" ")

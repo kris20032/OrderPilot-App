@@ -1,7 +1,11 @@
 package com.courierassist.app.service
 
 import android.accessibilityservice.AccessibilityService
+import android.graphics.Bitmap
+import android.os.Build
+import android.view.Display
 import android.view.accessibility.AccessibilityEvent
+import androidx.annotation.RequiresApi
 import com.courierassist.app.capture.ScreenCaptureService
 import com.courierassist.app.di.AppLog
 import com.courierassist.app.di.ServiceLocator
@@ -12,6 +16,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 class CourierAccessibilityService : AccessibilityService() {
 
@@ -45,8 +51,10 @@ class CourierAccessibilityService : AccessibilityService() {
             return
         }
 
-        // Fallback: Accessibility text parsing (gdy MediaProjection niedostępna)
-        throttler.onEvent(scope) { processViaAccessibility(pkg) }
+        // Fallback: takeScreenshot() (API 30+) — nie wymaga MediaProjection
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            throttler.onEvent(scope) { processViaScreenshot(pkg) }
+        }
     }
 
     private fun isMediaProjectionAvailable(): Boolean {
@@ -54,25 +62,29 @@ class CourierAccessibilityService : AccessibilityService() {
         return service.isReady() && !ScreenCaptureService.isProjectionLost
     }
 
-    private fun processViaAccessibility(packageName: String) {
-        val root = rootInActiveWindow ?: run {
-            AppLog.w(AppLog.TAG_SERVICE, "rootInActiveWindow null")
-            return
-        }
+    @RequiresApi(Build.VERSION_CODES.R)
+    private suspend fun processViaScreenshot(packageName: String) {
         try {
-            val text = AccessibilityTextCollector.collectText(root)
-            root.recycle()
-
-            if (text.isBlank()) return
-            AppLog.d(AppLog.TAG_SERVICE, "Accessibility text (${text.length} chars)")
-
-            val lines = text.split("\n").filter { it.isNotBlank() }
-            val parser = ServiceLocator.parserRegistry.getParser(packageName) ?: run {
-                AppLog.d(AppLog.TAG_SERVICE, "Accessibility: no parser for $packageName")
+            AppLog.d(AppLog.TAG_SERVICE, "Taking screenshot via AccessibilityService API")
+            val bitmap = takeScreenshotSuspend() ?: run {
+                AppLog.w(AppLog.TAG_SERVICE, "Screenshot returned null")
                 return
             }
+
+            // Crop dolne 60% — belka jest na górze, popup zlecenia na dole
+            val croppedBitmap = run {
+                val startY = (bitmap.height * 0.4f).toInt()
+                val cropped = Bitmap.createBitmap(bitmap, 0, startY, bitmap.width, bitmap.height - startY)
+                bitmap.recycle()
+                cropped
+            }
+            val lines = ServiceLocator.ocrEngine.recognize(croppedBitmap)
+            croppedBitmap.recycle()
+            AppLog.d(AppLog.TAG_SERVICE, "Screenshot OCR: ${lines.size} lines → ${lines.take(3)}")
+
+            val parser = ServiceLocator.parserRegistry.getParser(packageName) ?: return
             val offer = parser.parse(lines) ?: run {
-                AppLog.d(AppLog.TAG_SERVICE, "Accessibility: parser returned null")
+                AppLog.d(AppLog.TAG_SERVICE, "Screenshot: parser returned null")
                 return
             }
 
@@ -80,15 +92,11 @@ class CourierAccessibilityService : AccessibilityService() {
             if (!ServiceLocator.offerFilter.passes(offer, settings.filtersFor(offer.platform))) return
 
             val result = ServiceLocator.offerAnalyzer.analyze(offer, settings.thresholdsFor(offer.platform))
-            AppLog.d(AppLog.TAG_SERVICE, "Accessibility result: ${result.zlPerHour} zł/h → ${result.level}")
+            AppLog.d(AppLog.TAG_SERVICE, "Screenshot result: ${result.zlPerHour} zł/h → ${result.level}")
 
-            // Deduplikacja — nie pokazuj belki jeśli ten sam wynik
             val now = System.currentTimeMillis()
             if (now - lastResultTime > resultExpiryMs) lastResult = null
-            if (result == lastResult) {
-                AppLog.d(AppLog.TAG_SERVICE, "Accessibility: same result, skipping")
-                return
-            }
+            if (result == lastResult) return
             lastResult = result
             lastResultTime = now
 
@@ -97,8 +105,28 @@ class CourierAccessibilityService : AccessibilityService() {
                 ServiceLocator.overlayAutoHider.onOverlayShown(scope, settings.display.displayTimeSeconds * 1000L)
             }
         } catch (e: Exception) {
-            AppLog.w(AppLog.TAG_SERVICE, "Accessibility fallback error: ${e.message}")
+            AppLog.w(AppLog.TAG_SERVICE, "Screenshot fallback error: ${e.message}")
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private suspend fun takeScreenshotSuspend(): Bitmap? = suspendCancellableCoroutine { cont ->
+        takeScreenshot(
+            Display.DEFAULT_DISPLAY,
+            mainExecutor,
+            object : TakeScreenshotCallback {
+                override fun onSuccess(screenshot: ScreenshotResult) {
+                    val bitmap = Bitmap.wrapHardwareBuffer(screenshot.hardwareBuffer, screenshot.colorSpace)
+                        ?.copy(Bitmap.Config.ARGB_8888, false)
+                    screenshot.hardwareBuffer.close()
+                    cont.resume(bitmap)
+                }
+                override fun onFailure(errorCode: Int) {
+                    AppLog.w(AppLog.TAG_SERVICE, "takeScreenshot failed: errorCode=$errorCode")
+                    cont.resume(null)
+                }
+            }
+        )
     }
 
     override fun onInterrupt() {}

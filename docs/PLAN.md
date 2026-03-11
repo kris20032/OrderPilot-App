@@ -1,8 +1,21 @@
-# Plan: Dual-mode + Setup Wizard + Kompatybilność Android 11–16
+# Plan: Setup Wizard + Testy produkcyjne
+
+**Data:** 2026-03-11 (aktualizacja)
+**Status:** takeScreenshot fallback ✅ DZIAŁA — czekamy na wyniki całodniowych testów 2026-03-12
+**Branch:** `feature/production-app`
+
+## Co zostało zrobione (2026-03-11)
+
+takeScreenshot() z AccessibilityService działa jako fallback po screen off na prawdziwym Uberze.
+Szczegóły: `PROGRESS.md` → sekcja "takeScreenshot fallback — UKOŃCZONE 2026-03-11"
+
+---
+
+# Plan archiwalny: Dual-mode + Setup Wizard + Kompatybilność Android 11–16
 
 **Data:** 2026-03-10
-**Status:** Do implementacji
-**Branch:** `feature/ui-redesign`
+**Status:** ✅ ZREALIZOWANY (inną ścieżką niż planowano — takeScreenshot zamiast text parsing)
+**Branch:** `feature/accessibility-fallback`
 
 ---
 
