@@ -1,7 +1,7 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-10
-**Obecny etap:** Dual-mode accessibility fallback ✅ UKOŃCZONY. Następny: Setup Wizard + testy na prawdziwym Uberze
+**Ostatnia aktualizacja:** 2026-03-11
+**Obecny etap:** takeScreenshot fallback ✅ DZIAŁA na prawdziwym Uberze po screen off. Następny: całodniowe testy (2026-03-12) + Setup Wizard
 **Aktywny branch:** `feature/production-app`
 
 ---
@@ -58,6 +58,56 @@ Ojciec testował aplikację na fizycznym telefonie (2026-03-06/07). Zgłosił 5 
 | KAN-11 | Dialog MediaProjection mylący dla użytkownika | Toast wyjaśniający przed dialogiem: "Zezwól na nagrywanie ekranu — to pozwala analizować oferty" | 2026-03-08 | `feature/production-app` |
 | KAN-13 + KAN-15 | Suwaki przezroczystości i czasu wyświetlania belki | `overlayOpacity` (0-100%) i `displayTimeSeconds` (5-60s) w DisplayConfig. Suwaki w SettingsActivity. Opacity → `view.alpha`, czas → dynamiczny `hideDelayMs` | 2026-03-08 | `feature/production-app` (niescommitowane) |
 
+### takeScreenshot fallback — UKOŃCZONE 2026-03-11
+
+**Problem do rozwiązania:** Accessibility text fallback (getRootInActiveWindow) NIE działał na prawdziwym Uberze — popup Ubera jest zbudowany w React Native i renderuje przez Canvas/skia, więc węzły accessibility tree mają **pusty tekst**. Żadna metoda czytania drzewa UI nie zwracała danych zlecenia.
+
+**Diagnoza — co próbowaliśmy i dlaczego nie działało:**
+
+| Podejście | Wynik | Powód porażki |
+|-----------|-------|---------------|
+| `getRootInActiveWindow()` + collectText() | ❌ 0-33 znaki | React Native popup = Canvas rendering, brak tekstu w accessibility tree |
+| `windows` API (getAllWindows) | ❌ tylko typ 1 i 3 | TYPE_APPLICATION_OVERLAY (typ 2) nie jest zwracany przez `windows` nawet z flagRetrieveInteractiveWindows |
+| `event.source` na popup | ❌ fragmenty tekstu | Popup overlay zwraca tylko namespacę, bez ceny/czasu |
+| Text accumulator (nasłuchiwanie wszystkich eventów) | ❌ brak danych | React Native nie emituje tekstu do accessibility API |
+| keepAlive overlay (pionowy pasek) | ✅ częściowo | Trzyma process przy życiu po screen off, ale MediaProjection i tak ginie |
+
+**Rozwiązanie: AccessibilityService.takeScreenshot() (API 30+)**
+
+AccessibilityService posiada metodę `takeScreenshot()` która:
+- Robi screenshot **bez MediaProjection** — nie wymaga zgody użytkownika
+- Wymaga tylko `android:canTakeScreenshot="true"` w accessibility_config.xml (już było)
+- Widzi cały ekran włącznie z overlayami (React Native popup)
+
+**Błąd który trzeba było naprawić:** Przekazywaliśmy `DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR` (wartość 4) jako ID wyświetlacza zamiast `Display.DEFAULT_DISPLAY` (wartość 0). Skutek: `errorCode=4` = `ERROR_TAKE_SCREENSHOT_INVALID_DISPLAY`.
+
+**Dodatkowy bug:** Gdy belka CourierAssist była widoczna podczas screenshota, OCR odczytywał tekst z naszej belki (`5 zł/h | 0,3 zł/km`) jako dane zlecenia → błędny wynik. Rozwiązanie: crop dolne 60% screenshota (popup zlecenia jest na dole, belka na górze).
+
+**Finalny stan pipeline (fallback po screen off):**
+```
+screen off → MediaProjection ginie
+    ↓
+Uber popup pojawia się (AccessibilityService dostaje event)
+    ↓
+isMediaProjectionAvailable() = false
+    ↓
+processViaScreenshot() — AccessibilityService.takeScreenshot(Display.DEFAULT_DISPLAY)
+    ↓
+Bitmap.createBitmap(bitmap, 0, startY=40%, width, height=60%)  ← crop dolne 60%
+    ↓
+ML Kit OCR na cropped bitmap
+    ↓
+UberOcrParser → OfferAnalyzer → belka na ekranie
+```
+
+**Wyniki testów na prawdziwym Uberze (2026-03-11):**
+- Po odblokowaniu ekranu (po screen off): ✅ belka pojawia się
+- Wynik przykładowy: 34.55 zł/h → YELLOW, 41.69 zł/h → GREEN
+- Deduplikacja działa (ten sam wynik nie jest pokazywany wielokrotnie)
+- Crop 60% eliminuje błędny odczyt belki CourierAssist
+
+**Commit:** `19ab147` na branchu `feature/accessibility-fallback`
+
 ### Dual-mode accessibility fallback — UKOŃCZONE 2026-03-10
 
 | Zadanie | Opis | Status | Branch |
@@ -78,10 +128,11 @@ Ojciec testował aplikację na fizycznym telefonie (2026-03-06/07). Zgłosił 5 
 
 | Problem | Rozwiązanie | Status | Priorytet |
 |---------|-------------|--------|-----------|
+| Całodniowe testy na prawdziwym Uberze | Ojciec testuje 2026-03-12 — zbieramy feedback | Do testów JUTRO | High |
 | Brak battery optimization | Setup wizard + `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Do implementacji | High |
 | Samsung agresywne usypianie | Setup wizard z instrukcją "Never sleeping apps" | Do implementacji | High |
 | SetupActivity jest (ale nie testowana) | Podpiąć do MainActivity + przetestować workflow | Do testów | Medium |
-| Test na prawdziwym Uberze | Czy accessibility fallback parsuje rzeczywiste zlecenia z Uber Driver | Do testów (jutro) | High |
+| Potencjalne bugfixy po testach | Nieznane — zależy od wyników 2026-03-12 | Nieznane | TBD |
 
 Plan: `docs/PLAN.md`
 
@@ -169,10 +220,8 @@ Branch: `feature/ui-redesign`
 
 ## Co dalej — Priorytet
 
-1. **TEST na prawdziwym Uberze** (jutro) — czy accessibility fallback parsuje rzeczywiste zlecenia. Jeśli tak → prawie done.
-2. **Setup wizard** — jeśli nie istnieje flow. SetupActivity.kt jest w repo ale wymaga testów + podpięcia do MainActivity.
-3. **Ewentualne bugfixy** po testach z prawdziwym Uberem.
-
-**Token budget:** ~20% weekly limit do 2026-03-15. Realistycznie: test Ubera + ewentualny bugfix + Setup wizard → 2-3 sesje.
+1. **Całodniowe testy na prawdziwym Uberze (2026-03-12)** — ojciec testuje przez cały dzień. Zbieramy: czy belka pojawia się przy zleceniach, czy wartości są poprawne, czy działa po screen off.
+2. **Bugfixy po testach** — zależy od wyników 2026-03-12.
+3. **Setup wizard** — SetupActivity.kt jest w repo ale wymaga podpięcia do MainActivity i testów battery optimization / Samsung "Never sleeping apps".
 
 Plan w `docs/PLAN.md`.
