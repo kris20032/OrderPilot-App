@@ -145,6 +145,7 @@ class CourierAccessibilityService : AccessibilityService() {
         @Volatile
         var isUserStopped = false
 
-        private val watchedPackages = setOf("com.ubercab.driver", "com.ubercab.eats")
+        private val watchedPackages: Set<String>
+            get() = ServiceLocator.parserRegistry.getAllWatchedPackages()
     }
 }
