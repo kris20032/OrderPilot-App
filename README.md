@@ -26,11 +26,8 @@ CourierAssist-App/
 ├── RULES.md             ← zasady współpracy (PRZECZYTAJ)
 ├── PROGRESS.md          ← aktualny status
 ├── docs/
-│   ├── PLAN.md          ← plan implementacji produkcyjnej (14 epiców, 40 tasków)
+│   ├── PLAN.md          ← aktywny plan + otwarte zadania
 │   ├── ARCHITECTURE.md  ← architektura modułowa
 │   └── PRODUCT_SPEC.md  ← specyfikacja produktu
-└── testing/
-    ├── glovo/           ← screenshoty testowe
-    ├── ubereats/
-    └── wolt/
+└── CourierAssist/       ← projekt Android (app/)
 ```

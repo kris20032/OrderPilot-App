@@ -1,10 +1,12 @@
-# Instrukcja implementacji: Dual-mode Accessibility Text Fallback
+# [ARCHIWALNE] Instrukcja implementacji: Dual-mode Accessibility Text Fallback
 
-**Cel:** Gdy MediaProjection nie działa (screen off, brak consent), CourierAccessibilityService
+> **UWAGA (2026-03-12):** To podejście zostało PORZUCONE. Uber Driver używa React Native — popup zlecenia renderuje przez Canvas/skia, więc `getRootInActiveWindow()` zwraca pusty tekst. Zamiast tego zaimplementowano `AccessibilityService.takeScreenshot()` (API 30+) jako fallback. Szczegóły: `PROGRESS.md` → sekcja "takeScreenshot fallback".
+
+**Cel (historyczny):** Gdy MediaProjection nie działa (screen off, brak consent), CourierAccessibilityService
 czyta tekst bezpośrednio z drzewa UI i parsuje go — bez OCR, bez screenshot.
 
 **Branch:** `feature/ui-redesign`
-**Priorytet:** NAJWYŻSZY — rozwiązuje problem utraty serwisu po wygaszeniu ekranu
+**Priorytet:** PORZUCONE — nie działa na React Native
 
 ---
 

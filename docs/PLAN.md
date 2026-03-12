@@ -1,27 +1,27 @@
 # Plan: Setup Wizard + Testy produkcyjne
 
-**Data:** 2026-03-11 (aktualizacja)
-**Status:** takeScreenshot fallback ✅ DZIAŁA — czekamy na wyniki całodniowych testów 2026-03-12
-**Branch:** `feature/production-app`
+**Data:** 2026-03-12 (aktualizacja)
+**Status:** Testy produkcyjne w toku — Uber ✅, Wolt jasny motyw ✅, Wolt dark mode 🔄
+**Branch aktywny:** `feature/wolt-parser`
 
-## Co zostało zrobione (2026-03-11)
+## Co zostało zrobione
 
-takeScreenshot() z AccessibilityService działa jako fallback po screen off na prawdziwym Uberze.
-Szczegóły: `PROGRESS.md` → sekcja "takeScreenshot fallback — UKOŃCZONE 2026-03-11"
+- takeScreenshot() fallback ✅ działa na prawdziwym Uberze (2026-03-11)
+- WoltOcrParser ✅ gotowy i zweryfikowany na jednym zleceniu (jasny motyw, 2026-03-12)
+- Logi diagnostyczne ✅ dodane do EventThrottler, PipelineOrchestrator, WoltOcrParser, CourierAccessibilityService
+
+Szczegóły: `PROGRESS.md`
 
 ---
 
 ## Aktywne ścieżki rozwoju
 
-### Równoległe branche
+### Branche
 
 | Branch | Cel | Status |
 |--------|-----|--------|
-| `feature/wolt-support` | Wsparcie platformy Wolt — nowy parser + detekcja pakietu | 🔄 Do rozpoczęcia |
-| `fix/uber-feedback-MMDD` | Bugfixy po testach ojca (2026-03-12) | ⏳ Czekamy na feedback |
-
-- **Wolt:** nowy branch `feature/wolt-support` — niezależny od testów Ubera, można zacząć równolegle
-- **Uber fixy:** branch otworzymy po otrzymaniu feedbacku od ojca z testów 2026-03-12
+| `feature/wolt-parser` | Wsparcie platformy Wolt — parser + testy produkcyjne | 🔄 Testy w toku, czeka na merge |
+| `fix/uber-feedback-MMDD` | Bugfixy po testach ojca | ⏳ Otwieramy po zebraniu feedbacku |
 
 ---
 
@@ -29,11 +29,12 @@ Szczegóły: `PROGRESS.md` → sekcja "takeScreenshot fallback — UKOŃCZONE 20
 
 | Problem | Rozwiązanie | Priorytet |
 |---------|-------------|-----------|
-| Całodniowe testy na prawdziwym Uberze | Ojciec testuje 2026-03-12 — zbieramy feedback | High |
+| Wolt dark mode | Ojciec testuje samodzielnie 2026-03-12 | High |
+| Merge feature/wolt-parser | Po potwierdzeniu dark mode + kilka zleceń | High |
 | Brak battery optimization | Setup wizard + `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | High |
 | Samsung agresywne usypianie | Setup wizard z instrukcją "Never sleeping apps" | High |
 | SetupActivity jest (ale nie testowana) | Podpiąć do MainActivity + przetestować workflow | Medium |
-| Potencjalne bugfixy po testach | Nieznane — zależy od wyników 2026-03-12 | TBD |
+| Bug: Uber popup nad Woltem | Fallback czyta Wolta w tle → parser null | Medium |
 
 ---
 
