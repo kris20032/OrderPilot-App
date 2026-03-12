@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Fake Uber Driver</string>
+    <string name="btn_send_offer">Wyślij zlecenie</string>
+    <string name="toggle_auto">Auto mode</string>
+    <string name="label_interval">Interwał (sekundy):</string>
+    <string name="badge_delivery">Dostawa</string>
+    <string name="btn_accept">Akceptuj</string>
+    <string name="label_total_time">Łącznie %1$s (%2$s)</string>
+    <string name="permission_required">Wymagane uprawnienie overlay. Kliknij OK aby otworzyć ustawienia.</string>
+    <string name="ok">OK</string>
+</resources>
