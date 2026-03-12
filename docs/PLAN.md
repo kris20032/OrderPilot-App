@@ -11,6 +11,20 @@ Szczegóły: `PROGRESS.md` → sekcja "takeScreenshot fallback — UKOŃCZONE 20
 
 ---
 
+## Aktywne ścieżki rozwoju
+
+### Równoległe branche
+
+| Branch | Cel | Status |
+|--------|-----|--------|
+| `feature/wolt-support` | Wsparcie platformy Wolt — nowy parser + detekcja pakietu | 🔄 Do rozpoczęcia |
+| `fix/uber-feedback-MMDD` | Bugfixy po testach ojca (2026-03-12) | ⏳ Czekamy na feedback |
+
+- **Wolt:** nowy branch `feature/wolt-support` — niezależny od testów Ubera, można zacząć równolegle
+- **Uber fixy:** branch otworzymy po otrzymaniu feedbacku od ojca z testów 2026-03-12
+
+---
+
 ## Otwarte zadania
 
 | Problem | Rozwiązanie | Priorytet |
