@@ -26,6 +26,7 @@ class WoltOcrParser : OcrOfferParser {
     override fun parse(ocrLines: List<String>): Offer? {
         val text = ocrLines.joinToString(" ")
 
+        AppLog.d(AppLog.TAG_PARSER, "Wolt OCR: $text")
         val amount = amountRegex.find(text)?.groupValues?.get(1)?.toDoubleLocale() ?: run {
             AppLog.w(AppLog.TAG_PARSER, "Wolt: no amount found")
             return null

@@ -41,7 +41,10 @@ class PipelineOrchestrator(
                 AppLog.w(AppLog.TAG_PIPELINE, "ScreenCaptureService not ready")
                 return@launch
             }
-            if (!capture.isReady()) return@launch
+            if (!capture.isReady()) {
+                AppLog.w(AppLog.TAG_PIPELINE, "capture.isReady()=false, skipping")
+                return@launch
+            }
 
             val screenshot = capture.capture() ?: run {
                 AppLog.w(AppLog.TAG_PIPELINE, "Screenshot null")
