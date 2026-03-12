@@ -1,7 +1,7 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-11
-**Obecny etap:** takeScreenshot fallback ✅ DZIAŁA na prawdziwym Uberze po screen off. Następny: całodniowe testy (2026-03-12) + Setup Wizard
+**Ostatnia aktualizacja:** 2026-03-12
+**Obecny etap:** WoltOcrParser gotowy na branchu `feature/wolt-parser` (czeka na testy na telefonie). Ojciec testuje Ubera dziś (2026-03-12).
 **Aktywny branch:** `feature/production-app`
 
 ---
@@ -124,14 +124,25 @@ UberOcrParser → OfferAnalyzer → belka na ekranie
 
 **Testowanie:** Ojciec testuje na Android 16 (SM-S911B). Po wygaszeniu ekranu — accessibility fallback parsuje tekst Ubera i wyświetla belkę bez MediaProjection.
 
-### Otwarte zadania — Setup Wizard + Kompatybilność Android 16
+### WoltOcrParser — gotowy, czeka na testy (2026-03-12)
+
+| Zadanie | Opis | Status | Branch |
+|---------|------|--------|--------|
+| WoltOcrParser.kt | Parser Wolta: zakres czasu (MAX), dystans bez nawiasów, baner promo | ✅ Gotowy, 15/15 testów zielono | `feature/wolt-parser` |
+| ServiceLocator | WoltOcrParser zarejestrowany w ParserRegistry | ✅ | `feature/wolt-parser` |
+| CourierAccessibilityService | watchedPackages dynamiczne z getAllWatchedPackages() | ✅ | `feature/wolt-parser` |
+| accessibility_config.xml | com.wolt.courierapp dodany | ✅ | `feature/wolt-parser` |
+| Testy na telefonie | Wymaga: adb shell pm list packages | grep -i wolt (potwierdzić package name) | ⏳ Czeka | - |
+
+### Otwarte zadania
 
 | Problem | Rozwiązanie | Status | Priorytet |
 |---------|-------------|--------|-----------|
-| Całodniowe testy na prawdziwym Uberze | Ojciec testuje 2026-03-12 — zbieramy feedback | Do testów JUTRO | High |
-| Brak battery optimization | Setup wizard + `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Do implementacji | High |
-| Samsung agresywne usypianie | Setup wizard z instrukcją "Never sleeping apps" | Do implementacji | High |
-| SetupActivity jest (ale nie testowana) | Podpiąć do MainActivity + przetestować workflow | Do testów | Medium |
+| Testy Ubera (całodniowe) | Ojciec testuje 2026-03-12 — zbieramy feedback | 🔄 W toku | High |
+| Bug belki dark/light mode | Czekamy na dokładniejszy opis z testów | ⏳ Czeka na info | High |
+| Testy Wolta na telefonie | Zainstalować APK z `feature/wolt-parser`, sprawdzić package name adb | ⏳ Czeka | High |
+| Brak battery optimization | Setup wizard + `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Do implementacji | Medium |
+| Samsung agresywne usypianie | Setup wizard z instrukcją "Never sleeping apps" | Do implementacji | Medium |
 | Potencjalne bugfixy po testach | Nieznane — zależy od wyników 2026-03-12 | Nieznane | TBD |
 
 Plan: `docs/PLAN.md`
@@ -143,6 +154,7 @@ Plan: `docs/PLAN.md`
 | Branch | Cel | Status | Last Commit |
 |--------|-----|--------|-------------|
 | `feature/production-app` | Główny branch produkcyjny — zawiera wszystkie bugfixy + dual-mode | ✅ Aktywny na GitHub | 8a9109c (2026-03-10) |
+| `feature/wolt-parser` | WoltOcrParser — wsparcie platformy Wolt | ✅ Na GitHubie, czeka na merge po testach | f0757d9 (2026-03-12) |
 | `main` | Stabilna baza z POC | Zablokowany na zmiany kodu (tylko dokumentacja) | 285c209 |
 
 > Workflow: nowe zadanie → nowy branch `fix/...` lub `feature/...` → testuj na telefonie → merge do `feature/production-app`
