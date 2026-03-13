@@ -10,6 +10,7 @@ import com.courierassist.app.overlay.OverlayAutoHider
 import com.courierassist.app.overlay.OverlayManager
 import com.courierassist.app.overlay.SystemOverlayManager
 import com.courierassist.app.parser.ParserRegistry
+import com.courierassist.app.parser.GlovoOcrParser
 import com.courierassist.app.parser.UberOcrParser
 import com.courierassist.app.parser.WoltOcrParser
 import com.courierassist.app.pipeline.PipelineOrchestrator
@@ -32,7 +33,7 @@ object ServiceLocator {
         settingsRepository = SharedPrefsSettingsRepository(context)
         offerAnalyzer = OfferAnalyzer()
         offerFilter = OfferFilter()
-        parserRegistry = ParserRegistry(listOf(UberOcrParser(), WoltOcrParser()))
+        parserRegistry = ParserRegistry(listOf(UberOcrParser(), WoltOcrParser(), GlovoOcrParser()))
         popupCropper = PopupCropper()
         ocrEngine = OcrEngine()
         overlayManager = SystemOverlayManager(context)

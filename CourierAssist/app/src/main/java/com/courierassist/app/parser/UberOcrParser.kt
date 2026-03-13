@@ -11,7 +11,7 @@ class UberOcrParser : OcrOfferParser {
 
     // Uniwersalne regexy — łapią PL (zł), UK (грн), EN (PLN) jednocześnie
     // [\s\u00A0]* — obsługuje zwykłą spację i non-breaking space (Uber używa \u00A0)
-    private val amountRegex = Regex("""(\d+[.,]\d+)[\s\u00A0]*(?:zł|грн|PLN)""", RegexOption.IGNORE_CASE)
+    private val amountRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*(?:zł|грн|PLN)""", RegexOption.IGNORE_CASE)
     private val timeRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв)""", RegexOption.IGNORE_CASE)
     private val distanceRegex = Regex("""[\s\u00A0(](\d+[.,]\d+)[\s\u00A0]*(?:km|км)[\s\u00A0)]""", RegexOption.IGNORE_CASE)
 

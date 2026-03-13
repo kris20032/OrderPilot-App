@@ -21,16 +21,20 @@ object OverlayViewFactory {
 
         val l = labels(language)
         val parts = mutableListOf<String>()
-        if (MetricType.ZL_PER_HOUR in config.visibleMetrics)
+        if (MetricType.ZL_PER_HOUR in config.visibleMetrics && result.zlPerHour != null)
             parts += "%.0f ${l.currencyPerHour}".format(result.zlPerHour)
         if (MetricType.ZL_PER_KM in config.visibleMetrics && result.zlPerKm != null)
             parts += "%.1f ${l.currencyPerKm}".format(result.zlPerKm)
         if (MetricType.AMOUNT in config.visibleMetrics)
             parts += "%.2f ${l.currency}".format(result.offer.amount)
-        if (MetricType.TIME in config.visibleMetrics)
+        if (MetricType.TIME in config.visibleMetrics && result.offer.estimatedMinutes > 0)
             parts += "${result.offer.estimatedMinutes} ${l.minutes}"
         if (MetricType.DISTANCE in config.visibleMetrics && result.offer.distanceKm != null)
             parts += "%.1f ${l.km}".format(result.offer.distanceKm)
+
+        // Glovo partial: brak pełnych danych — zachęć do scrollu
+        if (result.offer.isPartial)
+            parts += "↓"
 
         textView.text = parts.joinToString(" | ")
         textView.setTextColor(Color.WHITE)

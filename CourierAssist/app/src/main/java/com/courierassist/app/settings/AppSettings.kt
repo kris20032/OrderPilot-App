@@ -9,7 +9,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ThresholdConfig(
     val greenMinZlPerHour: Double = 40.0,
-    val yellowMinZlPerHour: Double = 32.0
+    val yellowMinZlPerHour: Double = 32.0,
+    val greenMinZlPerKm: Double = 4.0,   // dla Glovo (brak czasu)
+    val yellowMinZlPerKm: Double = 3.0
 )
 
 @Serializable
@@ -17,7 +19,7 @@ data class DisplayConfig(
     val visibleMetrics: Set<MetricType> = setOf(MetricType.ZL_PER_HOUR),
     val themeMode: ThemeMode = ThemeMode.AUTO,
     val overlayOpacity: Int = 80,
-    val displayTimeSeconds: Int = 30
+    val displayTimeSeconds: Int = 40
 )
 
 @Serializable
@@ -29,7 +31,8 @@ data class FilterConfig(
 @Serializable
 data class PlatformSettings(
     val thresholds: ThresholdConfig? = null,
-    val filters: FilterConfig? = null
+    val filters: FilterConfig? = null,
+    val displayTimeSeconds: Int? = null
 )
 
 @Serializable
@@ -45,4 +48,7 @@ data class AppSettings(
 
     fun filtersFor(platform: Platform): FilterConfig =
         platformOverrides[platform]?.filters ?: globalFilters
+
+    fun displayTimeFor(platform: Platform): Int =
+        platformOverrides[platform]?.displayTimeSeconds ?: display.displayTimeSeconds
 }

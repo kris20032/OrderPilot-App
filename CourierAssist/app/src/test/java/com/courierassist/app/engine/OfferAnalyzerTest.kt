@@ -23,14 +23,14 @@ class OfferAnalyzerTest {
     fun `zlPerHour is calculated correctly`() {
         // 30 zł w 30 min = 60 zł/h
         val result = analyzer.analyze(offer(30.0, 30), defaultThresholds)
-        assertEquals(60.0, result.zlPerHour, 0.01)
+        assertEquals(60.0, result.zlPerHour!!, 0.01)
     }
 
     @Test
     fun `zlPerHour for 15 min offer`() {
         // 10 zł w 15 min = 40 zł/h
         val result = analyzer.analyze(offer(10.0, 15), defaultThresholds)
-        assertEquals(40.0, result.zlPerHour, 0.01)
+        assertEquals(40.0, result.zlPerHour!!, 0.01)
     }
 
     // --- ProfitLevel ---
@@ -85,9 +85,9 @@ class OfferAnalyzerTest {
     // --- edge cases ---
 
     @Test
-    fun `zero minutes returns RED with zlPerHour = 0`() {
+    fun `zero minutes returns RED with zlPerHour = null`() {
         val result = analyzer.analyze(offer(30.0, 0), defaultThresholds)
-        assertEquals(0.0, result.zlPerHour, 0.0)
+        assertNull(result.zlPerHour)
         assertEquals(ProfitLevel.RED, result.level)
     }
 

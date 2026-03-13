@@ -11,7 +11,7 @@ class WoltOcrParser : OcrOfferParser {
 
     // Kwota: "11,73 zł", "14,50 zł" — OCR czasem gubi "ł" → "18,50 z" lub zamienia na "t" → "9,50 zt"
     // [\s\u00A0]* — obsługuje zwykłą spację i non-breaking space
-    private val amountRegex = Regex("""(\d+[.,]\d+)[\s\u00A0]*(?:zł|zl|zt|z\b|PLN)""", RegexOption.IGNORE_CASE)
+    private val amountRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*(?:zł|zl|zt|z\b|PLN)""", RegexOption.IGNORE_CASE)
 
     // Czas jako zakres: "16 - 19 min", "16 – 19 min", "16—19 min"
     // Bierzemy MAX (konserwatywne — niższe zł/h)

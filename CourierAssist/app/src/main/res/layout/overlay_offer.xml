@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:paddingStart="20dp"
-    android:paddingEnd="20dp"
-    android:paddingTop="14dp"
-    android:paddingBottom="14dp"
     android:layout_marginStart="8dp"
     android:layout_marginEnd="8dp"
-    android:gravity="center_vertical"
     android:forceDarkAllowed="false"
     android:background="@drawable/overlay_background">
 
@@ -17,10 +11,29 @@
         android:id="@+id/tv_overlay_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingStart="20dp"
+        android:paddingEnd="32dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         android:textStyle="bold"
         android:gravity="center"
-        android:fontFamily="sans-serif-medium" />
+        android:fontFamily="sans-serif-medium"
+        android:maxLines="1"
+        android:ellipsize="none" />
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/tv_close"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="2dp"
+        android:text="×"
+        android:textSize="15sp"
+        android:textColor="#99FFFFFF"
+        android:gravity="center"
+        android:background="@android:color/transparent" />
+
+</FrameLayout>

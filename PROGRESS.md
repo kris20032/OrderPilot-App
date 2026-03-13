@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-12
-**Obecny etap:** Testy produkcyjne w toku — ojciec testuje Uber + Wolt na telefonie (2026-03-12). WoltOcrParser zweryfikowany na jednym zleceniu (jasny motyw). Dark mode Wolt niezweryfikowany. Czekamy na więcej zleceń i feedback.
-**Aktywny branch:** `feature/wolt-parser`
+**Ostatnia aktualizacja:** 2026-03-13
+**Obecny etap:** Testy produkcyjne — ojciec jeździ z najnowszą wersją (2026-03-13). Google Maps fix wdrożony. GlovoOcrParser szkielet gotowy, czeka na screeny ze zleceniami Glovo.
+**Aktywny branch:** `feature/glovo-parser` (bazuje na `feature/wolt-parser`)
 
 ---
 

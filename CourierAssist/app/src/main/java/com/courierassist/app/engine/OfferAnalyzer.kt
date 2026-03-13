@@ -7,11 +7,20 @@ import com.courierassist.app.domain.ProfitLevel
 class OfferAnalyzer
 {
     fun analyze(offer: Offer, thresholds: com.courierassist.app.settings.ThresholdConfig): AnalysisResult {
+        // Glovo: brak czasu → liczymy po zł/km
         if (offer.estimatedMinutes <= 0) {
-            return AnalysisResult(offer = offer, zlPerHour = 0.0, zlPerKm = null, level = ProfitLevel.RED)
+            val zlPerKm = offer.distanceKm?.let { if (it > 0) offer.amount / it else null }
+            val level = when {
+                zlPerKm == null -> ProfitLevel.RED
+                zlPerKm >= thresholds.greenMinZlPerKm -> ProfitLevel.GREEN
+                zlPerKm >= thresholds.yellowMinZlPerKm -> ProfitLevel.YELLOW
+                else -> ProfitLevel.RED
+            }
+            return AnalysisResult(offer = offer, zlPerHour = null, zlPerKm = zlPerKm, level = level)
         }
+
         val zlPerHour = offer.amount / (offer.estimatedMinutes / 60.0)
-        val zlPerKm = offer.distanceKm?.let { offer.amount / it }
+        val zlPerKm = offer.distanceKm?.let { if (it > 0) offer.amount / it else null }
         val level = when {
             zlPerHour >= thresholds.greenMinZlPerHour -> ProfitLevel.GREEN
             zlPerHour >= thresholds.yellowMinZlPerHour -> ProfitLevel.YELLOW

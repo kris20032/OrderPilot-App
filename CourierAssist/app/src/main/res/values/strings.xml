@@ -40,7 +40,10 @@
     <string name="settings_language_header">Język aplikacji</string>
     <string name="settings_overlay_header">Wygląd belki</string>
     <string name="settings_opacity">Przezroczystość: %d%%</string>
-    <string name="settings_display_time">Czas wyświetlania: %d s</string>
+    <string name="settings_display_time">Czas wyświetlania (domyślny): %d s</string>
+    <string name="settings_display_time_platform_header">Czas belki per platforma</string>
+    <string name="settings_display_time_uber">Uber: %d s</string>
+    <string name="settings_display_time_wolt">Wolt: %d s</string>
     <string name="settings_save">Zapisz ustawienia</string>
     <string name="settings_saved">Ustawienia zapisane</string>
     <string name="settings_validation_error">Próg zielony musi być wyższy niż żółty</string>

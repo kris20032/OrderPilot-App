@@ -23,7 +23,7 @@ import kotlin.coroutines.resume
 class CourierAccessibilityService : AccessibilityService() {
 
     private lateinit var pipeline: PipelineOrchestrator
-    private lateinit var throttler: EventThrottler
+    private val throttlers = mutableMapOf<String, EventThrottler>()
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     @Volatile private var lastResult: AnalysisResult? = null
     @Volatile private var lastResultTime = 0L
@@ -31,20 +31,31 @@ class CourierAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         pipeline = ServiceLocator.pipelineOrchestrator
-        throttler = EventThrottler()
         isConnected = true
         AppLog.d(AppLog.TAG_SERVICE, "AccessibilityService connected")
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         val pkg = event?.packageName?.toString() ?: return
-        if (pkg !in watchedPackages) return
+        AppLog.d(AppLog.TAG_SERVICE, "RAW event: pkg=$pkg type=${event.eventType}")
+        if (pkg !in watchedPackages) {
+            return
+        }
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED &&
             event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
 
         if (isUserStopped) return
 
         AppLog.d(AppLog.TAG_SERVICE, "Event from $pkg")
+
+        val throttler = throttlers.getOrPut(pkg) { EventThrottler() }
+
+        // Glovo: accessibility tree first (może zawierać dane poza ekranem)
+        val isGlovo = ServiceLocator.parserRegistry.getParser(pkg)?.platform == com.courierassist.app.domain.Platform.GLOVO
+        if (isGlovo) {
+            throttler.onEvent(scope) { processViaAccessibilityTree(pkg) }
+            return
+        }
 
         // Primary: MediaProjection pipeline (jeśli aktywna)
         if (isMediaProjectionAvailable()) {
@@ -55,6 +66,52 @@ class CourierAccessibilityService : AccessibilityService() {
         // Fallback: takeScreenshot() (API 30+) — nie wymaga MediaProjection
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             throttler.onEvent(scope) { processViaScreenshot(pkg) }
+        }
+    }
+
+    private suspend fun processViaAccessibilityTree(packageName: String) {
+        try {
+            val root = rootInActiveWindow ?: run {
+                AppLog.w(AppLog.TAG_SERVICE, "Glovo: rootInActiveWindow null, falling back to screenshot")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) processViaScreenshot(packageName)
+                return
+            }
+            val text = AccessibilityTextCollector.collectText(root)
+            root.recycle()
+            AppLog.d(AppLog.TAG_SERVICE, "Glovo accessibility tree text: ${text.take(200)}")
+
+            val lines = text.lines().filter { it.isNotBlank() }
+            val parser = ServiceLocator.parserRegistry.getParser(packageName) ?: return
+            val offer = parser.parse(lines)
+
+            if (offer == null) {
+                AppLog.d(AppLog.TAG_SERVICE, "Glovo: accessibility tree parse failed, falling back to screenshot")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) processViaScreenshot(packageName)
+                return
+            }
+
+            val settings = ServiceLocator.settingsRepository.load()
+            if (!ServiceLocator.offerFilter.passes(offer, settings.filtersFor(offer.platform))) return
+
+            val result = ServiceLocator.offerAnalyzer.analyze(offer, settings.thresholdsFor(offer.platform))
+            AppLog.d(AppLog.TAG_SERVICE, "Glovo tree result: zlPerKm=${result.zlPerKm} → ${result.level} partial=${offer.isPartial}")
+
+            val now = System.currentTimeMillis()
+            if (now - lastResultTime > resultExpiryMs) lastResult = null
+            val prev = lastResult
+            if (prev != null &&
+                result.level == prev.level &&
+                result.offer.amount == prev.offer.amount &&
+                result.offer.distanceKm == prev.offer.distanceKm) return
+            lastResult = result
+            lastResultTime = now
+
+            scope.launch(Dispatchers.Main) {
+                ServiceLocator.overlayManager.show(result, settings.display, settings.language)
+                ServiceLocator.overlayAutoHider.onOverlayShown(scope, settings.displayTimeFor(offer.platform) * 1000L)
+            }
+        } catch (e: Exception) {
+            AppLog.w(AppLog.TAG_SERVICE, "Glovo accessibility tree error: ${e.message}")
         }
     }
 
@@ -97,13 +154,17 @@ class CourierAccessibilityService : AccessibilityService() {
 
             val now = System.currentTimeMillis()
             if (now - lastResultTime > resultExpiryMs) lastResult = null
-            if (result == lastResult) return
+            val prev = lastResult
+            if (prev != null &&
+                result.level == prev.level &&
+                result.offer.amount == prev.offer.amount &&
+                result.offer.estimatedMinutes == prev.offer.estimatedMinutes) return
             lastResult = result
             lastResultTime = now
 
             scope.launch(Dispatchers.Main) {
                 ServiceLocator.overlayManager.show(result, settings.display, settings.language)
-                ServiceLocator.overlayAutoHider.onOverlayShown(scope, settings.display.displayTimeSeconds * 1000L)
+                ServiceLocator.overlayAutoHider.onOverlayShown(scope, settings.displayTimeFor(offer.platform) * 1000L)
             }
         } catch (e: Exception) {
             AppLog.w(AppLog.TAG_SERVICE, "Screenshot fallback error: ${e.message}")

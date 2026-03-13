@@ -10,7 +10,9 @@ import com.courierassist.app.databinding.ActivitySettingsBinding
 import com.courierassist.app.di.ServiceLocator
 import com.courierassist.app.domain.AppLanguage
 import com.courierassist.app.domain.MetricType
+import com.courierassist.app.domain.Platform
 import com.courierassist.app.settings.DisplayConfig
+import com.courierassist.app.settings.PlatformSettings
 import com.courierassist.app.settings.ThresholdConfig
 
 class SettingsActivity : AppCompatActivity() {
@@ -45,6 +47,12 @@ class SettingsActivity : AppCompatActivity() {
         binding.slDisplayTime.addOnChangeListener { _, value, _ ->
             binding.tvDisplayTimeLabel.text = getString(R.string.settings_display_time, value.toInt())
         }
+        binding.slDisplayTimeUber.addOnChangeListener { _, value, _ ->
+            binding.tvDisplayTimeUberLabel.text = getString(R.string.settings_display_time_uber, value.toInt())
+        }
+        binding.slDisplayTimeWolt.addOnChangeListener { _, value, _ ->
+            binding.tvDisplayTimeWoltLabel.text = getString(R.string.settings_display_time_wolt, value.toInt())
+        }
     }
 
     private fun loadSettings() {
@@ -66,9 +74,17 @@ class SettingsActivity : AppCompatActivity() {
         binding.slOpacity.value = opacity
         binding.tvOpacityLabel.text = getString(R.string.settings_opacity, opacity.toInt())
 
-        val displayTime = settings.display.displayTimeSeconds.toFloat().coerceIn(1f, 30f)
+        val displayTime = settings.display.displayTimeSeconds.toFloat().coerceIn(1f, 60f)
         binding.slDisplayTime.value = displayTime
         binding.tvDisplayTimeLabel.text = getString(R.string.settings_display_time, displayTime.toInt())
+
+        val uberTime = (settings.platformOverrides[Platform.UBER]?.displayTimeSeconds ?: 30).toFloat().coerceIn(5f, 60f)
+        binding.slDisplayTimeUber.value = uberTime
+        binding.tvDisplayTimeUberLabel.text = getString(R.string.settings_display_time_uber, uberTime.toInt())
+
+        val woltTime = (settings.platformOverrides[Platform.WOLT]?.displayTimeSeconds ?: 30).toFloat().coerceIn(5f, 60f)
+        binding.slDisplayTimeWolt.value = woltTime
+        binding.tvDisplayTimeWoltLabel.text = getString(R.string.settings_display_time_wolt, woltTime.toInt())
 
         val langRadio = when (settings.language) {
             AppLanguage.PL -> R.id.rb_lang_pl
@@ -101,6 +117,10 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         val current = ServiceLocator.settingsRepository.load()
+        val uberOverride = (current.platformOverrides[Platform.UBER] ?: PlatformSettings())
+            .copy(displayTimeSeconds = binding.slDisplayTimeUber.value.toInt())
+        val woltOverride = (current.platformOverrides[Platform.WOLT] ?: PlatformSettings())
+            .copy(displayTimeSeconds = binding.slDisplayTimeWolt.value.toInt())
         val updated = current.copy(
             language = language,
             globalThresholds = ThresholdConfig(
@@ -112,7 +132,9 @@ class SettingsActivity : AppCompatActivity() {
                 themeMode = current.display.themeMode,
                 overlayOpacity = binding.slOpacity.value.toInt(),
                 displayTimeSeconds = binding.slDisplayTime.value.toInt()
-            )
+            ),
+            platformOverrides = current.platformOverrides
+                + mapOf(Platform.UBER to uberOverride, Platform.WOLT to woltOverride)
         )
         val languageChanged = current.language != language
         ServiceLocator.settingsRepository.save(updated)
