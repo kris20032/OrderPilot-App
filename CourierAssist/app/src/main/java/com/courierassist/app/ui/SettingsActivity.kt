@@ -66,7 +66,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.slOpacity.value = opacity
         binding.tvOpacityLabel.text = getString(R.string.settings_opacity, opacity.toInt())
 
-        val displayTime = settings.display.displayTimeSeconds.toFloat().coerceIn(1f, 15f)
+        val displayTime = settings.display.displayTimeSeconds.toFloat().coerceIn(1f, 30f)
         binding.slDisplayTime.value = displayTime
         binding.tvDisplayTimeLabel.text = getString(R.string.settings_display_time, displayTime.toInt())
 

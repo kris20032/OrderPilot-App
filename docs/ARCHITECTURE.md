@@ -215,6 +215,22 @@ class UberOcrParser : OcrOfferParser {
 }
 ```
 
+### Implementacja — WoltOcrParser
+
+```kotlin
+class WoltOcrParser : OcrOfferParser {
+    override val platform = Platform.WOLT
+    override val supportedPackages = setOf("com.wolt.courierapp")
+
+    // Regex dla Wolta (PL/UK/EN)
+    // Kwota: "13 zł" / "13,50 zł" / "13.50 zł"
+    // Czas: "26 min"
+    // Dystans: "2,7 km" / "2.7 km"
+
+    override fun parse(ocrLines: List<String>, language: AppLanguage): Offer? { ... }
+}
+```
+
 ### ParserRegistry
 
 ```kotlin
@@ -350,8 +366,8 @@ class PipelineOrchestrator(
 
 ```kotlin
 class EventThrottler(
-    private val firstShotDelayMs: Long = 300L,
-    private val cooldownMs: Long = 5000L
+    private val firstShotDelayMs: Long = 100L,
+    private val cooldownMs: Long = 1500L
 ) {
     private var lastTriggerTime = 0L
     private var pendingJob: Job? = null
@@ -540,7 +556,7 @@ object ServiceLocator {
         instance = this
         settingsRepository = SharedPrefsSettingsRepository(context)
         ocrEngine = OcrEngine()
-        parserRegistry = ParserRegistry(listOf(UberOcrParser()))
+        parserRegistry = ParserRegistry(listOf(UberOcrParser(), WoltOcrParser()))
         offerAnalyzer = OfferAnalyzer()
         offerFilter = OfferFilter()
         overlayManager = SystemOverlayManager(context)
@@ -621,7 +637,7 @@ object FeatureGate {
 [Popup Uber Driver] ─── AccessibilityEvent ───→ [CourierAccessibilityService]
                                                          │
                                                   EventThrottler
-                                                  (300ms delay, 5s cooldown)
+                                                  (100ms delay, 1.5s cooldown)
                                                          │
                                                          ▼
                                               [PipelineOrchestrator.process()]
@@ -633,7 +649,7 @@ object FeatureGate {
                                     │                    │                    │
                                     └────────────────────┼────────────────────┘
                                                          ▼
-                                              [ParserRegistry → UberOcrParser]
+                                        [ParserRegistry → UberOcrParser / WoltOcrParser]
                                                parse(lines, lang) → Offer?
                                                          │
                                                          ▼
@@ -720,6 +736,7 @@ STOP → isEnabled=false → AccessibilityService ignoruje eventy, belka hide
 | `engine` | `OfferFilter.kt` | Filtruje oferty po dystansie |
 | `parser` | `OcrOfferParser.kt` | Interfejs parsera |
 | `parser` | `UberOcrParser.kt` | Parser OCR dla Uber |
+| `parser` | `WoltOcrParser.kt` | Parser OCR dla Wolt |
 | `parser` | `ParserRegistry.kt` | Rejestr parserów |
 | `capture` | `ScreenCaptureService.kt` | ForegroundService MediaProjection |
 | `capture` | `PopupCropper.kt` | Przycina bitmapę do regionu popupu |

@@ -9,9 +9,9 @@ class WoltOcrParser : OcrOfferParser {
     override val platform = Platform.WOLT
     override val supportedPackages = setOf("com.wolt.courierapp")
 
-    // Kwota: "11,73 zł" lub "14,50 zł"
+    // Kwota: "11,73 zł", "14,50 zł" — OCR czasem gubi "ł" → "18,50 z" lub zamienia na "t" → "9,50 zt"
     // [\s\u00A0]* — obsługuje zwykłą spację i non-breaking space
-    private val amountRegex = Regex("""(\d+[.,]\d+)[\s\u00A0]*(?:zł|PLN)""", RegexOption.IGNORE_CASE)
+    private val amountRegex = Regex("""(\d+[.,]\d+)[\s\u00A0]*(?:zł|zl|zt|z\b|PLN)""", RegexOption.IGNORE_CASE)
 
     // Czas jako zakres: "16 - 19 min", "16 – 19 min", "16—19 min"
     // Bierzemy MAX (konserwatywne — niższe zł/h)
@@ -20,8 +20,8 @@ class WoltOcrParser : OcrOfferParser {
     // Fallback: czas jako pojedyncza wartość "19 min"
     private val timeSingleRegex = Regex("""(\d+)[\s\u00A0]*min""", RegexOption.IGNORE_CASE)
 
-    // Dystans: "1.7 km" lub "4.1 km" (Wolt bez nawiasów, w odróżnieniu od Ubera)
-    private val distanceRegex = Regex("""(\d+[.,]\d+)[\s\u00A0]*km""", RegexOption.IGNORE_CASE)
+    // Dystans: "1.7 km", "4.1 km" lub "5 km" (OCR czasem gubi część dziesiętną)
+    private val distanceRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*km""", RegexOption.IGNORE_CASE)
 
     override fun parse(ocrLines: List<String>): Offer? {
         val text = ocrLines.joinToString(" ")
