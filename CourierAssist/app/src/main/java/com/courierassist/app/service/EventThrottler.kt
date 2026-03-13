@@ -15,8 +15,12 @@ class EventThrottler(
 
     fun onEvent(scope: CoroutineScope, action: suspend () -> Unit) {
         val now = System.currentTimeMillis()
-        if (now - lastTriggerTime < cooldownMs) return
-        if (pendingJob?.isActive == true) return
+        val sinceLastTrigger = now - lastTriggerTime
+        if (sinceLastTrigger < cooldownMs) return
+        if (pendingJob?.isActive == true) {
+            AppLog.d(AppLog.TAG_SERVICE, "Throttler: job still active, skipping")
+            return
+        }
 
         pendingJob = scope.launch {
             delay(firstShotDelayMs)

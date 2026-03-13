@@ -17,6 +17,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
 
 class CourierAccessibilityService : AccessibilityService() {
@@ -66,8 +67,8 @@ class CourierAccessibilityService : AccessibilityService() {
     private suspend fun processViaScreenshot(packageName: String) {
         try {
             AppLog.d(AppLog.TAG_SERVICE, "Taking screenshot via AccessibilityService API")
-            val bitmap = takeScreenshotSuspend() ?: run {
-                AppLog.w(AppLog.TAG_SERVICE, "Screenshot returned null")
+            val bitmap = withTimeoutOrNull(3000L) { takeScreenshotSuspend() } ?: run {
+                AppLog.w(AppLog.TAG_SERVICE, "Screenshot returned null or timed out")
                 return
             }
 
@@ -145,6 +146,7 @@ class CourierAccessibilityService : AccessibilityService() {
         @Volatile
         var isUserStopped = false
 
-        private val watchedPackages = setOf("com.ubercab.driver", "com.ubercab.eats")
+        private val watchedPackages: Set<String>
+            get() = ServiceLocator.parserRegistry.getAllWatchedPackages()
     }
 }

@@ -271,7 +271,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:valueFrom="1"
-                        android:valueTo="15"
+                        android:valueTo="30"
                         android:stepSize="1" />
 
                 </LinearLayout>

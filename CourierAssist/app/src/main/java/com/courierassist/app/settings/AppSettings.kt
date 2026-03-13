@@ -17,7 +17,7 @@ data class DisplayConfig(
     val visibleMetrics: Set<MetricType> = setOf(MetricType.ZL_PER_HOUR),
     val themeMode: ThemeMode = ThemeMode.AUTO,
     val overlayOpacity: Int = 80,
-    val displayTimeSeconds: Int = 15
+    val displayTimeSeconds: Int = 30
 )
 
 @Serializable
