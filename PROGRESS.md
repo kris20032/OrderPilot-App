@@ -1,7 +1,7 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-13
-**Obecny etap:** Testy produkcyjne — ojciec jeździ z najnowszą wersją (2026-03-13). Google Maps fix wdrożony. GlovoOcrParser szkielet gotowy, czeka na screeny ze zleceniami Glovo.
+**Ostatnia aktualizacja:** 2026-03-14
+**Obecny etap:** Korekta kwot OCR + przycisk Zapisz logi — wdrożone. GlovoOcrParser gotowy. Czekamy na screeny z prawdziwymi zleceniami Glovo od ojca.
 **Aktywny branch:** `feature/glovo-parser` (bazuje na `feature/wolt-parser`)
 
 ---
@@ -137,16 +137,23 @@ UberOcrParser → OfferAnalyzer → belka na ekranie
 | Testy na telefonie — ciemny motyw | Ojciec testuje samodzielnie po południu 2026-03-12 | 🔄 W toku | - |
 | Merge do feature/production-app | Po potwierdzeniu dark mode + stabilności | ⏳ Czeka | - |
 
+### Ukończone (2026-03-14)
+
+| Zadanie | Opis | Branch |
+|---------|------|--------|
+| Korekta kwot OCR | `sanitizeAmount()` w OcrOfferParser: 4+ cyfry bez separatora → /100 (1720→17.20). Sanity: <3 zł odrzuć, >150 zł warning. Wszystkie parsery (Uber, Wolt, Glovo) używają tej funkcji. | `feature/glovo-parser` |
+| Przycisk "Zapisz logi" | Przycisk w MainActivity — zapisuje ostatnią minutę logów CA_* do Downloads/CourierAssist_log_YYYY-MM-DD_HHmmss.txt. Toast potwierdzający. | `feature/glovo-parser` |
+| GlovoOcrParser | Szkielet parsera Glovo (zł/km, partial offers, per-platform throttler). Czeka na screeny z prawdziwymi zleceniami. | `feature/glovo-parser` |
+
 ### Otwarte zadania
 
 | Problem | Rozwiązanie | Status | Priorytet |
 |---------|-------------|--------|-----------|
-| Wolt dark mode | Ojciec testuje samodzielnie po południu 2026-03-12 | 🔄 W toku | High |
-| Merge Wolt do production-app | Po potwierdzeniu dark mode + min. kilka zleceń | ⏳ Czeka | High |
-| Mruganie belki Uber jasny→ciemny | Deduplikacja lastResult już działa — obserwujemy czy problem nadal występuje | 🔄 Monitorowane | Medium |
-| Bug: Uber popup nad Woltem | Fallback czyta Wolta w tle zamiast popupu Ubera → parser null | ⏳ Znany bug | Medium |
-| Brak battery optimization | Setup wizard + `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Do implementacji | Medium |
-| Samsung agresywne usypianie | Setup wizard z instrukcją "Never sleeping apps" | Do implementacji | Medium |
+| GlovoOcrParser — weryfikacja w produkcji | Czeka na screeny ze zleceniami Glovo od ojca | ⏳ Czeka | High |
+| Mruganie belki Uber jasny→ciemny | Deduplikacja lastResult już działa — obserwujemy czy problem nadal występuje | Monitorowane | Medium |
+| Bug: Uber popup nad Woltem | Fallback czyta Wolta w tle zamiast popupu Ubera → parser null | Znany bug | Medium |
+| Brak battery optimization | Setup wizard + `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Do implementacji | Low |
+| Samsung agresywne usypianie | Setup wizard z instrukcją "Never sleeping apps" | Do implementacji | Low |
 
 Plan: `docs/PLAN.md`
 
