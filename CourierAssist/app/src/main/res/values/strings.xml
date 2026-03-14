@@ -46,5 +46,8 @@
     <string name="settings_display_time_wolt">Wolt: %d s</string>
     <string name="settings_save">Zapisz ustawienia</string>
     <string name="settings_saved">Ustawienia zapisane</string>
+    <string name="btn_save_logs">Zapisz logi</string>
+    <string name="toast_logs_saved">Logi zapisane w Downloads</string>
+    <string name="toast_logs_error">Błąd zapisu logów</string>
     <string name="settings_validation_error">Próg zielony musi być wyższy niż żółty</string>
 </resources>

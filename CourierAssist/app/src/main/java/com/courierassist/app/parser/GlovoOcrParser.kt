@@ -19,8 +19,15 @@ class GlovoOcrParser : OcrOfferParser {
         val text = ocrLines.joinToString(" ")
         AppLog.d(AppLog.TAG_PARSER, "Glovo OCR: $text")
 
-        val amount = amountRegex.find(text)?.groupValues?.get(1)?.toDoubleLocale() ?: run {
+        val amountMatch = amountRegex.find(text)?.groupValues?.get(1) ?: run {
             AppLog.w(AppLog.TAG_PARSER, "Glovo: no amount found")
+            return null
+        }
+        val amount = OcrOfferParser.sanitizeAmount(amountMatch, amountMatch.toDoubleLocale() ?: run {
+            AppLog.w(AppLog.TAG_PARSER, "Glovo: no amount found")
+            return null
+        }) ?: run {
+            AppLog.w(AppLog.TAG_PARSER, "Glovo: amount rejected by sanitize")
             return null
         }
 

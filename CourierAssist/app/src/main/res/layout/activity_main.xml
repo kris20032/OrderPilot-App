@@ -105,6 +105,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/card_status" />
 
+    <!-- Przycisk diagnostyczny — tymczasowy, do usunięcia po testach -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_save_logs"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_save_logs"
+        android:textAllCaps="false"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_toggle" />
+
     <!-- Hint o dostepnosci — widoczny tylko gdy accessibility wylaczone -->
     <LinearLayout
         android:id="@+id/layout_accessibility_hint"
@@ -116,7 +129,7 @@
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_toggle">
+        app:layout_constraintTop_toBottomOf="@id/btn_save_logs">
 
         <TextView
             android:id="@+id/tv_accessibility_hint"

@@ -20,8 +20,15 @@ class UberOcrParser : OcrOfferParser {
 
     override fun parse(ocrLines: List<String>): Offer? {
         val text = ocrLines.joinToString(" ")
-        val amount = amountRegex.find(text)?.groupValues?.get(1)?.toDoubleLocale() ?: run {
+        val amountMatch = amountRegex.find(text)?.groupValues?.get(1) ?: run {
             AppLog.w(AppLog.TAG_PARSER, "No amount found")
+            return null
+        }
+        val amount = OcrOfferParser.sanitizeAmount(amountMatch, amountMatch.toDoubleLocale() ?: run {
+            AppLog.w(AppLog.TAG_PARSER, "No amount found")
+            return null
+        }) ?: run {
+            AppLog.w(AppLog.TAG_PARSER, "Amount rejected by sanitize")
             return null
         }
         val minutes = timeRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: run {

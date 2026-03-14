@@ -9,6 +9,7 @@ import android.media.projection.MediaProjectionConfig
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.Settings
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
@@ -17,9 +18,14 @@ import androidx.core.content.ContextCompat
 import com.courierassist.app.R
 import com.courierassist.app.capture.ScreenCaptureService
 import com.courierassist.app.databinding.ActivityMainBinding
+import com.courierassist.app.di.AppLog
 import com.courierassist.app.di.ServiceLocator
 import com.courierassist.app.domain.AppLanguage
 import com.courierassist.app.service.CourierAccessibilityService
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -58,6 +64,9 @@ class MainActivity : AppCompatActivity() {
         }
         binding.btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
+        }
+        binding.btnSaveLogs.setOnClickListener {
+            saveLogs()
         }
     }
 
@@ -160,6 +169,27 @@ class MainActivity : AppCompatActivity() {
     private fun updateAccessibilityHint() {
         binding.layoutAccessibilityHint.visibility =
             if (isAccessibilityEnabled()) View.GONE else View.VISIBLE
+    }
+
+    private fun saveLogs() {
+        try {
+            val timestamp = SimpleDateFormat("yyyy-MM-dd_HHmmss", Locale.getDefault()).format(Date())
+            val fileName = "CourierAssist_log_$timestamp.txt"
+            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val file = File(downloadsDir, fileName)
+
+            val process = Runtime.getRuntime().exec(
+                arrayOf("logcat", "-d", "-t", "60", "CA_Service:D", "CA_Parser:D", "CA_Pipeline:D", "CA_Overlay:D", "*:S")
+            )
+            val output = process.inputStream.bufferedReader().readText()
+            file.writeText(output)
+
+            AppLog.d(AppLog.TAG_PARSER, "Logs saved: ${file.absolutePath}")
+            Toast.makeText(this, getString(R.string.toast_logs_saved), Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            AppLog.w(AppLog.TAG_PARSER, "Failed to save logs: ${e.message}")
+            Toast.makeText(this, getString(R.string.toast_logs_error), Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun isAccessibilityEnabled(): Boolean {
