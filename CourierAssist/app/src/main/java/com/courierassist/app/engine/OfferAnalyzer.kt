@@ -21,9 +21,11 @@ class OfferAnalyzer
 
         val zlPerHour = offer.amount / (offer.estimatedMinutes / 60.0)
         val zlPerKm = offer.distanceKm?.let { if (it > 0) offer.amount / it else null }
+        // Porównuj zaokrągloną wartość — żeby belka "34 zł/h" przy progu 34 była YELLOW, nie RED
+        val zlPerHourRounded = Math.round(zlPerHour).toDouble()
         val level = when {
-            zlPerHour >= thresholds.greenMinZlPerHour -> ProfitLevel.GREEN
-            zlPerHour >= thresholds.yellowMinZlPerHour -> ProfitLevel.YELLOW
+            zlPerHourRounded >= thresholds.greenMinZlPerHour -> ProfitLevel.GREEN
+            zlPerHourRounded >= thresholds.yellowMinZlPerHour -> ProfitLevel.YELLOW
             else -> ProfitLevel.RED
         }
         return AnalysisResult(offer = offer, zlPerHour = zlPerHour, zlPerKm = zlPerKm, level = level)

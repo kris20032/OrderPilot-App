@@ -20,17 +20,18 @@ object OverlayViewFactory {
         val textView = view.findViewById<TextView>(R.id.tv_overlay_text)
 
         val l = labels(language)
+        val nbsp = "\u00A0" // non-breaking space — trzyma wartość+jednostkę w jednej linii
         val parts = mutableListOf<String>()
         if (MetricType.ZL_PER_HOUR in config.visibleMetrics && result.zlPerHour != null)
-            parts += "%.0f ${l.currencyPerHour}".format(result.zlPerHour)
+            parts += "%.0f${nbsp}${l.currencyPerHour}".format(result.zlPerHour)
         if (MetricType.ZL_PER_KM in config.visibleMetrics && result.zlPerKm != null)
-            parts += "%.1f ${l.currencyPerKm}".format(result.zlPerKm)
+            parts += "%.1f${nbsp}${l.currencyPerKm}".format(result.zlPerKm)
         if (MetricType.AMOUNT in config.visibleMetrics)
-            parts += "%.2f ${l.currency}".format(result.offer.amount)
+            parts += "%.2f${nbsp}${l.currency}".format(result.offer.amount)
         if (MetricType.TIME in config.visibleMetrics && result.offer.estimatedMinutes > 0)
-            parts += "${result.offer.estimatedMinutes} ${l.minutes}"
+            parts += "${result.offer.estimatedMinutes}${nbsp}${l.minutes}"
         if (MetricType.DISTANCE in config.visibleMetrics && result.offer.distanceKm != null)
-            parts += "%.1f ${l.km}".format(result.offer.distanceKm)
+            parts += "%.1f${nbsp}${l.km}".format(result.offer.distanceKm)
 
         // Glovo partial: brak pełnych danych — zachęć do scrollu
         if (result.offer.isPartial)
