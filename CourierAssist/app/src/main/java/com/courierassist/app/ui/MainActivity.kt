@@ -56,6 +56,11 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        // Świeże uruchomienie (nie powrót z tła) → Inactive do momentu kliknięcia START
+        if (savedInstanceState == null) {
+            CourierAccessibilityService.isUserStopped = true
+        }
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -82,7 +87,9 @@ class MainActivity : AppCompatActivity() {
             }
             updateUi()
         } else if (!pendingStart) {
-            isRunning = ScreenCaptureService.instance != null || CourierAccessibilityService.isConnected
+            // Respektuj isUserStopped — jeśli użytkownik nie kliknął START, zostań Inactive
+            isRunning = !CourierAccessibilityService.isUserStopped &&
+                (ScreenCaptureService.instance != null || CourierAccessibilityService.isConnected)
             updateUi()
         }
         updateAccessibilityHint()
