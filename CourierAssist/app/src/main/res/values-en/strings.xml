@@ -28,9 +28,15 @@
     <!-- SettingsActivity -->
     <string name="settings_open">Settings</string>
     <string name="settings_title">Settings</string>
-    <string name="settings_thresholds_header">PLN/h thresholds</string>
+    <string name="settings_thresholds_header">Color thresholds</string>
     <string name="settings_green_threshold">Green from (PLN/h)</string>
     <string name="settings_yellow_threshold">Yellow from (PLN/h)</string>
+    <string name="settings_green_threshold_km">Green from (PLN/km)</string>
+    <string name="settings_yellow_threshold_km">Yellow from (PLN/km)</string>
+    <string name="settings_threshold_hint_global">Default thresholds for all platforms</string>
+    <string name="settings_threshold_hint_platform">Empty = uses global settings</string>
+    <string name="settings_display_time_platform">Overlay time: %d s</string>
+    <string name="tab_global">Global</string>
     <string name="settings_metrics_header">What to show on overlay</string>
     <string name="metric_zl_per_hour">PLN/h</string>
     <string name="metric_zl_per_km">PLN/km</string>

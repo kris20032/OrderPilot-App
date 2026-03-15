@@ -28,9 +28,15 @@
     <!-- SettingsActivity -->
     <string name="settings_open">Ustawienia</string>
     <string name="settings_title">Ustawienia</string>
-    <string name="settings_thresholds_header">Progi zł/h</string>
+    <string name="settings_thresholds_header">Progi kolorów</string>
     <string name="settings_green_threshold">Zielony od (zł/h)</string>
     <string name="settings_yellow_threshold">Żółty od (zł/h)</string>
+    <string name="settings_green_threshold_km">Zielony od (zł/km)</string>
+    <string name="settings_yellow_threshold_km">Żółty od (zł/km)</string>
+    <string name="settings_threshold_hint_global">Domyślne progi dla wszystkich platform</string>
+    <string name="settings_threshold_hint_platform">Puste = używa ustawień globalnych</string>
+    <string name="settings_display_time_platform">Czas belki: %d s</string>
+    <string name="tab_global">Global</string>
     <string name="settings_metrics_header">Co wyświetlać na belce</string>
     <string name="metric_zl_per_hour">zł/h</string>
     <string name="metric_zl_per_km">zł/km</string>
@@ -41,9 +47,7 @@
     <string name="settings_overlay_header">Wygląd belki</string>
     <string name="settings_opacity">Przezroczystość: %d%%</string>
     <string name="settings_display_time">Czas wyświetlania (domyślny): %d s</string>
-    <string name="settings_display_time_platform_header">Czas belki per platforma</string>
-    <string name="settings_display_time_uber">Uber: %d s</string>
-    <string name="settings_display_time_wolt">Wolt: %d s</string>
+    <!-- usunięte: stare suwaki per platforma (zastąpione tabami) -->
     <string name="settings_save">Zapisz ustawienia</string>
     <string name="settings_saved">Ustawienia zapisane</string>
     <string name="btn_save_logs">Zapisz logi</string>
