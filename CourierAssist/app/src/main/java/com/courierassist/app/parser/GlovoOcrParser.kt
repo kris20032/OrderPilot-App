@@ -50,18 +50,9 @@ class GlovoOcrParser : OcrOfferParser {
                 null
             }
             distances.size == 1 -> {
-                // Tylko jeden dystans — partial
-                val pickupKm = distances[0]
-                AppLog.d(AppLog.TAG_PARSER, "Glovo partial: amount=$amount pickupKm=$pickupKm")
-                Offer(
-                    platform = Platform.GLOVO,
-                    amount = amount,
-                    estimatedMinutes = 0,
-                    distanceKm = pickupKm,
-                    currency = "zł",
-                    pickupDistanceKm = pickupKm,
-                    isPartial = true
-                )
+                // Tylko jeden dystans (pickup) — czekamy na pełne dane (pickup + delivery)
+                AppLog.d(AppLog.TAG_PARSER, "Glovo partial: only pickup=${distances[0]}, waiting for delivery distance")
+                null
             }
             else -> {
                 // Dwa najmniejsze dystanse = pickup + delivery
