@@ -50,9 +50,9 @@ class CourierAccessibilityService : AccessibilityService() {
 
         val throttler = throttlers.getOrPut(pkg) { EventThrottler() }
 
-        // Glovo: accessibility tree first (może zawierać dane poza ekranem)
-        val isGlovo = ServiceLocator.parserRegistry.getParser(pkg)?.platform == com.courierassist.app.domain.Platform.GLOVO
-        if (isGlovo) {
+        // Glovo/Bolt: accessibility tree first (natywne UI — tekst widoczny w drzewie)
+        val platform = ServiceLocator.parserRegistry.getParser(pkg)?.platform
+        if (platform == com.courierassist.app.domain.Platform.GLOVO || platform == com.courierassist.app.domain.Platform.BOLT) {
             throttler.onEvent(scope) { processViaAccessibilityTree(pkg) }
             return
         }
@@ -72,20 +72,20 @@ class CourierAccessibilityService : AccessibilityService() {
     private suspend fun processViaAccessibilityTree(packageName: String) {
         try {
             val root = rootInActiveWindow ?: run {
-                AppLog.w(AppLog.TAG_SERVICE, "Glovo: rootInActiveWindow null, falling back to screenshot")
+                AppLog.w(AppLog.TAG_SERVICE, "Tree: rootInActiveWindow null, falling back to screenshot")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) processViaScreenshot(packageName)
                 return
             }
             val text = AccessibilityTextCollector.collectText(root)
             root.recycle()
-            AppLog.d(AppLog.TAG_SERVICE, "Glovo accessibility tree text: ${text.take(200)}")
+            AppLog.d(AppLog.TAG_SERVICE, "Tree text ($packageName): ${text.take(200)}")
 
             val lines = text.lines().filter { it.isNotBlank() }
             val parser = ServiceLocator.parserRegistry.getParser(packageName) ?: return
             val offer = parser.parse(lines)
 
             if (offer == null) {
-                AppLog.d(AppLog.TAG_SERVICE, "Glovo: accessibility tree parse failed, falling back to screenshot")
+                AppLog.d(AppLog.TAG_SERVICE, "Tree: parse failed for $packageName, falling back to screenshot")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) processViaScreenshot(packageName)
                 return
             }
@@ -94,7 +94,7 @@ class CourierAccessibilityService : AccessibilityService() {
             if (!ServiceLocator.offerFilter.passes(offer, settings.filtersFor(offer.platform))) return
 
             val result = ServiceLocator.offerAnalyzer.analyze(offer, settings.thresholdsFor(offer.platform))
-            AppLog.d(AppLog.TAG_SERVICE, "Glovo tree result: zlPerKm=${result.zlPerKm} → ${result.level} partial=${offer.isPartial}")
+            AppLog.d(AppLog.TAG_SERVICE, "Tree result ($packageName): zlPerHour=${result.zlPerHour} zlPerKm=${result.zlPerKm} → ${result.level}")
 
             val now = System.currentTimeMillis()
             if (now - lastResultTime > resultExpiryMs) lastResult = null
@@ -111,7 +111,7 @@ class CourierAccessibilityService : AccessibilityService() {
                 ServiceLocator.overlayAutoHider.onOverlayShown(scope, settings.displayTimeFor(offer.platform) * 1000L)
             }
         } catch (e: Exception) {
-            AppLog.w(AppLog.TAG_SERVICE, "Glovo accessibility tree error: ${e.message}")
+            AppLog.w(AppLog.TAG_SERVICE, "Tree error ($packageName): ${e.message}")
         }
     }
 

@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-03-15
-**Obecny etap:** Glovo parser przetestowany na prawdziwych zleceniach — działa poprawnie. Ustawienia per platforma wdrożone. Następny krok: Bolt Food parser.
-**Aktywny branch:** `feature/glovo-parser` (bazuje na `feature/wolt-parser`)
+**Obecny etap:** Bolt Food parser wdrożony — do przetestowania na prawdziwych zleceniach. Glovo parser przetestowany i działa. Ustawienia per platforma wdrożone.
+**Aktywny branch:** `feature/bolt-parser` (bazuje na `feature/glovo-parser`)
 
 ---
 
@@ -93,6 +93,22 @@ Szczegóły: sekcja archiwalna w historii git.
 | Fix: świeże uruchomienie = Inactive | Po otwarciu apki (nie powrót z tła) stan = Inactive, wymaga kliknięcia START. | `781c5fc` |
 | Ustawienia per platforma | TabLayout: Global / Uber / Wolt / Glovo / Bolt — osobne progi zł/h, zł/km i czas belki per platforma. Puste pola = dziedziczą z Global. | `ae34862` |
 
+### BoltFoodOcrParser — wdrożony 2026-03-15
+
+| Zadanie | Opis | Status | Branch |
+|---------|------|--------|--------|
+| BoltFoodOcrParser.kt | Parser Bolt Food: kwota (max), czas (max = suma z przycisku), dystans (max = suma). Obsługuje format przycisku `2.2 km, 27 min, 8,22 zł`. | ✅ Gotowy | `feature/bolt-parser` |
+| ServiceLocator | BoltFoodOcrParser zarejestrowany w ParserRegistry | ✅ | `feature/bolt-parser` |
+| CourierAccessibilityService | Bolt dodany do ścieżki accessibility tree (obok Glovo) | ✅ | `feature/bolt-parser` |
+| Pakiety: `com.bolt.courier`, `com.bolt.food.courier`, `ee.mtakso.courier` | Obsługiwane warianty pakietów Bolt | ✅ | `feature/bolt-parser` |
+| Testy na telefonie | Do przetestowania na prawdziwych zleceniach Bolt Food | ⏳ Czeka | - |
+
+**Logika parsera:**
+- Bolt Food pokazuje pickup i delivery osobno: `~0.9 km, ~16 min` + `~1.3 km, ~12 min`
+- Na przycisku akceptuj jest suma: `2.2 km, 27 min, 8,22 zł`
+- Parser bierze: **największą kwotę** (suma z przycisku), **największy czas** (suma), **największy dystans** (suma)
+- Accessibility tree widzi cały UI → parser od razu ma dane z przycisku
+
 ### Wyniki testów Glovo na prawdziwych zleceniach (2026-03-15)
 
 | Zlecenie | Popup | Belka | Wynik |
@@ -124,7 +140,7 @@ Szczegóły: sekcja archiwalna w historii git.
 
 | Problem | Rozwiązanie | Status | Priorytet |
 |---------|-------------|--------|-----------|
-| Bolt Food parser | Nowy branch `feature/bolt-parser`, screen od użytkownika | Następny w kolejce | High |
+| Bolt Food parser — weryfikacja | Tata testuje na prawdziwych zleceniach Bolt Food | ⏳ Czeka na build | High |
 | Glovo po fixie v2 — weryfikacja | Tata testuje po przebudowie z najnowszego glovo-parser | ⏳ Czeka | High |
 | Crash na starszym telefonie (brat) | SettingsActivity crash — do zbadania | ⏳ Do zbadania | Medium |
 | Mruganie belki Uber jasny→ciemny | Deduplikacja lastResult — monitorujemy | Monitorowane | Low |
@@ -136,12 +152,12 @@ Szczegóły: sekcja archiwalna w historii git.
 
 | Branch | Cel | Status | Last Commit |
 |--------|-----|--------|-------------|
-| `feature/glovo-parser` | Glovo parser + poprawki pipeline + ustawienia per platforma | ✅ Aktywny na GitHub | `ae34862` (2026-03-15) |
+| `feature/bolt-parser` | Bolt Food parser | ✅ Aktywny na GitHub | (2026-03-15) |
+| `feature/glovo-parser` | Glovo parser + poprawki pipeline + ustawienia per platforma | ✅ Na GitHub | `c7f7bab` (2026-03-15) |
 | `feature/production-app` | Główny branch produkcyjny | ✅ Na GitHub | 8a9109c (2026-03-10) |
 | `main` | Stabilna baza z POC | Zablokowany na zmiany kodu | 285c209 |
 
 > Workflow: nowe zadanie → nowy branch `fix/...` lub `feature/...` → testuj na telefonie → merge do `feature/production-app`
-> Następny: `feature/bolt-parser` z bazy `feature/glovo-parser`
 
 ## Archiwalne branche
 
