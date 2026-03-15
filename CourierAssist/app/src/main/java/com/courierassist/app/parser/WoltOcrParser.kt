@@ -20,6 +20,9 @@ class WoltOcrParser : OcrOfferParser {
     // Fallback: czas jako pojedyncza wartość "19 min"
     private val timeSingleRegex = Regex("""(\d+)[\s\u00A0]*min""", RegexOption.IGNORE_CASE)
 
+    // Godziny: "1 godz.", "2 год", "1 hr"
+    private val hourRegex = Regex("""(\d+)[\s\u00A0]*(?:godz|год|hr|hour)""", RegexOption.IGNORE_CASE)
+
     // Dystans: "1.7 km", "4.1 km" lub "5 km" (OCR czasem gubi część dziesiętną)
     private val distanceRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*km""", RegexOption.IGNORE_CASE)
 
@@ -39,7 +42,8 @@ class WoltOcrParser : OcrOfferParser {
             return null
         }
 
-        val minutes = timeRangeRegex.find(text)?.let { match ->
+        val hours = hourRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        val mins = timeRangeRegex.find(text)?.let { match ->
             // Zakres: bierzemy większą wartość (MAX = konserwatywne)
             val max = maxOf(
                 match.groupValues[1].toIntOrNull() ?: 0,
@@ -50,6 +54,7 @@ class WoltOcrParser : OcrOfferParser {
             AppLog.w(AppLog.TAG_PARSER, "Wolt: no time found")
             return null
         }
+        val minutes = hours * 60 + mins
 
         val distance = distanceRegex.find(text)?.groupValues?.get(1)?.toDoubleLocale()
 

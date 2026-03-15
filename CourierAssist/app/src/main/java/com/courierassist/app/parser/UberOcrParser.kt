@@ -13,6 +13,7 @@ class UberOcrParser : OcrOfferParser {
     // [\s\u00A0]* — obsługuje zwykłą spację i non-breaking space (Uber używa \u00A0)
     private val amountRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*(?:zł|грн|PLN)""", RegexOption.IGNORE_CASE)
     private val timeRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв)""", RegexOption.IGNORE_CASE)
+    private val hourRegex = Regex("""(\d+)[\s\u00A0]*(?:godz|год|hr|hour)""", RegexOption.IGNORE_CASE)
     private val distanceRegex = Regex("""[\s\u00A0(](\d+[.,]\d+)[\s\u00A0]*(?:km|км)[\s\u00A0)]""", RegexOption.IGNORE_CASE)
 
     // Mapowanie waluty z tekstu OCR
@@ -31,10 +32,12 @@ class UberOcrParser : OcrOfferParser {
             AppLog.w(AppLog.TAG_PARSER, "Amount rejected by sanitize")
             return null
         }
-        val minutes = timeRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: run {
+        val mins = timeRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: run {
             AppLog.w(AppLog.TAG_PARSER, "No time found")
             return null
         }
+        val hours = hourRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        val minutes = hours * 60 + mins
         val distance = distanceRegex.find(text)?.groupValues?.get(1)?.toDoubleLocale()
 
         val detectedCurrency = currencyRegex.find(text)?.groupValues?.get(1) ?: "zł"
