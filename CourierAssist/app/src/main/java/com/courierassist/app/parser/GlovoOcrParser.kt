@@ -19,34 +19,38 @@ class GlovoOcrParser : OcrOfferParser {
         val text = ocrLines.joinToString(" ")
         AppLog.d(AppLog.TAG_PARSER, "Glovo OCR: $text")
 
-        val amountMatch = amountRegex.find(text)?.groupValues?.get(1) ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Glovo: no amount found")
-            return null
-        }
-        val amount = OcrOfferParser.sanitizeAmount(amountMatch, amountMatch.toDoubleLocale() ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Glovo: no amount found")
-            return null
-        }) ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Glovo: amount rejected by sanitize")
-            return null
-        }
-
-        // Szukamy wszystkich dystansów w tekście
-        val distances = distanceRegex.findAll(text)
-            .mapNotNull { it.groupValues[1].toDoubleLocale() }
-            .filter { it > 0 }
+        // Szukamy WSZYSTKICH kwot i bierzemy NAJWIĘKSZĄ — kwota zlecenia jest zawsze największa
+        val amounts = amountRegex.findAll(text)
+            .mapNotNull { match ->
+                val raw = match.groupValues[1]
+                OcrOfferParser.sanitizeAmount(raw, raw.toDoubleLocale() ?: return@mapNotNull null)
+            }
             .toList()
 
-        AppLog.d(AppLog.TAG_PARSER, "Glovo: distances found = $distances")
+        AppLog.d(AppLog.TAG_PARSER, "Glovo: amounts found = $amounts")
 
-        return when (distances.size) {
-            0 -> {
-                // Sama kwota — za mało danych
+        val amount = amounts.maxOrNull() ?: run {
+            AppLog.w(AppLog.TAG_PARSER, "Glovo: no amount found")
+            return null
+        }
+
+        // Szukamy wszystkich dystansów, bierzemy dwa NAJMNIEJSZE (< 20 km)
+        // Pickup i delivery to krótkie trasy, dystanse z mapy bywają większe
+        val distances = distanceRegex.findAll(text)
+            .mapNotNull { it.groupValues[1].toDoubleLocale() }
+            .filter { it > 0 && it < 20 }
+            .sorted()
+            .toList()
+
+        AppLog.d(AppLog.TAG_PARSER, "Glovo: distances found (sorted) = $distances")
+
+        return when {
+            distances.isEmpty() -> {
                 AppLog.w(AppLog.TAG_PARSER, "Glovo: no distances found")
                 null
             }
-            1 -> {
-                // Tylko dystans do restauracji — partial, czekamy na scroll
+            distances.size == 1 -> {
+                // Tylko jeden dystans — partial
                 val pickupKm = distances[0]
                 AppLog.d(AppLog.TAG_PARSER, "Glovo partial: amount=$amount pickupKm=$pickupKm")
                 Offer(
@@ -60,7 +64,7 @@ class GlovoOcrParser : OcrOfferParser {
                 )
             }
             else -> {
-                // Oba dystanse widoczne (po scrollu) — pełna oferta
+                // Dwa najmniejsze dystanse = pickup + delivery
                 val pickupKm = distances[0]
                 val deliveryKm = distances[1]
                 val totalKm = pickupKm + deliveryKm

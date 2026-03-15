@@ -178,16 +178,10 @@ class MainActivity : AppCompatActivity() {
             val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             val file = File(downloadsDir, fileName)
 
-            val process = Runtime.getRuntime().exec(
-                arrayOf("logcat", "-d", "-t", "60", "CA_Service:D", "CA_Parser:D", "CA_Pipeline:D", "CA_Overlay:D", "*:S")
-            )
-            val output = process.inputStream.bufferedReader().readText()
-            file.writeText(output)
+            file.writeText(AppLog.getBufferedLogs())
 
-            AppLog.d(AppLog.TAG_PARSER, "Logs saved: ${file.absolutePath}")
             Toast.makeText(this, getString(R.string.toast_logs_saved), Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            AppLog.w(AppLog.TAG_PARSER, "Failed to save logs: ${e.message}")
             Toast.makeText(this, getString(R.string.toast_logs_error), Toast.LENGTH_SHORT).show()
         }
     }
