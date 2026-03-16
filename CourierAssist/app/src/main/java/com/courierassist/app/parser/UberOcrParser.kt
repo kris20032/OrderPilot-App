@@ -38,6 +38,13 @@ class UberOcrParser : OcrOfferParser {
         }
         val hours = hourRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: 0
         val minutes = hours * 60 + mins
+
+        // Prawdziwe zlecenie Uber ma max ~120 min. Powyżej 180 min = ekran statystyk/zestawienia
+        if (minutes > 180) {
+            AppLog.d(AppLog.TAG_PARSER, "Uber: rejecting — time ${minutes} min too high (statistics screen?)")
+            return null
+        }
+
         val distance = distanceRegex.find(text)?.groupValues?.get(1)?.toDoubleLocale()
 
         val detectedCurrency = currencyRegex.find(text)?.groupValues?.get(1) ?: "zł"
