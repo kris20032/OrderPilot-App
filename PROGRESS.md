@@ -1,7 +1,7 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-15
-**Obecny etap:** Bolt Food parser wdrożony — do przetestowania na prawdziwych zleceniach. Glovo parser przetestowany i działa. Ustawienia per platforma wdrożone.
+**Ostatnia aktualizacja:** 2026-03-17
+**Obecny etap:** Testy produkcyjne u taty. Glovo parser v2 przetestowany — fixy: gotówka, partial offer, sumowanie dystansów. Uber parser: filtr ekranu statystyk. Bolt Food parser do weryfikacji.
 **Aktywny branch:** `feature/bolt-parser` (bazuje na `feature/glovo-parser`)
 
 ---
@@ -130,27 +130,53 @@ Szczegóły: sekcja archiwalna w historii git.
 
 | Test | Opis | Status |
 |------|------|--------|
-| Glovo po fixie v2 | Sprawdzić czy belka nie skacze po naprawie parsera (największa kwota + najmniejsze dystanse) | ⏳ Czeka na build |
-| Ring buffer logów | Kliknięcie "Zapisz logi" → plik w Downloads z wpisami CA_* | ⏳ Czeka na build |
-| Uber — regresja | Sprawdzić czy Uber nadal działa po zmianach (hourRegex, zaokrąglanie progu) | ⏳ Czeka na build |
-| Wolt — regresja | Sprawdzić czy Wolt nadal działa | ⏳ Czeka |
+| Glovo po fixach (gotówka + partial + suma dystansów) | Sprawdzić czy belka prawidłowo liczy zł/km przy gotówce i wielopunktowych zleceniach | ⏳ Czeka na build |
+| Uber — ekran statystyk | Sprawdzić czy belka NIE pojawia się na ekranie Podsumowanie/Statystyki | ⏳ Czeka na build |
+| Bolt Food | Testy na prawdziwych zleceniach | ⏳ Czeka na zlecenie |
+| Ring buffer logów | Kliknięcie "Zapisz logi" → plik w Downloads z wpisami CA_* | ✅ Działa (tata zapisał logi) |
+| Uber — regresja | Sprawdzić czy Uber nadal działa po zmianach (hourRegex, zaokrąglanie progu) | ✅ Działa |
+| Wolt — regresja | Sprawdzić czy Wolt nadal działa | ⏳ Czeka na zlecenie |
 | Świeże uruchomienie = Inactive | Po otwarciu apki stan Inactive, kliknięcie START → Active | ⏳ Czeka na build |
 | Ustawienia per platforma | Tabs w SettingsActivity, zapis/odczyt progów per platforma | ⏳ Czeka na build |
 | Crash na starszym telefonie | SettingsActivity crash — do zbadania po ustabilizowaniu | ⏳ Niski priorytet |
 
-### Poprawki 2026-03-16
+### Poprawki 2026-03-16/17
 
 | Zadanie | Opis | Commit |
 |---------|------|--------|
-| Fix: partial offer Glovo | Parser zwraca null przy 1 dystansie — czeka na pełne dane (pickup + delivery) | `7b744f9` |
+| Fix: partial offer Glovo | Parser zwraca null przy 1 dystansie — czeka na pełne dane (pickup + delivery) zamiast pokazywać zawyżony zł/km | `7b744f9` |
 | Fix: gotówka Glovo | Parser ignoruje "ODBIERZ X zł" (kwota klienta) — bierze tylko wynagrodzenie kuriera | `fb15ac9` |
+| Fix: Glovo sumuje WSZYSTKIE dystanse | Zmiana z 2 najmniejszych na sumę wszystkich dystansów — obsługuje wielopunktowe zlecenia (2 restauracje + 2 dostawy) | `05fdf73` |
+| Fix: Uber odrzuca ekran statystyk | Parser odrzuca oferty z czasem > 180 min — zapobiega fałszywym belkom na ekranie "Podsumowanie" (324 zł / 2575 min) | `9a01794` |
+| Fix: domyślne ustawienia | Po instalacji: 30s belka (zamiast 40s) + wszystkie metryki widoczne (zamiast tylko zł/h) | `86fccd4` |
+
+### Wyniki testów Glovo (2026-03-16/17)
+
+| Zlecenie | Wynik | Uwagi |
+|----------|-------|-------|
+| 18,29 zł / Pizzeria 105 | ✅ Poprawne po scrollu | Accessibility tree nie miał delivery od razu — po fix partial offer parser czekał na pełne dane |
+| 25,38 zł / TARGOWA + Kebab King (3 dystanse) | Belka: 13,7 zł/km 39 zł 2,8 km | ⚠️ Wziął gotówkę (39 zł) zamiast wynagrodzenia (25,38 zł) — fix ODBIERZ jeszcze nie był na tym buildzie. Dystanse: parser wziął 2 najmniejsze zamiast wszystkich — naprawione (sumuje wszystkie). |
+| 12,54 zł / Biedronka (gotówka 65,41 zł) | Belka: 40,9 zł/km 65,41 zł 1,6 km | ❌ Parser wziął gotówkę klienta — naprawione (filtr ODBIERZ) |
+
+### Wynik testu Uber — ekran statystyk (2026-03-16)
+
+| Problem | Co się stało | Fix |
+|---------|-------------|-----|
+| Ekran "Podsumowanie" w Uber | Parser odczytał 324,93 zł + 42 godz. 55 min jako zlecenie → belka 8 zł/h RED | Filtr: `minutes > 180` → odrzuć (ekran statystyk, nie zlecenie) |
+
+### Kluczowe odkrycia (2026-03-16/17)
+
+7. **Accessibility tree nie zawsze widzi delivery od razu** — przy niektórych popupach Glovo (zależy od rozmiaru) delivery distance pojawia się w drzewie z opóźnieniem (API Glovo ładuje asynchronicznie). Parser czeka na min. 2 dystanse.
+8. **Glovo może mieć 3+ dystanse** — zlecenia wielopunktowe (2 restauracje + 2 dostawy). Parser sumuje WSZYSTKIE dystanse.
+9. **"ODBIERZ X zł" = gotówka klienta** — dużo wyższa niż wynagrodzenie kuriera. Parser filtruje kwoty z prefixem "ODBIERZ".
+10. **Uber ekran statystyk wygląda jak zlecenie** — ma kwotę (324,93 zł) i czas (42 godz. 55 min). Parser odrzuca > 180 min.
 
 ### Otwarte zadania
 
 | Problem | Rozwiązanie | Status | Priorytet |
 |---------|-------------|--------|-----------|
-| Bolt Food parser — weryfikacja | Tata testuje na prawdziwych zleceniach Bolt Food | ⏳ Czeka na build | High |
-| Glovo gotówka — weryfikacja | Tata testuje zlecenie gotówkowe po fixie — belka powinna pokazać kwotę kuriera | ⏳ Czeka na build | High |
+| Bolt Food parser — weryfikacja | Tata testuje na prawdziwych zleceniach Bolt Food | ⏳ Czeka na zlecenie | High |
+| Glovo — weryfikacja po fixach | Tata testuje: gotówka, partial offer, sumowanie dystansów | ⏳ Czeka na build | High |
 | Crash na starszym telefonie (brat) | SettingsActivity crash — do zbadania | ⏳ Do zbadania | Medium |
 | Mruganie belki Uber jasny→ciemny | Deduplikacja lastResult — monitorujemy | Monitorowane | Low |
 | Brak battery optimization | Setup wizard | Do implementacji | Low |
@@ -161,8 +187,8 @@ Szczegóły: sekcja archiwalna w historii git.
 
 | Branch | Cel | Status | Last Commit |
 |--------|-----|--------|-------------|
-| `feature/bolt-parser` | Bolt Food parser | ✅ Aktywny na GitHub | (2026-03-15) |
-| `feature/glovo-parser` | Glovo parser + poprawki pipeline + ustawienia per platforma | ✅ Na GitHub | `c7f7bab` (2026-03-15) |
+| `feature/bolt-parser` | Bolt Food parser + wszystkie fixy | ✅ Aktywny na GitHub | `86fccd4` (2026-03-17) |
+| `feature/glovo-parser` | Glovo parser + poprawki pipeline + ustawienia per platforma | ✅ Na GitHub | `73226e0` (2026-03-17) |
 | `feature/production-app` | Główny branch produkcyjny | ✅ Na GitHub | 8a9109c (2026-03-10) |
 | `main` | Stabilna baza z POC | Zablokowany na zmiany kodu | 285c209 |
 
@@ -183,9 +209,10 @@ Szczegóły: sekcja archiwalna w historii git.
 
 ## Co dalej — Priorytet
 
-1. **Bolt Food parser** — nowy branch, screen od użytkownika → parser → testy
-2. **Weryfikacja Glovo v2 + ustawień per platforma** — tata buduje najnowszy APK i testuje
-3. **Crash na starszym telefonie** — zbadać po ustabilizowaniu
-4. **Merge feature/glovo-parser → feature/production-app** — po potwierdzeniu stabilności
+1. **Weryfikacja Glovo po fixach** — tata buduje najnowszy APK i testuje: gotówka, wielopunktowe zlecenia, partial offer
+2. **Weryfikacja Uber** — ekran statystyk nie powinien triggerować belki
+3. **Bolt Food parser** — testy na prawdziwych zleceniach
+4. **Crash na starszym telefonie** — zbadać po ustabilizowaniu
+5. **Merge feature/bolt-parser → feature/production-app** — po potwierdzeniu stabilności
 
 Plan w `docs/PLAN.md`.
