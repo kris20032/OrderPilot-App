@@ -19,9 +19,14 @@ class GlovoOcrParser : OcrOfferParser {
         val text = ocrLines.joinToString(" ")
         AppLog.d(AppLog.TAG_PARSER, "Glovo OCR: $text")
 
-        // Szukamy WSZYSTKICH kwot i bierzemy NAJWIĘKSZĄ — kwota zlecenia jest zawsze największa
+        // Szukamy WSZYSTKICH kwot, odfiltruj "ODBIERZ X zł" (gotówka klienta, nie wynagrodzenie)
         val amounts = amountRegex.findAll(text)
             .mapNotNull { match ->
+                val prefix = text.substring(maxOf(0, match.range.first - 12), match.range.first)
+                if (prefix.contains("ODBIERZ", ignoreCase = true)) {
+                    AppLog.d(AppLog.TAG_PARSER, "Glovo: skipping cash amount ${match.groupValues[1]} (ODBIERZ)")
+                    return@mapNotNull null
+                }
                 val raw = match.groupValues[1]
                 OcrOfferParser.sanitizeAmount(raw, raw.toDoubleLocale() ?: return@mapNotNull null)
             }
