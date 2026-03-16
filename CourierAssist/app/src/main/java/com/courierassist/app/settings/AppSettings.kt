@@ -16,10 +16,10 @@ data class ThresholdConfig(
 
 @Serializable
 data class DisplayConfig(
-    val visibleMetrics: Set<MetricType> = setOf(MetricType.ZL_PER_HOUR),
+    val visibleMetrics: Set<MetricType> = MetricType.entries.toSet(),
     val themeMode: ThemeMode = ThemeMode.AUTO,
     val overlayOpacity: Int = 80,
-    val displayTimeSeconds: Int = 40
+    val displayTimeSeconds: Int = 30
 )
 
 @Serializable
