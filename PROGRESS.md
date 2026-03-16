@@ -123,6 +123,8 @@ Szczegóły: sekcja archiwalna w historii git.
 2. **Mapa Google wbudowana w Glovo emituje tekst do accessibility tree** — nazwy ulic, dystanse, numery dróg. Fix: parser bierze największą kwotę zł i dwa najmniejsze dystanse.
 3. **Glovo nie podaje czasu** — analiza po zł/km zamiast zł/h. Osobne progi w ustawieniach.
 4. **"Dodatkowo X zł"** — napiwek/bonus jest wliczony w kwotę główną. Parser ignoruje mniejszą kwotę (bierze max).
+5. **Zlecenia z gotówką — "ODBIERZ 65,41 zł"** — przy zleceniach gotówkowych Glovo pokazuje kwotę do odebrania od klienta (dużo wyższą niż wynagrodzenie). Parser filtruje kwoty poprzedzone słowem "ODBIERZ" i bierze tylko wynagrodzenie kuriera.
+6. **Partial offer (1 dystans)** — jeśli tree załadował tylko pickup bez delivery, parser zwraca null i czeka na kolejny event z pełnymi danymi. Zapobiega pokazywaniu zawyżonego zł/km.
 
 ### Testy do przeprowadzenia
 
@@ -136,12 +138,19 @@ Szczegóły: sekcja archiwalna w historii git.
 | Ustawienia per platforma | Tabs w SettingsActivity, zapis/odczyt progów per platforma | ⏳ Czeka na build |
 | Crash na starszym telefonie | SettingsActivity crash — do zbadania po ustabilizowaniu | ⏳ Niski priorytet |
 
+### Poprawki 2026-03-16
+
+| Zadanie | Opis | Commit |
+|---------|------|--------|
+| Fix: partial offer Glovo | Parser zwraca null przy 1 dystansie — czeka na pełne dane (pickup + delivery) | `7b744f9` |
+| Fix: gotówka Glovo | Parser ignoruje "ODBIERZ X zł" (kwota klienta) — bierze tylko wynagrodzenie kuriera | `fb15ac9` |
+
 ### Otwarte zadania
 
 | Problem | Rozwiązanie | Status | Priorytet |
 |---------|-------------|--------|-----------|
 | Bolt Food parser — weryfikacja | Tata testuje na prawdziwych zleceniach Bolt Food | ⏳ Czeka na build | High |
-| Glovo po fixie v2 — weryfikacja | Tata testuje po przebudowie z najnowszego glovo-parser | ⏳ Czeka | High |
+| Glovo gotówka — weryfikacja | Tata testuje zlecenie gotówkowe po fixie — belka powinna pokazać kwotę kuriera | ⏳ Czeka na build | High |
 | Crash na starszym telefonie (brat) | SettingsActivity crash — do zbadania | ⏳ Do zbadania | Medium |
 | Mruganie belki Uber jasny→ciemny | Deduplikacja lastResult — monitorujemy | Monitorowane | Low |
 | Brak battery optimization | Setup wizard | Do implementacji | Low |
