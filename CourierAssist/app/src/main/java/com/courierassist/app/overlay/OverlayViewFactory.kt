@@ -15,7 +15,7 @@ import com.courierassist.app.settings.DisplayConfig
 
 object OverlayViewFactory {
 
-    fun create(context: Context, result: AnalysisResult, config: DisplayConfig, language: AppLanguage): View {
+    fun create(context: Context, result: AnalysisResult, config: DisplayConfig, language: AppLanguage, platformLabel: String? = null): View {
         val view = LayoutInflater.from(context).inflate(R.layout.overlay_offer, null)
         val textView = view.findViewById<TextView>(R.id.tv_overlay_text)
 
@@ -36,6 +36,10 @@ object OverlayViewFactory {
         // Glovo partial: brak pełnych danych — zachęć do scrollu
         if (result.offer.isPartial)
             parts += "↓"
+
+        // Etykieta platformy — widoczna tylko gdy 2 belki naraz
+        if (platformLabel != null)
+            parts.add(0, platformLabel)
 
         textView.text = parts.joinToString(" | ")
         textView.setTextColor(Color.WHITE)

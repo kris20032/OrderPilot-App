@@ -108,7 +108,7 @@ class CourierAccessibilityService : AccessibilityService() {
 
             scope.launch(Dispatchers.Main) {
                 ServiceLocator.overlayManager.show(result, settings.display, settings.language)
-                ServiceLocator.overlayAutoHider.onOverlayShown(scope, settings.displayTimeFor(offer.platform) * 1000L)
+                ServiceLocator.overlayAutoHider.onOverlayShown(scope, settings.displayTimeFor(offer.platform) * 1000L, offer.platform)
             }
         } catch (e: Exception) {
             AppLog.w(AppLog.TAG_SERVICE, "Tree error ($packageName): ${e.message}")
@@ -164,7 +164,7 @@ class CourierAccessibilityService : AccessibilityService() {
 
             scope.launch(Dispatchers.Main) {
                 ServiceLocator.overlayManager.show(result, settings.display, settings.language)
-                ServiceLocator.overlayAutoHider.onOverlayShown(scope, settings.displayTimeFor(offer.platform) * 1000L)
+                ServiceLocator.overlayAutoHider.onOverlayShown(scope, settings.displayTimeFor(offer.platform) * 1000L, offer.platform)
             }
         } catch (e: Exception) {
             AppLog.w(AppLog.TAG_SERVICE, "Screenshot fallback error: ${e.message}")
