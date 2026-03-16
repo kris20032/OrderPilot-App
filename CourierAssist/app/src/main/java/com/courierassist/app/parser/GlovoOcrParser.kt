@@ -60,18 +60,16 @@ class GlovoOcrParser : OcrOfferParser {
                 null
             }
             else -> {
-                // Dwa najmniejsze dystanse = pickup + delivery
-                val pickupKm = distances[0]
-                val deliveryKm = distances[1]
-                val totalKm = pickupKm + deliveryKm
-                AppLog.d(AppLog.TAG_PARSER, "Glovo full: amount=$amount pickupKm=$pickupKm deliveryKm=$deliveryKm totalKm=$totalKm")
+                // Sumujemy WSZYSTKIE dystanse (mogą być 2+ przy złożonych zleceniach: multi-pickup + multi-delivery)
+                val totalKm = distances.sum()
+                AppLog.d(AppLog.TAG_PARSER, "Glovo full: amount=$amount distances=$distances totalKm=$totalKm")
                 Offer(
                     platform = Platform.GLOVO,
                     amount = amount,
                     estimatedMinutes = 0,
                     distanceKm = totalKm,
                     currency = "zł",
-                    pickupDistanceKm = pickupKm,
+                    pickupDistanceKm = distances[0],
                     isPartial = false
                 )
             }
