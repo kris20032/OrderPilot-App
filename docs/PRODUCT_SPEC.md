@@ -1,7 +1,7 @@
 # CourierAssist — Specyfikacja Produktu v1
 
-**Data:** 2026-02-27
-**Status:** Zatwierdzona
+**Data:** 2026-03-17
+**Status:** Zatwierdzona (aktualizacja 2026-03-17)
 
 ---
 
@@ -37,17 +37,30 @@ Kurier jedzie (rowerem!) i nie ma czasu ani możliwości liczyć zł/h w głowie
 
 ---
 
-## Pipeline (sprawdzony w POC)
+## Pipeline (sprawdzony w POC + produkcji)
 
+### Ścieżka 1: OCR (Uber, Wolt)
 ```
-Popup zlecenia pojawia się (TYPE_APPLICATION_OVERLAY)
+Popup zlecenia pojawia się
     → AccessibilityService wykrywa event
-    → ScreenCaptureService robi screenshot (MediaProjection)
-    → PopupCropper przycina region popupu
+    → EventThrottler (100ms delay, 1.5s cooldown per platforma)
+    → ScreenCaptureService robi screenshot (MediaProjection lub takeScreenshot fallback)
+    → PopupCropper przycina dolne 60% ekranu
     → ML Kit OCR rozpoznaje tekst
-    → Parser wyciąga: kwotę, czas, dystans
-    → Analyzer liczy zł/h, zł/km
-    → Overlay wyświetla belkę z oceną
+    → UberOcrParser / WoltOcrParser wyciąga: kwotę, czas, dystans
+    → OfferFilter → OfferAnalyzer liczy zł/h, zł/km
+    → SystemOverlayManager wyświetla belkę z oceną (max 2 naraz)
+```
+
+### Ścieżka 2: Accessibility tree (Glovo, Bolt)
+```
+Popup zlecenia pojawia się
+    → AccessibilityService wykrywa event
+    → EventThrottler (100ms delay, 1.5s cooldown per platforma)
+    → getRootInActiveWindow() → AccessibilityTextCollector zbiera tekst
+    → GlovoOcrParser / BoltFoodOcrParser wyciąga: kwotę, czas, dystans
+    → OfferFilter → OfferAnalyzer liczy zł/h, zł/km
+    → SystemOverlayManager wyświetla belkę z oceną (max 2 naraz)
 ```
 
 Aplikacja nasłuchuje pasywnie na zdarzenia — zero pollingu. Aktywuje się tylko gdy pojawi się popup zlecenia.
@@ -87,7 +100,8 @@ Użytkownik pobiera aplikację → odpala → od razu działa na domyślnych ust
 |------------|------|----------|
 | **Progi zł/h** | Kiedy zielony, żółty, czerwony | 40/32 zł/h |
 | **Progi zł/km** | Analogicznie per km | TBD |
-| **Co wyświetlać na belce** | Checkboxy: zł/h, zł/km, dystans, czas, kwota | zł/h + kolor |
+| **Co wyświetlać na belce** | Checkboxy: zł/h, zł/km, dystans, czas, kwota | Wszystkie metryki widoczne |
+| **Czas wyświetlania belki** | Jak długo belka jest widoczna | 30s |
 | **Min/max dystans** | Ignoruj oferty poza zakresem | Wyłączone |
 | **Tryb nocny/dzienny** | Automatyczny z systemu + ręczny override | Auto |
 | **Język** | PL (domyślny), UK, EN | PL |

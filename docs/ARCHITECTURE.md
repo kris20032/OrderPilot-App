@@ -1,7 +1,7 @@
 # CourierAssist — Architektura Techniczna v1
 
-**Data:** 2026-02-27
-**Status:** Zatwierdzona
+**Data:** 2026-03-17
+**Status:** Zatwierdzona (aktualizacja 2026-03-17)
 
 ---
 
@@ -23,18 +23,18 @@ POC udowodnił że pipeline działa (AccessibilityService → MediaProjection �
 
 ```
 com.courierassist.app/
-├── di/           ← ServiceLocator (manual DI)
+├── di/           ← ServiceLocator, CourierAssistApp, AppLog (manual DI, logging)
 ├── domain/       ← modele danych (czysta logika, zero Androida)
 ├── engine/       ← OfferAnalyzer, OfferFilter
-├── parser/       ← interfejsy + implementacje parserów OCR
+├── parser/       ← OcrOfferParser (OCR), OfferParser (accessibility tree), Uber/Wolt/Glovo/Bolt parsery, ParserRegistry
 ├── capture/      ← ScreenCaptureService, PopupCropper
 ├── ocr/          ← OcrEngine (ML Kit wrapper)
 ├── pipeline/     ← PipelineOrchestrator (łączy capture→ocr→parse→analyze→overlay)
-├── service/      ← CourierAccessibilityService, EventThrottler
+├── service/      ← CourierAccessibilityService, EventThrottler, AccessibilityTextCollector
 ├── overlay/      ← OverlayManager, SystemOverlayManager (multi-slot), OverlayViewFactory, OverlayAutoHider
 ├── settings/     ← SettingsRepository, modele ustawień
 ├── billing/      ← FeatureGate (stub v1)
-└── ui/           ← MainActivity, SettingsActivity
+└── ui/           ← MainActivity, SettingsActivity, SetupActivity, LocaleHelper
 ```
 
 ---
@@ -166,15 +166,28 @@ class OfferFilter {
 
 ## Warstwa: `parser/`
 
-### Interfejs
+### Dwa interfejsy parserów
+
+Projekt ma dwie ścieżki parsowania — OCR (screenshot → ML Kit → tekst) i accessibility tree (bezpośredni odczyt UI). Każda ścieżka ma swój interfejs:
 
 ```kotlin
+// Ścieżka 1: OCR — dla platform z React Native / WebView (Uber, Wolt)
 interface OcrOfferParser {
     val platform: Platform
     val supportedPackages: Set<String>
     fun parse(ocrLines: List<String>, language: AppLanguage): Offer?
 }
+
+// Ścieżka 2: Accessibility tree — dla platform z natywnym UI (Glovo, Bolt)
+interface OfferParser {
+    val platform: Platform
+    val supportedPackages: Set<String>
+    fun canHandle(packageName: String): Boolean
+    fun parse(rootNode: AccessibilityNodeInfo): Offer?
+}
 ```
+
+**Uwaga:** `GlovoOcrParser` i `BoltFoodOcrParser` implementują `OcrOfferParser` mimo że parsują tekst z accessibility tree (nie z OCR). Tekst jest zbierany przez `AccessibilityTextCollector` i przekazywany jako `ocrLines`. Jest to uproszczenie — oba interfejsy używają tego samego formatu wejścia (lista stringów).
 
 ### Implementacja — UberOcrParser
 
@@ -564,7 +577,7 @@ object ServiceLocator {
         instance = this
         settingsRepository = SharedPrefsSettingsRepository(context)
         ocrEngine = OcrEngine()
-        parserRegistry = ParserRegistry(listOf(UberOcrParser(), WoltOcrParser()))
+        parserRegistry = ParserRegistry(listOf(UberOcrParser(), WoltOcrParser(), GlovoOcrParser(), BoltFoodOcrParser()))
         offerAnalyzer = OfferAnalyzer()
         offerFilter = OfferFilter()
         overlayManager = SystemOverlayManager(context)
@@ -748,6 +761,7 @@ STOP → isEnabled=false → AccessibilityService ignoruje eventy, belka hide
 |--------|------|------|
 | `di` | `ServiceLocator.kt` | Manual DI — inicjalizacja wszystkich zależności |
 | `di` | `CourierAssistApp.kt` | Application class — wywołuje ServiceLocator.init() |
+| `di` | `AppLog.kt` | Ring buffer logger (500 wpisów), zapis do Downloads |
 | `domain` | `Platform.kt` | Enum platform |
 | `domain` | `ProfitLevel.kt` | Enum GREEN/YELLOW/RED |
 | `domain` | `Offer.kt` | Data class oferty |
@@ -757,18 +771,21 @@ STOP → isEnabled=false → AccessibilityService ignoruje eventy, belka hide
 | `domain` | `ThemeMode.kt` | Enum trybu ciemnego |
 | `engine` | `OfferAnalyzer.kt` | Oblicza zł/h, zł/km, przypisuje ProfitLevel |
 | `engine` | `OfferFilter.kt` | Filtruje oferty po dystansie |
-| `parser` | `OcrOfferParser.kt` | Interfejs parsera |
+| `parser` | `OcrOfferParser.kt` | Interfejs parsera OCR (Uber, Wolt) |
+| `parser` | `OfferParser.kt` | Interfejs parsera accessibility tree |
 | `parser` | `UberOcrParser.kt` | Parser OCR dla Uber |
+| `parser` | `UberParser.kt` | Parser accessibility tree dla Uber (fallback) |
 | `parser` | `WoltOcrParser.kt` | Parser OCR dla Wolt |
-| `parser` | `GlovoOcrParser.kt` | Parser Glovo (accessibility tree) |
-| `parser` | `BoltFoodOcrParser.kt` | Parser Bolt Food (accessibility tree) |
-| `parser` | `ParserRegistry.kt` | Rejestr parserów |
+| `parser` | `GlovoOcrParser.kt` | Parser Glovo (accessibility tree → ocrLines) |
+| `parser` | `BoltFoodOcrParser.kt` | Parser Bolt Food (accessibility tree → ocrLines) |
+| `parser` | `ParserRegistry.kt` | Rejestr parserów — dispatch po packageName |
 | `capture` | `ScreenCaptureService.kt` | ForegroundService MediaProjection |
 | `capture` | `PopupCropper.kt` | Przycina bitmapę do regionu popupu |
 | `ocr` | `OcrEngine.kt` | Wrapper ML Kit OCR |
 | `pipeline` | `PipelineOrchestrator.kt` | Orkiestracja pipeline'u |
 | `service` | `CourierAccessibilityService.kt` | AccessibilityService — nasłuchuje eventy |
-| `service` | `EventThrottler.kt` | Throttling eventów (delay + cooldown) |
+| `service` | `EventThrottler.kt` | Throttling eventów (delay + cooldown, per platforma) |
+| `service` | `AccessibilityTextCollector.kt` | Zbiera tekst z accessibility tree (traversal) |
 | `overlay` | `OverlayManager.kt` | Interfejs + SystemOverlayManager |
 | `overlay` | `OverlayViewFactory.kt` | Tworzy widok belki |
 | `overlay` | `OverlayAutoHider.kt` | Auto-ukrywanie belki po timeout |
@@ -776,7 +793,9 @@ STOP → isEnabled=false → AccessibilityService ignoruje eventy, belka hide
 | `settings` | `SettingsRepository.kt` | Interfejs + SharedPrefsSettingsRepository |
 | `billing` | `FeatureGate.kt` | Stub — v1 all unlocked |
 | `ui` | `MainActivity.kt` | Ekran główny — START/STOP, uprawnienia |
-| `ui` | `SettingsActivity.kt` | Ekran ustawień |
+| `ui` | `SettingsActivity.kt` | Ekran ustawień (tabs per platforma) |
+| `ui` | `SetupActivity.kt` | Wizard uprawnień (overlay, accessibility, bateria, Samsung) |
+| `ui` | `LocaleHelper.kt` | Helper do zmiany locale per AppLanguage |
 
 ### XML Resources
 
@@ -784,6 +803,7 @@ STOP → isEnabled=false → AccessibilityService ignoruje eventy, belka hide
 |------|------|
 | `res/layout/activity_main.xml` | Layout główny — przycisk, statusy, gear |
 | `res/layout/activity_settings.xml` | Layout ustawień |
+| `res/layout/activity_setup.xml` | Layout wizarda uprawnień |
 | `res/layout/overlay_offer.xml` | Layout belki overlay |
 | `res/xml/accessibility_config.xml` | Konfiguracja AccessibilityService |
 | `res/values/strings.xml` | Stringi PL (domyślne) |
@@ -808,6 +828,8 @@ STOP → isEnabled=false → AccessibilityService ignoruje eventy, belka hide
    - `OfferAnalyzer` — progi, edge cases (0 minut, brak dystansu)
    - `OfferFilter` — filtr dystansu
    - `UberOcrParser` — regex PL/UK/EN, edge cases
+   - `WoltOcrParser` — regex kwot, dystansów, godzin
+   - `GlovoOcrParser` — partial offers, gotówka, sumowanie dystansów
    - `AppSettings.thresholdsFor()` — globalne vs override
    - `EventThrottler` — cooldown logic
 

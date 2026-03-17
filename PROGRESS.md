@@ -209,18 +209,19 @@ Szczegóły: sekcja archiwalna w historii git.
 
 | Branch | Cel | Status | Last Commit |
 |--------|-----|--------|-------------|
-| `feature/multi-overlay` | 2 belki naraz z różnych platform | ✅ Aktywny na GitHub | `6cf4419` (2026-03-17) |
-| `feature/bolt-parser` | Bolt Food parser + wszystkie fixy | ✅ Na GitHub | `86fccd4` (2026-03-17) |
-| `feature/glovo-parser` | Glovo parser + poprawki pipeline + ustawienia per platforma | ✅ Na GitHub | `73226e0` (2026-03-17) |
-| `feature/production-app` | Główny branch produkcyjny | ✅ Na GitHub | 8a9109c (2026-03-10) |
+| `feature/multi-overlay` | 2 belki naraz z różnych platform | ✅ Aktywny — **aktualny tip development** (8 commitów ahead of production-app) | `58e9ef0` (2026-03-17) |
+| `feature/bolt-parser` | Bolt Food parser + wszystkie fixy | ✅ Na GitHub (ancestor multi-overlay) | `86fccd4` (2026-03-17) |
+| `feature/production-app` | Główny branch produkcyjny | ✅ Na GitHub (37 commitów ahead of main) | 8a9109c (2026-03-10) |
 | `main` | Stabilna baza z POC | Zablokowany na zmiany kodu | 285c209 |
 
 > Workflow: nowe zadanie → nowy branch `fix/...` lub `feature/...` → testuj na telefonie → merge do `feature/production-app`
+> **Uwaga:** `feature/multi-overlay` jest aktualnie najbardziej zaawansowanym branchem — po potwierdzeniu stabilności merge do production-app.
 
 ## Archiwalne branche
 
 | Branch | Cel | Notatka |
 |--------|-----|---------|
+| `feature/glovo-parser` | Glovo parser + poprawki pipeline | Fixy zduplikowane na bolt-parser/multi-overlay |
 | `feature/wolt-parser` | WoltOcrParser | Zmerge'owany do production-app 2026-03-13 |
 | `feature/accessibility-fallback` | Dual-mode fallback | Zmerge'owany do production-app 2026-03-10 |
 | `feature/ui-redesign` | UI redesign + wielojęzyczność | Zmerge'owany 2026-03-09 |

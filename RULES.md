@@ -231,9 +231,23 @@ git push
 
 ## 7. Testowanie i budowanie APK
 
-**Status:** TBD - ustalimy jak dotrzemy do odpowiedniego etapu
+**Workflow testów (ustalony 2026-03):**
 
-**Dla AI:** Jak dotrzemy do momentu testowania, zapytaj użytkownika jak chce to zorganizować.
+1. **AI pisze kod** w VSCode via Claude Code — edycja plików, commity, push
+2. **Krzysztof buduje APK** w Android Studio — Build → Run na telefonie lub debug APK
+3. **APK instalowane na telefonie taty** — via USB / adb / bezpośrednio
+4. **Tata testuje na prawdziwych zleceniach** — Uber, Wolt, Glovo, Bolt Food
+5. **Raportowanie wyników** — tata opisuje co działa / nie działa, ewentualnie zapisuje logi
+
+**Logi debugowe:**
+- Aplikacja ma ring buffer (500 wpisów) w pamięci
+- Przycisk "Zapisz logi" na ekranie głównym → plik w Downloads
+- AI analizuje logi po otrzymaniu od użytkownika
+
+**Dla AI:**
+- Nigdy nie buduj ani nie uruchamiaj aplikacji — daj instrukcje do Android Studio
+- Po fixie podaj co przetestować i jak zweryfikować poprawkę
+- Jeśli potrzebne logi — poproś użytkownika o kliknięcie "Zapisz logi" i przesłanie pliku
 
 ---
 
@@ -296,25 +310,25 @@ app/src/main/java/com/courierassist/app/
 ├── di/          ← ServiceLocator, CourierAssistApp, AppLog
 ├── domain/      ← Offer, Platform, AnalysisResult, ProfitLevel, MetricType, AppLanguage, ThemeMode
 ├── engine/      ← OfferAnalyzer, OfferFilter
-├── parser/      ← OcrOfferParser, UberOcrParser, ParserRegistry
+├── parser/      ← OcrOfferParser, OfferParser, UberOcrParser, UberParser, WoltOcrParser, GlovoOcrParser, BoltFoodOcrParser, ParserRegistry
 ├── capture/     ← ScreenCaptureService, PopupCropper
 ├── ocr/         ← OcrEngine
 ├── pipeline/    ← PipelineOrchestrator
-├── service/     ← CourierAccessibilityService, EventThrottler
+├── service/     ← CourierAccessibilityService, EventThrottler, AccessibilityTextCollector
 ├── overlay/     ← OverlayManager, SystemOverlayManager, OverlayViewFactory, OverlayAutoHider
 ├── settings/    ← AppSettings, SettingsRepository, SharedPrefsSettingsRepository
 ├── billing/     ← FeatureGate
-└── ui/          ← MainActivity, SettingsActivity
+└── ui/          ← MainActivity, SettingsActivity, SetupActivity, LocaleHelper
 
 app/src/test/java/com/courierassist/app/
 ├── engine/      ← OfferAnalyzerTest, OfferFilterTest
-├── parser/      ← UberOcrParserTest, ParserRegistryTest
+├── parser/      ← UberOcrParserTest, WoltOcrParserTest, GlovoOcrParserTest
 ├── settings/    ← AppSettingsTest
 └── service/     ← EventThrottlerTest
 
 app/src/main/res/
 ├── xml/         ← accessibility_config.xml
-├── layout/      ← activity_main, activity_settings, overlay_offer
+├── layout/      ← activity_main, activity_settings, activity_setup, overlay_offer
 └── values/      ← kolory, stringi, style, themes
 ```
 
@@ -333,4 +347,4 @@ app/src/main/res/
 
 ---
 
-**Ostatnia aktualizacja:** 2026-03-03
+**Ostatnia aktualizacja:** 2026-03-17

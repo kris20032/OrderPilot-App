@@ -1,6 +1,6 @@
 # CourierAssist
 
-Aplikacja Android dla kurierów (Glovo, UberEats, Wolt) — ocenia opłacalność zlecenia w czasie rzeczywistym przez nakładkę (overlay): zielony/żółty/czerwony + PLN/h.
+Aplikacja Android dla kurierów (Glovo, UberEats, Wolt, Bolt Food) — ocenia opłacalność zlecenia w czasie rzeczywistym przez nakładkę (overlay): zielony/żółty/czerwony + PLN/h.
 
 Działa przez AccessibilityService — zero ryzyka bana, bez API.
 
@@ -29,5 +29,6 @@ CourierAssist-App/
 │   ├── PLAN.md          ← aktywny plan + otwarte zadania
 │   ├── ARCHITECTURE.md  ← architektura modułowa
 │   └── PRODUCT_SPEC.md  ← specyfikacja produktu
-└── CourierAssist/       ← projekt Android (app/)
+├── CourierAssist/       ← projekt Android (app/)
+└── FakeUberDriver/     ← aplikacja testowa (symuluje popupy Uber)
 ```
