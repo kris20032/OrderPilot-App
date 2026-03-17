@@ -31,7 +31,7 @@ com.courierassist.app/
 ├── ocr/          ← OcrEngine (ML Kit wrapper)
 ├── pipeline/     ← PipelineOrchestrator (łączy capture→ocr→parse→analyze→overlay)
 ├── service/      ← CourierAccessibilityService, EventThrottler
-├── overlay/      ← OverlayManager, OverlayViewFactory
+├── overlay/      ← OverlayManager, SystemOverlayManager (multi-slot), OverlayViewFactory, OverlayAutoHider
 ├── settings/     ← SettingsRepository, modele ustawień
 ├── billing/      ← FeatureGate (stub v1)
 └── ui/           ← MainActivity, SettingsActivity
@@ -237,10 +237,15 @@ class WoltOcrParser : OcrOfferParser {
 class ParserRegistry(private val parsers: List<OcrOfferParser>) {
     fun getParser(packageName: String): OcrOfferParser? =
         parsers.firstOrNull { packageName in it.supportedPackages }
+
+    fun getAllWatchedPackages(): Set<String> =
+        parsers.flatMap { it.supportedPackages }.toSet()
 }
 ```
 
 Dodanie nowej platformy = nowa klasa implementująca `OcrOfferParser` + rejestracja w `ParserRegistry`.
+
+Aktualne parsery: `UberOcrParser`, `WoltOcrParser`, `GlovoOcrParser`, `BoltFoodOcrParser`.
 
 ---
 
@@ -423,26 +428,32 @@ class CourierAccessibilityService : AccessibilityService() {
 }
 ```
 
-### OverlayAutoHider (auto-hide belki)
+### OverlayAutoHider (auto-hide belki — per platforma)
 
 ```kotlin
 class OverlayAutoHider(
     private val overlayManager: OverlayManager,
-    private val hideDelayMs: Long = 15_000L  // max czas wyświetlania = czas popupu Ubera
+    private val onHidden: () -> Unit = {}
 ) {
-    private var hideJob: Job? = null
+    private val hideJobs = mutableMapOf<Platform, Job>()
 
-    fun onOverlayShown(scope: CoroutineScope) {
-        hideJob?.cancel()
-        hideJob = scope.launch {
+    fun onOverlayShown(scope: CoroutineScope, hideDelayMs: Long = 15_000L, platform: Platform) {
+        hideJobs[platform]?.cancel()
+        hideJobs[platform] = scope.launch {
             delay(hideDelayMs)
-            withContext(Dispatchers.Main) { overlayManager.hide() }
+            withContext(Dispatchers.Main) { overlayManager.hideByPlatform(platform) }
+            hideJobs.remove(platform)
+            onHidden()
         }
     }
 
     fun hideNow(scope: CoroutineScope) {
-        hideJob?.cancel()
-        scope.launch(Dispatchers.Main) { overlayManager.hide() }
+        hideJobs.values.forEach { it.cancel() }
+        hideJobs.clear()
+        scope.launch(Dispatchers.Main) {
+            overlayManager.hide()
+            onHidden()
+        }
     }
 }
 ```
@@ -455,81 +466,78 @@ class OverlayAutoHider(
 
 ```kotlin
 interface OverlayManager {
-    fun show(result: AnalysisResult, displayConfig: DisplayConfig)
+    fun show(result: AnalysisResult, displayConfig: DisplayConfig, language: AppLanguage)
     fun hide()
+    fun hideByPlatform(platform: Platform)
     fun isShowing(): Boolean
+    fun overlayCount(): Int
 }
 ```
 
-### SystemOverlayManager
+### SystemOverlayManager (multi-slot: max 2 belki)
 
 ```kotlin
 class SystemOverlayManager(private val context: Context) : OverlayManager {
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    private var overlayView: View? = null
 
-    override fun show(result: AnalysisResult, displayConfig: DisplayConfig) {
-        hide() // usuń poprzednią belkę
+    private data class OverlaySlot(
+        val view: View,
+        val platform: Platform,
+        val result: AnalysisResult,
+        val displayConfig: DisplayConfig,
+        val language: AppLanguage,
+        val createdAt: Long
+    )
 
-        val view = OverlayViewFactory.create(context, result, displayConfig)
-        val params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-            PixelFormat.TRANSLUCENT
-        ).apply { gravity = Gravity.TOP }
+    private val slots = mutableListOf<OverlaySlot>()  // max 2
 
-        windowManager.addView(view, params)
-        overlayView = view
+    override fun show(result: AnalysisResult, displayConfig: DisplayConfig, language: AppLanguage) {
+        val platform = result.offer.platform
+        // Ta sama platforma → zastąp belkę
+        // 1 belka innej platformy → dodaj drugą z etykietami
+        // 2 belki → usuń najstarszą, dodaj nową na górze
+        // 0 belek → dodaj normalnie
     }
 
-    override fun hide() {
-        overlayView?.let {
-            try { windowManager.removeView(it) } catch (_: Exception) {}
-            overlayView = null
-        }
+    override fun hideByPlatform(platform: Platform) {
+        // Usuwa belkę danej platformy, przebudowuje pozostałą (bez etykiety)
     }
 
-    override fun isShowing() = overlayView != null
+    override fun hide() { /* Usuwa wszystkie belki */ }
+    override fun isShowing() = slots.isNotEmpty()
+    override fun overlayCount() = slots.size
 }
+```
+
+**Pozycjonowanie:** Każda belka to osobne okno WindowManager. Górna: y=48dp, dolna: y=48dp+60dp+4dp.
+**Etykieta platformy:** Widoczna tylko gdy 2 belki naraz (UBER/WOLT/GLOVO/BOLT prepended do tekstu).
 ```
 
 ### OverlayViewFactory
 
 ```kotlin
 object OverlayViewFactory {
-    fun create(context: Context, result: AnalysisResult, config: DisplayConfig): View {
-        val view = LayoutInflater.from(context).inflate(R.layout.overlay_offer, null)
-        val textView = view.findViewById<TextView>(R.id.tv_overlay_text)
-
-        // Buduj tekst na podstawie wybranych metryk
+    fun create(context: Context, result: AnalysisResult, config: DisplayConfig,
+               language: AppLanguage, platformLabel: String? = null): View {
+        // Buduj tekst na podstawie wybranych metryk + wielojęzyczność
         val parts = mutableListOf<String>()
-        if (MetricType.ZL_PER_HOUR in config.visibleMetrics)
-            parts += "%.0f zł/h".format(result.zlPerHour)
-        if (MetricType.ZL_PER_KM in config.visibleMetrics && result.zlPerKm != null)
-            parts += "%.1f zł/km".format(result.zlPerKm)
-        if (MetricType.AMOUNT in config.visibleMetrics)
-            parts += "%.2f zł".format(result.offer.amount)
-        if (MetricType.TIME in config.visibleMetrics)
-            parts += "${result.offer.estimatedMinutes} min"
-        if (MetricType.DISTANCE in config.visibleMetrics && result.offer.distanceKm != null)
-            parts += "%.1f km".format(result.offer.distanceKm)
+        // ... metryki z non-breaking spaces (zł/h, zł/km, kwota, czas, dystans)
+
+        // Etykieta platformy — widoczna tylko gdy 2 belki naraz
+        if (platformLabel != null) parts.add(0, platformLabel)
+
+        // Partial offer → "↓" zachęca do scrollu
+        if (result.offer.isPartial) parts += "↓"
 
         textView.text = parts.joinToString(" | ")
 
-        // Kolor tła
+        // Kolor tła z konfigurowalaną przezroczystością
+        val alpha = (config.overlayOpacity / 100f * 255).toInt()
         val bgColor = when (result.level) {
-            ProfitLevel.GREEN  -> 0xCC4CAF50.toInt()
-            ProfitLevel.YELLOW -> 0xCCFF9800.toInt()
-            ProfitLevel.RED    -> 0xCCF44336.toInt()
+            ProfitLevel.GREEN  -> Color.argb(alpha, 0x4C, 0xAF, 0x50)
+            ProfitLevel.YELLOW -> Color.argb(alpha, 0xFF, 0x98, 0x00)
+            ProfitLevel.RED    -> Color.argb(alpha, 0xF4, 0x43, 0x36)
         }
-
-        view.setBackgroundColor(bgColor)
-
-        return view
     }
 }
 ```
@@ -633,40 +641,55 @@ object FeatureGate {
 
 ## Diagram przepływu danych
 
+### Ścieżka 1: Accessibility Tree (Glovo, Bolt)
 ```
-[Popup Uber Driver] ─── AccessibilityEvent ───→ [CourierAccessibilityService]
+[Popup Glovo/Bolt] ─── AccessibilityEvent ───→ [CourierAccessibilityService]
                                                          │
-                                                  EventThrottler
+                                                  EventThrottler (per platforma)
                                                   (100ms delay, 1.5s cooldown)
+                                                         │
+                                                         ▼
+                                              processViaAccessibilityTree()
+                                                         │
+                                              getRootInActiveWindow()
+                                              AccessibilityTextCollector.collectText()
+                                                         │
+                                                         ▼
+                                        [ParserRegistry → GlovoOcrParser / BoltFoodOcrParser]
+                                               parse(lines) → Offer?
+                                                         │
+                                              OfferFilter → OfferAnalyzer
+                                                         │
+                                                         ▼
+                                              [SystemOverlayManager] (max 2 belki)
+                                              [OverlayAutoHider] (timer per platforma)
+```
+
+### Ścieżka 2: MediaProjection OCR (Uber, Wolt)
+```
+[Popup Uber/Wolt] ─── AccessibilityEvent ───→ [CourierAccessibilityService]
+                                                         │
+                                                  EventThrottler (per platforma)
                                                          │
                                                          ▼
                                               [PipelineOrchestrator.process()]
                                                          │
-                                    ┌────────────────────┼────────────────────┐
-                                    ▼                    ▼                    ▼
-                          [ScreenCaptureService]  [PopupCropper]       [OcrEngine]
-                           capture() → Bitmap      crop() → Bitmap    recognize() → List<String>
-                                    │                    │                    │
-                                    └────────────────────┼────────────────────┘
+                                    ScreenCaptureService → PopupCropper → OcrEngine
+                                                         │
                                                          ▼
                                         [ParserRegistry → UberOcrParser / WoltOcrParser]
-                                               parse(lines, lang) → Offer?
+                                               parse(lines) → Offer?
+                                                         │
+                                              OfferFilter → OfferAnalyzer
                                                          │
                                                          ▼
-                                                   [OfferFilter]
-                                                passes(offer, filters)?
-                                                         │
-                                                         ▼
-                                                  [OfferAnalyzer]
-                                             analyze(offer, thresholds)
-                                                  → AnalysisResult
-                                                         │
-                                                         ▼
-                                              [SystemOverlayManager]
-                                           show(result, displayConfig)
-                                                         │
-                                              [OverlayAutoHider]
-                                           scheduleHide(15s) → hide()
+                                              [SystemOverlayManager] (max 2 belki)
+                                              [OverlayAutoHider] (timer per platforma)
+```
+
+### Ścieżka 3: takeScreenshot fallback (API 30+, gdy MediaProjection niedostępna)
+```
+AccessibilityService.takeScreenshot() → crop dolne 60% → OcrEngine → Parser → Overlay
 ```
 
 ---
@@ -737,6 +760,8 @@ STOP → isEnabled=false → AccessibilityService ignoruje eventy, belka hide
 | `parser` | `OcrOfferParser.kt` | Interfejs parsera |
 | `parser` | `UberOcrParser.kt` | Parser OCR dla Uber |
 | `parser` | `WoltOcrParser.kt` | Parser OCR dla Wolt |
+| `parser` | `GlovoOcrParser.kt` | Parser Glovo (accessibility tree) |
+| `parser` | `BoltFoodOcrParser.kt` | Parser Bolt Food (accessibility tree) |
 | `parser` | `ParserRegistry.kt` | Rejestr parserów |
 | `capture` | `ScreenCaptureService.kt` | ForegroundService MediaProjection |
 | `capture` | `PopupCropper.kt` | Przycina bitmapę do regionu popupu |

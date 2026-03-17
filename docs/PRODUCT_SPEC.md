@@ -28,9 +28,12 @@ Kurier jedzie (rowerem!) i nie ma czasu ani możliwości liczyć zł/h w głowie
 
 ## Obsługiwane platformy kurierskie
 
-- **v1:** Uber Eats / Uber Driver
-- **Architektura:** multi-platform od początku (interfejsy), dodanie Glovo/Wolt/Bolt = dodanie jednego modułu parsera
+- **Uber Eats / Uber Driver** — OCR (MediaProjection / takeScreenshot fallback)
+- **Wolt** — OCR (MediaProjection / takeScreenshot fallback)
+- **Glovo** — accessibility tree (natywne UI)
+- **Bolt Food** — accessibility tree (natywne UI)
 - Kurier często ma włączonych kilka aplikacji jednocześnie i bierze najlepszą ofertę
+- **Multi-overlay:** max 2 belki jednocześnie z różnych platform do porównania
 
 ---
 
@@ -58,7 +61,8 @@ Aplikacja nasłuchuje pasywnie na zdarzenia — zero pollingu. Aktywuje się tyl
 | **Pozycja** | Góra ekranu (stała) | Konfigurowalna pozycja |
 | **Zawartość** | Konfigurowalna — użytkownik wybiera metryki | Więcej metryk |
 | **Kolor** | 3 poziomy (zielony/żółty/czerwony) z konfigurowalnymi progami | Więcej poziomów |
-| **Znikanie** | Automatycznie po zniknięciu popupu zlecenia | — |
+| **Multi-overlay** | Max 2 belki naraz z różnych platform, etykieta platformy | — |
+| **Znikanie** | Osobne timery per platforma, przycisk × na każdej belce | — |
 | **Animacje** | Brak (ale kod przygotowany na dodanie) | Slide in/out, fade |
 | **Dźwięk/wibracja** | Brak | Opcjonalne w ustawieniach |
 
@@ -150,7 +154,6 @@ Każdy parser ma zestaw regex/słowników per język platformy.
 | Historia zleceń / statystyki | v2+ |
 | Monetyzacja / billing | v2+ |
 | Wibracja / dźwięk przy zleceniu | v2+ |
-| Glovo / Wolt / Bolt parser | v2+ (interfejsy gotowe w v1) |
 | Zmiana pozycji belki | v2+ (kod przygotowany w v1) |
 | Animacje belki | v2+ (kod przygotowany w v1) |
 
@@ -178,11 +181,15 @@ Nawet jeśli v1 nie idzie na Play, architektura powinna być zgodna z:
 
 ---
 
-## Decyzje architektoniczne (z POC)
+## Decyzje architektoniczne (z POC + produkcji)
 
 Sprawdzone i potwierdzone:
-1. `takeScreenshot()` (Accessibility API) **nie widzi** overlayów innych aplikacji — MediaProjection jest jedynym rozwiązaniem
-2. MediaProjection wymaga **ForegroundService z typem mediaProjection** (nie AccessibilityService)
-3. Emulator nie obsługuje `VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR` — testowanie tylko na fizycznym urządzeniu
-4. Timing: screenshot przy **pierwszym evencie** (300ms delay) + cooldown 5s, nie debounce od ostatniego
-5. ML Kit OCR poprawnie czyta polskie kwoty ("34,58 zł"), czas, dystans
+1. **Dual pipeline:** Uber/Wolt → OCR (MediaProjection lub takeScreenshot fallback), Glovo/Bolt → accessibility tree (natywne UI)
+2. `AccessibilityService.takeScreenshot()` (API 30+) działa jako fallback bez MediaProjection — widzi React Native popupy
+3. Glovo/Bolt mają natywne UI → `getRootInActiveWindow()` zwraca tekst → brak potrzeby OCR
+4. Uber popup (React Native) = brak tekstu w accessibility tree → OCR konieczne
+5. MediaProjection wymaga **ForegroundService z typem mediaProjection** (nie AccessibilityService)
+6. Emulator nie obsługuje `VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR` — testowanie tylko na fizycznym urządzeniu
+7. EventThrottler: per platforma, 100ms delay + 1.5s cooldown
+8. ML Kit OCR poprawnie czyta polskie kwoty ("34,58 zł"), czas, dystans
+9. Multi-overlay: max 2 belki naraz, osobne WindowManager okna, osobne timery per platforma

@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-03-17
-**Obecny etap:** Testy produkcyjne u taty. Glovo parser v2 przetestowany — fixy: gotówka, partial offer, sumowanie dystansów. Uber parser: filtr ekranu statystyk. Bolt Food parser do weryfikacji.
-**Aktywny branch:** `feature/bolt-parser` (bazuje na `feature/glovo-parser`)
+**Obecny etap:** Testy produkcyjne u taty. Glovo/Uber fixy wdrożone. Multi-overlay (2 belki naraz) gotowe na branchu `feature/multi-overlay`. Bolt Food parser do weryfikacji.
+**Aktywne branche:** `feature/bolt-parser` (fixy), `feature/multi-overlay` (2 belki naraz)
 
 ---
 
@@ -171,15 +171,37 @@ Szczegóły: sekcja archiwalna w historii git.
 9. **"ODBIERZ X zł" = gotówka klienta** — dużo wyższa niż wynagrodzenie kuriera. Parser filtruje kwoty z prefixem "ODBIERZ".
 10. **Uber ekran statystyk wygląda jak zlecenie** — ma kwotę (324,93 zł) i czas (42 godz. 55 min). Parser odrzuca > 180 min.
 
+### Multi-overlay — 2 belki naraz (branch `feature/multi-overlay`, 2026-03-17)
+
+| Zadanie | Opis | Status |
+|---------|------|--------|
+| SystemOverlayManager | Multi-slot: max 2 belki, najnowsza na górze, pozycjonowanie slotów | ✅ |
+| OverlayAutoHider | Osobne timery per platforma (mapa `hideJobs`) | ✅ |
+| OverlayViewFactory | Etykieta platformy (UBER/WOLT/GLOVO/BOLT) gdy 2 belki naraz | ✅ |
+| OverlayManager interface | Nowe metody: `hideByPlatform(platform)`, `overlayCount()` | ✅ |
+| CourierAccessibilityService | Przekazanie `offer.platform` do `onOverlayShown()` (tree + screenshot path) | ✅ |
+| PipelineOrchestrator | Przekazanie `result.offer.platform` do `onOverlayShown()` | ✅ |
+| Testy na telefonie | Do przetestowania na prawdziwych zleceniach z 2 platform | ⏳ Czeka na build |
+
+**Logika multi-overlay:**
+- 1 belka → bez etykiety (jak dotychczas)
+- 2 belki z różnych platform → obie z etykietą (UBER/WOLT/GLOVO/BOLT)
+- 3. zlecenie → najstarsza belka znika, nowa na górze
+- Przycisk × ukrywa konkretną belkę, druga zostaje (bez etykiety)
+- Osobne timery — każda belka znika niezależnie po swoim czasie
+
 ### Otwarte zadania
 
 | Problem | Rozwiązanie | Status | Priorytet |
 |---------|-------------|--------|-----------|
+| Multi-overlay — testy | Tata testuje 2 belki naraz z różnych platform | ⏳ Czeka na build | High |
 | Bolt Food parser — weryfikacja | Tata testuje na prawdziwych zleceniach Bolt Food | ⏳ Czeka na zlecenie | High |
 | Glovo — weryfikacja po fixach | Tata testuje: gotówka, partial offer, sumowanie dystansów | ⏳ Czeka na build | High |
 | Crash na starszym telefonie (brat) | SettingsActivity crash — do zbadania | ⏳ Do zbadania | Medium |
 | Mruganie belki Uber jasny→ciemny | Deduplikacja lastResult — monitorujemy | Monitorowane | Low |
-| Brak battery optimization | Setup wizard | Do implementacji | Low |
+| UI/UX polish | Dopracowanie wyglądu aplikacji — lepsze layouty, kolory, animacje, ogólna estetyka | Do implementacji | Medium |
+| Przesuwana belka + mini overlay | Belka draggable (użytkownik ustawia pozycję) + mały stały overlay do szybkiego dostosowania (np. przesunięcie, ustawienia) | Do implementacji | Medium |
+| Setup wizard + battery optimization | Kreator pierwszego uruchomienia + `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` + instrukcja Samsung. Dostępny też z poziomu ustawień (sprawdzenie statusu uprawnień w dowolnym momencie) | Do implementacji | Medium |
 
 ---
 
@@ -187,7 +209,8 @@ Szczegóły: sekcja archiwalna w historii git.
 
 | Branch | Cel | Status | Last Commit |
 |--------|-----|--------|-------------|
-| `feature/bolt-parser` | Bolt Food parser + wszystkie fixy | ✅ Aktywny na GitHub | `86fccd4` (2026-03-17) |
+| `feature/multi-overlay` | 2 belki naraz z różnych platform | ✅ Aktywny na GitHub | `6cf4419` (2026-03-17) |
+| `feature/bolt-parser` | Bolt Food parser + wszystkie fixy | ✅ Na GitHub | `86fccd4` (2026-03-17) |
 | `feature/glovo-parser` | Glovo parser + poprawki pipeline + ustawienia per platforma | ✅ Na GitHub | `73226e0` (2026-03-17) |
 | `feature/production-app` | Główny branch produkcyjny | ✅ Na GitHub | 8a9109c (2026-03-10) |
 | `main` | Stabilna baza z POC | Zablokowany na zmiany kodu | 285c209 |
@@ -209,10 +232,13 @@ Szczegóły: sekcja archiwalna w historii git.
 
 ## Co dalej — Priorytet
 
-1. **Weryfikacja Glovo po fixach** — tata buduje najnowszy APK i testuje: gotówka, wielopunktowe zlecenia, partial offer
-2. **Weryfikacja Uber** — ekran statystyk nie powinien triggerować belki
-3. **Bolt Food parser** — testy na prawdziwych zleceniach
-4. **Crash na starszym telefonie** — zbadać po ustabilizowaniu
-5. **Merge feature/bolt-parser → feature/production-app** — po potwierdzeniu stabilności
+1. **Multi-overlay testy** — zbudować APK z `feature/multi-overlay`, przetestować 2 belki naraz
+2. **Weryfikacja Glovo po fixach** — gotówka, wielopunktowe zlecenia, partial offer
+3. **Weryfikacja Uber** — ekran statystyk nie powinien triggerować belki
+4. **Bolt Food parser** — testy na prawdziwych zleceniach
+5. **Crash na starszym telefonie** — zbadać po ustabilizowaniu
+6. **UI/UX polish** — dopracowanie wyglądu (MainActivity, SettingsActivity, belka, ogólna estetyka)
+7. **Setup wizard** — kreator pierwszego uruchomienia z uprawnieniami + battery optimization
+8. **Merge feature/multi-overlay → feature/production-app** — po potwierdzeniu stabilności
 
 Plan w `docs/PLAN.md`.
