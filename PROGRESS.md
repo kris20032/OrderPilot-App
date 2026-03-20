@@ -26,7 +26,7 @@
 
 | Branch | Cel | Status |
 |--------|-----|--------|
-| `feature/multi-overlay` | 2 belki naraz + wszystkie fixy | **Aktualny tip development** (10 ahead of production-app) |
+| `feature/multi-overlay` | 2 belki naraz + wszystkie fixy | **Aktualny tip development** (12 ahead of production-app) |
 | `feature/bolt-parser` | Bolt Food parser + fixy Glovo/Uber | Na GitHub (ancestor multi-overlay) |
 | `feature/production-app` | Główny branch produkcyjny | Na GitHub (37 ahead of main) |
 | `main` | Stabilna baza z POC | Zablokowany na zmiany kodu |
@@ -52,6 +52,7 @@
 
 | Data | Zmiana |
 |------|--------|
+| 03-21 | Hardening: ConcurrentHashMap w OverlayAutoHider, cont.isActive w OcrEngine, maxDepth w TextCollector, crash logger do Downloads |
 | 03-21 | Fix: Glovo parser filtruje "ZAPŁAĆ X zł" na ekranie oferty z gotówką + warianty wielojęzyczne (PL/UK/EN) |
 | 03-20 | Fix: Glovo parser filtruje kwoty "zapłać gotówką partnerowi" + guard "Potwierdź odbiór" |
 | 03-17 | Multi-overlay: max 2 belki naraz, etykiety platform, osobne timery, przycisk × per belka |
