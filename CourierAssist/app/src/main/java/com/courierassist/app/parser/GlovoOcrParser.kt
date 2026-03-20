@@ -19,12 +19,29 @@ class GlovoOcrParser : OcrOfferParser {
         val text = ocrLines.joinToString(" ")
         AppLog.d(AppLog.TAG_PARSER, "Glovo OCR: $text")
 
-        // Szukamy WSZYSTKICH kwot, odfiltruj "ODBIERZ X zł" (gotówka klienta, nie wynagrodzenie)
+        // Guard: ekran szczegółów zamówienia (nie oferta) — "Potwierdź odbiór"
+        if (text.contains("Potwierdź odbiór", ignoreCase = true) ||
+            text.contains("Potwierdz odbior", ignoreCase = true)) {
+            AppLog.d(AppLog.TAG_PARSER, "Glovo: skipping — order details screen (Potwierdź odbiór)")
+            return null
+        }
+
+        // Szukamy WSZYSTKICH kwot, odfiltruj kwoty gotówkowe (nie wynagrodzenie kuriera)
         val amounts = amountRegex.findAll(text)
             .mapNotNull { match ->
-                val prefix = text.substring(maxOf(0, match.range.first - 12), match.range.first)
-                if (prefix.contains("ODBIERZ", ignoreCase = true)) {
-                    AppLog.d(AppLog.TAG_PARSER, "Glovo: skipping cash amount ${match.groupValues[1]} (ODBIERZ)")
+                val prefixStart = maxOf(0, match.range.first - 40)
+                val prefix = text.substring(prefixStart, match.range.first)
+
+                // Filtruj kwoty gotówkowe: ODBIERZ, "Zapłać gotówką partnerowi/u partnera", "resztę za"
+                val isCashAmount = prefix.contains("ODBIERZ", ignoreCase = true) ||
+                    prefix.contains("gotówką partnerowi", ignoreCase = true) ||
+                    prefix.contains("gotówką u partnera", ignoreCase = true) ||
+                    prefix.contains("gotowk", ignoreCase = true) ||
+                    prefix.contains("resztę za", ignoreCase = true) ||
+                    prefix.contains("reszt", ignoreCase = true)
+
+                if (isCashAmount) {
+                    AppLog.d(AppLog.TAG_PARSER, "Glovo: skipping cash amount ${match.groupValues[1]} (cash/change)")
                     return@mapNotNull null
                 }
                 val raw = match.groupValues[1]

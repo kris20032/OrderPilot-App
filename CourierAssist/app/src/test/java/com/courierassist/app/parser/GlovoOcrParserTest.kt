@@ -12,18 +12,12 @@ class GlovoOcrParserTest {
 
     private val parser = GlovoOcrParser()
 
-    // Ekran pierwszy (bez scrollu): kwota + dystans do restauracji
+    // Ekran pierwszy (bez scrollu): kwota + tylko 1 dystans → null (czekamy na pełne dane)
     @Test
-    fun `parses partial offer - one distance visible`() {
+    fun `returns null for partial offer - one distance visible`() {
         val lines = listOf("11,50 zł", "Pizzeria 105", "1,4 km", "Stanisława Wyspiańskiego 2")
         val offer = parser.parse(lines)
-        assertNotNull(offer)
-        assertEquals(11.50, offer!!.amount, 0.01)
-        assertEquals(0, offer.estimatedMinutes)
-        assertEquals(1.4, offer.distanceKm!!, 0.01)
-        assertEquals(1.4, offer.pickupDistanceKm!!, 0.01)
-        assertTrue(offer.isPartial)
-        assertEquals(Platform.GLOVO, offer.platform)
+        assertNull(offer)
     }
 
     // Ekran po scrollu: kwota + oba dystanse
@@ -59,11 +53,10 @@ class GlovoOcrParserTest {
 
     @Test
     fun `parses OCR variant - zt instead of zł`() {
-        val lines = listOf("11,50 zt", "1,4 km")
+        val lines = listOf("11,50 zt", "1,4 km", "1,6 km")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(11.50, offer!!.amount, 0.01)
-        assertTrue(offer.isPartial)
     }
 
     @Test
@@ -99,5 +92,64 @@ class GlovoOcrParserTest {
     fun `does not match uber package`() {
         val registry = ParserRegistry(listOf(GlovoOcrParser()))
         assertNull(registry.getParser("com.ubercab.eats"))
+    }
+
+    // --- Testy filtra gotówkowego ---
+
+    @Test
+    fun `returns null for cash payment screen - Zapłać gotówką partnerowi`() {
+        // Prawdziwy tekst z logów — ekran "zapłać gotówką w restauracji"
+        val lines = listOf(
+            "Status Online direction Kebab Lamh 1 zamówienie Jaśkowa Dolina 101",
+            "80-287 Gdańsk Poland , GDN Firma: Kebab Lamh Gotowe za ok. 5 min",
+            "#935 101599661750 - #935 - Marcin 1 pozycja",
+            "Płatność Zapłać gotówką partnerowi 31,50 zł",
+            "Łączna płatność Zapłać gotówką u partnera zł 31.50",
+            "(Klient poprosił o resztę za 40,00 zł) Potwierdź odbiór"
+        )
+        assertNull(parser.parse(lines))
+    }
+
+    @Test
+    fun `filters cash amount when courier earnings also present`() {
+        // Oferta z kwotą wynagrodzenia (10,74 zł) + gotówka partnerowi (31,50 zł)
+        val lines = listOf(
+            "10,74 zł", "Kebab Lamh", "1,4 km", "Dostawa", "1,6 km",
+            "Płatność Zapłać gotówką partnerowi 31,50 zł"
+        )
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertEquals(10.74, offer!!.amount, 0.01)
+        assertEquals(3.0, offer.distanceKm!!, 0.01)
+    }
+
+    @Test
+    fun `filters reszta za amount`() {
+        // "Klient poprosił o resztę za 40,00 zł" — 40 zł to nie zarobek
+        val lines = listOf(
+            "10,74 zł", "1,4 km", "1,6 km",
+            "(Klient poprosił o resztę za 40,00 zł)"
+        )
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertEquals(10.74, offer!!.amount, 0.01)
+    }
+
+    @Test
+    fun `returns null for Potwierdz odbior screen`() {
+        val lines = listOf(
+            "11,50 zł", "1,4 km", "1,6 km", "Potwierdź odbiór"
+        )
+        assertNull(parser.parse(lines))
+    }
+
+    @Test
+    fun `filters ODBIERZ cash amount - existing behavior`() {
+        val lines = listOf(
+            "10,74 zł", "1,4 km", "1,6 km", "ODBIERZ 65,41 zł"
+        )
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertEquals(10.74, offer!!.amount, 0.01)
     }
 }
