@@ -9,8 +9,8 @@ class GlovoOcrParser : OcrOfferParser {
     override val platform = Platform.GLOVO
     override val supportedPackages = setOf("com.glovo.courier", "com.logistics.rider.glovo")
 
-    // Kwota: "11,50 zł", "11.50 zł", "17 zł" — OCR może gubić "ł" → "zl", "zt", "z"
-    private val amountRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*(?:zł|zl|zt|z\b|PLN)""", RegexOption.IGNORE_CASE)
+    // Kwota: "11,50 zł", "11.50 zł", "17 zł", "17 грн" — OCR może gubić "ł" → "zl", "zt", "z"
+    private val amountRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*(?:zł|zl|zt|z\b|PLN|грн)""", RegexOption.IGNORE_CASE)
 
     // Dystans: "1,4 km", "1.4 km", "3 km" — szukamy WSZYSTKICH wystąpień
     private val distanceRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*km""", RegexOption.IGNORE_CASE)
@@ -19,9 +19,11 @@ class GlovoOcrParser : OcrOfferParser {
         val text = ocrLines.joinToString(" ")
         AppLog.d(AppLog.TAG_PARSER, "Glovo OCR: $text")
 
-        // Guard: ekran szczegółów zamówienia (nie oferta) — "Potwierdź odbiór"
+        // Guard: ekran szczegółów zamówienia (nie oferta) — "Potwierdź odbiór" / UK / EN
         if (text.contains("Potwierdź odbiór", ignoreCase = true) ||
-            text.contains("Potwierdz odbior", ignoreCase = true)) {
+            text.contains("Potwierdz odbior", ignoreCase = true) ||
+            text.contains("Підтвердити отримання", ignoreCase = true) ||
+            text.contains("Confirm pickup", ignoreCase = true)) {
             AppLog.d(AppLog.TAG_PARSER, "Glovo: skipping — order details screen (Potwierdź odbiór)")
             return null
         }
@@ -32,13 +34,25 @@ class GlovoOcrParser : OcrOfferParser {
                 val prefixStart = maxOf(0, match.range.first - 40)
                 val prefix = text.substring(prefixStart, match.range.first)
 
-                // Filtruj kwoty gotówkowe: ODBIERZ, "Zapłać gotówką partnerowi/u partnera", "resztę za"
+                // Filtruj kwoty gotówkowe — PL / UK / EN
                 val isCashAmount = prefix.contains("ODBIERZ", ignoreCase = true) ||
                     prefix.contains("gotówką partnerowi", ignoreCase = true) ||
                     prefix.contains("gotówką u partnera", ignoreCase = true) ||
                     prefix.contains("gotowk", ignoreCase = true) ||
+                    prefix.contains("ZAPŁAĆ", ignoreCase = true) ||
+                    prefix.contains("Zaplac", ignoreCase = true) ||
                     prefix.contains("resztę za", ignoreCase = true) ||
-                    prefix.contains("reszt", ignoreCase = true)
+                    prefix.contains("reszt", ignoreCase = true) ||
+                    // UK
+                    prefix.contains("СПЛАТИТИ", ignoreCase = true) ||
+                    prefix.contains("ОПЛАТИТИ", ignoreCase = true) ||
+                    prefix.contains("готівкою", ignoreCase = true) ||
+                    prefix.contains("решту", ignoreCase = true) ||
+                    // EN
+                    prefix.contains("PAY ", ignoreCase = true) ||
+                    prefix.contains("cash to partner", ignoreCase = true) ||
+                    prefix.contains("change for", ignoreCase = true) ||
+                    prefix.contains("COLLECT", ignoreCase = true)
 
                 if (isCashAmount) {
                     AppLog.d(AppLog.TAG_PARSER, "Glovo: skipping cash amount ${match.groupValues[1]} (cash/change)")

@@ -152,4 +152,60 @@ class GlovoOcrParserTest {
         assertNotNull(offer)
         assertEquals(10.74, offer!!.amount, 0.01)
     }
+
+    // --- Testy "ZAPŁAĆ" na ekranie oferty ---
+
+    @Test
+    fun `filters ZAPŁAĆ cash amount on offer screen`() {
+        // PL: Ekran oferty z "POTRZEBNA GOTÓWKA" — przycisk "ZAPŁAĆ 43,99 zł"
+        val lines = listOf(
+            "11,32 zł", "Apteczka Zdrowia", "0,36 km",
+            "Dostawa", "1,38 km",
+            "POTRZEBNA GOTÓWKA", "ZAPŁAĆ 43,99 zł"
+        )
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertEquals(11.32, offer!!.amount, 0.01)
+        assertEquals(1.74, offer.distanceKm!!, 0.01)
+    }
+
+    @Test
+    fun `filters PAY cash amount on offer screen - EN`() {
+        val lines = listOf(
+            "11,32 zł", "Apteczka Zdrowia", "0,36 km",
+            "Dostawa", "1,38 km",
+            "CASH NEEDED", "PAY 43,99 PLN"
+        )
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertEquals(11.32, offer!!.amount, 0.01)
+    }
+
+    @Test
+    fun `filters СПЛАТИТИ cash amount on offer screen - UK`() {
+        val lines = listOf(
+            "11,32 грн", "Аптека Здоров'я", "0,36 km",
+            "Доставка", "1,38 km",
+            "ПОТРІБНА ГОТІВКА", "СПЛАТИТИ 43,99 грн"
+        )
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertEquals(11.32, offer!!.amount, 0.01)
+    }
+
+    @Test
+    fun `returns null for Confirm pickup screen - EN`() {
+        val lines = listOf(
+            "11,50 zł", "1,4 km", "1,6 km", "Confirm pickup"
+        )
+        assertNull(parser.parse(lines))
+    }
+
+    @Test
+    fun `returns null for Ukrainian confirm screen`() {
+        val lines = listOf(
+            "11,50 грн", "1,4 km", "1,6 km", "Підтвердити отримання"
+        )
+        assertNull(parser.parse(lines))
+    }
 }
