@@ -17,11 +17,11 @@ class OcrEngine {
             .addOnSuccessListener { result ->
                 val lines = result.textBlocks.flatMap { it.lines }.map { it.text }
                 AppLog.d(AppLog.TAG_OCR, "Recognized ${lines.size} lines")
-                cont.resume(lines)
+                if (cont.isActive) cont.resume(lines)
             }
             .addOnFailureListener {
                 AppLog.w(AppLog.TAG_OCR, "OCR failed: ${it.message}")
-                cont.resume(emptyList())
+                if (cont.isActive) cont.resume(emptyList())
             }
     }
 

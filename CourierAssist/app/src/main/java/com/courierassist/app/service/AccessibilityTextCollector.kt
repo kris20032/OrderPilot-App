@@ -5,13 +5,16 @@ import com.courierassist.app.di.AppLog
 
 object AccessibilityTextCollector {
 
+    private const val MAX_DEPTH = 30
+
     fun collectText(root: AccessibilityNodeInfo): String {
         val sb = StringBuilder()
-        traverseNode(root, sb)
+        traverseNode(root, sb, 0)
         return sb.toString()
     }
 
-    private fun traverseNode(node: AccessibilityNodeInfo, sb: StringBuilder) {
+    private fun traverseNode(node: AccessibilityNodeInfo, sb: StringBuilder, depth: Int) {
+        if (depth > MAX_DEPTH) return
         node.text?.let { text ->
             if (text.isNotBlank()) sb.append(text).append('\n')
         }
@@ -20,7 +23,7 @@ object AccessibilityTextCollector {
         }
         for (i in 0 until node.childCount) {
             node.getChild(i)?.let { child ->
-                traverseNode(child, sb)
+                traverseNode(child, sb, depth + 1)
                 child.recycle()
             }
         }

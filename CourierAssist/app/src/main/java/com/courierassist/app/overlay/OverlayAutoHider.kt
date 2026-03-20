@@ -7,12 +7,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.ConcurrentHashMap
 
 class OverlayAutoHider(
     private val overlayManager: OverlayManager,
     private val onHidden: () -> Unit = {}
 ) {
-    private val hideJobs = mutableMapOf<Platform, Job>()
+    private val hideJobs = ConcurrentHashMap<Platform, Job>()
 
     fun onOverlayShown(scope: CoroutineScope, hideDelayMs: Long = 15_000L, platform: Platform) {
         hideJobs[platform]?.cancel()
