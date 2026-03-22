@@ -4,6 +4,7 @@ import com.courierassist.app.capture.PopupCropper
 import com.courierassist.app.capture.ScreenCaptureService
 import com.courierassist.app.di.AppLog
 import com.courierassist.app.domain.AnalysisResult
+import com.courierassist.app.domain.Platform
 import com.courierassist.app.engine.OfferAnalyzer
 import com.courierassist.app.engine.OfferFilter
 import com.courierassist.app.ocr.OcrEngine
@@ -17,6 +18,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.math.abs
 
 class PipelineOrchestrator(
     private val captureService: () -> ScreenCaptureService?,
@@ -30,8 +33,8 @@ class PipelineOrchestrator(
     private val settingsRepository: SettingsRepository
 ) {
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
-    @Volatile private var lastResult: AnalysisResult? = null
-    @Volatile private var lastResultTime = 0L
+    private val lastResults = ConcurrentHashMap<Platform, AnalysisResult>()
+    private val lastResultTimes = ConcurrentHashMap<Platform, Long>()
     private val resultExpiryMs = 60_000L // reset po 60s bez zlecenia
 
     fun process(packageName: String) {
@@ -80,18 +83,18 @@ class PipelineOrchestrator(
                 return@launch
             }
 
+            // Cross-platform duplicate check
+            if (isCrossPlatformDuplicate(offer)) return@launch
+
             val result = offerAnalyzer.analyze(offer, settings.thresholdsFor(offer.platform))
             val tTotal = System.currentTimeMillis()
             AppLog.d(AppLog.TAG_PIPELINE, "Analyzed: ${result.zlPerHour} zł/h → ${result.level} [total ${tTotal - t0}ms]")
 
-            val now = System.currentTimeMillis()
-            if (now - lastResultTime > resultExpiryMs) lastResult = null
-            if (result == lastResult) {
-                AppLog.d(AppLog.TAG_PIPELINE, "Same result as before, skipping overlay update")
+            // Per-platform duplicate check
+            if (isSameAsPrevious(offer.platform, result)) {
+                AppLog.d(AppLog.TAG_PIPELINE, "Same result as before for ${offer.platform}, skipping overlay update")
                 return@launch
             }
-            lastResult = result
-            lastResultTime = now
 
             withContext(Dispatchers.Main) {
                 overlayManager.show(result, settings.display, settings.language)
@@ -100,7 +103,44 @@ class PipelineOrchestrator(
         }
     }
 
-    fun onOverlayHidden() { /* lastResult zachowany — resetuje się po 60s bez zlecenia */ }
+    private fun isSameAsPrevious(platform: Platform, result: AnalysisResult): Boolean {
+        val now = System.currentTimeMillis()
+        val lastTime = lastResultTimes[platform] ?: 0L
+        if (now - lastTime > resultExpiryMs) lastResults.remove(platform)
+
+        val prev = lastResults[platform]
+        if (prev != null &&
+            result.level == prev.level &&
+            result.offer.amount == prev.offer.amount &&
+            result.offer.estimatedMinutes == prev.offer.estimatedMinutes &&
+            result.offer.distanceKm == prev.offer.distanceKm) return true
+
+        lastResults[platform] = result
+        lastResultTimes[platform] = now
+        return false
+    }
+
+    private fun isCrossPlatformDuplicate(offer: com.courierassist.app.domain.Offer): Boolean {
+        val activeOffers = overlayManager.getActiveOffers()
+        if (offer.platform !in activeOffers) return false
+
+        for ((otherPlatform, otherOffer) in activeOffers) {
+            if (otherPlatform == offer.platform) continue
+            val minutesClose = abs(offer.estimatedMinutes - otherOffer.estimatedMinutes) <= 1
+            val distanceClose = if (offer.distanceKm != null && otherOffer.distanceKm != null) {
+                abs(offer.distanceKm - otherOffer.distanceKm) <= 0.5
+            } else {
+                abs(offer.amount - otherOffer.amount) < 0.5
+            }
+            if (minutesClose && distanceClose) {
+                AppLog.d(AppLog.TAG_PIPELINE, "Cross-platform duplicate: ${offer.platform} data matches ${otherPlatform} bar — skipping")
+                return true
+            }
+        }
+        return false
+    }
+
+    fun onOverlayHidden() { /* lastResults zachowane — resetują się po 60s bez zlecenia */ }
 
     fun cancel() = scope.cancel()
 }

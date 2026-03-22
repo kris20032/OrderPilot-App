@@ -11,7 +11,9 @@ import com.courierassist.app.di.AppLog
 import com.courierassist.app.di.ServiceLocator
 import com.courierassist.app.domain.AnalysisResult
 import com.courierassist.app.domain.Offer
+import com.courierassist.app.domain.Platform
 import com.courierassist.app.pipeline.PipelineOrchestrator
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -27,8 +29,8 @@ class CourierAccessibilityService : AccessibilityService() {
     private lateinit var pipeline: PipelineOrchestrator
     private val throttlers = mutableMapOf<String, EventThrottler>()
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
-    @Volatile private var lastResult: AnalysisResult? = null
-    @Volatile private var lastResultTime = 0L
+    private val lastResults = ConcurrentHashMap<Platform, AnalysisResult>()
+    private val lastResultTimes = ConcurrentHashMap<Platform, Long>()
     private val resultExpiryMs = 60_000L
 
     override fun onServiceConnected() {
@@ -69,6 +71,27 @@ class CourierAccessibilityService : AccessibilityService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             throttler.onEvent(scope) { processViaScreenshot(pkg) }
         }
+    }
+
+    /**
+     * Per-platform duplicate check: porównuje nowy wynik z ostatnim wynikiem
+     * DLA TEJ SAMEJ platformy. Zapobiega niepotrzebnym aktualizacjom belki.
+     */
+    private fun isSameAsPrevious(platform: Platform, result: AnalysisResult): Boolean {
+        val now = System.currentTimeMillis()
+        val lastTime = lastResultTimes[platform] ?: 0L
+        if (now - lastTime > resultExpiryMs) lastResults.remove(platform)
+
+        val prev = lastResults[platform]
+        if (prev != null &&
+            result.level == prev.level &&
+            result.offer.amount == prev.offer.amount &&
+            result.offer.estimatedMinutes == prev.offer.estimatedMinutes &&
+            result.offer.distanceKm == prev.offer.distanceKm) return true
+
+        lastResults[platform] = result
+        lastResultTimes[platform] = now
+        return false
     }
 
     /**
@@ -133,15 +156,7 @@ class CourierAccessibilityService : AccessibilityService() {
             val result = ServiceLocator.offerAnalyzer.analyze(offer, settings.thresholdsFor(offer.platform))
             AppLog.d(AppLog.TAG_SERVICE, "Tree result ($packageName): zlPerHour=${result.zlPerHour} zlPerKm=${result.zlPerKm} → ${result.level}")
 
-            val now = System.currentTimeMillis()
-            if (now - lastResultTime > resultExpiryMs) lastResult = null
-            val prev = lastResult
-            if (prev != null &&
-                result.level == prev.level &&
-                result.offer.amount == prev.offer.amount &&
-                result.offer.distanceKm == prev.offer.distanceKm) return
-            lastResult = result
-            lastResultTime = now
+            if (isSameAsPrevious(offer.platform, result)) return
 
             scope.launch(Dispatchers.Main) {
                 ServiceLocator.overlayManager.show(result, settings.display, settings.language)
@@ -192,15 +207,7 @@ class CourierAccessibilityService : AccessibilityService() {
             val result = ServiceLocator.offerAnalyzer.analyze(offer, settings.thresholdsFor(offer.platform))
             AppLog.d(AppLog.TAG_SERVICE, "Screenshot result: ${result.zlPerHour} zł/h → ${result.level}")
 
-            val now = System.currentTimeMillis()
-            if (now - lastResultTime > resultExpiryMs) lastResult = null
-            val prev = lastResult
-            if (prev != null &&
-                result.level == prev.level &&
-                result.offer.amount == prev.offer.amount &&
-                result.offer.estimatedMinutes == prev.offer.estimatedMinutes) return
-            lastResult = result
-            lastResultTime = now
+            if (isSameAsPrevious(offer.platform, result)) return
 
             scope.launch(Dispatchers.Main) {
                 ServiceLocator.overlayManager.show(result, settings.display, settings.language)
