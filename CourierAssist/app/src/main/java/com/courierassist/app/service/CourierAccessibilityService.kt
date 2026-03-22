@@ -10,6 +10,7 @@ import com.courierassist.app.capture.ScreenCaptureService
 import com.courierassist.app.di.AppLog
 import com.courierassist.app.di.ServiceLocator
 import com.courierassist.app.domain.AnalysisResult
+import com.courierassist.app.domain.Offer
 import com.courierassist.app.pipeline.PipelineOrchestrator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
+import kotlin.math.abs
 
 class CourierAccessibilityService : AccessibilityService() {
 
@@ -69,6 +71,38 @@ class CourierAccessibilityService : AccessibilityService() {
         }
     }
 
+    /**
+     * Cross-platform duplicate check z tolerancją.
+     * Jeśli inna platforma już wyświetla belkę z podobnymi danymi (±1 min, ±0.5 km),
+     * to prawdopodobnie OCR przeczytał cudzą belkę/ekran → skip.
+     * Dotyczy TYLKO aktualizacji (gdy belka dla tej platformy już istnieje).
+     */
+    private fun isCrossPlatformDuplicate(offer: Offer): Boolean {
+        val activeOffers = ServiceLocator.overlayManager.getActiveOffers()
+
+        // Jeśli nie ma belki dla tej platformy — to pierwsze pokazanie, nie sprawdzamy
+        if (offer.platform !in activeOffers) return false
+
+        // Sprawdź czy dane pasują do INNEJ platformy (contamination)
+        for ((otherPlatform, otherOffer) in activeOffers) {
+            if (otherPlatform == offer.platform) continue
+
+            val minutesClose = abs(offer.estimatedMinutes - otherOffer.estimatedMinutes) <= 1
+            val distanceClose = if (offer.distanceKm != null && otherOffer.distanceKm != null) {
+                abs(offer.distanceKm - otherOffer.distanceKm) <= 0.5
+            } else {
+                // Jeśli brak dystansu — porównaj kwotę z tolerancją
+                abs(offer.amount - otherOffer.amount) < 0.5
+            }
+
+            if (minutesClose && distanceClose) {
+                AppLog.d(AppLog.TAG_SERVICE, "Cross-platform duplicate: ${offer.platform} data matches ${otherPlatform} bar (${offer.estimatedMinutes}min/${offer.distanceKm}km ≈ ${otherOffer.estimatedMinutes}min/${otherOffer.distanceKm}km) — skipping")
+                return true
+            }
+        }
+        return false
+    }
+
     private suspend fun processViaAccessibilityTree(packageName: String) {
         try {
             val root = rootInActiveWindow ?: run {
@@ -92,6 +126,9 @@ class CourierAccessibilityService : AccessibilityService() {
 
             val settings = ServiceLocator.settingsRepository.load()
             if (!ServiceLocator.offerFilter.passes(offer, settings.filtersFor(offer.platform))) return
+
+            // Cross-platform duplicate check
+            if (isCrossPlatformDuplicate(offer)) return
 
             val result = ServiceLocator.offerAnalyzer.analyze(offer, settings.thresholdsFor(offer.platform))
             AppLog.d(AppLog.TAG_SERVICE, "Tree result ($packageName): zlPerHour=${result.zlPerHour} zlPerKm=${result.zlPerKm} → ${result.level}")
@@ -148,6 +185,9 @@ class CourierAccessibilityService : AccessibilityService() {
 
             val settings = ServiceLocator.settingsRepository.load()
             if (!ServiceLocator.offerFilter.passes(offer, settings.filtersFor(offer.platform))) return
+
+            // Cross-platform duplicate check
+            if (isCrossPlatformDuplicate(offer)) return
 
             val result = ServiceLocator.offerAnalyzer.analyze(offer, settings.thresholdsFor(offer.platform))
             AppLog.d(AppLog.TAG_SERVICE, "Screenshot result: ${result.zlPerHour} zł/h → ${result.level}")

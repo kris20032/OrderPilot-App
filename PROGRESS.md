@@ -52,6 +52,7 @@
 
 | Data | Zmiana |
 |------|--------|
+| 03-22 | Fix: Multi-overlay — cross-platform duplicate check (belki nie mieszają danych), dynamiczna wysokość slotów (bez overlapping), stabilna pozycja przy update (bez slot swap) |
 | 03-22 | Fix: Bolt Food — dodano prawdziwy pakiet `com.bolt.deliverycourier` do supportedPackages (belka nie działała bo parser miał złe nazwy pakietów) |
 | 03-21 | Hardening: ConcurrentHashMap w OverlayAutoHider, cont.isActive w OcrEngine, maxDepth w TextCollector, crash logger do Downloads |
 | 03-21 | Fix: Glovo parser filtruje "ZAPŁAĆ X zł" na ekranie oferty z gotówką + warianty wielojęzyczne (PL/UK/EN) |

@@ -10,6 +10,7 @@ import android.view.WindowManager
 import com.courierassist.app.R
 import com.courierassist.app.domain.AnalysisResult
 import com.courierassist.app.domain.AppLanguage
+import com.courierassist.app.domain.Offer
 import com.courierassist.app.domain.Platform
 import com.courierassist.app.settings.DisplayConfig
 
@@ -18,7 +19,7 @@ class SystemOverlayManager(private val context: Context) : OverlayManager {
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val density = context.resources.displayMetrics.density
     private val topY = (48 * density).toInt()
-    private val slotHeight = (60 * density).toInt() // estymacja: 14dp padding * 2 + 18sp tekst + margin
+    private val slotHeight = (60 * density).toInt() // fallback jeśli view.height jeszcze niedostępne
     private val slotGap = (4 * density).toInt()
 
     private data class OverlaySlot(
@@ -37,9 +38,9 @@ class SystemOverlayManager(private val context: Context) : OverlayManager {
         val existingIndex = slots.indexOfFirst { it.platform == platform }
 
         if (existingIndex >= 0) {
-            // Ta sama platforma — zastąp belkę
+            // Ta sama platforma — zastąp belkę NA TEJ SAMEJ POZYCJI (bez swap)
             removeSlot(existingIndex)
-            addSlot(result, displayConfig, language, platform, position = 0)
+            addSlot(result, displayConfig, language, platform, position = existingIndex)
         } else if (slots.size >= 2) {
             // Już 2 belki — usuń najstarszą (ostatnia na liście = dolna = starsza)
             removeSlot(slots.size - 1)
@@ -81,6 +82,9 @@ class SystemOverlayManager(private val context: Context) : OverlayManager {
 
     override fun overlayCount() = slots.size
 
+    override fun getActiveOffers(): Map<Platform, Offer> =
+        slots.associate { it.platform to it.result.offer }
+
     private fun addSlot(result: AnalysisResult, displayConfig: DisplayConfig, language: AppLanguage, platform: Platform, position: Int) {
         val showLabel = slots.isNotEmpty() // etykieta jeśli to będzie 2. belka (lub zastąpienie przy 2 belkach)
         val label = if (showLabel) platformLabel(platform) else null
@@ -92,6 +96,8 @@ class SystemOverlayManager(private val context: Context) : OverlayManager {
         try {
             windowManager.addView(view, params)
             slots.add(position, OverlaySlot(view, platform, result, displayConfig, language, System.currentTimeMillis()))
+            // Po layout — przelicz pozycje z faktyczną wysokością
+            view.post { repositionAll() }
         } catch (_: Exception) {}
     }
 
@@ -114,14 +120,21 @@ class SystemOverlayManager(private val context: Context) : OverlayManager {
         try {
             windowManager.addView(newView, params)
             slots[index] = old.copy(view = newView)
+            // Po layout — przelicz pozycje z faktyczną wysokością
+            newView.post { repositionAll() }
         } catch (_: Exception) {}
     }
 
     private fun repositionAll() {
+        var currentY = topY
         for (i in slots.indices) {
             try {
-                val params = createParams(i)
+                val params = slots[i].view.layoutParams as WindowManager.LayoutParams
+                params.y = currentY
                 windowManager.updateViewLayout(slots[i].view, params)
+                // Użyj zmierzonej wysokości, fallback na estymację
+                val measuredHeight = slots[i].view.height.takeIf { it > 0 } ?: slotHeight
+                currentY += measuredHeight + slotGap
             } catch (_: Exception) {}
         }
     }
