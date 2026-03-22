@@ -1,7 +1,7 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-21
-**Obecny etap:** Testy produkcyjne. Wszystkie parsery gotowe. Multi-overlay gotowy. Czekamy na wyniki testów u taty.
+**Ostatnia aktualizacja:** 2026-03-22
+**Obecny etap:** Testy produkcyjne. Wszystkie parsery gotowe. Multi-overlay gotowy. Bolt Food fix — zły package name naprawiony.
 **Aktywne branche:** `feature/multi-overlay` (tip development), `feature/bolt-parser` (ancestor)
 
 ---
@@ -12,7 +12,7 @@
 |-----------|---------|--------|
 | High | Multi-overlay — testy 2 belek naraz z różnych platform | Czeka na build |
 | High | Glovo — weryfikacja fixów (gotówka, partial offer, suma dystansów, "zapłać gotówką") | Czeka na build |
-| High | Bolt Food — testy na prawdziwych zleceniach | Czeka na zlecenie |
+| High | Bolt Food — testy na prawdziwych zleceniach | Fix: dodano com.bolt.deliverycourier do supportedPackages (03-22) |
 | High | Merge `feature/multi-overlay` → `feature/production-app` | Po potwierdzeniu stabilności |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Do zbadania |
 | Medium | UI/UX polish — layouty, kolory, animacje | Do implementacji |
@@ -52,6 +52,7 @@
 
 | Data | Zmiana |
 |------|--------|
+| 03-22 | Fix: Bolt Food — dodano prawdziwy pakiet `com.bolt.deliverycourier` do supportedPackages (belka nie działała bo parser miał złe nazwy pakietów) |
 | 03-21 | Hardening: ConcurrentHashMap w OverlayAutoHider, cont.isActive w OcrEngine, maxDepth w TextCollector, crash logger do Downloads |
 | 03-21 | Fix: Glovo parser filtruje "ZAPŁAĆ X zł" na ekranie oferty z gotówką + warianty wielojęzyczne (PL/UK/EN) |
 | 03-20 | Fix: Glovo parser filtruje kwoty "zapłać gotówką partnerowi" + guard "Potwierdź odbiór" |
@@ -89,6 +90,7 @@
 
 ### Bolt Food
 - Parser gotowy, czeka na prawdziwe zlecenie ⏳
+- 03-22: Zlecenie przyszło ale belka nie zadziałała — pakiet `com.bolt.deliverycourier` nie był w supportedPackages. Naprawione.
 
 ---
 

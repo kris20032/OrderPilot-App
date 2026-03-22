@@ -8,6 +8,7 @@ class BoltFoodOcrParser : OcrOfferParser {
 
     override val platform = Platform.BOLT
     override val supportedPackages = setOf(
+        "com.bolt.deliverycourier",
         "com.bolt.courier",
         "com.bolt.food.courier",
         "ee.mtakso.courier"
