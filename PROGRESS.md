@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-03-22
-**Obecny etap:** Testy produkcyjne. Wszystkie parsery gotowe. Multi-overlay gotowy. Bolt Food fix — zły package name naprawiony.
-**Aktywne branche:** `feature/multi-overlay` (tip development), `feature/bolt-parser` (ancestor)
+**Obecny etap:** Testy produkcyjne. Wszystkie parsery gotowe. Multi-overlay naprawiony (cross-platform duplicate check, dynamiczna wysokość, stabilne sloty). Czekamy na build + testy u taty.
+**Aktywne branche:** `feature/multi-overlay` (tip development, 16 commitów ahead of production-app)
 
 ---
 
@@ -10,14 +10,14 @@
 
 | Priorytet | Zadanie | Status |
 |-----------|---------|--------|
-| High | Multi-overlay — testy 2 belek naraz z różnych platform | Czeka na build |
-| High | Glovo — weryfikacja fixów (gotówka, partial offer, suma dystansów, "zapłać gotówką") | Czeka na build |
-| High | Bolt Food — testy na prawdziwych zleceniach | Fix: dodano com.bolt.deliverycourier do supportedPackages (03-22) |
-| High | Merge `feature/multi-overlay` → `feature/production-app` | Po potwierdzeniu stabilności |
+| **High** | Zbudować APK z `feature/multi-overlay` i przetestować | Czeka na build |
+| **High** | Bolt Food — testy na prawdziwych zleceniach | Fix package name gotowy (03-22), czeka na test |
+| **High** | Multi-overlay — testy 2 belek naraz | Fixy gotowe (03-22), czeka na test |
+| **High** | Glovo — weryfikacja fixów (gotówka, partial offer, suma dystansów) | Czeka na test |
+| **High** | Merge `feature/multi-overlay` → `feature/production-app` | Po potwierdzeniu stabilności |
+| Medium | Uber — belka pokazała 2 metryki zamiast 5 | Czekamy na logi + screeny od taty |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Do zbadania |
-| Medium | UI/UX polish — layouty, kolory, animacje | Do implementacji |
 | Medium | Setup wizard + battery optimization | Plan w `docs/PLAN.md` |
-| Medium | Przesuwana belka + mini overlay | Do implementacji |
 | Low | Mruganie belki Uber jasny→ciemny | Monitorowane |
 
 ---
@@ -26,10 +26,11 @@
 
 | Branch | Cel | Status |
 |--------|-----|--------|
-| `feature/multi-overlay` | 2 belki naraz + wszystkie fixy | **Aktualny tip development** (12 ahead of production-app) |
-| `feature/bolt-parser` | Bolt Food parser + fixy Glovo/Uber | Na GitHub (ancestor multi-overlay) |
+| `feature/multi-overlay` | Multi-overlay + wszystkie fixy | **Aktualny tip development** (16 ahead of production-app) |
 | `feature/production-app` | Główny branch produkcyjny | Na GitHub (37 ahead of main) |
 | `main` | Stabilna baza z POC | Zablokowany na zmiany kodu |
+
+> **Archiwalne:** `feature/bolt-parser` (ancestor multi-overlay), `feature/glovo-parser`, `feature/wolt-parser`, `feature/accessibility-fallback`, `feature/ui-redesign`, `fix/screen-off-survival`
 
 > Workflow: nowy branch → testuj → merge do `feature/production-app`
 
@@ -38,23 +39,22 @@
 ## Co dalej — Priorytet
 
 1. Zbudować APK z `feature/multi-overlay`, przetestować
-2. Weryfikacja Glovo po fixach (gotówka, wielopunktowe, partial offer)
-3. Weryfikacja Uber (ekran statystyk nie triggeruje belki)
-4. Bolt Food na prawdziwych zleceniach
-5. Crash na starszym telefonie — zbadać
-6. UI/UX polish
-7. Setup wizard
-8. Merge multi-overlay → production-app
+2. Bolt Food — test na prawdziwych zleceniach (fix package name)
+3. Multi-overlay — test 2 belek naraz (cross-contamination fix)
+4. Glovo — weryfikacja po fixach gotówkowych
+5. Upomnieć się u taty o logi Uber (2 metryki)
+6. Crash na starszym telefonie — zbadać
+7. Merge multi-overlay → production-app
 
 ---
 
-## Ostatnie zmiany (2026-03-14 — 2026-03-21)
+## Ostatnie zmiany (2026-03-14 — 2026-03-22)
 
 | Data | Zmiana |
 |------|--------|
 | 03-22 | Refactor: per-platform lastResult (ConcurrentHashMap) w serwisie i PipelineOrchestrator + cross-platform duplicate check w obu ścieżkach |
-| 03-22 | Fix: Multi-overlay — cross-platform duplicate check (belki nie mieszają danych), dynamiczna wysokość slotów (bez overlapping), stabilna pozycja przy update (bez slot swap) |
-| 03-22 | Fix: Bolt Food — dodano prawdziwy pakiet `com.bolt.deliverycourier` do supportedPackages (belka nie działała bo parser miał złe nazwy pakietów) |
+| 03-22 | Fix: Multi-overlay — cross-platform duplicate check z tolerancją (±1 min, ±0.5 km), dynamiczna wysokość slotów, stabilna pozycja przy update (bez slot swap) |
+| 03-22 | Fix: Bolt Food — dodano prawdziwy pakiet `com.bolt.deliverycourier` do supportedPackages |
 | 03-21 | Hardening: ConcurrentHashMap w OverlayAutoHider, cont.isActive w OcrEngine, maxDepth w TextCollector, crash logger do Downloads |
 | 03-21 | Fix: Glovo parser filtruje "ZAPŁAĆ X zł" na ekranie oferty z gotówką + warianty wielojęzyczne (PL/UK/EN) |
 | 03-20 | Fix: Glovo parser filtruje kwoty "zapłać gotówką partnerowi" + guard "Potwierdź odbiór" |
@@ -68,36 +68,43 @@
 
 ---
 
-## Wyniki testów (2026-03-15 — 2026-03-17)
+## Wyniki testów
 
-### Glovo
+### Glovo (2026-03-15 — 2026-03-17)
 | Zlecenie | Wynik | Uwagi |
 |----------|-------|-------|
 | 18,15 zł / Starbucks | ✅ | Max kwota (18,15 > 4,71), dystans 1,26+0,78=2,0 km |
 | 7,50 zł / Pasibus | ✅ | Oba dystanse od razu (tree widzi spoza ekranu) |
 | 18,29 zł / Pizzeria 105 | ✅ | Po fix partial offer — parser czekał na pełne dane |
-| 25,38 zł / TARGOWA+Kebab (3 dyst.) | ⚠️ | Build bez fixu ODBIERZ — wziął gotówkę 39 zł. Naprawione. |
+| 25,38 zł / TARGOWA+Kebab (3 dyst.) | ⚠️→✅ | Wziął gotówkę 39 zł. Naprawione (filtr ODBIERZ). |
 | 12,54 zł / Biedronka (gotówka) | ❌→✅ | Wziął 65,41 zł klienta. Naprawione (filtr ODBIERZ). |
-| 31,50 zł / Kebab Lamh (zapłać gotówką) | ❌→✅ | Belka wzięła 31,50 zł (gotówka w restauracji) zamiast 10,74 zł (wynagrodzenie). Naprawione (filtr gotówkowy + guard). |
-| 11,32 zł / Apteczka Zdrowia (ZAPŁAĆ gotówką) | ❌ | Belka wzięła 43,99 zł (przycisk "ZAPŁAĆ") zamiast 11,32 zł. Naprawione (filtr "ZAPŁAĆ" + warianty PL/UK/EN). |
+| 31,50 zł / Kebab Lamh (zapłać gotówką) | ❌→✅ | Naprawione (filtr gotówkowy + guard). |
+| 11,32 zł / Apteczka Zdrowia (ZAPŁAĆ gotówką) | ❌→✅ | Naprawione (filtr "ZAPŁAĆ" + warianty PL/UK/EN). |
 
-### Uber
+### Uber (2026-03-16 — 2026-03-22)
 | Problem | Wynik |
 |---------|-------|
 | Ekran statystyk (324 zł / 2575 min) | ✅ Naprawione — filtr > 180 min |
 | Regresja po zmianach | ✅ Działa |
+| Belka 2 metryki zamiast 5 | ⏳ Czekamy na logi |
 
-### Wolt
+### Wolt (2026-03-13)
 - Zweryfikowany na telefonie (13 zł / 26 min / 2.7 km → 30 zł/h → RED) ✅
 
-### Bolt Food
-- Parser gotowy, czeka na prawdziwe zlecenie ⏳
-- 03-22: Zlecenie przyszło ale belka nie zadziałała — pakiet `com.bolt.deliverycourier` nie był w supportedPackages. Naprawione.
+### Multi-overlay (2026-03-22)
+| Problem | Wynik |
+|---------|-------|
+| Cross-contamination (Wolt bar dostał dane Uber) | ❌→✅ Fix: cross-platform duplicate check z tolerancją |
+| Belki nachodzą na siebie | ❌→✅ Fix: dynamiczna wysokość (view.height po layout) |
+| Slot swap (Uber z góry na dół) | ❌→✅ Fix: position = existingIndex zamiast 0 |
+
+### Bolt Food (2026-03-22)
+- Zlecenie przyszło, belka nie zadziałała — pakiet `com.bolt.deliverycourier` nie był w supportedPackages. Naprawione. Czeka na retest.
 
 ---
 
 <details>
-<summary>📋 Archiwum — ukończone etapy</summary>
+<summary>Archiwum — ukończone etapy</summary>
 
 ## Faza POC — ZAKOŃCZONA (2026-02-24 — 2026-02-27)
 
@@ -127,17 +134,5 @@ Fundament → Domain → Settings → Engine → Parser → Capture → OCR → 
 ## GlovoOcrParser + fixy (2026-03-14/17)
 ## BoltFoodOcrParser — gotowy (2026-03-15)
 ## Multi-overlay — 2 belki naraz (2026-03-17)
-
-## Archiwalne branche
-
-| Branch | Status |
-|--------|--------|
-| `feature/glovo-parser` | Fixy zduplikowane na bolt-parser/multi-overlay |
-| `feature/wolt-parser` | Merged do production-app 2026-03-13 |
-| `feature/accessibility-fallback` | Merged 2026-03-10 |
-| `feature/ui-redesign` | Merged 2026-03-09 |
-| `fix/screen-off-survival` | Merged 2026-03-08 |
-| `feature/fake-uber-driver` | Gotowa |
-| `lukasz` | Merged do main |
 
 </details>

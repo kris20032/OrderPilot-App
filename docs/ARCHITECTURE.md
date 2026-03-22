@@ -1,7 +1,7 @@
 # CourierAssist — Architektura Techniczna v1
 
-**Data:** 2026-03-17
-**Status:** Zatwierdzona (aktualizacja 2026-03-17)
+**Data:** 2026-03-22
+**Status:** Zatwierdzona (aktualizacja 2026-03-22)
 
 ---
 
@@ -334,41 +334,26 @@ class OcrEngine {
 
 ```kotlin
 class PipelineOrchestrator(
-    private val captureService: () -> ScreenCaptureService?,  // lazy — może nie istnieć
+    private val captureService: () -> ScreenCaptureService?,
     private val popupCropper: PopupCropper,
     private val ocrEngine: OcrEngine,
     private val parserRegistry: ParserRegistry,
     private val offerAnalyzer: OfferAnalyzer,
     private val offerFilter: OfferFilter,
     private val overlayManager: OverlayManager,
+    private val overlayAutoHider: OverlayAutoHider,
     private val settingsRepository: SettingsRepository
 ) {
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    private val lastResults = ConcurrentHashMap<Platform, AnalysisResult>() // per-platform
+    private val lastResultTimes = ConcurrentHashMap<Platform, Long>()
 
     fun process(packageName: String) {
         scope.launch {
-            val capture = captureService() ?: return@launch
-            if (!capture.isReady()) return@launch
-
-            val screenshot = capture.capture() ?: return@launch
-            val cropped = popupCropper.crop(screenshot)
-            screenshot.recycle()
-
-            val ocrLines = ocrEngine.recognize(cropped)
-            cropped.recycle()
-            if (ocrLines.isEmpty()) return@launch
-
-            val settings = settingsRepository.load()
-            val parser = parserRegistry.getParser(packageName) ?: return@launch
-            val offer = parser.parse(ocrLines, settings.language) ?: return@launch
-
-            if (!offerFilter.passes(offer, settings.filtersFor(offer.platform))) return@launch
-
-            val result = offerAnalyzer.analyze(offer, settings.thresholdsFor(offer.platform))
-
-            withContext(Dispatchers.Main) {
-                overlayManager.show(result, settings.display)
-            }
+            // capture → crop → OCR → parse → filter
+            // → cross-platform duplicate check (±1 min, ±0.5 km)
+            // → per-platform duplicate check (same result = skip)
+            // → analyze → overlay.show()
         }
     }
 
@@ -484,6 +469,7 @@ interface OverlayManager {
     fun hideByPlatform(platform: Platform)
     fun isShowing(): Boolean
     fun overlayCount(): Int
+    fun getActiveOffers(): Map<Platform, Offer>  // do cross-platform duplicate check
 }
 ```
 
@@ -522,8 +508,9 @@ class SystemOverlayManager(private val context: Context) : OverlayManager {
 }
 ```
 
-**Pozycjonowanie:** Każda belka to osobne okno WindowManager. Górna: y=48dp, dolna: y=48dp+60dp+4dp.
+**Pozycjonowanie:** Każda belka to osobne okno WindowManager. Dynamiczna wysokość — `repositionAll()` mierzy `view.height` po layout (fallback na estymację 60dp). Nowa belka na pozycji 0 (góra); update tej samej platformy zachowuje oryginalną pozycję.
 **Etykieta platformy:** Widoczna tylko gdy 2 belki naraz (UBER/WOLT/GLOVO/BOLT prepended do tekstu).
+**Cross-platform duplicate check:** Przed aktualizacją belki sprawdza czy dane (minutes ±1, distance ±0.5 km) nie pasują do innej aktywnej belki → skip (screen contamination).
 ```
 
 ### OverlayViewFactory

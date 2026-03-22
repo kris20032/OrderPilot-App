@@ -347,4 +347,4 @@ app/src/main/res/
 
 ---
 
-**Ostatnia aktualizacja:** 2026-03-17
+**Ostatnia aktualizacja:** 2026-03-22
