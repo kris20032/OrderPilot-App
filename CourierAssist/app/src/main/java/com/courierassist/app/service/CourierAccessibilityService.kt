@@ -61,12 +61,14 @@ class CourierAccessibilityService : AccessibilityService() {
             return
         }
 
-        // Screenshot pipeline (Uber/Wolt) — sprawdź czy event pochodzi z foreground app.
+        // Screenshot pipeline (Uber/Wolt) — sprawdź czy na ekranie jest INNA apka kurierska.
         // takeScreenshot() robi zrzut CAŁEGO ekranu, więc jeśli np. Wolt generuje eventy
         // w tle a na ekranie jest popup Ubera — WoltOcrParser sparsuje go jako ofertę Wolt.
+        // Ale: Uber pokazuje popupy jako overlay NAD innymi apkami (launcher, bank itp.),
+        // więc blokujemy TYLKO gdy foreground to inna apka kurierska (rival platform).
         val activePackage = rootInActiveWindow?.packageName?.toString()
-        if (activePackage != null && activePackage != pkg) {
-            AppLog.d(AppLog.TAG_SERVICE, "Skipping screenshot for $pkg — foreground is $activePackage")
+        if (activePackage != null && activePackage != pkg && activePackage in courierPackages) {
+            AppLog.d(AppLog.TAG_SERVICE, "Skipping screenshot for $pkg — foreground is rival platform $activePackage")
             return
         }
 
@@ -265,5 +267,13 @@ class CourierAccessibilityService : AccessibilityService() {
 
         private val watchedPackages: Set<String>
             get() = ServiceLocator.parserRegistry.getAllWatchedPackages()
+
+        /** Paczki kurierskie — blokujemy screenshot tylko gdy foreground to INNA z tych apek */
+        private val courierPackages = setOf(
+            "com.ubercab.driver",
+            "com.wolt.courierapp",
+            "com.logistics.rider.glovo",
+            "com.bolt.deliverycourier"
+        )
     }
 }
