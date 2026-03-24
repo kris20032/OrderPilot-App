@@ -61,6 +61,15 @@ class CourierAccessibilityService : AccessibilityService() {
             return
         }
 
+        // Screenshot pipeline (Uber/Wolt) — sprawdź czy event pochodzi z foreground app.
+        // takeScreenshot() robi zrzut CAŁEGO ekranu, więc jeśli np. Wolt generuje eventy
+        // w tle a na ekranie jest popup Ubera — WoltOcrParser sparsuje go jako ofertę Wolt.
+        val activePackage = rootInActiveWindow?.packageName?.toString()
+        if (activePackage != null && activePackage != pkg) {
+            AppLog.d(AppLog.TAG_SERVICE, "Skipping screenshot for $pkg — foreground is $activePackage")
+            return
+        }
+
         // Primary: MediaProjection pipeline (jeśli aktywna)
         if (isMediaProjectionAvailable()) {
             throttler.onEvent(scope) { pipeline.process(pkg) }
