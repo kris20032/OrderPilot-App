@@ -2,7 +2,7 @@
 
 **Ostatnia aktualizacja:** 2026-03-24
 **Obecny etap:** Testy produkcyjne. Foreground check + task-removed detection dodane (03-24). Czekamy na build + testy u taty.
-**Aktywne branche:** `feature/multi-overlay` (tip development, 18 commitów ahead of production-app)
+**Aktywne branche:** `feature/multi-overlay` (tip development, 22 commitów ahead of production-app)
 
 ---
 
@@ -48,10 +48,13 @@
 
 ---
 
-## Ostatnie zmiany (2026-03-14 — 2026-03-22)
+## Ostatnie zmiany (2026-03-14 — 2026-03-24)
 
 | Data | Zmiana |
 |------|--------|
+| 03-24 | Fix: cross-platform duplicate check łapie duplikaty od pierwszego parsowania (usunięto guard clause) |
+| 03-24 | Fix: Uber eventy exempt z foreground check — popup overlay widoczny nad każdą apką |
+| 03-24 | Fix: foreground check tylko dla rival platform — nie blokuje Uber overlaya nad launcherem |
 | 03-24 | Fix: foreground check przed screenshotem — Wolt w tle nie parsuje popupu Ubera jako swojego zlecenia |
 | 03-24 | Fix: wyrzucenie apki z "ostatnich" zatrzymuje monitoring i chowa belki (ActivityLifecycleCallbacks) |
 | 03-22 | Refactor: per-platform lastResult (ConcurrentHashMap) w serwisie i PipelineOrchestrator + cross-platform duplicate check w obu ścieżkach |
