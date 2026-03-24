@@ -10,6 +10,7 @@
 
 | Priorytet | Zadanie | Status |
 |-----------|---------|--------|
+| **High** | WoltOcrParser — odrzucanie fraz Uber-specyficznych | ✅ Gotowe (03-24), czeka na test |
 | **High** | Zbudować APK z `feature/multi-overlay` i przetestować | Czeka na build |
 | **High** | Bolt Food — testy na prawdziwych zleceniach | Fix package name gotowy (03-22), czeka na test |
 | **High** | Multi-overlay — testy 2 belek naraz | Fixy gotowe (03-22), czeka na test |
@@ -52,6 +53,7 @@
 
 | Data | Zmiana |
 |------|--------|
+| 03-24 | Fix: WoltOcrParser odrzuca frazy Uber ("Spodziewany zarobek", "Szacowany", "Dostawa od") — zapobiega parsowaniu overlaya Ubera jako zlecenia Wolt |
 | 03-24 | Fix: cross-platform duplicate check łapie duplikaty od pierwszego parsowania (usunięto guard clause) |
 | 03-24 | Fix: Uber eventy exempt z foreground check — popup overlay widoczny nad każdą apką |
 | 03-24 | Fix: foreground check tylko dla rival platform — nie blokuje Uber overlaya nad launcherem |
