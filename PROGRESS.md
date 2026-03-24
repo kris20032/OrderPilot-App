@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-22
-**Obecny etap:** Testy produkcyjne. Wszystkie parsery gotowe. Multi-overlay naprawiony (cross-platform duplicate check, dynamiczna wysokość, stabilne sloty). Czekamy na build + testy u taty.
-**Aktywne branche:** `feature/multi-overlay` (tip development, 16 commitów ahead of production-app)
+**Ostatnia aktualizacja:** 2026-03-24
+**Obecny etap:** Testy produkcyjne. Foreground check + task-removed detection dodane (03-24). Czekamy na build + testy u taty.
+**Aktywne branche:** `feature/multi-overlay` (tip development, 18 commitów ahead of production-app)
 
 ---
 
@@ -52,6 +52,8 @@
 
 | Data | Zmiana |
 |------|--------|
+| 03-24 | Fix: foreground check przed screenshotem — Wolt w tle nie parsuje popupu Ubera jako swojego zlecenia |
+| 03-24 | Fix: wyrzucenie apki z "ostatnich" zatrzymuje monitoring i chowa belki (ActivityLifecycleCallbacks) |
 | 03-22 | Refactor: per-platform lastResult (ConcurrentHashMap) w serwisie i PipelineOrchestrator + cross-platform duplicate check w obu ścieżkach |
 | 03-22 | Fix: Multi-overlay — cross-platform duplicate check z tolerancją (±1 min, ±0.5 km), dynamiczna wysokość slotów, stabilna pozycja przy update (bez slot swap) |
 | 03-22 | Fix: Bolt Food — dodano prawdziwy pakiet `com.bolt.deliverycourier` do supportedPackages |
