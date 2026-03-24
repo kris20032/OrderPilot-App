@@ -32,8 +32,9 @@ class SystemOverlayManager(private val context: Context) : OverlayManager {
     )
 
     private val slots = mutableListOf<OverlaySlot>()
+    private val slotsLock = Any()
 
-    override fun show(result: AnalysisResult, displayConfig: DisplayConfig, language: AppLanguage) {
+    override fun show(result: AnalysisResult, displayConfig: DisplayConfig, language: AppLanguage) = synchronized(slotsLock) {
         val platform = result.offer.platform
         val existingIndex = slots.indexOfFirst { it.platform == platform }
 
@@ -60,13 +61,13 @@ class SystemOverlayManager(private val context: Context) : OverlayManager {
         repositionAll()
     }
 
-    override fun hide() {
+    override fun hide() = synchronized(slotsLock) {
         while (slots.isNotEmpty()) {
             removeSlot(0)
         }
     }
 
-    override fun hideByPlatform(platform: Platform) {
+    override fun hideByPlatform(platform: Platform) = synchronized(slotsLock) {
         val index = slots.indexOfFirst { it.platform == platform }
         if (index < 0) return
         removeSlot(index)
@@ -78,12 +79,13 @@ class SystemOverlayManager(private val context: Context) : OverlayManager {
         repositionAll()
     }
 
-    override fun isShowing() = slots.isNotEmpty()
+    override fun isShowing() = synchronized(slotsLock) { slots.isNotEmpty() }
 
-    override fun overlayCount() = slots.size
+    override fun overlayCount() = synchronized(slotsLock) { slots.size }
 
-    override fun getActiveOffers(): Map<Platform, Offer> =
+    override fun getActiveOffers(): Map<Platform, Offer> = synchronized(slotsLock) {
         slots.associate { it.platform to it.result.offer }
+    }
 
     private fun addSlot(result: AnalysisResult, displayConfig: DisplayConfig, language: AppLanguage, platform: Platform, position: Int) {
         val showLabel = slots.isNotEmpty() // etykieta jeśli to będzie 2. belka (lub zastąpienie przy 2 belkach)

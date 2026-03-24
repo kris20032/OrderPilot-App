@@ -128,16 +128,26 @@ class ScreenCaptureService : Service() {
         try {
             val plane = image.planes[0]
             val rowPadding = plane.rowStride - plane.pixelStride * image.width
-            val bitmap = Bitmap.createBitmap(
-                image.width + rowPadding / plane.pixelStride,
-                image.height,
-                Bitmap.Config.ARGB_8888
-            )
-            bitmap.copyPixelsFromBuffer(plane.buffer)
-            val cropped = Bitmap.createBitmap(bitmap, 0, 0, image.width, image.height)
-            bitmap.recycle()
-            AppLog.d(AppLog.TAG_CAPTURE, "Screenshot captured: ${cropped.width}x${cropped.height}")
-            cropped
+
+            if (rowPadding == 0) {
+                // Brak paddingu (typowy przypadek) — jedna bitmapa zamiast dwóch
+                val bitmap = Bitmap.createBitmap(image.width, image.height, Bitmap.Config.ARGB_8888)
+                bitmap.copyPixelsFromBuffer(plane.buffer)
+                AppLog.d(AppLog.TAG_CAPTURE, "Screenshot captured: ${bitmap.width}x${bitmap.height}")
+                bitmap
+            } else {
+                // Jest padding — potrzebna pośrednia bitmapa z przycięciem
+                val padded = Bitmap.createBitmap(
+                    image.width + rowPadding / plane.pixelStride,
+                    image.height,
+                    Bitmap.Config.ARGB_8888
+                )
+                padded.copyPixelsFromBuffer(plane.buffer)
+                val cropped = Bitmap.createBitmap(padded, 0, 0, image.width, image.height)
+                padded.recycle()
+                AppLog.d(AppLog.TAG_CAPTURE, "Screenshot captured (padded): ${cropped.width}x${cropped.height}")
+                cropped
+            }
         } finally {
             image.close()
         }
