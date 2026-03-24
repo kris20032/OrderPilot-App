@@ -61,15 +61,20 @@ class CourierAccessibilityService : AccessibilityService() {
             return
         }
 
-        // Screenshot pipeline (Uber/Wolt) — sprawdź czy na ekranie jest INNA apka kurierska.
+        // Screenshot pipeline (Uber/Wolt) — ochrona przed cross-contamination.
         // takeScreenshot() robi zrzut CAŁEGO ekranu, więc jeśli np. Wolt generuje eventy
         // w tle a na ekranie jest popup Ubera — WoltOcrParser sparsuje go jako ofertę Wolt.
-        // Ale: Uber pokazuje popupy jako overlay NAD innymi apkami (launcher, bank itp.),
-        // więc blokujemy TYLKO gdy foreground to inna apka kurierska (rival platform).
-        val activePackage = rootInActiveWindow?.packageName?.toString()
-        if (activePackage != null && activePackage != pkg && activePackage in courierPackages) {
-            AppLog.d(AppLog.TAG_SERVICE, "Skipping screenshot for $pkg — foreground is rival platform $activePackage")
-            return
+        //
+        // Uber pokazuje popupy jako overlay NAD KAŻDĄ apką (launcher, Wolt, bank itp.)
+        // więc eventów z Ubera NIGDY nie skipujemy — popup jest zawsze widoczny.
+        // Skipujemy TYLKO eventy z Wolta gdy foreground to inna apka kurierska,
+        // bo Wolt generuje "szum" (eventy 2048) bez widocznego popupu.
+        if (pkg != "com.ubercab.driver") {
+            val activePackage = rootInActiveWindow?.packageName?.toString()
+            if (activePackage != null && activePackage != pkg && activePackage in courierPackages) {
+                AppLog.d(AppLog.TAG_SERVICE, "Skipping screenshot for $pkg — foreground is rival platform $activePackage")
+                return
+            }
         }
 
         // Primary: MediaProjection pipeline (jeśli aktywna)
