@@ -119,10 +119,7 @@ class CourierAccessibilityService : AccessibilityService() {
     private fun isCrossPlatformDuplicate(offer: Offer): Boolean {
         val activeOffers = ServiceLocator.overlayManager.getActiveOffers()
 
-        // Jeśli nie ma belki dla tej platformy — to pierwsze pokazanie, nie sprawdzamy
-        if (offer.platform !in activeOffers) return false
-
-        // Sprawdź czy dane pasują do INNEJ platformy (contamination)
+        // Sprawdź czy INNA platforma ma już belkę z takimi samymi danymi (contamination)
         for ((otherPlatform, otherOffer) in activeOffers) {
             if (otherPlatform == offer.platform) continue
 

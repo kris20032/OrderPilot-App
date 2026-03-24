@@ -122,7 +122,6 @@ class PipelineOrchestrator(
 
     private fun isCrossPlatformDuplicate(offer: com.courierassist.app.domain.Offer): Boolean {
         val activeOffers = overlayManager.getActiveOffers()
-        if (offer.platform !in activeOffers) return false
 
         for ((otherPlatform, otherOffer) in activeOffers) {
             if (otherPlatform == offer.platform) continue
