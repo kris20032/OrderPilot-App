@@ -53,6 +53,7 @@
 
 | Data | Zmiana |
 |------|--------|
+| 03-25 | Hardening: thread-safe overlay slots (synchronized), OCR recycled-bitmap guard, optymalizacja screenshotów (eliminacja podwójnej alokacji) |
 | 03-24 | Fix: WoltOcrParser odrzuca frazy Uber ("Spodziewany zarobek", "Szacowany", "Dostawa od") — zapobiega parsowaniu overlaya Ubera jako zlecenia Wolt |
 | 03-24 | Fix: cross-platform duplicate check łapie duplikaty od pierwszego parsowania (usunięto guard clause) |
 | 03-24 | Fix: Uber eventy exempt z foreground check — popup overlay widoczny nad każdą apką |
