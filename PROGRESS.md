@@ -18,7 +18,7 @@
 | **High** | Merge `feature/multi-overlay` → `feature/production-app` | Po potwierdzeniu stabilności |
 | Medium | Uber — belka pokazała 2 metryki zamiast 5 | Czekamy na logi + screeny od taty |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
-| Medium | Setup wizard + battery optimization | ✅ Gotowe (03-25), branch `feature/setup-wizard-v2`, testy jutro |
+| Medium | Setup wizard + battery optimization + toast hints | ✅ Gotowe (03-25), branch `feature/setup-wizard-v2` pushowany na GitHub, testy jutro |
 | Low | Mruganie belki Uber jasny→ciemny | Monitorowane |
 
 ---
@@ -61,7 +61,8 @@
 
 | Data | Zmiana |
 |------|--------|
-| 03-25 | Setup wizard v2: karty per producent (Samsung/Xiaomi/Huawei/Oppo/OnePlus), toast hints w ustawieniach, domyślny język z system locale |
+| 03-25 | Setup wizard v2: karty per producent (Samsung/Xiaomi/Huawei/Oppo/OnePlus), toast hints (skrócone — "Znajdź CourierAssist i włącz przełącznik"), domyślny język z system locale |
+| 03-25 | Test na Xiaomi z FakeUberApp: belka działa, wizard Xiaomi OK, task-removed OK, toast hints OK (pushowano na GitHub) |
 | 03-25 | Fix: MIUI fałszywie zatrzymywał monitoring po Home — zamiana ActivityLifecycleCallbacks na onTaskRemoved() w serwisach |
 | 03-25 | Fix: OCR ukraiński — Latin lookalikes (rpH/XB) we wszystkich parserach, distance regex poluzowany, logowanie linii OCR |
 | 03-25 | Hardening: thread-safe overlay slots (synchronized), OCR recycled-bitmap guard, optymalizacja screenshotów (eliminacja podwójnej alokacji) |
