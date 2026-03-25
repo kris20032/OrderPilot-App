@@ -11,20 +11,21 @@ class WoltOcrParser : OcrOfferParser {
 
     // Kwota: "11,73 zł", "14,50 zł" — OCR czasem gubi "ł" → "18,50 z" lub zamienia na "t" → "9,50 zt"
     // [\s\u00A0]* — obsługuje zwykłą spację i non-breaking space
-    private val amountRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*(?:zł|zl|zt|z\b|PLN)""", RegexOption.IGNORE_CASE)
+    // rpH = "грн" czytane przez Latin OCR, XB = "хв"
+    private val amountRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*(?:zł|zl|zt|z\b|PLN|грн|rpH)""", RegexOption.IGNORE_CASE)
 
     // Czas jako zakres: "16 - 19 min", "16 – 19 min", "16—19 min"
     // Bierzemy MAX (konserwatywne — niższe zł/h)
-    private val timeRangeRegex = Regex("""(\d+)[\s\u00A0]*[-\u2013\u2014][\s\u00A0]*(\d+)[\s\u00A0]*min""", RegexOption.IGNORE_CASE)
+    private val timeRangeRegex = Regex("""(\d+)[\s\u00A0]*[-\u2013\u2014][\s\u00A0]*(\d+)[\s\u00A0]*(?:min|хв|XB)""", RegexOption.IGNORE_CASE)
 
     // Fallback: czas jako pojedyncza wartość "19 min"
-    private val timeSingleRegex = Regex("""(\d+)[\s\u00A0]*min""", RegexOption.IGNORE_CASE)
+    private val timeSingleRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв|XB)""", RegexOption.IGNORE_CASE)
 
     // Godziny: "1 godz.", "2 год", "1 hr"
     private val hourRegex = Regex("""(\d+)[\s\u00A0]*(?:godz|год|hr|hour)""", RegexOption.IGNORE_CASE)
 
     // Dystans: "1.7 km", "4.1 km" lub "5 km" (OCR czasem gubi część dziesiętną)
-    private val distanceRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*km""", RegexOption.IGNORE_CASE)
+    private val distanceRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*(?:km|км)""", RegexOption.IGNORE_CASE)
 
     override fun parse(ocrLines: List<String>): Offer? {
         val text = ocrLines.joinToString(" ")

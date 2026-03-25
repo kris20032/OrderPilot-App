@@ -26,6 +26,9 @@ class OcrEngine {
             .addOnSuccessListener { result ->
                 val lines = result.textBlocks.flatMap { it.lines }.map { it.text }
                 AppLog.d(AppLog.TAG_OCR, "Recognized ${lines.size} lines")
+                lines.forEachIndexed { i, line ->
+                    AppLog.d(AppLog.TAG_OCR, "  OCR[$i]: $line")
+                }
                 if (cont.isActive) cont.resume(lines)
             }
             .addOnFailureListener { e ->

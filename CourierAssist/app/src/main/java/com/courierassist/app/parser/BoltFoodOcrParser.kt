@@ -16,10 +16,11 @@ class BoltFoodOcrParser : OcrOfferParser {
 
     // Przycisk akceptuj: "2.2 km, 27 min, 8,22 zł"
     // Szukamy kwoty, czasu i dystansu niezależnie — mogą być w różnej kolejności
-    private val amountRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*(?:zł|zl|zt|z\b|PLN|грн)""", RegexOption.IGNORE_CASE)
-    private val timeRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв)""", RegexOption.IGNORE_CASE)
+    // rpH = "грн" czytane przez Latin OCR, XB = "хв"
+    private val amountRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*(?:zł|zl|zt|z\b|PLN|грн|rpH)""", RegexOption.IGNORE_CASE)
+    private val timeRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв|XB)""", RegexOption.IGNORE_CASE)
     private val hourRegex = Regex("""(\d+)[\s\u00A0]*(?:godz|год|hr|hour)""", RegexOption.IGNORE_CASE)
-    private val distanceRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*km""", RegexOption.IGNORE_CASE)
+    private val distanceRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*(?:km|км)""", RegexOption.IGNORE_CASE)
 
     override fun parse(ocrLines: List<String>): Offer? {
         val text = ocrLines.joinToString(" ")
