@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-24
-**Obecny etap:** Testy produkcyjne. Foreground check + task-removed detection dodane (03-24). Czekamy na build + testy u taty.
-**Aktywne branche:** `feature/multi-overlay` (tip development, 22 commitów ahead of production-app)
+**Ostatnia aktualizacja:** 2026-03-25
+**Obecny etap:** Testy produkcyjne u taty (stabilne). OCR ukraiński naprawiony (03-25). Po potwierdzeniu stabilności → merge do production-app → setup wizard per producent → beta testy u zewnętrznych kurierów.
+**Aktywne branche:** `feature/multi-overlay` (tip development)
 
 ---
 
@@ -17,7 +17,7 @@
 | **High** | Glovo — weryfikacja fixów (gotówka, partial offer, suma dystansów) | Czeka na test |
 | **High** | Merge `feature/multi-overlay` → `feature/production-app` | Po potwierdzeniu stabilności |
 | Medium | Uber — belka pokazała 2 metryki zamiast 5 | Czekamy na logi + screeny od taty |
-| Medium | Crash na starszym telefonie (brat) — SettingsActivity | Do zbadania |
+| Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
 | Medium | Setup wizard + battery optimization | Plan w `docs/PLAN.md` |
 | Low | Mruganie belki Uber jasny→ciemny | Monitorowane |
 
@@ -37,15 +37,22 @@
 
 ---
 
-## Co dalej — Priorytet
+## Co dalej — Roadmap
 
-1. Zbudować APK z `feature/multi-overlay`, przetestować
-2. Bolt Food — test na prawdziwych zleceniach (fix package name)
-3. Multi-overlay — test 2 belek naraz (cross-contamination fix)
-4. Glovo — weryfikacja po fixach gotówkowych
-5. Upomnieć się u taty o logi Uber (2 metryki)
-6. Crash na starszym telefonie — zbadać
-7. Merge multi-overlay → production-app
+### Faza 1: Stabilizacja (teraz)
+1. Testy produkcyjne u taty — czekamy na potwierdzenie stabilności
+2. Bolt Food — retest na prawdziwym zleceniu
+3. Glovo — weryfikacja fixów gotówkowych
+4. Merge `feature/multi-overlay` → `feature/production-app`
+
+### Faza 2: Przygotowanie do beta testów
+5. Setup wizard per producent (Xiaomi/Huawei/Oppo) — karty z instrukcjami
+6. Przygotowanie APK do dystrybucji
+
+### Faza 3: Beta testy u zewnętrznych kurierów
+7. Znaleźć 3-5 kurierów na mieście (mix platform + modeli telefonów)
+8. Instalacja apki + konfiguracja na miejscu
+9. Zbieranie feedbacku przez WhatsApp/Telegram
 
 ---
 
@@ -53,6 +60,7 @@
 
 | Data | Zmiana |
 |------|--------|
+| 03-25 | Fix: OCR ukraiński — Latin lookalikes (rpH/XB) we wszystkich parserach, distance regex poluzowany, logowanie linii OCR |
 | 03-25 | Hardening: thread-safe overlay slots (synchronized), OCR recycled-bitmap guard, optymalizacja screenshotów (eliminacja podwójnej alokacji) |
 | 03-24 | Fix: WoltOcrParser odrzuca frazy Uber ("Spodziewany zarobek", "Szacowany", "Dostawa od") — zapobiega parsowaniu overlaya Ubera jako zlecenia Wolt |
 | 03-24 | Fix: cross-platform duplicate check łapie duplikaty od pierwszego parsowania (usunięto guard clause) |
