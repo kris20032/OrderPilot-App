@@ -1,6 +1,7 @@
 package com.courierassist.app.service
 
 import android.accessibilityservice.AccessibilityService
+import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.view.Display
@@ -252,6 +253,15 @@ class CourierAccessibilityService : AccessibilityService() {
     }
 
     override fun onInterrupt() {}
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        isUserStopped = true
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            try { ServiceLocator.overlayManager.hide() } catch (_: Exception) {}
+        }
+        AppLog.d(AppLog.TAG_SERVICE, "App removed from recents — stopping monitoring")
+    }
 
     override fun onDestroy() {
         isConnected = false
