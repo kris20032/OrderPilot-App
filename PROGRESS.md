@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-03-25
-**Obecny etap:** Testy produkcyjne u taty (stabilne). OCR ukraiński naprawiony (03-25). Po potwierdzeniu stabilności → merge do production-app → setup wizard per producent → beta testy u zewnętrznych kurierów.
-**Aktywne branche:** `feature/multi-overlay` (tip development)
+**Obecny etap:** Setup wizard v2 gotowy + toast hints. Testy na Xiaomi jutro (03-26) na prawdziwych apkach kurierskich. Po potwierdzeniu stabilności → szukamy nowych kurierów.
+**Aktywne branche:** `feature/multi-overlay` (tip development), `feature/setup-wizard-v2` (setup wizard + MIUI fix + toasty)
 
 ---
 
@@ -18,7 +18,7 @@
 | **High** | Merge `feature/multi-overlay` → `feature/production-app` | Po potwierdzeniu stabilności |
 | Medium | Uber — belka pokazała 2 metryki zamiast 5 | Czekamy na logi + screeny od taty |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
-| Medium | Setup wizard + battery optimization | Plan w `docs/PLAN.md` |
+| Medium | Setup wizard + battery optimization | ✅ Gotowe (03-25), branch `feature/setup-wizard-v2`, testy jutro |
 | Low | Mruganie belki Uber jasny→ciemny | Monitorowane |
 
 ---
@@ -27,7 +27,8 @@
 
 | Branch | Cel | Status |
 |--------|-----|--------|
-| `feature/multi-overlay` | Multi-overlay + wszystkie fixy | **Aktualny tip development** (16 ahead of production-app) |
+| `feature/setup-wizard-v2` | Setup wizard + MIUI fix + toast hints | **Nowy** — testy na Xiaomi 03-26 |
+| `feature/multi-overlay` | Multi-overlay + wszystkie fixy | Tip development (16 ahead of production-app) |
 | `feature/production-app` | Główny branch produkcyjny | Na GitHub (37 ahead of main) |
 | `main` | Stabilna baza z POC | Zablokowany na zmiany kodu |
 
@@ -46,7 +47,7 @@
 4. Merge `feature/multi-overlay` → `feature/production-app`
 
 ### Faza 2: Przygotowanie do beta testów
-5. Setup wizard per producent (Xiaomi/Huawei/Oppo) — karty z instrukcjami
+5. ~~Setup wizard per producent~~ ✅ Gotowe (03-25)
 6. Przygotowanie APK do dystrybucji
 
 ### Faza 3: Beta testy u zewnętrznych kurierów
@@ -60,6 +61,8 @@
 
 | Data | Zmiana |
 |------|--------|
+| 03-25 | Setup wizard v2: karty per producent (Samsung/Xiaomi/Huawei/Oppo/OnePlus), toast hints w ustawieniach, domyślny język z system locale |
+| 03-25 | Fix: MIUI fałszywie zatrzymywał monitoring po Home — zamiana ActivityLifecycleCallbacks na onTaskRemoved() w serwisach |
 | 03-25 | Fix: OCR ukraiński — Latin lookalikes (rpH/XB) we wszystkich parserach, distance regex poluzowany, logowanie linii OCR |
 | 03-25 | Hardening: thread-safe overlay slots (synchronized), OCR recycled-bitmap guard, optymalizacja screenshotów (eliminacja podwójnej alokacji) |
 | 03-24 | Fix: WoltOcrParser odrzuca frazy Uber ("Spodziewany zarobek", "Szacowany", "Dostawa od") — zapobiega parsowaniu overlaya Ubera jako zlecenia Wolt |

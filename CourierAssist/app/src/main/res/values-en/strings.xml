@@ -62,6 +62,20 @@
     <string name="setup_oneplus_step2_btn">Open battery settings</string>
     <string name="setup_oneplus_step3">Open recent apps list → find CourierAssist → long-press → tap the lock icon</string>
 
+    <!-- Toast hints (wizard) -->
+    <string name="toast_hint_overlay">Find "CourierAssist" and enable the toggle</string>
+    <string name="toast_hint_accessibility">Find "CourierAssist" and enable the toggle</string>
+    <string name="toast_hint_samsung_battery">Tap "Battery" → select "Unrestricted"</string>
+    <string name="toast_hint_samsung_sleeping">Open "Background usage limits" and remove CourierAssist from the lists</string>
+    <string name="toast_hint_xiaomi_autostart">Find "CourierAssist" and enable the toggle</string>
+    <string name="toast_hint_xiaomi_battery">Tap "Battery Saver" → select "No restrictions"</string>
+    <string name="toast_hint_huawei_launch">Find "CourierAssist" → disable "Manage automatically" → enable 3 toggles</string>
+    <string name="toast_hint_huawei_optimize">Tap "Battery" → select "Don\'t optimize"</string>
+    <string name="toast_hint_oppo_background">Tap "Battery" → enable "Allow background activity"</string>
+    <string name="toast_hint_oppo_autolaunch">Enable "Auto-launch"</string>
+    <string name="toast_hint_oneplus_optimize">Find "CourierAssist" → select "Don\'t optimize"</string>
+    <string name="toast_hint_oneplus_deep">Disable "Deep optimization" / "Advanced optimization"</string>
+
     <!-- SettingsActivity -->
     <string name="settings_open">Settings</string>
     <string name="settings_title">Settings</string>

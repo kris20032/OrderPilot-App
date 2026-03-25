@@ -12,6 +12,7 @@ import android.util.TypedValue
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.courierassist.app.R
 import com.courierassist.app.databinding.ActivitySetupBinding
@@ -39,8 +40,14 @@ class SetupActivity : AppCompatActivity() {
 
         setupManufacturerCard()
 
-        binding.btnOverlay.setOnClickListener { openOverlaySettings() }
-        binding.btnAccessibility.setOnClickListener { openAccessibilitySettings() }
+        binding.btnOverlay.setOnClickListener {
+            showHint(R.string.toast_hint_overlay)
+            openOverlaySettings()
+        }
+        binding.btnAccessibility.setOnClickListener {
+            showHint(R.string.toast_hint_accessibility)
+            openAccessibilitySettings()
+        }
         binding.btnBattery.setOnClickListener { requestBatteryOptimizationExemption() }
         binding.btnContinue.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
@@ -86,6 +93,7 @@ class SetupActivity : AppCompatActivity() {
     private data class SetupStep(
         val description: String,
         val buttonText: String? = null,
+        val toastHintRes: Int? = null,
         val onClick: (() -> Unit)? = null
     )
 
@@ -94,54 +102,64 @@ class SetupActivity : AppCompatActivity() {
             Manufacturer.SAMSUNG -> listOf(
                 SetupStep(
                     getString(R.string.setup_samsung_step1),
-                    getString(R.string.setup_samsung_step1_btn)
+                    getString(R.string.setup_samsung_step1_btn),
+                    R.string.toast_hint_samsung_battery
                 ) { openAppInfo() },
                 SetupStep(
                     getString(R.string.setup_samsung_step2),
-                    getString(R.string.setup_samsung_step2_btn)
+                    getString(R.string.setup_samsung_step2_btn),
+                    R.string.toast_hint_samsung_sleeping
                 ) { openDeviceCareBattery() },
                 SetupStep(getString(R.string.setup_samsung_step3))
             )
             Manufacturer.XIAOMI -> listOf(
                 SetupStep(
                     getString(R.string.setup_xiaomi_step1),
-                    getString(R.string.setup_xiaomi_step1_btn)
+                    getString(R.string.setup_xiaomi_step1_btn),
+                    R.string.toast_hint_xiaomi_autostart
                 ) { openXiaomiAutostart() },
                 SetupStep(
                     getString(R.string.setup_xiaomi_step2),
-                    getString(R.string.setup_xiaomi_step2_btn)
+                    getString(R.string.setup_xiaomi_step2_btn),
+                    R.string.toast_hint_xiaomi_battery
                 ) { openAppInfo() },
                 SetupStep(getString(R.string.setup_xiaomi_step3))
             )
             Manufacturer.HUAWEI -> listOf(
                 SetupStep(
                     getString(R.string.setup_huawei_step1),
-                    getString(R.string.setup_huawei_step1_btn)
+                    getString(R.string.setup_huawei_step1_btn),
+                    R.string.toast_hint_huawei_launch
                 ) { openHuaweiAppLaunch() },
                 SetupStep(
                     getString(R.string.setup_huawei_step2),
-                    getString(R.string.setup_huawei_step2_btn)
+                    getString(R.string.setup_huawei_step2_btn),
+                    R.string.toast_hint_huawei_optimize
                 ) { openAppInfo() }
             )
             Manufacturer.OPPO -> listOf(
                 SetupStep(
                     getString(R.string.setup_oppo_step1),
-                    getString(R.string.setup_oppo_step1_btn)
+                    getString(R.string.setup_oppo_step1_btn),
+                    R.string.toast_hint_oppo_background
                 ) { openAppInfo() },
                 SetupStep(
                     getString(R.string.setup_oppo_step2),
-                    getString(R.string.setup_oppo_step2_btn)
+                    getString(R.string.setup_oppo_step2_btn),
+                    R.string.toast_hint_oppo_autolaunch
                 ) { openAppInfo() },
                 SetupStep(getString(R.string.setup_oppo_step3))
             )
             Manufacturer.ONEPLUS -> listOf(
                 SetupStep(
                     getString(R.string.setup_oneplus_step1),
-                    getString(R.string.setup_oneplus_step1_btn)
+                    getString(R.string.setup_oneplus_step1_btn),
+                    R.string.toast_hint_oneplus_optimize
                 ) { openBatteryOptimization() },
                 SetupStep(
                     getString(R.string.setup_oneplus_step2),
-                    getString(R.string.setup_oneplus_step2_btn)
+                    getString(R.string.setup_oneplus_step2_btn),
+                    R.string.toast_hint_oneplus_deep
                 ) { openBatterySettings() },
                 SetupStep(getString(R.string.setup_oneplus_step3))
             )
@@ -238,12 +256,19 @@ class SetupActivity : AppCompatActivity() {
                 ).apply {
                     topMargin = dp4
                 }
-                setOnClickListener { step.onClick.invoke() }
+                setOnClickListener {
+                    step.toastHintRes?.let { res -> showHint(res) }
+                    step.onClick.invoke()
+                }
             }
             stepLayout.addView(button)
         }
 
         container.addView(stepLayout)
+    }
+
+    private fun showHint(resId: Int) {
+        Toast.makeText(this, getString(resId), Toast.LENGTH_LONG).show()
     }
 
     private fun dpToPx(dp: Int): Int =

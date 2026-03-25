@@ -62,6 +62,20 @@
     <string name="setup_oneplus_step2_btn">Otwórz ustawienia baterii</string>
     <string name="setup_oneplus_step3">Otwórz listę ostatnich aplikacji → znajdź CourierAssist → przytrzymaj → kliknij kłódkę</string>
 
+    <!-- Toast hints (wizard) -->
+    <string name="toast_hint_overlay">Znajdź „CourierAssist" i włącz przełącznik</string>
+    <string name="toast_hint_accessibility">Znajdź „CourierAssist" i włącz przełącznik</string>
+    <string name="toast_hint_samsung_battery">Kliknij „Bateria" → wybierz „Bez ograniczeń"</string>
+    <string name="toast_hint_samsung_sleeping">Otwórz „Limity użycia w tle" i usuń CourierAssist z list</string>
+    <string name="toast_hint_xiaomi_autostart">Znajdź „CourierAssist" i włącz przełącznik</string>
+    <string name="toast_hint_xiaomi_battery">Kliknij „Oszczędzanie baterii" → wybierz „Bez ograniczeń"</string>
+    <string name="toast_hint_huawei_launch">Znajdź „CourierAssist" → wyłącz „Zarządzaj automatycznie" → włącz 3 przełączniki</string>
+    <string name="toast_hint_huawei_optimize">Kliknij „Bateria" → wybierz „Nie optymalizuj"</string>
+    <string name="toast_hint_oppo_background">Kliknij „Bateria" → włącz „Zezwalaj na działanie w tle"</string>
+    <string name="toast_hint_oppo_autolaunch">Włącz „Automatyczne uruchamianie" (Auto-launch)</string>
+    <string name="toast_hint_oneplus_optimize">Znajdź „CourierAssist" → wybierz „Nie optymalizuj"</string>
+    <string name="toast_hint_oneplus_deep">Wyłącz „Głęboka optymalizacja" / „Zaawansowana optymalizacja"</string>
+
     <!-- SettingsActivity -->
     <string name="settings_open">Ustawienia</string>
     <string name="settings_title">Ustawienia</string>
