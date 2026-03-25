@@ -70,6 +70,9 @@ class MainActivity : AppCompatActivity() {
         binding.btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
+        binding.btnCheckSetup.setOnClickListener {
+            startActivity(Intent(this, SetupActivity::class.java))
+        }
         binding.btnSaveLogs.setOnClickListener {
             saveLogs()
         }
