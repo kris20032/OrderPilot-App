@@ -80,6 +80,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        // Reset flagi — otwarcie apki przez użytkownika wznawia monitoring.
+        // MIUI może zabić ScreenCaptureService w tle (ustawia isUserStopped=true w onTaskRemoved),
+        // ale AccessibilityService przeżywa — musi kontynuować przetwarzanie eventów.
+        if (isRunning || !CourierAccessibilityService.isUserStopped) {
+            // Już działa — nie zmieniaj
+        } else if (CourierAccessibilityService.isConnected) {
+            // AccessibilityService żyje ale isUserStopped=true po MIUI kill
+            // Użytkownik wrócił do apki — wznów monitoring
+            CourierAccessibilityService.isUserStopped = false
+            AppLog.d(AppLog.TAG_SERVICE, "MainActivity.onResume: reset isUserStopped (user returned)")
+        }
         if (ScreenCaptureService.isProjectionLost) {
             ScreenCaptureService.stopCapture(this)
             pendingStart = false

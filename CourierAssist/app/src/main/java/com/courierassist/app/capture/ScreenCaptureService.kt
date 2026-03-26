@@ -209,11 +209,12 @@ class ScreenCaptureService : Service() {
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
-        CourierAccessibilityService.isUserStopped = true
+        // NIE ustawiaj isUserStopped — MIUI zabija ten serwis niezależnie od akcji użytkownika.
+        // Tylko CourierAccessibilityService.onTaskRemoved() ustawia flagę (serwis systemowy, MIUI go nie zabija).
         Handler(Looper.getMainLooper()).post {
             try { ServiceLocator.overlayManager.hide() } catch (_: Exception) {}
         }
-        AppLog.d(AppLog.TAG_SERVICE, "App removed from recents — stopping monitoring")
+        AppLog.d(AppLog.TAG_CAPTURE, "ScreenCaptureService task removed")
     }
 
     override fun onDestroy() {

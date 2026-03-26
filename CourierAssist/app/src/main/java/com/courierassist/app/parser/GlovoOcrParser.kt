@@ -20,6 +20,15 @@ class GlovoOcrParser : OcrOfferParser {
         val text = ocrLines.joinToString(" ")
         AppLog.d(AppLog.TAG_PARSER, "Glovo OCR: $text")
 
+        // Guard: Uber popup — "Łącznie X min" to format Ubera, Glovo tego nie używa.
+        // Gdy Glovo event triggeruje screenshot a na ekranie jest popup Ubera,
+        // GlovoOcrParser widzi 1 kwotę + 1 dystans → "partial" → null, blokując Ubera.
+        val uberMarkers = listOf("Łącznie", "Lacznie", "Загалом")
+        if (uberMarkers.any { text.contains(it, ignoreCase = true) }) {
+            AppLog.d(AppLog.TAG_PARSER, "Glovo: skipping — Uber popup text detected")
+            return null
+        }
+
         // Guard: ekran szczegółów zamówienia (nie oferta) — "Potwierdź odbiór" / UK / EN
         if (text.contains("Potwierdź odbiór", ignoreCase = true) ||
             text.contains("Potwierdz odbior", ignoreCase = true) ||
