@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-03-27
-**Obecny etap:** 4 bugi z testów Xiaomi naprawione (03-26). Czeka na retest u taty — Wolt/Uber/Glovo/Bolt na prawdziwych zleceniach. Po potwierdzeniu stabilności → merge do `feature/production-app` → szukamy nowych kurierów.
-**Aktywne branche:** `feature/xiaomi-testing` (4 fixy z testów Xiaomi), `feature/multi-overlay` (tip development)
+**Obecny etap:** Retest na Xiaomi zaliczony (03-27). Merge do `feature/production-app` gotowy. Faza beta: szukamy kurierów do zamkniętej grupy testerów.
+**Aktywne branche:** `feature/production-app` (główny), `feature/multi-overlay` (tip development)
 
 ---
 
@@ -10,10 +10,10 @@
 
 | Priorytet | Zadanie | Status |
 |-----------|---------|--------|
-| **High** | Retest na Xiaomi — Wolt/Uber/Glovo/Bolt po fixach z 03-26 | Czeka na build + test u taty |
+| **High** | Merge `feature/xiaomi-testing` → `feature/production-app` | Gotowe do merge (03-27) |
+| **High** | Budowanie APK release do dystrybucji beta | Następny krok |
+| **High** | Znalezienie 3-5 kurierów beta testerów | W toku |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany podczas testów | Czeka na test |
-| **High** | Bolt Food — retest na prawdziwym zleceniu | Fix package name gotowy (03-22), czeka |
-| **High** | Merge `feature/xiaomi-testing` → `feature/production-app` | Po potwierdzeniu stabilności |
 | Medium | Uber — belka pokazała 2 metryki zamiast 5 | Czekamy na logi + screeny od taty |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
 | Low | Mruganie belki Uber jasny→ciemny | Monitorowane |
@@ -24,9 +24,9 @@
 
 | Branch | Cel | Status |
 |--------|-----|--------|
-| `feature/xiaomi-testing` | 4 bugi z testów Xiaomi (Wolt/Uber/isUserStopped/Glovo) | Nowy (03-26) — czeka na retest |
+| `feature/production-app` | Główny branch produkcyjny | Aktywny |
+| `feature/xiaomi-testing` | 4 bugi z testów Xiaomi (Wolt/Uber/isUserStopped/Glovo) | Gotowy do merge (03-27) |
 | `feature/multi-overlay` | Multi-overlay + wszystkie fixy | Tip development |
-| `feature/production-app` | Główny branch produkcyjny | Na GitHub |
 | `main` | Stabilna baza z POC | Zablokowany na zmiany kodu |
 
 > **Archiwalne:** `feature/setup-wizard-v2` (zmergowany do xiaomi-testing), `feature/bolt-parser`, `feature/glovo-parser`, `feature/wolt-parser`, `feature/accessibility-fallback`, `feature/ui-redesign`, `fix/screen-off-survival`
@@ -37,15 +37,15 @@
 
 ## Co dalej — Roadmap
 
-### Faza 1: Stabilizacja (teraz)
-1. Testy produkcyjne u taty — czekamy na potwierdzenie stabilności
-2. Bolt Food — retest na prawdziwym zleceniu
-3. Glovo — weryfikacja fixów gotówkowych
-4. Merge `feature/multi-overlay` → `feature/production-app`
+### Faza 1: Stabilizacja — ZAKOŃCZONA (03-27)
+1. ~~Testy produkcyjne u taty~~ ✅ Zaliczone (03-27, Xiaomi)
+2. ~~Bolt Food — retest~~ ✅ 4/4 zlecenia (03-26)
+3. ~~Setup wizard per producent~~ ✅ Gotowe (03-25)
+4. Merge `feature/xiaomi-testing` → `feature/production-app` ← **teraz**
 
-### Faza 2: Przygotowanie do beta testów
-5. ~~Setup wizard per producent~~ ✅ Gotowe (03-25)
-6. Przygotowanie APK do dystrybucji
+### Faza 2: Przygotowanie do beta testów (teraz)
+5. Budowanie APK release (signed) do dystrybucji
+6. Glovo — weryfikacja na Xiaomi (tata nie był zalogowany)
 
 ### Faza 3: Beta testy u zewnętrznych kurierów
 7. Znaleźć 3-5 kurierów na mieście (mix platform + modeli telefonów)
@@ -122,13 +122,13 @@
 ### Bolt Food (2026-03-22)
 - Zlecenie przyszło, belka nie zadziałała — pakiet `com.bolt.deliverycourier` nie był w supportedPackages. Naprawione. Czeka na retest.
 
-### Xiaomi — testy produkcyjne (2026-03-26)
+### Xiaomi — testy produkcyjne (2026-03-26/27)
 | Problem | Wynik |
 |---------|-------|
 | Bolt Food 4/4 zlecenia | ✅ Działa |
-| Wolt 0/4 (guard Uber-specyficzny blokował po polsku) | ❌→✅ Naprawione (03-26) |
-| Uber — belka nie pojawiła się (GlovoOcrParser przechwycił eventy) | ❌→✅ Naprawione (03-26) |
-| isUserStopped martwy po MIUI kill (monitoring nie wznawia się) | ❌→✅ Naprawione (03-26) |
+| Wolt 0/4 (guard Uber-specyficzny blokował po polsku) | ❌→✅ Naprawione (03-26), retested (03-27) |
+| Uber — belka nie pojawiła się (GlovoOcrParser przechwycił eventy) | ❌→✅ Naprawione (03-26), retested (03-27) |
+| isUserStopped martwy po MIUI kill (monitoring nie wznawia się) | ❌→✅ Naprawione (03-26), retested (03-27) |
 | Glovo — nie testowane (tata nie zalogowany) | ⏳ Czeka na test |
 
 ---
