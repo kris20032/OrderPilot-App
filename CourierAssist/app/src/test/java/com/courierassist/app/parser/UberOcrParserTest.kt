@@ -129,6 +129,60 @@ class UberOcrParserTest {
         assertEquals(20, offer.estimatedMinutes)
     }
 
+    // --- EN prefix currency (Ivan's Pixel 5) ---
+
+    @Test
+    fun `EN - parses PLN before amount no space`() {
+        // Ivan's real screenshot: "PLN7.86", "14 min (1.0 km) total"
+        val lines = listOf("Delivery", "PLN7.86", "14 min (1.0 km) total", "Accept")
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertEquals(7.86, offer!!.amount, 0.01)
+        assertEquals(14, offer.estimatedMinutes)
+        assertEquals(1.0, offer.distanceKm!!, 0.01)
+    }
+
+    @Test
+    fun `EN - parses PLN before amount with space`() {
+        val lines = listOf("PLN 7.86", "14 min (1.0 km)")
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertEquals(7.86, offer!!.amount, 0.01)
+    }
+
+    @Test
+    fun `EN - parses PLN after amount`() {
+        val lines = listOf("7.86 PLN", "14 min")
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertEquals(7.86, offer!!.amount, 0.01)
+    }
+
+    @Test
+    fun `EN - parses PLN lowercase`() {
+        val lines = listOf("pln7.86", "14 min")
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertEquals(7.86, offer!!.amount, 0.01)
+    }
+
+    @Test
+    fun `fallback - parses amount without currency symbol`() {
+        // OCR nie odczytał waluty, ale kwota i czas są widoczne
+        val lines = listOf("7.86", "14 min")
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertEquals(7.86, offer!!.amount, 0.01)
+    }
+
+    @Test
+    fun `fallback - does not match time as amount`() {
+        // "14 min" — 14 nie ma separatora, nie powinno być wzięte jako kwota
+        val lines = listOf("14 min")
+        val offer = parser.parse(lines)
+        assertNull(offer) // brak kwoty
+    }
+
     // --- ParserRegistry ---
 
     @Test

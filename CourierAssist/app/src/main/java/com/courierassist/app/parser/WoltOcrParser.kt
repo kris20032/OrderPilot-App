@@ -9,11 +9,6 @@ class WoltOcrParser : OcrOfferParser {
     override val platform = Platform.WOLT
     override val supportedPackages = setOf("com.wolt.courierapp")
 
-    // Kwota: "11,73 zł", "14,50 zł" — OCR czasem gubi "ł" → "18,50 z" lub zamienia na "t" → "9,50 zt"
-    // [\s\u00A0]* — obsługuje zwykłą spację i non-breaking space
-    // rpH = "грн" czytane przez Latin OCR, XB = "хв"
-    private val amountRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*(?:zł|zl|zt|z\b|PLN|грн|rpH)""", RegexOption.IGNORE_CASE)
-
     // Czas jako zakres: "16 - 19 min", "16 – 19 min", "16—19 min"
     // Bierzemy MAX (konserwatywne — niższe zł/h)
     private val timeRangeRegex = Regex("""(\d+)[\s\u00A0]*[-\u2013\u2014][\s\u00A0]*(\d+)[\s\u00A0]*(?:min|хв|XB)""", RegexOption.IGNORE_CASE)
@@ -31,14 +26,13 @@ class WoltOcrParser : OcrOfferParser {
         val text = ocrLines.joinToString(" ")
 
         AppLog.d(AppLog.TAG_PARSER, "Wolt OCR: $text")
-        val amountMatch = amountRegex.find(text)?.groupValues?.get(1) ?: run {
+
+        // Kwota — wspólna logika z fallbackiem
+        val (rawAmount, parsedAmount) = OcrOfferParser.extractAmount(text) ?: run {
             AppLog.w(AppLog.TAG_PARSER, "Wolt: no amount found")
             return null
         }
-        val amount = OcrOfferParser.sanitizeAmount(amountMatch, amountMatch.toDoubleLocale() ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Wolt: no amount found")
-            return null
-        }) ?: run {
+        val amount = OcrOfferParser.sanitizeAmount(rawAmount, parsedAmount) ?: run {
             AppLog.w(AppLog.TAG_PARSER, "Wolt: amount rejected by sanitize")
             return null
         }

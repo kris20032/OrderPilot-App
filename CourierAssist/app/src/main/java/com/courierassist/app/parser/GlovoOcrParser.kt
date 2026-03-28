@@ -9,10 +9,6 @@ class GlovoOcrParser : OcrOfferParser {
     override val platform = Platform.GLOVO
     override val supportedPackages = setOf("com.glovo.courier", "com.logistics.rider.glovo")
 
-    // Kwota: "11,50 zł", "11.50 zł", "17 zł", "17 грн" — OCR może gubić "ł" → "zl", "zt", "z"
-    // rpH = "грн" czytane przez Latin OCR
-    private val amountRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*(?:zł|zl|zt|z\b|PLN|грн|rpH)""", RegexOption.IGNORE_CASE)
-
     // Dystans: "1,4 km", "1.4 km", "3 km" — szukamy WSZYSTKICH wystąpień
     private val distanceRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*(?:km|км)""", RegexOption.IGNORE_CASE)
 
@@ -39,7 +35,7 @@ class GlovoOcrParser : OcrOfferParser {
         }
 
         // Szukamy WSZYSTKICH kwot, odfiltruj kwoty gotówkowe (nie wynagrodzenie kuriera)
-        val amounts = amountRegex.findAll(text)
+        val amounts = OcrOfferParser.findAllAmounts(text)
             .mapNotNull { match ->
                 val prefixStart = maxOf(0, match.range.first - 40)
                 val prefix = text.substring(prefixStart, match.range.first)

@@ -125,6 +125,33 @@ class WoltOcrParserTest {
         assertEquals(11.73, offer!!.amount, 0.01)
     }
 
+    // --- EN prefix currency ---
+
+    @Test
+    fun `EN - PLN before amount no space`() {
+        val lines = listOf("PLN14.50", "26 - 29 min")
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertEquals(14.50, offer!!.amount, 0.01)
+        assertEquals(29, offer.estimatedMinutes)
+    }
+
+    @Test
+    fun `EN - PLN before amount with space`() {
+        val lines = listOf("PLN 14.50", "26 - 29 min")
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertEquals(14.50, offer!!.amount, 0.01)
+    }
+
+    @Test
+    fun `fallback - amount without currency`() {
+        val lines = listOf("14.50", "26 - 29 min")
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertEquals(14.50, offer!!.amount, 0.01)
+    }
+
     // --- ParserRegistry ---
 
     @Test

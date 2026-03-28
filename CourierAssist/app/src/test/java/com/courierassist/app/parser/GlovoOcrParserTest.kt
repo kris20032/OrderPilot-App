@@ -88,6 +88,25 @@ class GlovoOcrParserTest {
         assertNotNull(registry.getParser("com.logistics.rider.glovo"))
     }
 
+    // --- EN prefix currency ---
+
+    @Test
+    fun `EN - PLN before amount`() {
+        val lines = listOf("PLN11.50", "Pizzeria 105", "1,4 km", "Dostawa", "1,6 km")
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertEquals(11.50, offer!!.amount, 0.01)
+        assertEquals(3.0, offer.distanceKm!!, 0.01)
+    }
+
+    @Test
+    fun `fallback - amount without currency`() {
+        val lines = listOf("11.50", "Pizzeria 105", "1,4 km", "Dostawa", "1,6 km")
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertEquals(11.50, offer!!.amount, 0.01)
+    }
+
     @Test
     fun `does not match uber package`() {
         val registry = ParserRegistry(listOf(GlovoOcrParser()))

@@ -14,12 +14,11 @@ class BoltFoodOcrParser : OcrOfferParser {
         "ee.mtakso.courier"
     )
 
-    // Przycisk akceptuj: "2.2 km, 27 min, 8,22 zł"
-    // Szukamy kwoty, czasu i dystansu niezależnie — mogą być w różnej kolejności
-    // rpH = "грн" czytane przez Latin OCR, XB = "хв"
-    private val amountRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*(?:zł|zl|zt|z\b|PLN|грн|rpH)""", RegexOption.IGNORE_CASE)
+    // Czas: "27 min", "27min", "27 хв"
     private val timeRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв|XB)""", RegexOption.IGNORE_CASE)
     private val hourRegex = Regex("""(\d+)[\s\u00A0]*(?:godz|год|hr|hour)""", RegexOption.IGNORE_CASE)
+
+    // Dystans: "2.2 km", "2,2 km", "5 km"
     private val distanceRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*(?:km|км)""", RegexOption.IGNORE_CASE)
 
     override fun parse(ocrLines: List<String>): Offer? {
@@ -27,7 +26,7 @@ class BoltFoodOcrParser : OcrOfferParser {
         AppLog.d(AppLog.TAG_PARSER, "Bolt OCR: $text")
 
         // Szukamy WSZYSTKICH kwot i bierzemy NAJWIĘKSZĄ (przycisk ma kwotę zlecenia)
-        val amounts = amountRegex.findAll(text)
+        val amounts = OcrOfferParser.findAllAmounts(text)
             .mapNotNull { match ->
                 val raw = match.groupValues[1]
                 OcrOfferParser.sanitizeAmount(raw, raw.toDoubleLocale() ?: return@mapNotNull null)

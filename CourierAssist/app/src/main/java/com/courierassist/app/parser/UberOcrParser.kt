@@ -9,32 +9,28 @@ class UberOcrParser : OcrOfferParser {
     override val platform = Platform.UBER
     override val supportedPackages = setOf("com.ubercab.driver", "com.ubercab.eats")
 
-    // Uniwersalne regexy — łapią PL (zł), UK (грн), EN (PLN) jednocześnie
-    // [\s\u00A0]* — obsługuje zwykłą spację i non-breaking space (Uber używa \u00A0)
-    // rpH = "грн" czytane przez Latin OCR, XB = "хв", KM = "км"
-    private val amountRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*(?:zł|грн|rpH|PLN)""", RegexOption.IGNORE_CASE)
+    // Czas: "14 min", "14min", "14 хв"
     private val timeRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв|XB)""", RegexOption.IGNORE_CASE)
     private val hourRegex = Regex("""(\d+)[\s\u00A0]*(?:godz|год|hr|hour)""", RegexOption.IGNORE_CASE)
-    private val distanceRegex = Regex("""[\s\u00A0(-](\d+[.,]\d+)[\s\u00A0]*(?:km|км)""", RegexOption.IGNORE_CASE)
 
-    // Mapowanie waluty z tekstu OCR
-    private val currencyRegex = Regex("""\d+[.,]\d+[\s\u00A0]*(zł|грн|rpH|PLN)""", RegexOption.IGNORE_CASE)
+    // Dystans: "(1.0 km)", "1,5 km" — wymaga spacji/nawias/minus przed liczbą
+    private val distanceRegex = Regex("""[\s\u00A0(-](\d+[.,]\d+)[\s\u00A0]*(?:km|км)""", RegexOption.IGNORE_CASE)
 
     override fun parse(ocrLines: List<String>): Offer? {
         val text = ocrLines.joinToString(" ")
-        val amountMatch = amountRegex.find(text)?.groupValues?.get(1) ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "No amount found")
+
+        // Kwota — wspólna logika z fallbackiem
+        val (rawAmount, parsedAmount) = OcrOfferParser.extractAmount(text) ?: run {
+            AppLog.w(AppLog.TAG_PARSER, "Uber: no amount found")
             return null
         }
-        val amount = OcrOfferParser.sanitizeAmount(amountMatch, amountMatch.toDoubleLocale() ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "No amount found")
-            return null
-        }) ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Amount rejected by sanitize")
+        val amount = OcrOfferParser.sanitizeAmount(rawAmount, parsedAmount) ?: run {
+            AppLog.w(AppLog.TAG_PARSER, "Uber: amount rejected by sanitize")
             return null
         }
+
         val mins = timeRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "No time found")
+            AppLog.w(AppLog.TAG_PARSER, "Uber: no time found")
             return null
         }
         val hours = hourRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: 0
@@ -47,9 +43,7 @@ class UberOcrParser : OcrOfferParser {
         }
 
         val distance = distanceRegex.find(text)?.groupValues?.get(1)?.toDoubleLocale()
-
-        val rawCurrency = currencyRegex.find(text)?.groupValues?.get(1) ?: "zł"
-        val detectedCurrency = if (rawCurrency.equals("rpH", ignoreCase = true)) "грн" else rawCurrency
+        val detectedCurrency = OcrOfferParser.detectCurrency(text)
 
         val offer = Offer(Platform.UBER, amount, minutes, distance, detectedCurrency)
         AppLog.d(AppLog.TAG_PARSER, "Parsed offer: $offer")
