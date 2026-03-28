@@ -1,6 +1,7 @@
 package com.courierassist.app.service
 
 import android.accessibilityservice.AccessibilityService
+import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.view.Display
@@ -77,15 +78,27 @@ class CourierAccessibilityService : AccessibilityService() {
             }
         }
 
-        // Primary: MediaProjection pipeline (jeśli aktywna)
-        if (isMediaProjectionAvailable()) {
-            throttler.onEvent(scope) { pipeline.process(pkg) }
-            return
-        }
+        // Primary: MediaProjection pipeline (jeśli aktywna) + Fallback: takeScreenshot (API 30+)
+        throttler.onEvent(scope) {
+            if (isMediaProjectionAvailable()) {
+                pipeline.process(pkg)
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                processViaScreenshot(pkg)
+            }
 
-        // Fallback: takeScreenshot() (API 30+) — nie wymaga MediaProjection
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            throttler.onEvent(scope) { processViaScreenshot(pkg) }
+            // Retry tylko dla Ubera — Uber generuje mało eventów (~15s przerwy),
+            // więc jeśli pierwszy screenshot fail (Glovo dialog, lock screen itp.),
+            // popup może zniknąć zanim przyjdzie następny event.
+            val plat = ServiceLocator.parserRegistry.getParser(pkg)?.platform
+            if (plat == Platform.UBER) {
+                kotlinx.coroutines.delay(3000)
+                if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] == null) {
+                    AppLog.d(AppLog.TAG_SERVICE, "Uber: no overlay after first attempt, retrying")
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        processViaScreenshot(pkg)
+                    }
+                }
+            }
         }
     }
 
@@ -252,6 +265,15 @@ class CourierAccessibilityService : AccessibilityService() {
     }
 
     override fun onInterrupt() {}
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        isUserStopped = true
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            try { ServiceLocator.overlayManager.hide() } catch (_: Exception) {}
+        }
+        AppLog.d(AppLog.TAG_SERVICE, "App removed from recents — stopping monitoring")
+    }
 
     override fun onDestroy() {
         isConnected = false

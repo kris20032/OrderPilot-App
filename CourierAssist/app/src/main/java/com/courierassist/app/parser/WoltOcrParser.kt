@@ -30,14 +30,6 @@ class WoltOcrParser : OcrOfferParser {
     override fun parse(ocrLines: List<String>): Offer? {
         val text = ocrLines.joinToString(" ")
 
-        // Reject OCR text that contains Uber-specific phrases — happens when
-        // Uber popup overlay covers Wolt and the screenshot captures Uber content.
-        val uberPhrases = listOf("Spodziewany zarobek", "Szacowany", "Dostawa od")
-        if (uberPhrases.any { text.contains(it, ignoreCase = true) }) {
-            AppLog.w(AppLog.TAG_PARSER, "Wolt: detected Uber overlay content, skipping")
-            return null
-        }
-
         AppLog.d(AppLog.TAG_PARSER, "Wolt OCR: $text")
         val amountMatch = amountRegex.find(text)?.groupValues?.get(1) ?: run {
             AppLog.w(AppLog.TAG_PARSER, "Wolt: no amount found")

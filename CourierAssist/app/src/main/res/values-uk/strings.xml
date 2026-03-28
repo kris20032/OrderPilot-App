@@ -18,12 +18,63 @@
     <string name="setup_accessibility_desc">Увімкніть CourierAssist у:\nНалаштування → Спеціальні можливості → Встановлені додатки → CourierAssist</string>
     <string name="setup_battery_title">Робота у фоновому режимі</string>
     <string name="setup_battery_desc">Вимкніть оптимізацію батареї, щоб додаток працював після вимкнення екрана.</string>
-    <string name="setup_samsung_title">Samsung: обмеження батареї</string>
-    <string name="setup_samsung_desc">Відкрийте інформацію про додаток, перейдіть у Батарея та встановіть «Без обмежень».</string>
     <string name="setup_open_settings">Відкрити налаштування</string>
     <string name="setup_disable_restrictions">Вимкнути обмеження</string>
     <string name="setup_open_app_info">Відкрити інфо про додаток</string>
     <string name="setup_continue">Продовжити</string>
+    <string name="setup_check_settings">Перевірити налаштування</string>
+
+    <!-- Manufacturer card -->
+    <string name="setup_manufacturer_title">%s: додаткові налаштування</string>
+    <string name="setup_manufacturer_subtitle">Рекомендовано — запобігає вимкненню додатка у фоновому режимі</string>
+
+    <!-- Samsung -->
+    <string name="setup_samsung_step1">Відкрийте інфо про додаток → натисніть «Батарея» → встановіть «Без обмежень»</string>
+    <string name="setup_samsung_step1_btn">Відкрити інфо про додаток</string>
+    <string name="setup_samsung_step2">Налаштування → Обслуговування пристрою → Батарея → Обмеження фонового використання → видаліть CourierAssist зі списків «Сплячі додатки» та «Глибоко сплячі»</string>
+    <string name="setup_samsung_step2_btn">Відкрити налаштування батареї</string>
+    <string name="setup_samsung_step3">Вимкніть «Переводити невикористовувані додатки у сплячий режим» на тому ж екрані</string>
+
+    <!-- Xiaomi / Redmi / POCO -->
+    <string name="setup_xiaomi_step1">Увімкніть Автозапуск — дозволяє додатку запускатися автоматично після перезавантаження телефону</string>
+    <string name="setup_xiaomi_step1_btn">Відкрити Автозапуск</string>
+    <string name="setup_xiaomi_step2">Налаштування → Додатки → CourierAssist → Економія батареї → встановіть «Без обмежень»</string>
+    <string name="setup_xiaomi_step2_btn">Відкрити налаштування батареї</string>
+    <string name="setup_xiaomi_step3">Відкрийте список останніх додатків (квадратна кнопка внизу) → знайдіть CourierAssist → потягніть вниз або утримуйте → натисніть замок</string>
+
+    <!-- Huawei / Honor -->
+    <string name="setup_huawei_step1">Налаштування → Батарея → Запуск додатків → знайдіть CourierAssist → вимкніть «Керувати автоматично» → увімкніть всі 3 перемикачі вручну (автозапуск, робота у фоні, фонова активність)</string>
+    <string name="setup_huawei_step1_btn">Відкрити налаштування батареї</string>
+    <string name="setup_huawei_step2">Налаштування → Додатки → CourierAssist → Батарея → «Не оптимізувати»</string>
+    <string name="setup_huawei_step2_btn">Відкрити інфо про додаток</string>
+
+    <!-- Oppo / Realme -->
+    <string name="setup_oppo_step1">Інфо про додаток → Батарея → увімкніть «Дозволити роботу у фоні»</string>
+    <string name="setup_oppo_step1_btn">Відкрити інфо про додаток</string>
+    <string name="setup_oppo_step2">Інфо про додаток → увімкніть «Автоматичний запуск» (Auto-launch)</string>
+    <string name="setup_oppo_step2_btn">Відкрити інфо про додаток</string>
+    <string name="setup_oppo_step3">Налаштування → Батарея → Керування батареєю → CourierAssist → увімкніть автозапуск та фонову активність</string>
+
+    <!-- OnePlus -->
+    <string name="setup_oneplus_step1">Налаштування → Додатки → Спеціальний доступ → Оптимізація батареї → знайдіть CourierAssist → встановіть «Не оптимізувати»</string>
+    <string name="setup_oneplus_step1_btn">Відкрити оптимізацію батареї</string>
+    <string name="setup_oneplus_step2">Налаштування → Батарея → Розширена оптимізація → вимкніть «Глибока оптимізація»</string>
+    <string name="setup_oneplus_step2_btn">Відкрити налаштування батареї</string>
+    <string name="setup_oneplus_step3">Відкрийте список останніх додатків → знайдіть CourierAssist → утримуйте → натисніть замок</string>
+
+    <!-- Toast hints (wizard) -->
+    <string name="toast_hint_overlay">Знайдіть «CourierAssist» і увімкніть перемикач</string>
+    <string name="toast_hint_accessibility">Знайдіть «CourierAssist» і увімкніть перемикач</string>
+    <string name="toast_hint_samsung_battery">Натисніть «Батарея» → виберіть «Без обмежень»</string>
+    <string name="toast_hint_samsung_sleeping">Відкрийте «Обмеження фонового використання» і видаліть CourierAssist зі списків</string>
+    <string name="toast_hint_xiaomi_autostart">Знайдіть «CourierAssist» і увімкніть перемикач</string>
+    <string name="toast_hint_xiaomi_battery">Натисніть «Економія батареї» → виберіть «Без обмежень»</string>
+    <string name="toast_hint_huawei_launch">Знайдіть «CourierAssist» → вимкніть «Керувати автоматично» → увімкніть 3 перемикачі</string>
+    <string name="toast_hint_huawei_optimize">Натисніть «Батарея» → виберіть «Не оптимізувати»</string>
+    <string name="toast_hint_oppo_background">Натисніть «Батарея» → увімкніть «Дозволити роботу у фоні»</string>
+    <string name="toast_hint_oppo_autolaunch">Увімкніть «Автоматичний запуск» (Auto-launch)</string>
+    <string name="toast_hint_oneplus_optimize">Знайдіть «CourierAssist» → виберіть «Не оптимізувати»</string>
+    <string name="toast_hint_oneplus_deep">Вимкніть «Глибока оптимізація» / «Розширена оптимізація»</string>
 
     <!-- SettingsActivity -->
     <string name="settings_open">Налаштування</string>
@@ -49,5 +100,8 @@
     <string name="settings_display_time">Час показу: %d с</string>
     <string name="settings_save">Зберегти налаштування</string>
     <string name="settings_saved">Налаштування збережено</string>
+    <string name="btn_save_logs">Зберегти логи</string>
+    <string name="toast_logs_saved">Логи збережено в Downloads</string>
+    <string name="toast_logs_error">Помилка збереження логів</string>
     <string name="settings_validation_error">Зелений поріг має бути вищим за жовтий</string>
 </resources>

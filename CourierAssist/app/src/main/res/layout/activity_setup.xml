@@ -236,9 +236,9 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Krok 4: Samsung sleeping apps (widoczny tylko na Samsung) -->
+        <!-- Krok 4: Karta producenta (dynamiczne kroki per marka) -->
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/card_samsung"
+            android:id="@+id/card_manufacturer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
@@ -260,7 +260,6 @@
                     android:gravity="center_vertical">
 
                     <TextView
-                        android:id="@+id/tv_samsung_status"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:text="!"
@@ -269,10 +268,10 @@
                         android:textColor="@color/status_yellow" />
 
                     <TextView
+                        android:id="@+id/tv_manufacturer_title"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="@string/setup_samsung_title"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:textColor="@color/on_surface"
@@ -283,23 +282,20 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/setup_samsung_desc"
-                    android:textSize="13sp"
+                    android:text="@string/setup_manufacturer_subtitle"
+                    android:textSize="12sp"
                     android:textColor="@color/on_surface_variant"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="4dp"
                     android:layout_marginStart="36dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_samsung"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:text="@string/setup_open_app_info"
-                    android:textSize="13sp"
-                    android:textAllCaps="false"
+                <!-- Kontener na dynamiczne kroki -->
+                <LinearLayout
+                    android:id="@+id/container_manufacturer_steps"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
                     android:layout_marginTop="12dp"
-                    android:layout_marginStart="36dp"
-                    app:cornerRadius="20dp"
-                    style="@style/Widget.Material3.Button.OutlinedButton" />
+                    android:layout_marginStart="36dp" />
 
             </LinearLayout>
 

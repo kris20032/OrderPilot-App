@@ -18,12 +18,63 @@
     <string name="setup_accessibility_desc">Enable CourierAssist in:\nSettings → Accessibility → Installed apps → CourierAssist</string>
     <string name="setup_battery_title">Background activity</string>
     <string name="setup_battery_desc">Disable battery optimization so the app keeps running when the screen is off.</string>
-    <string name="setup_samsung_title">Samsung: battery restrictions</string>
-    <string name="setup_samsung_desc">Open app info, go to Battery and set "Unrestricted".</string>
     <string name="setup_open_settings">Open settings</string>
     <string name="setup_disable_restrictions">Disable restrictions</string>
     <string name="setup_open_app_info">Open app info</string>
     <string name="setup_continue">Continue</string>
+    <string name="setup_check_settings">Check settings</string>
+
+    <!-- Manufacturer card -->
+    <string name="setup_manufacturer_title">%s: additional settings</string>
+    <string name="setup_manufacturer_subtitle">Recommended — prevents the app from being killed in the background</string>
+
+    <!-- Samsung -->
+    <string name="setup_samsung_step1">Open app info → tap "Battery" → set "Unrestricted"</string>
+    <string name="setup_samsung_step1_btn">Open app info</string>
+    <string name="setup_samsung_step2">Settings → Device Care → Battery → Background usage limits → remove CourierAssist from "Sleeping apps" and "Deep sleeping apps" lists</string>
+    <string name="setup_samsung_step2_btn">Open battery settings</string>
+    <string name="setup_samsung_step3">Disable "Put unused apps to sleep" on the same screen</string>
+
+    <!-- Xiaomi / Redmi / POCO -->
+    <string name="setup_xiaomi_step1">Enable Autostart — allows the app to start automatically after phone restart</string>
+    <string name="setup_xiaomi_step1_btn">Open Autostart</string>
+    <string name="setup_xiaomi_step2">Settings → Apps → CourierAssist → Battery Saver → set "No restrictions"</string>
+    <string name="setup_xiaomi_step2_btn">Open battery settings</string>
+    <string name="setup_xiaomi_step3">Open recent apps list (square button at the bottom) → find CourierAssist → swipe down or long-press → tap the lock icon</string>
+
+    <!-- Huawei / Honor -->
+    <string name="setup_huawei_step1">Settings → Battery → App Launch → find CourierAssist → turn off "Manage automatically" → enable all 3 toggles manually (auto-launch, secondary launch, run in background)</string>
+    <string name="setup_huawei_step1_btn">Open battery settings</string>
+    <string name="setup_huawei_step2">Settings → Apps → CourierAssist → Battery → "Don\'t optimize"</string>
+    <string name="setup_huawei_step2_btn">Open app info</string>
+
+    <!-- Oppo / Realme -->
+    <string name="setup_oppo_step1">App info → Battery → enable "Allow background activity"</string>
+    <string name="setup_oppo_step1_btn">Open app info</string>
+    <string name="setup_oppo_step2">App info → enable "Auto-launch"</string>
+    <string name="setup_oppo_step2_btn">Open app info</string>
+    <string name="setup_oppo_step3">Settings → Battery → Battery management → CourierAssist → enable auto-launch and background activity</string>
+
+    <!-- OnePlus -->
+    <string name="setup_oneplus_step1">Settings → Apps → Special Access → Battery Optimization → find CourierAssist → set "Don\'t optimize"</string>
+    <string name="setup_oneplus_step1_btn">Open battery optimization</string>
+    <string name="setup_oneplus_step2">Settings → Battery → Advanced optimization → disable "Deep optimization"</string>
+    <string name="setup_oneplus_step2_btn">Open battery settings</string>
+    <string name="setup_oneplus_step3">Open recent apps list → find CourierAssist → long-press → tap the lock icon</string>
+
+    <!-- Toast hints (wizard) -->
+    <string name="toast_hint_overlay">Find "CourierAssist" and enable the toggle</string>
+    <string name="toast_hint_accessibility">Find "CourierAssist" and enable the toggle</string>
+    <string name="toast_hint_samsung_battery">Tap "Battery" → select "Unrestricted"</string>
+    <string name="toast_hint_samsung_sleeping">Open "Background usage limits" and remove CourierAssist from the lists</string>
+    <string name="toast_hint_xiaomi_autostart">Find "CourierAssist" and enable the toggle</string>
+    <string name="toast_hint_xiaomi_battery">Tap "Battery Saver" → select "No restrictions"</string>
+    <string name="toast_hint_huawei_launch">Find "CourierAssist" → disable "Manage automatically" → enable 3 toggles</string>
+    <string name="toast_hint_huawei_optimize">Tap "Battery" → select "Don\'t optimize"</string>
+    <string name="toast_hint_oppo_background">Tap "Battery" → enable "Allow background activity"</string>
+    <string name="toast_hint_oppo_autolaunch">Enable "Auto-launch"</string>
+    <string name="toast_hint_oneplus_optimize">Find "CourierAssist" → select "Don\'t optimize"</string>
+    <string name="toast_hint_oneplus_deep">Disable "Deep optimization" / "Advanced optimization"</string>
 
     <!-- SettingsActivity -->
     <string name="settings_open">Settings</string>
@@ -49,5 +100,8 @@
     <string name="settings_display_time">Display time: %d s</string>
     <string name="settings_save">Save settings</string>
     <string name="settings_saved">Settings saved</string>
+    <string name="btn_save_logs">Save logs</string>
+    <string name="toast_logs_saved">Logs saved to Downloads</string>
+    <string name="toast_logs_error">Error saving logs</string>
     <string name="settings_validation_error">Green threshold must be higher than yellow</string>
 </resources>

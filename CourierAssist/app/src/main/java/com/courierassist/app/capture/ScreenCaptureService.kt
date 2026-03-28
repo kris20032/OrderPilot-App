@@ -19,6 +19,8 @@ import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import com.courierassist.app.di.AppLog
 import com.courierassist.app.di.CourierAssistApp
+import com.courierassist.app.di.ServiceLocator
+import com.courierassist.app.service.CourierAccessibilityService
 import com.courierassist.app.ui.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -203,6 +205,16 @@ class ScreenCaptureService : Service() {
         } catch (_: Exception) {
             AppLog.w(AppLog.TAG_CAPTURE, "Failed to update notification")
         }
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        // NIE ustawiaj isUserStopped — MIUI zabija ten serwis niezależnie od akcji użytkownika.
+        // Tylko CourierAccessibilityService.onTaskRemoved() ustawia flagę (serwis systemowy, MIUI go nie zabija).
+        Handler(Looper.getMainLooper()).post {
+            try { ServiceLocator.overlayManager.hide() } catch (_: Exception) {}
+        }
+        AppLog.d(AppLog.TAG_CAPTURE, "ScreenCaptureService task removed")
     }
 
     override fun onDestroy() {

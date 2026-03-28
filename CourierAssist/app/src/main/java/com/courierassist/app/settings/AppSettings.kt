@@ -37,7 +37,7 @@ data class PlatformSettings(
 
 @Serializable
 data class AppSettings(
-    val language: AppLanguage = AppLanguage.PL,
+    val language: AppLanguage = AppLanguage.fromSystemLocale(),
     val display: DisplayConfig = DisplayConfig(),
     val globalThresholds: ThresholdConfig = ThresholdConfig(),
     val globalFilters: FilterConfig = FilterConfig(),

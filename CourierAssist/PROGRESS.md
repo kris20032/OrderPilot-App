@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-27
-**Obecny etap:** Retest na Xiaomi zaliczony (03-27). Merge do `feature/production-app` gotowy. Faza beta: szukamy kurierów do zamkniętej grupy testerów.
-**Aktywne branche:** `feature/production-app` (główny), `feature/multi-overlay` (tip development)
+**Ostatnia aktualizacja:** 2026-03-26
+**Obecny etap:** 4 krytyczne bugi naprawione po testach na Xiaomi (Wolt guard, isUserStopped, Glovo cross-contamination, Uber retry). Czeka na retest u taty.
+**Aktywne branche:** `feature/xiaomi-testing` (fixy z testów Xiaomi), `feature/multi-overlay` (tip development)
 
 ---
 
@@ -10,11 +10,13 @@
 
 | Priorytet | Zadanie | Status |
 |-----------|---------|--------|
-| **High** | Merge `feature/xiaomi-testing` → `feature/production-app` | Gotowe do merge (03-27) |
-| **High** | Budowanie APK release do dystrybucji beta | Następny krok |
-| **High** | Znalezienie 3-5 kurierów beta testerów | W toku |
-| **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany podczas testów | Czeka na test |
-| Medium | Uber — belka pokazała 2 metryki zamiast 5 | Czekamy na logi + screeny od taty |
+| **High** | Fix: WoltOcrParser guard blokował 100% ofert Wolta | ✅ Naprawione (03-26) — usunięty guard z frazami Uber |
+| **High** | Fix: isUserStopped nie resetował się po MIUI kill | ✅ Naprawione (03-26) — reset w onResume + usunięte z ScreenCaptureService |
+| **High** | Fix: GlovoOcrParser parsował popup Ubera jako partial Glovo | ✅ Naprawione (03-26) — guard "Łącznie" |
+| **High** | Fix: Uber brak retry po nieudanym screenshot | ✅ Naprawione (03-26) — retry 3s dla Ubera |
+| **High** | Retest na Xiaomi — weryfikacja 4 fixów | Czeka na build + test u taty |
+| **High** | Bolt Food — testy na prawdziwych zleceniach | ✅ 4/4 OK na Xiaomi (03-26) |
+| **High** | Merge do `feature/production-app` | Po potwierdzeniu stabilności |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
 | Low | Mruganie belki Uber jasny→ciemny | Monitorowane |
 
@@ -24,12 +26,12 @@
 
 | Branch | Cel | Status |
 |--------|-----|--------|
-| `feature/production-app` | Główny branch produkcyjny | Aktywny |
-| `feature/xiaomi-testing` | 4 bugi z testów Xiaomi (Wolt/Uber/isUserStopped/Glovo) | Gotowy do merge (03-27) |
+| `feature/xiaomi-testing` | Fixy z testów Xiaomi (4 bugi) | **Aktywny** — czeka na retest |
 | `feature/multi-overlay` | Multi-overlay + wszystkie fixy | Tip development |
+| `feature/production-app` | Główny branch produkcyjny | Na GitHub (37 ahead of main) |
 | `main` | Stabilna baza z POC | Zablokowany na zmiany kodu |
 
-> **Archiwalne:** `feature/setup-wizard-v2` (zmergowany do xiaomi-testing), `feature/bolt-parser`, `feature/glovo-parser`, `feature/wolt-parser`, `feature/accessibility-fallback`, `feature/ui-redesign`, `fix/screen-off-survival`
+> **Archiwalne:** `feature/bolt-parser` (ancestor multi-overlay), `feature/glovo-parser`, `feature/wolt-parser`, `feature/accessibility-fallback`, `feature/ui-redesign`, `fix/screen-off-survival`
 
 > Workflow: nowy branch → testuj → merge do `feature/production-app`
 
@@ -37,15 +39,15 @@
 
 ## Co dalej — Roadmap
 
-### Faza 1: Stabilizacja — ZAKOŃCZONA (03-27)
-1. ~~Testy produkcyjne u taty~~ ✅ Zaliczone (03-27, Xiaomi)
-2. ~~Bolt Food — retest~~ ✅ 4/4 zlecenia (03-26)
-3. ~~Setup wizard per producent~~ ✅ Gotowe (03-25)
-4. Merge `feature/xiaomi-testing` → `feature/production-app` ← **teraz**
+### Faza 1: Stabilizacja (teraz)
+1. Testy produkcyjne u taty — czekamy na potwierdzenie stabilności
+2. Bolt Food — retest na prawdziwym zleceniu
+3. Glovo — weryfikacja fixów gotówkowych
+4. Merge `feature/multi-overlay` → `feature/production-app`
 
-### Faza 2: Przygotowanie do beta testów (teraz)
-5. Budowanie APK release (signed) do dystrybucji
-6. Glovo — weryfikacja na Xiaomi (tata nie był zalogowany)
+### Faza 2: Przygotowanie do beta testów
+5. ~~Setup wizard per producent~~ ✅ Gotowe (03-25)
+6. Przygotowanie APK do dystrybucji
 
 ### Faza 3: Beta testy u zewnętrznych kurierów
 7. Znaleźć 3-5 kurierów na mieście (mix platform + modeli telefonów)
@@ -54,14 +56,14 @@
 
 ---
 
-## Ostatnie zmiany (2026-03-14 — 2026-03-27)
+## Ostatnie zmiany (2026-03-14 — 2026-03-26)
 
 | Data | Zmiana |
 |------|--------|
-| 03-26 | Fix: WoltOcrParser — usunięto guard fraz Uber-specyficznych (blokował 100% ofert Wolta po polsku) |
-| 03-26 | Fix: isUserStopped — reset po MIUI kill (monitoring wznawia się poprawnie) |
-| 03-26 | Fix: GlovoOcrParser — guard przed przechwyceniem eventów Ubera |
-| 03-26 | Fix: Uber retry — 3s opóźnienie po nieudanym screenshocie |
+| 03-26 | **Fix: WoltOcrParser** — usunięty guard z frazami Uber ("Spodziewany zarobek", "Szacowany", "Dostawa od") który blokował 100% ofert Wolta (4 zlecenia zfailowane) |
+| 03-26 | **Fix: isUserStopped** — MIUI zabijał ScreenCaptureService ustawiając flagę, monitoring stawał. Reset w MainActivity.onResume() + usunięte z ScreenCaptureService.onTaskRemoved() |
+| 03-26 | **Fix: GlovoOcrParser** — guard "Łącznie"/"Lacznie"/"Загалом" odrzuca tekst popup Ubera (zapobieganie cross-contamination) |
+| 03-26 | **Fix: Uber retry** — 3s retry po nieudanym screenshot (Uber generuje mało eventów, ~15s przerwy) |
 | 03-25 | Setup wizard v2: karty per producent (Samsung/Xiaomi/Huawei/Oppo/OnePlus), toast hints (skrócone — "Znajdź CourierAssist i włącz przełącznik"), domyślny język z system locale |
 | 03-25 | Test na Xiaomi z FakeUberApp: belka działa, wizard Xiaomi OK, task-removed OK, toast hints OK (pushowano na GitHub) |
 | 03-25 | Fix: MIUI fałszywie zatrzymywał monitoring po Home — zamiana ActivityLifecycleCallbacks na onTaskRemoved() w serwisach |
@@ -109,8 +111,10 @@
 | Regresja po zmianach | ✅ Działa |
 | Belka 2 metryki zamiast 5 | ⏳ Czekamy na logi |
 
-### Wolt (2026-03-13)
+### Wolt (2026-03-13 — 2026-03-26)
 - Zweryfikowany na telefonie (13 zł / 26 min / 2.7 km → 30 zł/h → RED) ✅
+- **03-26 Xiaomi:** 4 zlecenia — belka NIGDY nie pojawiła się. Przyczyna: guard "Spodziewany zarobek"/"Szacowany"/"Dostawa od" blokował prawdziwe oferty Wolta (Wolt używa tych samych fraz). **Naprawione** — guard usunięty.
+- **03-26 Xiaomi:** monitoring martwy po ~1h — MIUI zabił ScreenCaptureService, isUserStopped=true nie resetowało się. **Naprawione** — reset w onResume.
 
 ### Multi-overlay (2026-03-22)
 | Problem | Wynik |
@@ -119,17 +123,15 @@
 | Belki nachodzą na siebie | ❌→✅ Fix: dynamiczna wysokość (view.height po layout) |
 | Slot swap (Uber z góry na dół) | ❌→✅ Fix: position = existingIndex zamiast 0 |
 
-### Bolt Food (2026-03-22)
-- Zlecenie przyszło, belka nie zadziałała — pakiet `com.bolt.deliverycourier` nie był w supportedPackages. Naprawione. Czeka na retest.
-
-### Xiaomi — testy produkcyjne (2026-03-26/27)
+### Uber (2026-03-26 Xiaomi)
 | Problem | Wynik |
 |---------|-------|
-| Bolt Food 4/4 zlecenia | ✅ Działa |
-| Wolt 0/4 (guard Uber-specyficzny blokował po polsku) | ❌→✅ Naprawione (03-26), retested (03-27) |
-| Uber — belka nie pojawiła się (GlovoOcrParser przechwycił eventy) | ❌→✅ Naprawione (03-26), retested (03-27) |
-| isUserStopped martwy po MIUI kill (monitoring nie wznawia się) | ❌→✅ Naprawione (03-26), retested (03-27) |
-| Glovo — nie testowane (tata nie zalogowany) | ⏳ Czeka na test |
+| Belka nie pojawiła się — screenshot widział Glovo dialog zamiast Ubera | Naprawione: GlovoOcrParser guard + Uber retry 3s |
+| 15s przerwy między eventami — popup może zniknąć | Naprawione: retry po 3s jeśli brak belki |
+
+### Bolt Food (2026-03-22 — 2026-03-26)
+- ~~Zlecenie przyszło, belka nie zadziałała — pakiet `com.bolt.deliverycourier` nie był w supportedPackages.~~ Naprawione.
+- **03-26 Xiaomi:** 4/4 zlecenia — belka pojawiła się od razu prawidłowo ✅
 
 ---
 
