@@ -86,17 +86,22 @@ class CourierAccessibilityService : AccessibilityService() {
                 processViaScreenshot(pkg)
             }
 
-            // Retry tylko dla Ubera — Uber generuje mało eventów (~15s przerwy),
-            // więc jeśli pierwszy screenshot fail (Glovo dialog, lock screen itp.),
-            // popup może zniknąć zanim przyjdzie następny event.
+            // Adaptive back-to-back polling dla Ubera.
+            // React Native popup potrzebuje 50-2500ms na rendering po WINDOW_STATE_CHANGED.
+            // Pierwszy screenshot (powyżej) łapie "gorący" scenariusz (~100-500ms).
+            // Kolejne próby back-to-back (~400ms cykl: screenshot+OCR) pokrywają ciągle
+            // okno 500-2900ms bez dziur, łapiąc "ciepły" i "zimny" start Ubera.
+            // Early exit: jeśli belka się pokazała → stop (nie marnujemy zasobów).
             val plat = ServiceLocator.parserRegistry.getParser(pkg)?.platform
-            if (plat == Platform.UBER) {
-                kotlinx.coroutines.delay(3000)
-                if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] == null) {
-                    AppLog.d(AppLog.TAG_SERVICE, "Uber: no overlay after first attempt, retrying")
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        processViaScreenshot(pkg)
+            if (plat == Platform.UBER && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val maxRetries = 6
+                for (i in 1..maxRetries) {
+                    if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] != null) {
+                        AppLog.d(AppLog.TAG_SERVICE, "Uber: overlay shown after $i retries — stopping polling")
+                        break
                     }
+                    AppLog.d(AppLog.TAG_SERVICE, "Uber: retry $i/$maxRetries (back-to-back)")
+                    processViaScreenshot(pkg)
                 }
             }
         }
