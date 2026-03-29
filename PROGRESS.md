@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-27
-**Obecny etap:** Retest na Xiaomi zaliczony (03-27). Merge do `feature/production-app` gotowy. Faza beta: szukamy kurierów do zamkniętej grupy testerów.
-**Aktywne branche:** `feature/production-app` (główny), `feature/multi-overlay` (tip development)
+**Ostatnia aktualizacja:** 2026-03-29
+**Obecny etap:** Fixy formatu kwot + adaptive polling Ubera na branchu `fix-formaty`. Czeka na test u taty (Uber na home screenie).
+**Aktywne branche:** `feature/production-app` (główny), `fix-formaty` (fixy kwot + Uber timing), `feature/multi-overlay` (tip development)
 
 ---
 
@@ -10,7 +10,8 @@
 
 | Priorytet | Zadanie | Status |
 |-----------|---------|--------|
-| **High** | Merge `feature/xiaomi-testing` → `feature/production-app` | Gotowe do merge (03-27) |
+| **High** | Uber belka na home screenie — adaptive polling + diagnostyka | Czeka na test u taty (03-29) |
+| **High** | Merge `fix-formaty` → `feature/xiaomi-testing` → `feature/production-app` | Po teście |
 | **High** | Budowanie APK release do dystrybucji beta | Następny krok |
 | **High** | Znalezienie 3-5 kurierów beta testerów | W toku |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany podczas testów | Czeka na test |
@@ -25,6 +26,7 @@
 | Branch | Cel | Status |
 |--------|-----|--------|
 | `feature/production-app` | Główny branch produkcyjny | Aktywny |
+| `fix-formaty` | Universal amount regex + adaptive Uber polling + diagnostyka | Czeka na test (03-29) |
 | `feature/xiaomi-testing` | 4 bugi z testów Xiaomi (Wolt/Uber/isUserStopped/Glovo) | Gotowy do merge (03-27) |
 | `feature/multi-overlay` | Multi-overlay + wszystkie fixy | Tip development |
 | `main` | Stabilna baza z POC | Zablokowany na zmiany kodu |
@@ -54,10 +56,13 @@
 
 ---
 
-## Ostatnie zmiany (2026-03-14 — 2026-03-27)
+## Ostatnie zmiany (2026-03-14 — 2026-03-29)
 
 | Data | Zmiana |
 |------|--------|
+| 03-29 | Uber: adaptive back-to-back polling (7 prób w ~2.9s zamiast 1 retry po 3s) — łapie zimny start React Native popupu |
+| 03-29 | Diagnostyka: debug screenshoty do Downloads + logi retry z retryIndex, screenOn, bitmap size, cropY |
+| 03-29 | Universal extractAmount() w OcrOfferParser — 3-krokowy fallback (LICZBA+WALUTA, WALUTA+LICZBA, luźna liczba), obsługa PLN/zł/грн/₴ |
 | 03-26 | Fix: WoltOcrParser — usunięto guard fraz Uber-specyficznych (blokował 100% ofert Wolta po polsku) |
 | 03-26 | Fix: isUserStopped — reset po MIUI kill (monitoring wznawia się poprawnie) |
 | 03-26 | Fix: GlovoOcrParser — guard przed przechwyceniem eventów Ubera |
