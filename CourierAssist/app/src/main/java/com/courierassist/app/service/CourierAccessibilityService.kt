@@ -4,6 +4,8 @@ import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
+import android.os.Environment
+import android.os.PowerManager
 import android.view.Display
 import android.view.accessibility.AccessibilityEvent
 import androidx.annotation.RequiresApi
@@ -14,6 +16,8 @@ import com.courierassist.app.domain.AnalysisResult
 import com.courierassist.app.domain.Offer
 import com.courierassist.app.domain.Platform
 import com.courierassist.app.pipeline.PipelineOrchestrator
+import java.io.File
+import java.io.FileOutputStream
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -101,7 +105,7 @@ class CourierAccessibilityService : AccessibilityService() {
                         break
                     }
                     AppLog.d(AppLog.TAG_SERVICE, "Uber: retry $i/$maxRetries (back-to-back)")
-                    processViaScreenshot(pkg)
+                    processViaScreenshot(pkg, retryIndex = i)
                 }
             }
         }
@@ -204,28 +208,37 @@ class CourierAccessibilityService : AccessibilityService() {
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
-    private suspend fun processViaScreenshot(packageName: String) {
+    private suspend fun processViaScreenshot(packageName: String, retryIndex: Int = 0) {
         try {
-            AppLog.d(AppLog.TAG_SERVICE, "Taking screenshot via AccessibilityService API")
+            val screenOn = (getSystemService(POWER_SERVICE) as? PowerManager)?.isInteractive ?: true
+            AppLog.d(AppLog.TAG_SERVICE, "Taking screenshot via AccessibilityService API (retry=$retryIndex, screenOn=$screenOn)")
             val bitmap = withTimeoutOrNull(3000L) { takeScreenshotSuspend() } ?: run {
-                AppLog.w(AppLog.TAG_SERVICE, "Screenshot returned null or timed out")
+                AppLog.w(AppLog.TAG_SERVICE, "Screenshot returned null or timed out (retry=$retryIndex)")
                 return
             }
 
+            AppLog.d(AppLog.TAG_SERVICE, "Screenshot bitmap: ${bitmap.width}x${bitmap.height} (retry=$retryIndex)")
+
             // Crop dolne 60% — belka jest na górze, popup zlecenia na dole
-            val croppedBitmap = run {
-                val startY = (bitmap.height * 0.4f).toInt()
-                val cropped = Bitmap.createBitmap(bitmap, 0, startY, bitmap.width, bitmap.height - startY)
-                bitmap.recycle()
-                cropped
-            }
+            val startY = (bitmap.height * 0.4f).toInt()
+            val croppedBitmap = Bitmap.createBitmap(bitmap, 0, startY, bitmap.width, bitmap.height - startY)
+
             val lines = ServiceLocator.ocrEngine.recognize(croppedBitmap)
+            AppLog.d(AppLog.TAG_SERVICE, "Screenshot OCR: ${lines.size} lines → ${lines.take(3)} (retry=$retryIndex)")
+
+            // Debug: zapisz screenshoty gdy OCR nie zwrócił wystarczająco danych (diagnostyka)
+            if (lines.size < 2 && retryIndex > 0) {
+                saveDebugScreenshot(bitmap, "debug_full_retry$retryIndex")
+                saveDebugScreenshot(croppedBitmap, "debug_crop_retry$retryIndex")
+                AppLog.d(AppLog.TAG_SERVICE, "Debug screenshots saved for retry $retryIndex (cropY=$startY)")
+            }
+
+            bitmap.recycle()
             croppedBitmap.recycle()
-            AppLog.d(AppLog.TAG_SERVICE, "Screenshot OCR: ${lines.size} lines → ${lines.take(3)}")
 
             val parser = ServiceLocator.parserRegistry.getParser(packageName) ?: return
             val offer = parser.parse(lines) ?: run {
-                AppLog.d(AppLog.TAG_SERVICE, "Screenshot: parser returned null")
+                AppLog.d(AppLog.TAG_SERVICE, "Screenshot: parser returned null (retry=$retryIndex)")
                 return
             }
 
@@ -236,7 +249,7 @@ class CourierAccessibilityService : AccessibilityService() {
             if (isCrossPlatformDuplicate(offer)) return
 
             val result = ServiceLocator.offerAnalyzer.analyze(offer, settings.thresholdsFor(offer.platform))
-            AppLog.d(AppLog.TAG_SERVICE, "Screenshot result: ${result.zlPerHour} zł/h → ${result.level}")
+            AppLog.d(AppLog.TAG_SERVICE, "Screenshot result: ${result.zlPerHour} zł/h → ${result.level} (retry=$retryIndex)")
 
             if (isSameAsPrevious(offer.platform, result)) return
 
@@ -245,7 +258,19 @@ class CourierAccessibilityService : AccessibilityService() {
                 ServiceLocator.overlayAutoHider.onOverlayShown(scope, settings.displayTimeFor(offer.platform) * 1000L, offer.platform)
             }
         } catch (e: Exception) {
-            AppLog.w(AppLog.TAG_SERVICE, "Screenshot fallback error: ${e.message}")
+            AppLog.w(AppLog.TAG_SERVICE, "Screenshot fallback error (retry=$retryIndex): ${e.message}")
+        }
+    }
+
+    private fun saveDebugScreenshot(bitmap: Bitmap, name: String) {
+        try {
+            val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val file = File(dir, "${name}.png")
+            FileOutputStream(file).use { out ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 80, out)
+            }
+        } catch (e: Exception) {
+            AppLog.w(AppLog.TAG_SERVICE, "Debug screenshot save failed: ${e.message}")
         }
     }
 
