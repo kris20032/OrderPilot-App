@@ -31,7 +31,8 @@
 | `feature/multi-overlay` | Multi-overlay + wszystkie fixy | Tip development |
 | `main` | Stabilna baza z POC | Zablokowany na zmiany kodu |
 
-> **Archiwalne:** `feature/setup-wizard-v2` (zmergowany do xiaomi-testing), `feature/bolt-parser`, `feature/glovo-parser`, `feature/wolt-parser`, `feature/accessibility-fallback`, `feature/ui-redesign`, `fix/screen-off-survival`
+> **Archiwalne (zmergowane, do usunięcia):** `feature/setup-wizard-v2`, `feature/bolt-parser`, `feature/glovo-parser`, `feature/wolt-parser`, `feature/accessibility-fallback`, `feature/ui-redesign`, `feature/xiaomi-testing`, `fix/foreground-check`, `fix/screen-off-survival`
+> **Stale remote:** `remotes/origin/feature/ocr`, `remotes/origin/feature/setup-wizard-v2`
 
 > Workflow: nowy branch → testuj → merge do `feature/production-app`
 
@@ -43,16 +44,21 @@
 1. ~~Testy produkcyjne u taty~~ ✅ Zaliczone (03-27, Xiaomi)
 2. ~~Bolt Food — retest~~ ✅ 4/4 zlecenia (03-26)
 3. ~~Setup wizard per producent~~ ✅ Gotowe (03-25)
-4. Merge `feature/xiaomi-testing` → `feature/production-app` ← **teraz**
+4. ~~Merge `feature/xiaomi-testing` → `feature/production-app`~~ ✅ (03-27)
 
-### Faza 2: Przygotowanie do beta testów (teraz)
-5. Budowanie APK release (signed) do dystrybucji
-6. Glovo — weryfikacja na Xiaomi (tata nie był zalogowany)
+### Faza 1.5: Fixy z dalszych testów (teraz)
+5. ~~Universal extractAmount()~~ ✅ (03-29)
+6. Uber adaptive polling — czeka na test u taty ← **teraz**
+7. Merge `fix-formaty` → `feature/production-app` — po teście
+
+### Faza 2: Przygotowanie do beta testów
+8. Budowanie APK release (signed) do dystrybucji
+9. Glovo — weryfikacja na Xiaomi (tata nie był zalogowany)
 
 ### Faza 3: Beta testy u zewnętrznych kurierów
-7. Znaleźć 3-5 kurierów na mieście (mix platform + modeli telefonów)
-8. Instalacja apki + konfiguracja na miejscu
-9. Zbieranie feedbacku przez WhatsApp/Telegram
+10. Znaleźć 3-5 kurierów na mieście (mix platform + modeli telefonów)
+11. Instalacja apki + konfiguracja na miejscu
+12. Zbieranie feedbacku przez WhatsApp/Telegram
 
 ---
 
