@@ -25,7 +25,10 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
@@ -41,6 +44,8 @@ class CourierAccessibilityService : AccessibilityService() {
     private val lastResultTimes = ConcurrentHashMap<Platform, Long>()
     private val resultExpiryMs = 60_000L
     private var lastWindowDiagTime = 0L
+    @Volatile private var lastUberEventTime = 0L
+    private var uberWatchJob: Job? = null
 
     override fun onServiceConnected() {
         pipeline = ServiceLocator.pipelineOrchestrator
@@ -60,6 +65,12 @@ class CourierAccessibilityService : AccessibilityService() {
         if (isUserStopped) return
 
         AppLog.d(AppLog.TAG_SERVICE, "Event from $pkg")
+
+        // Uber watch mode: aktualizuj timestamp i uruchom periodic check
+        if (pkg == "com.ubercab.driver") {
+            lastUberEventTime = System.currentTimeMillis()
+            startUberWatchIfNeeded()
+        }
 
         val throttler = throttlers.getOrPut(pkg) { EventThrottler() }
 
@@ -99,21 +110,21 @@ class CourierAccessibilityService : AccessibilityService() {
                 processViaScreenshot(pkg)
             }
 
-            // Adaptive back-to-back polling dla Ubera.
+            // Spaced retries dla Ubera.
             // React Native popup potrzebuje 50-2500ms na rendering po WINDOW_STATE_CHANGED.
-            // Pierwszy screenshot (powyżej) łapie "gorący" scenariusz (~100-500ms).
-            // Kolejne próby back-to-back (~400ms cykl: screenshot+OCR) pokrywają ciągle
-            // okno 500-2900ms bez dziur, łapiąc "ciepły" i "zimny" start Ubera.
-            // Early exit: jeśli belka się pokazała → stop (nie marnujemy zasobów).
+            // Pierwszy screenshot (powyżej) łapie natychmiastowy scenariusz.
+            // Retry co 600ms pokrywa okno 600-2400ms bez errorCode=3 (Android rate-limit).
+            // Early exit: jeśli belka się pokazała → stop.
             val plat = ServiceLocator.parserRegistry.getParser(pkg)?.platform
             if (plat == Platform.UBER && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                val maxRetries = 6
+                val maxRetries = 4
                 for (i in 1..maxRetries) {
+                    delay(600) // 600ms odstęp — unika errorCode=3 od Androida
                     if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] != null) {
-                        AppLog.d(AppLog.TAG_SERVICE, "Uber: overlay shown after $i retries — stopping polling")
+                        AppLog.d(AppLog.TAG_SERVICE, "Uber: overlay shown after $i retries — stopping")
                         break
                     }
-                    AppLog.d(AppLog.TAG_SERVICE, "Uber: retry $i/$maxRetries (back-to-back)")
+                    AppLog.d(AppLog.TAG_SERVICE, "Uber: spaced retry $i/$maxRetries (T+${i * 600}ms)")
                     processViaScreenshot(pkg, retryIndex = i)
                 }
             }
@@ -276,6 +287,40 @@ class CourierAccessibilityService : AccessibilityService() {
             }
         } catch (e: Exception) {
             AppLog.w(AppLog.TAG_SERVICE, "Screenshot fallback error (retry=$retryIndex): ${e.message}")
+        }
+    }
+
+    /**
+     * Uber watch mode — safety net na wypadek opóźnionych/brakujących eventów.
+     * Gdy Uber generuje eventy, uruchamiamy periodic check co 2.5s.
+     * Jeśli belka NIE jest widoczna → robimy screenshot.
+     * Zatrzymuje się po 15s bez eventów Ubera.
+     */
+    private fun startUberWatchIfNeeded() {
+        if (uberWatchJob?.isActive == true) return
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
+
+        uberWatchJob = scope.launch {
+            AppLog.d(AppLog.TAG_SERVICE, "Uber watch: started")
+            while (isActive) {
+                delay(2500)
+                val sinceLastEvent = System.currentTimeMillis() - lastUberEventTime
+                if (sinceLastEvent > 15_000) {
+                    AppLog.d(AppLog.TAG_SERVICE, "Uber watch: no events for ${sinceLastEvent / 1000}s, stopping")
+                    break
+                }
+                // Jeśli belka Ubera jest już widoczna — nie robimy screenshota
+                if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] != null) continue
+                // Jeśli MediaProjection aktywna — użyj pipeline zamiast screenshot
+                if (isMediaProjectionAvailable()) {
+                    AppLog.d(AppLog.TAG_SERVICE, "Uber watch: periodic check via pipeline")
+                    pipeline.process("com.ubercab.driver")
+                } else {
+                    AppLog.d(AppLog.TAG_SERVICE, "Uber watch: periodic check via screenshot")
+                    processViaScreenshot("com.ubercab.driver", retryIndex = -1)
+                }
+            }
+            AppLog.d(AppLog.TAG_SERVICE, "Uber watch: stopped")
         }
     }
 
