@@ -62,11 +62,11 @@
 
 ---
 
-## Ostatnie zmiany (2026-03-14 — 2026-03-29)
+## Ostatnie zmiany (2026-03-14 — 2026-03-30)
 
 | Data | Zmiana |
 |------|--------|
-| 03-30 | Uber: spaced retries (delay 600ms, 4 retries pokrywające 0-2400ms) — fix errorCode=3 od back-to-back. Watch mode: periodic screenshot co 2.5s gdy Uber aktywny (safety net na opóźnione eventy) |
+| 03-30 | Uber: spaced retries (delay 600ms, 4 retries pokrywające 0-2400ms) — fix errorCode=3 od back-to-back. Watch mode: periodic screenshot co 2.5s gdy Uber aktywny (safety net na opóźnione eventy). Wolt: 2 spaced retries (proaktywna ochrona). Flaga isRetrying zapobiega kolizji watch mode + retries. |
 | 03-30 | Diagnostyka Samsung: getWindows() logging + OCR normalizacja l/I/|→1 obok cyfr |
 | 03-29 | Uber: adaptive back-to-back polling (7 prób w ~2.9s zamiast 1 retry po 3s) — ZASTĄPIONE przez spaced retries 03-30 |
 | 03-29 | Diagnostyka: debug screenshoty do Downloads + logi retry z retryIndex, screenOn, bitmap size, cropY |
