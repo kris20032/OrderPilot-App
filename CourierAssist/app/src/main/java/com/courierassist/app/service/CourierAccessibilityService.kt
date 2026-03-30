@@ -147,6 +147,11 @@ class CourierAccessibilityService : AccessibilityService() {
                             AppLog.d(AppLog.TAG_SERVICE, "${plat.name}: overlay shown after $i retries — stopping")
                             break
                         }
+                        // Uber: sprawdź czy overlay okno nadal istnieje (user mógł przełączyć apkę)
+                        if (plat == Platform.UBER && !hasUberOverlayWindow()) {
+                            AppLog.d(AppLog.TAG_SERVICE, "UBER: overlay window gone during retries — stopping")
+                            break
+                        }
                         AppLog.d(AppLog.TAG_SERVICE, "${plat.name}: spaced retry $i/$maxRetries (T+${i * 600}ms)")
                         processViaScreenshot(pkg, retryIndex = i)
                     }
@@ -191,6 +196,10 @@ class CourierAccessibilityService : AccessibilityService() {
                     delay(600)
                     if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] != null) {
                         AppLog.d(AppLog.TAG_SERVICE, "UBER: overlay shown after $i retries (WINDOWS_CHANGED) — stopping")
+                        break
+                    }
+                    if (!hasUberOverlayWindow()) {
+                        AppLog.d(AppLog.TAG_SERVICE, "UBER: overlay window gone during retries (WINDOWS_CHANGED) — stopping")
                         break
                     }
                     AppLog.d(AppLog.TAG_SERVICE, "UBER: spaced retry $i/4 via WINDOWS_CHANGED (T+${i * 600}ms)")
