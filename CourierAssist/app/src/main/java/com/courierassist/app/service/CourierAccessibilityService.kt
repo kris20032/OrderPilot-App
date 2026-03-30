@@ -110,21 +110,22 @@ class CourierAccessibilityService : AccessibilityService() {
                 processViaScreenshot(pkg)
             }
 
-            // Spaced retries dla Ubera.
-            // React Native popup potrzebuje 50-2500ms na rendering po WINDOW_STATE_CHANGED.
-            // Pierwszy screenshot (powyżej) łapie natychmiastowy scenariusz.
-            // Retry co 600ms pokrywa okno 600-2400ms bez errorCode=3 (Android rate-limit).
-            // Early exit: jeśli belka się pokazała → stop.
+            // Spaced retries dla platform screenshot-owych (Uber, Wolt).
+            // Popup może nie być wyrenderowany w momencie pierwszego screenshota.
+            // Uber (React Native): 50-2500ms na rendering → 4 retries.
+            // Wolt (natywne UI): szybszy rendering → 2 retries (safety net).
+            // Retry co 600ms unika errorCode=3 (Android rate-limit na takeScreenshot).
+            // Early exit: jeśli belka się pokazała → stop (bez marnowania zasobów).
             val plat = ServiceLocator.parserRegistry.getParser(pkg)?.platform
-            if (plat == Platform.UBER && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                val maxRetries = 4
+            if ((plat == Platform.UBER || plat == Platform.WOLT) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val maxRetries = if (plat == Platform.UBER) 4 else 2
                 for (i in 1..maxRetries) {
                     delay(600) // 600ms odstęp — unika errorCode=3 od Androida
-                    if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] != null) {
-                        AppLog.d(AppLog.TAG_SERVICE, "Uber: overlay shown after $i retries — stopping")
+                    if (ServiceLocator.overlayManager.getActiveOffers()[plat] != null) {
+                        AppLog.d(AppLog.TAG_SERVICE, "${plat.name}: overlay shown after $i retries — stopping")
                         break
                     }
-                    AppLog.d(AppLog.TAG_SERVICE, "Uber: spaced retry $i/$maxRetries (T+${i * 600}ms)")
+                    AppLog.d(AppLog.TAG_SERVICE, "${plat.name}: spaced retry $i/$maxRetries (T+${i * 600}ms)")
                     processViaScreenshot(pkg, retryIndex = i)
                 }
             }
