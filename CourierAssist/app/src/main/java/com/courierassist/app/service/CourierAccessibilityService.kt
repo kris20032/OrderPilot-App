@@ -407,6 +407,11 @@ class CourierAccessibilityService : AccessibilityService() {
                 if (isRetrying) continue
                 // Jeśli belka Ubera jest już widoczna — nie robimy screenshota
                 if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] != null) continue
+                // Jeśli nie ma overlay okna Ubera na ekranie — nie ma co screenshotować
+                if (!hasUberOverlayWindow()) {
+                    AppLog.d(AppLog.TAG_SERVICE, "Uber watch: no overlay window — skipping screenshot")
+                    continue
+                }
                 // Jeśli MediaProjection aktywna — użyj pipeline zamiast screenshot
                 if (isMediaProjectionAvailable()) {
                     AppLog.d(AppLog.TAG_SERVICE, "Uber watch: periodic check via pipeline")
