@@ -35,6 +35,17 @@ interface OcrOfferParser {
         val CURRENCY_DETECT_REGEX = Regex("""(zł|zl|zt|PLN|грн|rpH|₴)""", RegexOption.IGNORE_CASE)
 
         /**
+         * Normalizuje typowe błędy OCR w cyfrach:
+         * - 'l' (lowercase L), 'I' (uppercase i), '|' (pipe) obok cyfr → '1'
+         * OCR często myli te znaki z cyfrą 1 (np. "l8,64 zł" zamiast "18,64 zł").
+         */
+        fun normalizeOcrDigits(text: String): String {
+            return text
+                .replace(Regex("""[lI|](?=\d)"""), "1")   // l8 → 18, I8 → 18
+                .replace(Regex("""(?<=\d)[lI|](?=\d)"""), "1") // 1l0 → 110
+        }
+
+        /**
          * Wyciąga kwotę z tekstu OCR — podejście hybrydowe:
          * 1. Szukaj LICZBA+WALUTA (np. "7,86 zł")
          * 2. Szukaj WALUTA+LICZBA (np. "PLN7.86")
@@ -43,8 +54,9 @@ interface OcrOfferParser {
          * @return para (rawMatch, parsedDouble) lub null
          */
         fun extractAmount(text: String): Pair<String, Double>? {
+            val normalized = normalizeOcrDigits(text)
             // Krok 1: LICZBA + WALUTA
-            AMOUNT_SUFFIX_REGEX.find(text)?.let { match ->
+            AMOUNT_SUFFIX_REGEX.find(normalized)?.let { match ->
                 val raw = match.groupValues[1]
                 val parsed = raw.replace(",", ".").toDoubleOrNull()
                 if (parsed != null) {
@@ -54,7 +66,7 @@ interface OcrOfferParser {
             }
 
             // Krok 2: WALUTA + LICZBA
-            AMOUNT_PREFIX_REGEX.find(text)?.let { match ->
+            AMOUNT_PREFIX_REGEX.find(normalized)?.let { match ->
                 val raw = match.groupValues[1]
                 val parsed = raw.replace(",", ".").toDoubleOrNull()
                 if (parsed != null) {
@@ -64,7 +76,7 @@ interface OcrOfferParser {
             }
 
             // Krok 3: Fallback — luźna liczba dziesiętna
-            AMOUNT_FALLBACK_REGEX.find(text)?.let { match ->
+            AMOUNT_FALLBACK_REGEX.find(normalized)?.let { match ->
                 val raw = match.groupValues[1]
                 val parsed = raw.replace(",", ".").toDoubleOrNull()
                 if (parsed != null) {
@@ -81,10 +93,11 @@ interface OcrOfferParser {
          * Zwraca listę MatchResult z grupą 1 = kwota.
          */
         fun findAllAmounts(text: String): List<MatchResult> {
+            val normalized = normalizeOcrDigits(text)
             val results = mutableListOf<MatchResult>()
             // Zbierz z obu regexów (suffix + prefix)
-            results.addAll(AMOUNT_SUFFIX_REGEX.findAll(text).toList())
-            AMOUNT_PREFIX_REGEX.findAll(text).forEach { prefixMatch ->
+            results.addAll(AMOUNT_SUFFIX_REGEX.findAll(normalized).toList())
+            AMOUNT_PREFIX_REGEX.findAll(normalized).forEach { prefixMatch ->
                 // Unikaj duplikatów — jeśli ta sama pozycja już znaleziona
                 val alreadyFound = results.any { existing ->
                     existing.range.intersect(prefixMatch.range).isNotEmpty()
@@ -93,7 +106,7 @@ interface OcrOfferParser {
             }
             // Fallback jeśli nic nie znaleziono
             if (results.isEmpty()) {
-                results.addAll(AMOUNT_FALLBACK_REGEX.findAll(text).toList())
+                results.addAll(AMOUNT_FALLBACK_REGEX.findAll(normalized).toList())
             }
             return results
         }

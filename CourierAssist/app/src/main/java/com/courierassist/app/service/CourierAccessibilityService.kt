@@ -18,6 +18,9 @@ import com.courierassist.app.domain.Platform
 import com.courierassist.app.pipeline.PipelineOrchestrator
 import java.io.File
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +40,7 @@ class CourierAccessibilityService : AccessibilityService() {
     private val lastResults = ConcurrentHashMap<Platform, AnalysisResult>()
     private val lastResultTimes = ConcurrentHashMap<Platform, Long>()
     private val resultExpiryMs = 60_000L
+    private var lastWindowDiagTime = 0L
 
     override fun onServiceConnected() {
         pipeline = ServiceLocator.pipelineOrchestrator
@@ -84,6 +88,11 @@ class CourierAccessibilityService : AccessibilityService() {
 
         // Primary: MediaProjection pipeline (jeśli aktywna) + Fallback: takeScreenshot (API 30+)
         throttler.onEvent(scope) {
+            // Diagnostyka: loguj okna Ubera gdy user jest w apce (throttle 10s)
+            if (pkg == "com.ubercab.driver") {
+                logUberWindowDiagnostics()
+            }
+
             if (isMediaProjectionAvailable()) {
                 pipeline.process(pkg)
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -226,21 +235,29 @@ class CourierAccessibilityService : AccessibilityService() {
             val lines = ServiceLocator.ocrEngine.recognize(croppedBitmap)
             AppLog.d(AppLog.TAG_SERVICE, "Screenshot OCR: ${lines.size} lines → ${lines.take(3)} (retry=$retryIndex)")
 
-            // Debug: zapisz screenshoty gdy OCR nie zwrócił wystarczająco danych (diagnostyka)
-            if (lines.size < 2 && retryIndex > 0) {
-                saveDebugScreenshot(bitmap, "debug_full_retry$retryIndex")
-                saveDebugScreenshot(croppedBitmap, "debug_crop_retry$retryIndex")
-                AppLog.d(AppLog.TAG_SERVICE, "Debug screenshots saved for retry $retryIndex (cropY=$startY)")
+            val parser = ServiceLocator.parserRegistry.getParser(packageName) ?: run {
+                bitmap.recycle()
+                croppedBitmap.recycle()
+                return
+            }
+            val offer = parser.parse(lines)
+
+            if (offer == null) {
+                AppLog.d(AppLog.TAG_SERVICE, "Screenshot: parser returned null (retry=$retryIndex)")
+                // Debug: zapisz screenshot gdy parser nie rozpoznał oferty (tylko retry 0 — pierwszy w batchu)
+                if (retryIndex == 0) {
+                    val ts = SimpleDateFormat("HHmmss", Locale.US).format(Date())
+                    saveDebugScreenshot(bitmap, "debug_full_r${retryIndex}_$ts")
+                    saveDebugScreenshot(croppedBitmap, "debug_crop_r${retryIndex}_$ts")
+                    AppLog.d(AppLog.TAG_SERVICE, "Debug screenshots saved: debug_full_r${retryIndex}_$ts.png")
+                }
+                bitmap.recycle()
+                croppedBitmap.recycle()
+                return
             }
 
             bitmap.recycle()
             croppedBitmap.recycle()
-
-            val parser = ServiceLocator.parserRegistry.getParser(packageName) ?: return
-            val offer = parser.parse(lines) ?: run {
-                AppLog.d(AppLog.TAG_SERVICE, "Screenshot: parser returned null (retry=$retryIndex)")
-                return
-            }
 
             val settings = ServiceLocator.settingsRepository.load()
             if (!ServiceLocator.offerFilter.passes(offer, settings.filtersFor(offer.platform))) return
@@ -259,6 +276,39 @@ class CourierAccessibilityService : AccessibilityService() {
             }
         } catch (e: Exception) {
             AppLog.w(AppLog.TAG_SERVICE, "Screenshot fallback error (retry=$retryIndex): ${e.message}")
+        }
+    }
+
+    /**
+     * Diagnostyka okien Ubera — loguje wszystkie okna na ekranie i ich tekst.
+     * Throttle: max raz na 10 sekund żeby nie zalewać logów.
+     * Cel: sprawdzić czy popup zlecenia Ubera jest osobnym oknem
+     * i czy accessibility tree eksponuje tekst popupu.
+     */
+    private fun logUberWindowDiagnostics() {
+        val now = System.currentTimeMillis()
+        if (now - lastWindowDiagTime < 10_000L) return
+        lastWindowDiagTime = now
+
+        try {
+            val allWindows = windows ?: return
+            AppLog.d(AppLog.TAG_SERVICE, "=== Uber Window Diagnostics (${allWindows.size} windows) ===")
+            for ((i, w) in allWindows.withIndex()) {
+                val root = w.root
+                val pkg = root?.packageName?.toString() ?: "null"
+                AppLog.d(AppLog.TAG_SERVICE, "  Window[$i]: type=${w.type}, layer=${w.layer}, pkg=$pkg")
+                if (root != null && pkg == "com.ubercab.driver") {
+                    val text = AccessibilityTextCollector.collectText(root)
+                    val preview = text.take(300).replace("\n", " | ")
+                    AppLog.d(AppLog.TAG_SERVICE, "  Window[$i] Uber text: $preview")
+                    root.recycle()
+                } else {
+                    root?.recycle()
+                }
+            }
+            AppLog.d(AppLog.TAG_SERVICE, "=== End Window Diagnostics ===")
+        } catch (e: Exception) {
+            AppLog.w(AppLog.TAG_SERVICE, "Window diagnostics error: ${e.message}")
         }
     }
 
