@@ -166,13 +166,12 @@ class CourierAccessibilityService : AccessibilityService() {
         if (isRetrying) return
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
 
-        val uberWindowCount = countUberWindows()
-        if (uberWindowCount < 2) return // 1 okno = główna apka, 2+ = overlay popup
+        if (!hasUberOverlayWindow()) return // brak overlay okna Ubera
 
         // Jeśli belka Ubera już widoczna — nie robimy nic
         if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] != null) return
 
-        AppLog.d(AppLog.TAG_SERVICE, "WINDOWS_CHANGED: detected Uber overlay ($uberWindowCount windows) — triggering screenshot")
+        AppLog.d(AppLog.TAG_SERVICE, "WINDOWS_CHANGED: detected Uber overlay window — triggering screenshot")
         lastUberEventTime = System.currentTimeMillis()
         startUberWatchIfNeeded()
 
@@ -204,29 +203,26 @@ class CourierAccessibilityService : AccessibilityService() {
     }
 
     /**
-     * Sprawdza ile okien Ubera jest widocznych na ekranie.
-     * 1 okno = główna apka (mapa/dashboard). 2+ okien = overlay popup zlecenia.
+     * Sprawdza czy na ekranie jest overlay okno Ubera (popup zlecenia).
+     * Z logów wiemy:
+     *   - Mapa (bez popupu): Window[1] type=1 pkg=com.ubercab.driver (type=1 = APPLICATION)
+     *   - Popup nad WhatsApp: Window[1] type=3 pkg=com.ubercab.driver (type=3 = overlay)
+     * Popup zlecenia = okno Ubera z type != TYPE_APPLICATION (1).
+     * Gdy popup jest nad inną apką, główne okno Ubera nie jest widoczne,
+     * więc liczyć okna >= 2 nie działa — trzeba sprawdzać typ.
      */
-    private fun countUberWindows(): Int {
+    private fun hasUberOverlayWindow(): Boolean {
         return try {
-            windows?.count { w ->
+            windows?.any { w ->
                 val root = w.root
                 val pkg = root?.packageName?.toString()
                 root?.recycle()
-                pkg == "com.ubercab.driver"
-            } ?: 0
+                pkg == "com.ubercab.driver" && w.type != AccessibilityWindowInfo.TYPE_APPLICATION
+            } ?: false
         } catch (e: Exception) {
-            AppLog.w(AppLog.TAG_SERVICE, "countUberWindows error: ${e.message}")
-            0
+            AppLog.w(AppLog.TAG_SERVICE, "hasUberOverlayWindow error: ${e.message}")
+            false
         }
-    }
-
-    /**
-     * Sprawdza czy na ekranie jest overlay okno Ubera (popup zlecenia).
-     * Używane do filtrowania false triggers z CONTENT_CHANGED (mapa scroll).
-     */
-    private fun hasUberOverlayWindow(): Boolean {
-        return countUberWindows() >= 2
     }
 
     /**
