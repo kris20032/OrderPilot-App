@@ -8,6 +8,7 @@ import android.os.Environment
 import android.os.PowerManager
 import android.view.Display
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityWindowInfo
 import androidx.annotation.RequiresApi
 import com.courierassist.app.capture.ScreenCaptureService
 import com.courierassist.app.di.AppLog
@@ -55,15 +56,23 @@ class CourierAccessibilityService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        val pkg = event?.packageName?.toString() ?: return
-        AppLog.d(AppLog.TAG_SERVICE, "RAW event: pkg=$pkg type=${event.eventType}")
-        if (pkg !in watchedPackages) {
+        event ?: return
+        if (isUserStopped) return
+
+        // TYPE_WINDOWS_CHANGED = event SYSTEMOWY (WindowManager) — nowe okno pojawiło się/zniknęło.
+        // packageName jest null bo pochodzi z systemu, nie z aplikacji.
+        // Sprawdzamy getWindows() czy jest overlay Ubera → łapie popupy nad Samsung launcher
+        // gdzie TYPE_WINDOW_STATE_CHANGED nie przychodzi.
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOWS_CHANGED) {
+            handleWindowsChanged()
             return
         }
+
+        val pkg = event.packageName?.toString() ?: return
+        AppLog.d(AppLog.TAG_SERVICE, "RAW event: pkg=$pkg type=${event.eventType}")
+        if (pkg !in watchedPackages) return
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED &&
             event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
-
-        if (isUserStopped) return
 
         AppLog.d(AppLog.TAG_SERVICE, "Event from $pkg")
 
@@ -94,6 +103,16 @@ class CourierAccessibilityService : AccessibilityService() {
             val activePackage = rootInActiveWindow?.packageName?.toString()
             if (activePackage != null && activePackage != pkg && activePackage in courierPackages) {
                 AppLog.d(AppLog.TAG_SERVICE, "Skipping screenshot for $pkg — foreground is rival platform $activePackage")
+                return
+            }
+        }
+
+        // Uber false trigger reduction: jeśli event to CONTENT_CHANGED (mapa/UI scroll)
+        // i nie ma overlay popupu na ekranie → skip screenshot (oszczędza baterię).
+        // WINDOW_STATE_CHANGED zawsze przepuszczamy (oznacza otwarcie nowego okna).
+        if (pkg == "com.ubercab.driver" && event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+            if (!hasUberOverlayWindow()) {
+                AppLog.d(AppLog.TAG_SERVICE, "Uber: CONTENT_CHANGED but no overlay window — skipping (map/UI scroll)")
                 return
             }
         }
@@ -136,6 +155,78 @@ class CourierAccessibilityService : AccessibilityService() {
                 }
             }
         }
+    }
+
+    /**
+     * TYPE_WINDOWS_CHANGED handler — event systemowy (WindowManager).
+     * Sprawdza getWindows() czy pojawiło się okno overlay Ubera.
+     * Łapie popupy nad Samsung launcher, gdzie TYPE_WINDOW_STATE_CHANGED nie przychodzi.
+     */
+    private fun handleWindowsChanged() {
+        if (isRetrying) return
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
+
+        val uberWindowCount = countUberWindows()
+        if (uberWindowCount < 2) return // 1 okno = główna apka, 2+ = overlay popup
+
+        // Jeśli belka Ubera już widoczna — nie robimy nic
+        if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] != null) return
+
+        AppLog.d(AppLog.TAG_SERVICE, "WINDOWS_CHANGED: detected Uber overlay ($uberWindowCount windows) — triggering screenshot")
+        lastUberEventTime = System.currentTimeMillis()
+        startUberWatchIfNeeded()
+
+        val throttler = throttlers.getOrPut("com.ubercab.driver") { EventThrottler() }
+        throttler.onEvent(scope) {
+            logUberWindowDiagnostics()
+            if (isMediaProjectionAvailable()) {
+                pipeline.process("com.ubercab.driver")
+            } else {
+                processViaScreenshot("com.ubercab.driver")
+            }
+
+            // Spaced retries — popup React Native może potrzebować czasu na rendering
+            isRetrying = true
+            try {
+                for (i in 1..4) {
+                    delay(600)
+                    if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] != null) {
+                        AppLog.d(AppLog.TAG_SERVICE, "UBER: overlay shown after $i retries (WINDOWS_CHANGED) — stopping")
+                        break
+                    }
+                    AppLog.d(AppLog.TAG_SERVICE, "UBER: spaced retry $i/4 via WINDOWS_CHANGED (T+${i * 600}ms)")
+                    processViaScreenshot("com.ubercab.driver", retryIndex = i)
+                }
+            } finally {
+                isRetrying = false
+            }
+        }
+    }
+
+    /**
+     * Sprawdza ile okien Ubera jest widocznych na ekranie.
+     * 1 okno = główna apka (mapa/dashboard). 2+ okien = overlay popup zlecenia.
+     */
+    private fun countUberWindows(): Int {
+        return try {
+            windows?.count { w ->
+                val root = w.root
+                val pkg = root?.packageName?.toString()
+                root?.recycle()
+                pkg == "com.ubercab.driver"
+            } ?: 0
+        } catch (e: Exception) {
+            AppLog.w(AppLog.TAG_SERVICE, "countUberWindows error: ${e.message}")
+            0
+        }
+    }
+
+    /**
+     * Sprawdza czy na ekranie jest overlay okno Ubera (popup zlecenia).
+     * Używane do filtrowania false triggers z CONTENT_CHANGED (mapa scroll).
+     */
+    private fun hasUberOverlayWindow(): Boolean {
+        return countUberWindows() >= 2
     }
 
     /**
@@ -301,7 +392,7 @@ class CourierAccessibilityService : AccessibilityService() {
      * Uber watch mode — safety net na wypadek opóźnionych/brakujących eventów.
      * Gdy Uber generuje eventy, uruchamiamy periodic check co 2.5s.
      * Jeśli belka NIE jest widoczna → robimy screenshot.
-     * Zatrzymuje się po 15s bez eventów Ubera.
+     * Zatrzymuje się po 60s bez eventów Ubera.
      */
     private fun startUberWatchIfNeeded() {
         if (uberWatchJob?.isActive == true) return
@@ -312,7 +403,7 @@ class CourierAccessibilityService : AccessibilityService() {
             while (isActive) {
                 delay(2500)
                 val sinceLastEvent = System.currentTimeMillis() - lastUberEventTime
-                if (sinceLastEvent > 15_000) {
+                if (sinceLastEvent > 60_000) {
                     AppLog.d(AppLog.TAG_SERVICE, "Uber watch: no events for ${sinceLastEvent / 1000}s, stopping")
                     break
                 }

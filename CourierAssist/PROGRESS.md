@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-26
-**Obecny etap:** 4 krytyczne bugi naprawione po testach na Xiaomi (Wolt guard, isUserStopped, Glovo cross-contamination, Uber retry). Czeka na retest u taty.
-**Aktywne branche:** `feature/xiaomi-testing` (fixy z testów Xiaomi), `feature/multi-overlay` (tip development)
+**Ostatnia aktualizacja:** 2026-03-31
+**Obecny etap:** Fix missed Uber popup na Samsung launcher + redukcja false triggers. Czeka na build + test u taty.
+**Aktywne branche:** `claude/eager-noether` (Samsung fix), `fix-formaty` (Uber timing), `feature/multi-overlay` (tip development)
 
 ---
 
@@ -10,12 +10,10 @@
 
 | Priorytet | Zadanie | Status |
 |-----------|---------|--------|
-| **High** | Fix: WoltOcrParser guard blokował 100% ofert Wolta | ✅ Naprawione (03-26) — usunięty guard z frazami Uber |
-| **High** | Fix: isUserStopped nie resetował się po MIUI kill | ✅ Naprawione (03-26) — reset w onResume + usunięte z ScreenCaptureService |
-| **High** | Fix: GlovoOcrParser parsował popup Ubera jako partial Glovo | ✅ Naprawione (03-26) — guard "Łącznie" |
-| **High** | Fix: Uber brak retry po nieudanym screenshot | ✅ Naprawione (03-26) — retry 3s dla Ubera |
-| **High** | Retest na Xiaomi — weryfikacja 4 fixów | Czeka na build + test u taty |
-| **High** | Bolt Food — testy na prawdziwych zleceniach | ✅ 4/4 OK na Xiaomi (03-26) |
+| **High** | Fix: Uber popup nad Samsung launcher — brak accessibility eventów | ✅ Naprawione (03-31) — TYPE_WINDOWS_CHANGED + getWindows() overlay detection |
+| **High** | Fix: False triggers — 7+ screenshotów przy przeglądaniu mapy Ubera | ✅ Naprawione (03-31) — filtr CONTENT_CHANGED bez overlay okna |
+| **High** | Watch mode rozszerzony: 60s timeout (było 15s) | ✅ Naprawione (03-31) |
+| **High** | Build + test Samsung fix u taty | Czeka na build w Android Studio |
 | **High** | Merge do `feature/production-app` | Po potwierdzeniu stabilności |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
 | Low | Mruganie belki Uber jasny→ciemny | Monitorowane |
@@ -56,10 +54,13 @@
 
 ---
 
-## Ostatnie zmiany (2026-03-14 — 2026-03-26)
+## Ostatnie zmiany (2026-03-14 — 2026-03-31)
 
 | Data | Zmiana |
 |------|--------|
+| 03-31 | **Fix: Samsung missed events** — dodano `typeWindowsChanged` do accessibility config. Nowy handler `handleWindowsChanged()` sprawdza `getWindows()` czy pojawił się overlay Ubera (2+ okien = popup). Łapie popupy nad Samsung launcher gdzie `TYPE_WINDOW_STATE_CHANGED` nie przychodził |
+| 03-31 | **Fix: False triggers** — filtr `TYPE_WINDOW_CONTENT_CHANGED` z Ubera: jeśli `countUberWindows() < 2` (brak overlay popup) → skip screenshot. Eliminuje 7+ bezcelowych screenshotów przy przeglądaniu mapy |
+| 03-31 | **Watch mode 60s** — rozszerzony timeout z 15s do 60s, interwał 2.5s bez zmian. Safety net na missed/opóźnione eventy |
 | 03-26 | **Fix: WoltOcrParser** — usunięty guard z frazami Uber ("Spodziewany zarobek", "Szacowany", "Dostawa od") który blokował 100% ofert Wolta (4 zlecenia zfailowane) |
 | 03-26 | **Fix: isUserStopped** — MIUI zabijał ScreenCaptureService ustawiając flagę, monitoring stawał. Reset w MainActivity.onResume() + usunięte z ScreenCaptureService.onTaskRemoved() |
 | 03-26 | **Fix: GlovoOcrParser** — guard "Łącznie"/"Lacznie"/"Загалом" odrzuca tekst popup Ubera (zapobieganie cross-contamination) |
@@ -128,6 +129,13 @@
 |---------|-------|
 | Belka nie pojawiła się — screenshot widział Glovo dialog zamiast Ubera | Naprawione: GlovoOcrParser guard + Uber retry 3s |
 | 15s przerwy między eventami — popup może zniknąć | Naprawione: retry po 3s jeśli brak belki |
+
+### Uber Samsung (2026-03-31)
+| Problem | Wynik |
+|---------|-------|
+| Popup nad WhatsApp (13,86 zł) | Belka OK — eventy accessibility przyszły normalnie |
+| Popup nad Samsung launcher (14,98 zł) | Belka NIE — Samsung nie wysłał eventów accessibility. **Fix:** TYPE_WINDOWS_CHANGED + getWindows() overlay detection |
+| False triggers — przeglądanie mapy (22:03) | 7+ screenshotów na nic. **Fix:** filtr CONTENT_CHANGED bez overlay okna |
 
 ### Bolt Food (2026-03-22 — 2026-03-26)
 - ~~Zlecenie przyszło, belka nie zadziałała — pakiet `com.bolt.deliverycourier` nie był w supportedPackages.~~ Naprawione.
