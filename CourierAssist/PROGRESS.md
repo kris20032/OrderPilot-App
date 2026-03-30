@@ -11,7 +11,10 @@
 | Priorytet | Zadanie | Status |
 |-----------|---------|--------|
 | **High** | Fix: Uber popup nad Samsung launcher — brak accessibility eventów | ✅ Naprawione (03-31) — TYPE_WINDOWS_CHANGED + getWindows() overlay detection |
+| **High** | Fix: Overlay detection — typ okna zamiast liczby okien | ✅ Naprawione (03-31) — popup=type 3, mapa=type 1 |
 | **High** | Fix: False triggers — 7+ screenshotów przy przeglądaniu mapy Ubera | ✅ Naprawione (03-31) — filtr CONTENT_CHANGED bez overlay okna |
+| **High** | Fix: Watch mode screenshotował po obsłużonym popupie | ✅ Naprawione (03-31) — hasUberOverlayWindow() check |
+| **High** | Fix: Retries screenshotowały po przełączeniu apki | ✅ Naprawione (03-31) — overlay check w pętli retries |
 | **High** | Watch mode rozszerzony: 60s timeout (było 15s) | ✅ Naprawione (03-31) |
 | **High** | Build + test Samsung fix u taty | Czeka na build w Android Studio |
 | **High** | Merge do `feature/production-app` | Po potwierdzeniu stabilności |
@@ -58,8 +61,11 @@
 
 | Data | Zmiana |
 |------|--------|
-| 03-31 | **Fix: Samsung missed events** — dodano `typeWindowsChanged` do accessibility config. Nowy handler `handleWindowsChanged()` sprawdza `getWindows()` czy pojawił się overlay Ubera (2+ okien = popup). Łapie popupy nad Samsung launcher gdzie `TYPE_WINDOW_STATE_CHANGED` nie przychodził |
-| 03-31 | **Fix: False triggers** — filtr `TYPE_WINDOW_CONTENT_CHANGED` z Ubera: jeśli `countUberWindows() < 2` (brak overlay popup) → skip screenshot. Eliminuje 7+ bezcelowych screenshotów przy przeglądaniu mapy |
+| 03-31 | **Fix: Samsung missed events** — dodano `typeWindowsChanged` do accessibility config. Nowy handler `handleWindowsChanged()` sprawdza `getWindows()` czy pojawił się overlay Ubera. Łapie popupy nad Samsung launcher gdzie `TYPE_WINDOW_STATE_CHANGED` nie przychodził |
+| 03-31 | **Fix: Overlay detection** — sprawdzanie typu okna (popup=type 3, mapa=type 1) zamiast liczby okien. Z logów: popup nad WhatsApp = 1 okno Ubera (type=3), nie 2 |
+| 03-31 | **Fix: False triggers** — filtr `CONTENT_CHANGED` z Ubera: jeśli brak overlay okna (type!=1) → skip screenshot. Eliminuje 7+ bezcelowych screenshotów mapy |
+| 03-31 | **Fix: Watch mode** — `hasUberOverlayWindow()` check przed screenshotem. Bez tego: ~20 bezcelowych screenshotów WhatsApp/launchera po obsłużeniu popupu |
+| 03-31 | **Fix: Retries** — overlay check w pętli retries. Z logów: tata przełączył apkę, retry 3-4 screenshotowały launcher/WhatsApp zamiast Ubera |
 | 03-31 | **Watch mode 60s** — rozszerzony timeout z 15s do 60s, interwał 2.5s bez zmian. Safety net na missed/opóźnione eventy |
 | 03-26 | **Fix: WoltOcrParser** — usunięty guard z frazami Uber ("Spodziewany zarobek", "Szacowany", "Dostawa od") który blokował 100% ofert Wolta (4 zlecenia zfailowane) |
 | 03-26 | **Fix: isUserStopped** — MIUI zabijał ScreenCaptureService ustawiając flagę, monitoring stawał. Reset w MainActivity.onResume() + usunięte z ScreenCaptureService.onTaskRemoved() |
