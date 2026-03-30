@@ -1,7 +1,7 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-29
-**Obecny etap:** Fixy formatu kwot + adaptive polling Ubera na branchu `fix-formaty`. Czeka na test u taty (Uber na home screenie).
+**Ostatnia aktualizacja:** 2026-03-30
+**Obecny etap:** Uber timing fix (spaced retries + watch mode) na branchu `fix-formaty`. Czeka na test u taty.
 **Aktywne branche:** `feature/production-app` (główny), `fix-formaty` (fixy kwot + Uber timing), `feature/multi-overlay` (tip development)
 
 ---
@@ -10,7 +10,7 @@
 
 | Priorytet | Zadanie | Status |
 |-----------|---------|--------|
-| **High** | Uber belka na home screenie — adaptive polling + diagnostyka | Czeka na test u taty (03-29) |
+| **High** | Uber belka — spaced retries + watch mode (fix timing) | Czeka na test u taty (03-30) |
 | **High** | Merge `fix-formaty` → `feature/xiaomi-testing` → `feature/production-app` | Po teście |
 | **High** | Budowanie APK release do dystrybucji beta | Następny krok |
 | **High** | Znalezienie 3-5 kurierów beta testerów | W toku |
@@ -26,7 +26,7 @@
 | Branch | Cel | Status |
 |--------|-----|--------|
 | `feature/production-app` | Główny branch produkcyjny | Aktywny |
-| `fix-formaty` | Universal amount regex + adaptive Uber polling + diagnostyka | Czeka na test (03-29) |
+| `fix-formaty` | Universal amount regex + Uber spaced retries + watch mode | Czeka na test (03-30) |
 | `feature/xiaomi-testing` | 4 bugi z testów Xiaomi (Wolt/Uber/isUserStopped/Glovo) | Gotowy do merge (03-27) |
 | `feature/multi-overlay` | Multi-overlay + wszystkie fixy | Tip development |
 | `main` | Stabilna baza z POC | Zablokowany na zmiany kodu |
@@ -48,7 +48,7 @@
 
 ### Faza 1.5: Fixy z dalszych testów (teraz)
 5. ~~Universal extractAmount()~~ ✅ (03-29)
-6. Uber adaptive polling — czeka na test u taty ← **teraz**
+6. ~~Uber adaptive polling~~ → zamienione na spaced retries + watch mode (03-30) ← **czeka na test**
 7. Merge `fix-formaty` → `feature/production-app` — po teście
 
 ### Faza 2: Przygotowanie do beta testów
@@ -66,7 +66,9 @@
 
 | Data | Zmiana |
 |------|--------|
-| 03-29 | Uber: adaptive back-to-back polling (7 prób w ~2.9s zamiast 1 retry po 3s) — łapie zimny start React Native popupu |
+| 03-30 | Uber: spaced retries (delay 600ms, 4 retries pokrywające 0-2400ms) — fix errorCode=3 od back-to-back. Watch mode: periodic screenshot co 2.5s gdy Uber aktywny (safety net na opóźnione eventy) |
+| 03-30 | Diagnostyka Samsung: getWindows() logging + OCR normalizacja l/I/|→1 obok cyfr |
+| 03-29 | Uber: adaptive back-to-back polling (7 prób w ~2.9s zamiast 1 retry po 3s) — ZASTĄPIONE przez spaced retries 03-30 |
 | 03-29 | Diagnostyka: debug screenshoty do Downloads + logi retry z retryIndex, screenOn, bitmap size, cropY |
 | 03-29 | Universal extractAmount() w OcrOfferParser — 3-krokowy fallback (LICZBA+WALUTA, WALUTA+LICZBA, luźna liczba), obsługa PLN/zł/грн/₴ |
 | 03-26 | Fix: WoltOcrParser — usunięto guard fraz Uber-specyficznych (blokował 100% ofert Wolta po polsku) |
