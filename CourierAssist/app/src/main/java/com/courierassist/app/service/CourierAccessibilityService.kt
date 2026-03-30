@@ -45,6 +45,7 @@ class CourierAccessibilityService : AccessibilityService() {
     private val resultExpiryMs = 60_000L
     private var lastWindowDiagTime = 0L
     @Volatile private var lastUberEventTime = 0L
+    @Volatile private var isRetrying = false
     private var uberWatchJob: Job? = null
 
     override fun onServiceConnected() {
@@ -119,14 +120,19 @@ class CourierAccessibilityService : AccessibilityService() {
             val plat = ServiceLocator.parserRegistry.getParser(pkg)?.platform
             if ((plat == Platform.UBER || plat == Platform.WOLT) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 val maxRetries = if (plat == Platform.UBER) 4 else 2
-                for (i in 1..maxRetries) {
-                    delay(600) // 600ms odstęp — unika errorCode=3 od Androida
-                    if (ServiceLocator.overlayManager.getActiveOffers()[plat] != null) {
-                        AppLog.d(AppLog.TAG_SERVICE, "${plat.name}: overlay shown after $i retries — stopping")
-                        break
+                isRetrying = true
+                try {
+                    for (i in 1..maxRetries) {
+                        delay(600) // 600ms odstęp — unika errorCode=3 od Androida
+                        if (ServiceLocator.overlayManager.getActiveOffers()[plat] != null) {
+                            AppLog.d(AppLog.TAG_SERVICE, "${plat.name}: overlay shown after $i retries — stopping")
+                            break
+                        }
+                        AppLog.d(AppLog.TAG_SERVICE, "${plat.name}: spaced retry $i/$maxRetries (T+${i * 600}ms)")
+                        processViaScreenshot(pkg, retryIndex = i)
                     }
-                    AppLog.d(AppLog.TAG_SERVICE, "${plat.name}: spaced retry $i/$maxRetries (T+${i * 600}ms)")
-                    processViaScreenshot(pkg, retryIndex = i)
+                } finally {
+                    isRetrying = false
                 }
             }
         }
@@ -310,6 +316,8 @@ class CourierAccessibilityService : AccessibilityService() {
                     AppLog.d(AppLog.TAG_SERVICE, "Uber watch: no events for ${sinceLastEvent / 1000}s, stopping")
                     break
                 }
+                // Jeśli retries właśnie lecą — nie robimy dodatkowego screenshota (unika kolizji)
+                if (isRetrying) continue
                 // Jeśli belka Ubera jest już widoczna — nie robimy screenshota
                 if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] != null) continue
                 // Jeśli MediaProjection aktywna — użyj pipeline zamiast screenshot
