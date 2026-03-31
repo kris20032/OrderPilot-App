@@ -4,7 +4,6 @@ import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
-import android.os.Environment
 import android.os.PowerManager
 import android.view.Display
 import android.view.accessibility.AccessibilityEvent
@@ -18,11 +17,6 @@ import com.courierassist.app.domain.Offer
 import com.courierassist.app.domain.Platform
 import com.courierassist.app.pipeline.OfferDuplicateChecker
 import com.courierassist.app.pipeline.PipelineOrchestrator
-import java.io.File
-import java.io.FileOutputStream
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -346,12 +340,6 @@ class CourierAccessibilityService : AccessibilityService() {
 
             if (offer == null) {
                 AppLog.d(AppLog.TAG_SERVICE, "Screenshot: parser returned null (retry=$retryIndex)")
-                if (retryIndex == 0) {
-                    val ts = SimpleDateFormat("HHmmss", Locale.US).format(Date())
-                    saveDebugScreenshot(bitmap, "debug_full_r${retryIndex}_$ts")
-                    saveDebugScreenshot(croppedBitmap, "debug_crop_r${retryIndex}_$ts")
-                    AppLog.d(AppLog.TAG_SERVICE, "Debug screenshots saved: debug_full_r${retryIndex}_$ts.png")
-                }
                 return
             }
 
@@ -454,17 +442,6 @@ class CourierAccessibilityService : AccessibilityService() {
         }
     }
 
-    private fun saveDebugScreenshot(bitmap: Bitmap, name: String) {
-        try {
-            val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            val file = File(dir, "${name}.png")
-            FileOutputStream(file).use { out ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 80, out)
-            }
-        } catch (e: Exception) {
-            AppLog.w(AppLog.TAG_SERVICE, "Debug screenshot save failed: ${e.message}")
-        }
-    }
 
     @RequiresApi(Build.VERSION_CODES.R)
     private suspend fun takeScreenshotSuspend(): Bitmap? = suspendCancellableCoroutine { cont ->
