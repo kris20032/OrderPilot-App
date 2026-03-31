@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-30
-**Obecny etap:** Uber timing fix (spaced retries + watch mode) na branchu `fix-formaty`. Czeka na test u taty.
-**Aktywne branche:** `feature/production-app` (główny), `fix-formaty` (fixy kwot + Uber timing), `feature/multi-overlay` (tip development)
+**Ostatnia aktualizacja:** 2026-03-31
+**Obecny etap:** Samsung fix + audyt kodu (v1+v2) na branchu `fix-formaty`. Czeka na build + test u taty.
+**Aktywne branche:** `fix-formaty` (Samsung fix + audyt + Uber timing), `feature/production-app` (główny), `feature/multi-overlay` (tip development)
 
 ---
 
@@ -10,12 +10,14 @@
 
 | Priorytet | Zadanie | Status |
 |-----------|---------|--------|
-| **High** | Uber belka — spaced retries + watch mode (fix timing) | Czeka na test u taty (03-30) |
-| **High** | Merge `fix-formaty` → `feature/xiaomi-testing` → `feature/production-app` | Po teście |
+| **High** | Samsung: Uber popup nad launcher — brak eventów | ✅ Naprawione (03-31) — TYPE_WINDOWS_CHANGED + overlay detection |
+| **High** | Samsung: False triggers (7+ screenshotów mapy) | ✅ Naprawione (03-31) — filtr CONTENT_CHANGED bez overlay |
+| **High** | Audyt kodu v1 — memory leaki + crash guards | ✅ Naprawione (03-31) — 5x try-finally, isInitialized, planes guard, Glovo 50km |
+| **High** | Audyt kodu v2 — thread safety + porządki | ✅ Naprawione (03-31) — synchronized, @Volatile, PopupCropper, OfferDuplicateChecker, named constants |
+| **High** | Build + test Samsung fix + audyt u taty | Czeka na build w Android Studio |
+| **High** | Merge `fix-formaty` → `feature/production-app` | Po potwierdzeniu stabilności |
+| **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
 | **High** | Budowanie APK release do dystrybucji beta | Następny krok |
-| **High** | Znalezienie 3-5 kurierów beta testerów | W toku |
-| **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany podczas testów | Czeka na test |
-| Medium | Uber — belka pokazała 2 metryki zamiast 5 | Czekamy na logi + screeny od taty |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
 | Low | Mruganie belki Uber jasny→ciemny | Monitorowane |
 
@@ -26,8 +28,8 @@
 | Branch | Cel | Status |
 |--------|-----|--------|
 | `feature/production-app` | Główny branch produkcyjny | Aktywny |
-| `fix-formaty` | Universal amount regex + Uber spaced retries + watch mode | Czeka na test (03-30) |
-| `feature/xiaomi-testing` | 4 bugi z testów Xiaomi (Wolt/Uber/isUserStopped/Glovo) | Gotowy do merge (03-27) |
+| `fix-formaty` | Samsung fix + audyt v1+v2 + Uber timing + amount regex | Czeka na test (03-31) |
+| `feature/xiaomi-testing` | 4 bugi z testów Xiaomi (zmergowane do fix-formaty) | Zmergowany |
 | `feature/multi-overlay` | Multi-overlay + wszystkie fixy | Tip development |
 | `main` | Stabilna baza z POC | Zablokowany na zmiany kodu |
 
@@ -48,8 +50,10 @@
 
 ### Faza 1.5: Fixy z dalszych testów (teraz)
 5. ~~Universal extractAmount()~~ ✅ (03-29)
-6. ~~Uber adaptive polling~~ → zamienione na spaced retries + watch mode (03-30) ← **czeka na test**
-7. Merge `fix-formaty` → `feature/production-app` — po teście
+6. ~~Uber adaptive polling~~ → spaced retries + watch mode ✅ (03-30)
+7. ~~Samsung missed events~~ → TYPE_WINDOWS_CHANGED + false trigger filter ✅ (03-31)
+8. ~~Audyt kodu v1+v2~~ → 15 fixów (memory leaki, crash guards, thread safety, porządki) ✅ (03-31)
+9. Merge `fix-formaty` → `feature/production-app` — **po teście u taty**
 
 ### Faza 2: Przygotowanie do beta testów
 8. Budowanie APK release (signed) do dystrybucji
@@ -66,6 +70,9 @@
 
 | Data | Zmiana |
 |------|--------|
+| 03-31 | Audyt kodu v2: synchronized w ScreenCaptureService, @Volatile na uberWatchJob, PopupCropper bounds check, OfferDuplicateChecker (wspólna logika), named constants (RETRY_DELAY_MS itp.) |
+| 03-31 | Audyt kodu v1: 5x try-finally (bitmap/node recycle), pipeline.isInitialized guard, image.planes guard, Glovo distance cap 20→50km, @Volatile na EventThrottler |
+| 03-31 | Samsung fix: TYPE_WINDOWS_CHANGED (event systemowy) + overlay detection po typie okna + false trigger filter (CONTENT_CHANGED bez overlay = skip) + watch mode 60s |
 | 03-30 | Uber: spaced retries (delay 600ms, 4 retries pokrywające 0-2400ms) — fix errorCode=3 od back-to-back. Watch mode: periodic screenshot co 2.5s gdy Uber aktywny (safety net na opóźnione eventy). Wolt: 2 spaced retries (proaktywna ochrona). Flaga isRetrying zapobiega kolizji watch mode + retries. |
 | 03-30 | Diagnostyka Samsung: getWindows() logging + OCR normalizacja l/I/|→1 obok cyfr |
 | 03-29 | Uber: adaptive back-to-back polling (7 prób w ~2.9s zamiast 1 retry po 3s) — ZASTĄPIONE przez spaced retries 03-30 |
