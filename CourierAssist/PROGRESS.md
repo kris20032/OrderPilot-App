@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-03-31
-**Obecny etap:** Fix missed Uber popup na Samsung launcher + redukcja false triggers. Czeka na build + test u taty.
-**Aktywne branche:** `claude/eager-noether` (Samsung fix), `fix-formaty` (Uber timing), `feature/multi-overlay` (tip development)
+**Obecny etap:** Samsung fix + audyt kodu (memory leaki, crash guards). Czeka na build + test u taty.
+**Aktywne branche:** `fix-formaty` (Samsung fix + audyt), `feature/multi-overlay` (tip development)
 
 ---
 
@@ -16,7 +16,11 @@
 | **High** | Fix: Watch mode screenshotował po obsłużonym popupie | ✅ Naprawione (03-31) — hasUberOverlayWindow() check |
 | **High** | Fix: Retries screenshotowały po przełączeniu apki | ✅ Naprawione (03-31) — overlay check w pętli retries |
 | **High** | Watch mode rozszerzony: 60s timeout (było 15s) | ✅ Naprawione (03-31) |
-| **High** | Build + test Samsung fix u taty | Czeka na build w Android Studio |
+| **High** | Audyt kodu: memory leaki (5x try-finally) | ✅ Naprawione (03-31) — bitmap/node recycle w finally |
+| **High** | Audyt kodu: crash guards | ✅ Naprawione (03-31) — pipeline.isInitialized + image.planes check |
+| **High** | Audyt kodu: Glovo distance cap 20→50km | ✅ Naprawione (03-31) — dalekie zlecenia nie odrzucane |
+| **High** | Audyt kodu: EventThrottler @Volatile | ✅ Naprawione (03-31) — thread safety |
+| **High** | Build + test Samsung fix + audyt u taty | Czeka na build w Android Studio |
 | **High** | Merge do `feature/production-app` | Po potwierdzeniu stabilności |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
 | Low | Mruganie belki Uber jasny→ciemny | Monitorowane |
@@ -61,6 +65,7 @@
 
 | Data | Zmiana |
 |------|--------|
+| 03-31 | **Audyt kodu** — 9 fixów z przeglądu codebase: memory leaki (5x try-finally na bitmap/node recycle), crash guard (pipeline.isInitialized + image.planes.isEmpty), Glovo distance cap 20→50km, @Volatile na EventThrottler |
 | 03-31 | **Fix: Samsung missed events** — dodano `typeWindowsChanged` do accessibility config. Nowy handler `handleWindowsChanged()` sprawdza `getWindows()` czy pojawił się overlay Ubera. Łapie popupy nad Samsung launcher gdzie `TYPE_WINDOW_STATE_CHANGED` nie przychodził |
 | 03-31 | **Fix: Overlay detection** — sprawdzanie typu okna (popup=type 3, mapa=type 1) zamiast liczby okien. Z logów: popup nad WhatsApp = 1 okno Ubera (type=3), nie 2 |
 | 03-31 | **Fix: False triggers** — filtr `CONTENT_CHANGED` z Ubera: jeśli brak overlay okna (type!=1) → skip screenshot. Eliminuje 7+ bezcelowych screenshotów mapy |
