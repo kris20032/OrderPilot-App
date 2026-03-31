@@ -10,8 +10,8 @@ class EventThrottler(
     private val firstShotDelayMs: Long = 100L,
     private val cooldownMs: Long = 1500L
 ) {
-    private var lastTriggerTime = 0L
-    private var pendingJob: Job? = null
+    @Volatile private var lastTriggerTime = 0L
+    @Volatile private var pendingJob: Job? = null
 
     fun onEvent(scope: CoroutineScope, action: suspend () -> Unit) {
         val now = System.currentTimeMillis()
