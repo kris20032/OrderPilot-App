@@ -109,11 +109,13 @@ class CourierAccessibilityService : AccessibilityService() {
         }
 
         // Uber false trigger reduction: jeśli event to CONTENT_CHANGED (mapa/UI scroll)
-        // i nie ma overlay popupu na ekranie → skip screenshot (oszczędza baterię).
-        // WINDOW_STATE_CHANGED zawsze przepuszczamy (oznacza otwarcie nowego okna).
+        // i Uber NIE jest foreground i nie ma overlay popupu → skip screenshot.
+        // Gdy Uber JEST foreground: popup jest WEWNĄTRZ okna apki (type=1, nie overlay),
+        // więc hasUberOverlayWindow() zwraca false — musimy przepuścić event do throttlera.
+        // Throttler ogranicza do 1 screenshot/1.6s, parser odfiltruje mapę (zwróci null).
         if (pkg == "com.ubercab.driver" && event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
-            if (!hasUberOverlayWindow()) {
-                AppLog.d(AppLog.TAG_SERVICE, "Uber: CONTENT_CHANGED but no overlay window — skipping (map/UI scroll)")
+            if (!isUberForeground() && !hasUberOverlayWindow()) {
+                AppLog.d(AppLog.TAG_SERVICE, "Uber: CONTENT_CHANGED but no overlay window and not foreground — skipping")
                 return
             }
         }
@@ -221,6 +223,19 @@ class CourierAccessibilityService : AccessibilityService() {
      * Gdy popup jest nad inną apką, główne okno Ubera nie jest widoczne,
      * więc liczyć okna >= 2 nie działa — trzeba sprawdzać typ.
      */
+    /**
+     * Sprawdza czy Uber jest aktywną (foreground) apką na ekranie.
+     * Gdy Uber jest foreground, popup zlecenia jest renderowany WEWNĄTRZ okna apki (type=1),
+     * nie jako osobne overlay okno (type=3) — więc hasUberOverlayWindow() zwraca false.
+     */
+    private fun isUberForeground(): Boolean {
+        return try {
+            rootInActiveWindow?.packageName?.toString() == "com.ubercab.driver"
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     private fun hasUberOverlayWindow(): Boolean {
         return try {
             windows?.any { w ->
@@ -386,9 +401,10 @@ class CourierAccessibilityService : AccessibilityService() {
                 if (isRetrying) continue
                 // Jeśli belka Ubera jest już widoczna — nie robimy screenshota
                 if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] != null) continue
-                // Jeśli nie ma overlay okna Ubera na ekranie — nie ma co screenshotować
-                if (!hasUberOverlayWindow()) {
-                    AppLog.d(AppLog.TAG_SERVICE, "Uber watch: no overlay window — skipping screenshot")
+                // Jeśli Uber nie jest foreground i nie ma overlay okna — nie ma co screenshotować.
+                // Gdy Uber jest foreground, popup jest wewnątrz okna apki (nie overlay) — screenshotuj.
+                if (!isUberForeground() && !hasUberOverlayWindow()) {
+                    AppLog.d(AppLog.TAG_SERVICE, "Uber watch: no overlay window and not foreground — skipping screenshot")
                     continue
                 }
                 // Jeśli MediaProjection aktywna — użyj pipeline zamiast screenshot
