@@ -16,6 +16,7 @@ import com.courierassist.app.di.ServiceLocator
 import com.courierassist.app.domain.AnalysisResult
 import com.courierassist.app.domain.Offer
 import com.courierassist.app.domain.Platform
+import com.courierassist.app.pipeline.OfferDuplicateChecker
 import com.courierassist.app.pipeline.PipelineOrchestrator
 import java.io.File
 import java.io.FileOutputStream
@@ -34,7 +35,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
-import kotlin.math.abs
 
 class CourierAccessibilityService : AccessibilityService() {
 
@@ -47,7 +47,7 @@ class CourierAccessibilityService : AccessibilityService() {
     private var lastWindowDiagTime = 0L
     @Volatile private var lastUberEventTime = 0L
     @Volatile private var isRetrying = false
-    private var uberWatchJob: Job? = null
+    @Volatile private var uberWatchJob: Job? = null
 
     override fun onServiceConnected() {
         pipeline = ServiceLocator.pipelineOrchestrator
@@ -138,11 +138,11 @@ class CourierAccessibilityService : AccessibilityService() {
             // Early exit: jeśli belka się pokazała → stop (bez marnowania zasobów).
             val plat = ServiceLocator.parserRegistry.getParser(pkg)?.platform
             if ((plat == Platform.UBER || plat == Platform.WOLT) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                val maxRetries = if (plat == Platform.UBER) 4 else 2
+                val maxRetries = if (plat == Platform.UBER) UBER_MAX_RETRIES else WOLT_MAX_RETRIES
                 isRetrying = true
                 try {
                     for (i in 1..maxRetries) {
-                        delay(600) // 600ms odstęp — unika errorCode=3 od Androida
+                        delay(RETRY_DELAY_MS)
                         if (ServiceLocator.overlayManager.getActiveOffers()[plat] != null) {
                             AppLog.d(AppLog.TAG_SERVICE, "${plat.name}: overlay shown after $i retries — stopping")
                             break
@@ -152,7 +152,7 @@ class CourierAccessibilityService : AccessibilityService() {
                             AppLog.d(AppLog.TAG_SERVICE, "UBER: overlay window gone during retries — stopping")
                             break
                         }
-                        AppLog.d(AppLog.TAG_SERVICE, "${plat.name}: spaced retry $i/$maxRetries (T+${i * 600}ms)")
+                        AppLog.d(AppLog.TAG_SERVICE, "${plat.name}: spaced retry $i/$maxRetries (T+${i * RETRY_DELAY_MS}ms)")
                         processViaScreenshot(pkg, retryIndex = i)
                     }
                 } finally {
@@ -192,8 +192,8 @@ class CourierAccessibilityService : AccessibilityService() {
             // Spaced retries — popup React Native może potrzebować czasu na rendering
             isRetrying = true
             try {
-                for (i in 1..4) {
-                    delay(600)
+                for (i in 1..UBER_MAX_RETRIES) {
+                    delay(RETRY_DELAY_MS)
                     if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] != null) {
                         AppLog.d(AppLog.TAG_SERVICE, "UBER: overlay shown after $i retries (WINDOWS_CHANGED) — stopping")
                         break
@@ -202,7 +202,7 @@ class CourierAccessibilityService : AccessibilityService() {
                         AppLog.d(AppLog.TAG_SERVICE, "UBER: overlay window gone during retries (WINDOWS_CHANGED) — stopping")
                         break
                     }
-                    AppLog.d(AppLog.TAG_SERVICE, "UBER: spaced retry $i/4 via WINDOWS_CHANGED (T+${i * 600}ms)")
+                    AppLog.d(AppLog.TAG_SERVICE, "UBER: spaced retry $i/$UBER_MAX_RETRIES via WINDOWS_CHANGED (T+${i * RETRY_DELAY_MS}ms)")
                     processViaScreenshot("com.ubercab.driver", retryIndex = i)
                 }
             } finally {
@@ -254,35 +254,6 @@ class CourierAccessibilityService : AccessibilityService() {
         return false
     }
 
-    /**
-     * Cross-platform duplicate check z tolerancją.
-     * Jeśli inna platforma już wyświetla belkę z podobnymi danymi (±1 min, ±0.5 km),
-     * to prawdopodobnie OCR przeczytał cudzą belkę/ekran → skip.
-     * Dotyczy TYLKO aktualizacji (gdy belka dla tej platformy już istnieje).
-     */
-    private fun isCrossPlatformDuplicate(offer: Offer): Boolean {
-        val activeOffers = ServiceLocator.overlayManager.getActiveOffers()
-
-        // Sprawdź czy INNA platforma ma już belkę z takimi samymi danymi (contamination)
-        for ((otherPlatform, otherOffer) in activeOffers) {
-            if (otherPlatform == offer.platform) continue
-
-            val minutesClose = abs(offer.estimatedMinutes - otherOffer.estimatedMinutes) <= 1
-            val distanceClose = if (offer.distanceKm != null && otherOffer.distanceKm != null) {
-                abs(offer.distanceKm - otherOffer.distanceKm) <= 0.5
-            } else {
-                // Jeśli brak dystansu — porównaj kwotę z tolerancją
-                abs(offer.amount - otherOffer.amount) < 0.5
-            }
-
-            if (minutesClose && distanceClose) {
-                AppLog.d(AppLog.TAG_SERVICE, "Cross-platform duplicate: ${offer.platform} data matches ${otherPlatform} bar (${offer.estimatedMinutes}min/${offer.distanceKm}km ≈ ${otherOffer.estimatedMinutes}min/${otherOffer.distanceKm}km) — skipping")
-                return true
-            }
-        }
-        return false
-    }
-
     private suspend fun processViaAccessibilityTree(packageName: String) {
         try {
             val root = rootInActiveWindow ?: run {
@@ -308,7 +279,7 @@ class CourierAccessibilityService : AccessibilityService() {
             if (!ServiceLocator.offerFilter.passes(offer, settings.filtersFor(offer.platform))) return
 
             // Cross-platform duplicate check
-            if (isCrossPlatformDuplicate(offer)) return
+            if (OfferDuplicateChecker.isCrossPlatformDuplicate(offer, ServiceLocator.overlayManager.getActiveOffers())) return
 
             val result = ServiceLocator.offerAnalyzer.analyze(offer, settings.thresholdsFor(offer.platform))
             AppLog.d(AppLog.TAG_SERVICE, "Tree result ($packageName): zlPerHour=${result.zlPerHour} zlPerKm=${result.zlPerKm} → ${result.level}")
@@ -334,7 +305,7 @@ class CourierAccessibilityService : AccessibilityService() {
         try {
             val screenOn = (getSystemService(POWER_SERVICE) as? PowerManager)?.isInteractive ?: true
             AppLog.d(AppLog.TAG_SERVICE, "Taking screenshot via AccessibilityService API (retry=$retryIndex, screenOn=$screenOn)")
-            val bitmap = withTimeoutOrNull(3000L) { takeScreenshotSuspend() } ?: run {
+            val bitmap = withTimeoutOrNull(SCREENSHOT_TIMEOUT_MS) { takeScreenshotSuspend() } ?: run {
                 AppLog.w(AppLog.TAG_SERVICE, "Screenshot returned null or timed out (retry=$retryIndex)")
                 return
             }
@@ -342,7 +313,7 @@ class CourierAccessibilityService : AccessibilityService() {
             AppLog.d(AppLog.TAG_SERVICE, "Screenshot bitmap: ${bitmap.width}x${bitmap.height} (retry=$retryIndex)")
 
             // Crop dolne 60% — belka jest na górze, popup zlecenia na dole
-            val startY = (bitmap.height * 0.4f).toInt()
+            val startY = (bitmap.height * CROP_TOP_RATIO).toInt()
             val croppedBitmap = Bitmap.createBitmap(bitmap, 0, startY, bitmap.width, bitmap.height - startY)
 
             val lines = ServiceLocator.ocrEngine.recognize(croppedBitmap)
@@ -376,7 +347,7 @@ class CourierAccessibilityService : AccessibilityService() {
             if (!ServiceLocator.offerFilter.passes(offer, settings.filtersFor(offer.platform))) return
 
             // Cross-platform duplicate check
-            if (isCrossPlatformDuplicate(offer)) return
+            if (OfferDuplicateChecker.isCrossPlatformDuplicate(offer, ServiceLocator.overlayManager.getActiveOffers())) return
 
             val result = ServiceLocator.offerAnalyzer.analyze(offer, settings.thresholdsFor(offer.platform))
             AppLog.d(AppLog.TAG_SERVICE, "Screenshot result: ${result.zlPerHour} zł/h → ${result.level} (retry=$retryIndex)")
@@ -405,9 +376,9 @@ class CourierAccessibilityService : AccessibilityService() {
         uberWatchJob = scope.launch {
             AppLog.d(AppLog.TAG_SERVICE, "Uber watch: started")
             while (isActive) {
-                delay(2500)
+                delay(WATCH_INTERVAL_MS)
                 val sinceLastEvent = System.currentTimeMillis() - lastUberEventTime
-                if (sinceLastEvent > 60_000) {
+                if (sinceLastEvent > WATCH_TIMEOUT_MS) {
                     AppLog.d(AppLog.TAG_SERVICE, "Uber watch: no events for ${sinceLastEvent / 1000}s, stopping")
                     break
                 }
@@ -441,7 +412,7 @@ class CourierAccessibilityService : AccessibilityService() {
      */
     private fun logUberWindowDiagnostics() {
         val now = System.currentTimeMillis()
-        if (now - lastWindowDiagTime < 10_000L) return
+        if (now - lastWindowDiagTime < DIAG_THROTTLE_MS) return
         lastWindowDiagTime = now
 
         try {
@@ -526,6 +497,16 @@ class CourierAccessibilityService : AccessibilityService() {
 
         private val watchedPackages: Set<String>
             get() = ServiceLocator.parserRegistry.getAllWatchedPackages()
+
+        // Timing constants
+        private const val RETRY_DELAY_MS = 600L        // odstęp między retryami — unika errorCode=3 (Android rate-limit)
+        private const val WATCH_INTERVAL_MS = 2500L    // periodic check co 2.5s
+        private const val WATCH_TIMEOUT_MS = 60_000L   // watch mode wyłącza się po 60s bez eventów
+        private const val SCREENSHOT_TIMEOUT_MS = 3000L // timeout na takeScreenshot()
+        private const val DIAG_THROTTLE_MS = 10_000L   // diagnostyka okien max raz na 10s
+        private const val UBER_MAX_RETRIES = 4         // Uber React Native: wolny rendering
+        private const val WOLT_MAX_RETRIES = 2          // Wolt natywne UI: szybki rendering
+        private const val CROP_TOP_RATIO = 0.4f         // crop dolne 60% screenshota
 
         /** Paczki kurierskie — blokujemy screenshot tylko gdy foreground to INNA z tych apek */
         private val courierPackages = setOf(
