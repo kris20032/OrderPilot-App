@@ -80,7 +80,7 @@ class GlovoOcrParser : OcrOfferParser {
         // Pickup i delivery to krótkie trasy, dystanse z mapy bywają większe
         val distances = distanceRegex.findAll(text)
             .mapNotNull { it.groupValues[1].toDoubleLocale() }
-            .filter { it > 0 && it < 20 }
+            .filter { it > 0 && it < 50 }
             .sorted()
             .toList()
 

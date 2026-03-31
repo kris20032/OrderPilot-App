@@ -59,8 +59,12 @@ class PipelineOrchestrator(
             val cropped = popupCropper.crop(screenshot)
             screenshot.recycle()
 
-            val ocrLines = ocrEngine.recognize(cropped)
-            cropped.recycle()
+            val ocrLines: List<String>
+            try {
+                ocrLines = ocrEngine.recognize(cropped)
+            } finally {
+                cropped.recycle()
+            }
             val tOcr = System.currentTimeMillis()
             AppLog.d(AppLog.TAG_PIPELINE, "OCR done [${tOcr - tCapture}ms, total ${tOcr - t0}ms]")
             if (ocrLines.isEmpty()) {

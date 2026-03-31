@@ -224,8 +224,7 @@ class CourierAccessibilityService : AccessibilityService() {
         return try {
             windows?.any { w ->
                 val root = w.root
-                val pkg = root?.packageName?.toString()
-                root?.recycle()
+                val pkg = try { root?.packageName?.toString() } finally { root?.recycle() }
                 pkg == "com.ubercab.driver" && w.type != AccessibilityWindowInfo.TYPE_APPLICATION
             } ?: false
         } catch (e: Exception) {
@@ -450,14 +449,15 @@ class CourierAccessibilityService : AccessibilityService() {
             AppLog.d(AppLog.TAG_SERVICE, "=== Uber Window Diagnostics (${allWindows.size} windows) ===")
             for ((i, w) in allWindows.withIndex()) {
                 val root = w.root
-                val pkg = root?.packageName?.toString() ?: "null"
-                AppLog.d(AppLog.TAG_SERVICE, "  Window[$i]: type=${w.type}, layer=${w.layer}, pkg=$pkg")
-                if (root != null && pkg == "com.ubercab.driver") {
-                    val text = AccessibilityTextCollector.collectText(root)
-                    val preview = text.take(300).replace("\n", " | ")
-                    AppLog.d(AppLog.TAG_SERVICE, "  Window[$i] Uber text: $preview")
-                    root.recycle()
-                } else {
+                try {
+                    val pkg = root?.packageName?.toString() ?: "null"
+                    AppLog.d(AppLog.TAG_SERVICE, "  Window[$i]: type=${w.type}, layer=${w.layer}, pkg=$pkg")
+                    if (root != null && pkg == "com.ubercab.driver") {
+                        val text = AccessibilityTextCollector.collectText(root)
+                        val preview = text.take(300).replace("\n", " | ")
+                        AppLog.d(AppLog.TAG_SERVICE, "  Window[$i] Uber text: $preview")
+                    }
+                } finally {
                     root?.recycle()
                 }
             }

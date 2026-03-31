@@ -23,8 +23,11 @@ object AccessibilityTextCollector {
         }
         for (i in 0 until node.childCount) {
             node.getChild(i)?.let { child ->
-                traverseNode(child, sb, depth + 1)
-                child.recycle()
+                try {
+                    traverseNode(child, sb, depth + 1)
+                } finally {
+                    child.recycle()
+                }
             }
         }
     }

@@ -128,6 +128,10 @@ class ScreenCaptureService : Service() {
             return@withContext null
         }
         try {
+            if (image.planes.isEmpty()) {
+                AppLog.w(AppLog.TAG_CAPTURE, "image.planes is empty")
+                return@withContext null
+            }
             val plane = image.planes[0]
             val rowPadding = plane.rowStride - plane.pixelStride * image.width
 
