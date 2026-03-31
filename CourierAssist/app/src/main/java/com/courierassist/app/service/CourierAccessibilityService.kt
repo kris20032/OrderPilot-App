@@ -57,6 +57,7 @@ class CourierAccessibilityService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         event ?: return
+        if (!::pipeline.isInitialized) return // event przed onServiceConnected()
         if (isUserStopped) return
 
         // TYPE_WINDOWS_CHANGED = event SYSTEMOWY (WindowManager) — nowe okno pojawiło się/zniknęło.
@@ -261,8 +262,12 @@ class CourierAccessibilityService : AccessibilityService() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) processViaScreenshot(packageName)
                 return
             }
-            val text = AccessibilityTextCollector.collectText(root)
-            root.recycle()
+            val text: String
+            try {
+                text = AccessibilityTextCollector.collectText(root)
+            } finally {
+                root.recycle()
+            }
             AppLog.d(AppLog.TAG_SERVICE, "Tree text ($packageName): ${text.take(200)}")
 
             val lines = text.lines().filter { it.isNotBlank() }
@@ -302,10 +307,12 @@ class CourierAccessibilityService : AccessibilityService() {
 
     @RequiresApi(Build.VERSION_CODES.R)
     private suspend fun processViaScreenshot(packageName: String, retryIndex: Int = 0) {
+        var bitmap: Bitmap? = null
+        var croppedBitmap: Bitmap? = null
         try {
             val screenOn = (getSystemService(POWER_SERVICE) as? PowerManager)?.isInteractive ?: true
             AppLog.d(AppLog.TAG_SERVICE, "Taking screenshot via AccessibilityService API (retry=$retryIndex, screenOn=$screenOn)")
-            val bitmap = withTimeoutOrNull(SCREENSHOT_TIMEOUT_MS) { takeScreenshotSuspend() } ?: run {
+            bitmap = withTimeoutOrNull(SCREENSHOT_TIMEOUT_MS) { takeScreenshotSuspend() } ?: run {
                 AppLog.w(AppLog.TAG_SERVICE, "Screenshot returned null or timed out (retry=$retryIndex)")
                 return
             }
@@ -314,34 +321,24 @@ class CourierAccessibilityService : AccessibilityService() {
 
             // Crop dolne 60% — belka jest na górze, popup zlecenia na dole
             val startY = (bitmap.height * CROP_TOP_RATIO).toInt()
-            val croppedBitmap = Bitmap.createBitmap(bitmap, 0, startY, bitmap.width, bitmap.height - startY)
+            croppedBitmap = Bitmap.createBitmap(bitmap, 0, startY, bitmap.width, bitmap.height - startY)
 
             val lines = ServiceLocator.ocrEngine.recognize(croppedBitmap)
             AppLog.d(AppLog.TAG_SERVICE, "Screenshot OCR: ${lines.size} lines → ${lines.take(3)} (retry=$retryIndex)")
 
-            val parser = ServiceLocator.parserRegistry.getParser(packageName) ?: run {
-                bitmap.recycle()
-                croppedBitmap.recycle()
-                return
-            }
+            val parser = ServiceLocator.parserRegistry.getParser(packageName) ?: return
             val offer = parser.parse(lines)
 
             if (offer == null) {
                 AppLog.d(AppLog.TAG_SERVICE, "Screenshot: parser returned null (retry=$retryIndex)")
-                // Debug: zapisz screenshot gdy parser nie rozpoznał oferty (tylko retry 0 — pierwszy w batchu)
                 if (retryIndex == 0) {
                     val ts = SimpleDateFormat("HHmmss", Locale.US).format(Date())
                     saveDebugScreenshot(bitmap, "debug_full_r${retryIndex}_$ts")
                     saveDebugScreenshot(croppedBitmap, "debug_crop_r${retryIndex}_$ts")
                     AppLog.d(AppLog.TAG_SERVICE, "Debug screenshots saved: debug_full_r${retryIndex}_$ts.png")
                 }
-                bitmap.recycle()
-                croppedBitmap.recycle()
                 return
             }
-
-            bitmap.recycle()
-            croppedBitmap.recycle()
 
             val settings = ServiceLocator.settingsRepository.load()
             if (!ServiceLocator.offerFilter.passes(offer, settings.filtersFor(offer.platform))) return
@@ -360,6 +357,9 @@ class CourierAccessibilityService : AccessibilityService() {
             }
         } catch (e: Exception) {
             AppLog.w(AppLog.TAG_SERVICE, "Screenshot fallback error (retry=$retryIndex): ${e.message}")
+        } finally {
+            bitmap?.recycle()
+            croppedBitmap?.recycle()
         }
     }
 
