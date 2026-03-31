@@ -19,7 +19,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.math.abs
 
 class PipelineOrchestrator(
     private val captureService: () -> ScreenCaptureService?,
@@ -88,7 +87,7 @@ class PipelineOrchestrator(
             }
 
             // Cross-platform duplicate check
-            if (isCrossPlatformDuplicate(offer)) return@launch
+            if (OfferDuplicateChecker.isCrossPlatformDuplicate(offer, overlayManager.getActiveOffers())) return@launch
 
             val result = offerAnalyzer.analyze(offer, settings.thresholdsFor(offer.platform))
             val tTotal = System.currentTimeMillis()
@@ -121,25 +120,6 @@ class PipelineOrchestrator(
 
         lastResults[platform] = result
         lastResultTimes[platform] = now
-        return false
-    }
-
-    private fun isCrossPlatformDuplicate(offer: com.courierassist.app.domain.Offer): Boolean {
-        val activeOffers = overlayManager.getActiveOffers()
-
-        for ((otherPlatform, otherOffer) in activeOffers) {
-            if (otherPlatform == offer.platform) continue
-            val minutesClose = abs(offer.estimatedMinutes - otherOffer.estimatedMinutes) <= 1
-            val distanceClose = if (offer.distanceKm != null && otherOffer.distanceKm != null) {
-                abs(offer.distanceKm - otherOffer.distanceKm) <= 0.5
-            } else {
-                abs(offer.amount - otherOffer.amount) < 0.5
-            }
-            if (minutesClose && distanceClose) {
-                AppLog.d(AppLog.TAG_PIPELINE, "Cross-platform duplicate: ${offer.platform} data matches ${otherPlatform} bar — skipping")
-                return true
-            }
-        }
         return false
     }
 
