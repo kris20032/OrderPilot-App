@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-03-31
-**Obecny etap:** Samsung fix + audyt kodu (memory leaki, crash guards). Czeka na build + test u taty.
-**Aktywne branche:** `fix-formaty` (Samsung fix + audyt), `feature/multi-overlay` (tip development)
+**Obecny etap:** Fix Uber foreground popup + Samsung fix + audyt kodu. Czeka na build + test u taty.
+**Aktywne branche:** `fix-formaty` (Samsung fix + Uber foreground fix + audyt), `feature/multi-overlay` (tip development)
 
 ---
 
@@ -25,6 +25,7 @@
 | Medium | Hardening: PopupCropper bounds check | ✅ Naprawione (03-31) — ochrona przed crashem |
 | Medium | Refactor: OfferDuplicateChecker | ✅ Naprawione (03-31) — usunięcie duplikacji kodu |
 | Low | Refactor: named constants | ✅ Naprawione (03-31) — 8 magicznych liczb → czytelne stałe |
+| **High** | Fix: Uber popup niewykrywany gdy Uber jest foreground | ✅ Naprawione (03-31) — isUberForeground() bypass dla CONTENT_CHANGED + watch mode |
 | **High** | Build + test Samsung fix + audyt u taty | Czeka na build w Android Studio |
 | **High** | Merge do `feature/production-app` | Po potwierdzeniu stabilności |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
@@ -70,6 +71,7 @@
 
 | Data | Zmiana |
 |------|--------|
+| 03-31 | **Fix: Uber foreground popup** — gdy Uber jest na pierwszym planie, popup jest wewnątrz okna apki (type=1, nie overlay). `isUberForeground()` bypass przepuszcza eventy do throttlera bez wymogu overlay window |
 | 03-31 | **Audyt kodu v2** — 6 dodatkowych fixów: synchronized w ScreenCaptureService, @Volatile uberWatchJob, PopupCropper bounds check, OfferDuplicateChecker (usunięcie duplikacji kodu), named constants (8 magicznych liczb → stałe) |
 | 03-31 | **Audyt kodu v1** — 9 fixów z przeglądu codebase: memory leaki (5x try-finally na bitmap/node recycle), crash guard (pipeline.isInitialized + image.planes.isEmpty), Glovo distance cap 20→50km, @Volatile na EventThrottler |
 | 03-31 | **Fix: Samsung missed events** — dodano `typeWindowsChanged` do accessibility config. Nowy handler `handleWindowsChanged()` sprawdza `getWindows()` czy pojawił się overlay Ubera. Łapie popupy nad Samsung launcher gdzie `TYPE_WINDOW_STATE_CHANGED` nie przychodził |
@@ -152,6 +154,7 @@
 |---------|-------|
 | Popup nad WhatsApp (13,86 zł) | Belka OK — eventy accessibility przyszły normalnie |
 | Popup nad Samsung launcher (14,98 zł) | Belka NIE — Samsung nie wysłał eventów accessibility. **Fix:** TYPE_WINDOWS_CHANGED + getWindows() overlay detection |
+| Popup gdy Uber jest foreground (13,63 zł) | Belka NIE przez 16s — popup wewnątrz okna apki (type=1, nie overlay). **Fix:** isUberForeground() bypass |
 | False triggers — przeglądanie mapy (22:03) | 7+ screenshotów na nic. **Fix:** filtr CONTENT_CHANGED bez overlay okna |
 
 ### Bolt Food (2026-03-22 — 2026-03-26)
