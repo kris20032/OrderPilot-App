@@ -20,6 +20,11 @@
 | **High** | Audyt kodu: crash guards | ✅ Naprawione (03-31) — pipeline.isInitialized + image.planes check |
 | **High** | Audyt kodu: Glovo distance cap 20→50km | ✅ Naprawione (03-31) — dalekie zlecenia nie odrzucane |
 | **High** | Audyt kodu: EventThrottler @Volatile | ✅ Naprawione (03-31) — thread safety |
+| Medium | Hardening: synchronized ScreenCaptureService | ✅ Naprawione (03-31) — ochrona przed podwójnym setup |
+| Medium | Hardening: @Volatile uberWatchJob | ✅ Naprawione (03-31) — thread safety |
+| Medium | Hardening: PopupCropper bounds check | ✅ Naprawione (03-31) — ochrona przed crashem |
+| Medium | Refactor: OfferDuplicateChecker | ✅ Naprawione (03-31) — usunięcie duplikacji kodu |
+| Low | Refactor: named constants | ✅ Naprawione (03-31) — 8 magicznych liczb → czytelne stałe |
 | **High** | Build + test Samsung fix + audyt u taty | Czeka na build w Android Studio |
 | **High** | Merge do `feature/production-app` | Po potwierdzeniu stabilności |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
@@ -65,7 +70,8 @@
 
 | Data | Zmiana |
 |------|--------|
-| 03-31 | **Audyt kodu** — 9 fixów z przeglądu codebase: memory leaki (5x try-finally na bitmap/node recycle), crash guard (pipeline.isInitialized + image.planes.isEmpty), Glovo distance cap 20→50km, @Volatile na EventThrottler |
+| 03-31 | **Audyt kodu v2** — 6 dodatkowych fixów: synchronized w ScreenCaptureService, @Volatile uberWatchJob, PopupCropper bounds check, OfferDuplicateChecker (usunięcie duplikacji kodu), named constants (8 magicznych liczb → stałe) |
+| 03-31 | **Audyt kodu v1** — 9 fixów z przeglądu codebase: memory leaki (5x try-finally na bitmap/node recycle), crash guard (pipeline.isInitialized + image.planes.isEmpty), Glovo distance cap 20→50km, @Volatile na EventThrottler |
 | 03-31 | **Fix: Samsung missed events** — dodano `typeWindowsChanged` do accessibility config. Nowy handler `handleWindowsChanged()` sprawdza `getWindows()` czy pojawił się overlay Ubera. Łapie popupy nad Samsung launcher gdzie `TYPE_WINDOW_STATE_CHANGED` nie przychodził |
 | 03-31 | **Fix: Overlay detection** — sprawdzanie typu okna (popup=type 3, mapa=type 1) zamiast liczby okien. Z logów: popup nad WhatsApp = 1 okno Ubera (type=3), nie 2 |
 | 03-31 | **Fix: False triggers** — filtr `CONTENT_CHANGED` z Ubera: jeśli brak overlay okna (type!=1) → skip screenshot. Eliminuje 7+ bezcelowych screenshotów mapy |
