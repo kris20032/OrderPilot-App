@@ -42,6 +42,7 @@ class CourierAccessibilityService : AccessibilityService() {
     @Volatile private var lastUberEventTime = 0L
     @Volatile private var isRetrying = false
     @Volatile private var uberWatchJob: Job? = null
+    @Volatile private var hadUberOverlayWindow = false
 
     override fun onServiceConnected() {
         pipeline = ServiceLocator.pipelineOrchestrator
@@ -168,7 +169,14 @@ class CourierAccessibilityService : AccessibilityService() {
         if (isRetrying) return
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
 
-        if (!hasUberOverlayWindow()) return // brak overlay okna Ubera
+        // State transition: triggeruj TYLKO gdy overlay jest NOWY (nie było go wcześniej).
+        // Na Xiaomi Uber trzyma stały pusty overlay (type=3) — bez tego checku
+        // każdy WINDOWS_CHANGED (np. od Wolta) triggerowałby fałszywy screenshot.
+        // Na Samsungu overlay pojawia się TYLKO z popupem → transition false→true → trigger.
+        val hasOverlay = hasUberOverlayWindow()
+        val isNewOverlay = !hadUberOverlayWindow && hasOverlay
+        hadUberOverlayWindow = hasOverlay // aktualizuj ZAWSZE — śledzi zniknięcie overlay
+        if (!isNewOverlay) return
 
         // Jeśli belka Ubera już widoczna — nie robimy nic
         if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] != null) return

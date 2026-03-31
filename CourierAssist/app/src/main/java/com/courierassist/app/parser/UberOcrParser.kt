@@ -16,8 +16,26 @@ class UberOcrParser : OcrOfferParser {
     // Dystans: "(1.0 km)", "1,5 km" — wymaga spacji/nawias/minus przed liczbą
     private val distanceRegex = Regex("""[\s\u00A0(-](\d+[.,]\d+)[\s\u00A0]*(?:km|км)""", RegexOption.IGNORE_CASE)
 
+    // Frazy specyficzne dla Wolta/Bolta — Uber nigdy ich nie używa.
+    // Defense in depth: nawet jeśli screenshot z popupem innej platformy
+    // dotrze do tego parsera, zwróci null zamiast fałszywej oferty.
+    private val rivalPlatformMarkers = listOf(
+        // Wolt PL/EN/UK
+        "Odbiór za", "Pickup in", "Забери через",
+        "Spodziewany zarobek", "Expected earnings", "Очікуваний заробіток",
+        "Dostawa od", "Delivery from", "Доставка від",
+        // Bolt PL/EN
+        "Potwierdź odbiór", "Confirm pickup"
+    )
+
     override fun parse(ocrLines: List<String>): Offer? {
         val text = ocrLines.joinToString(" ")
+
+        // Guard: odrzuć tekst z UI innej platformy kurierskiej
+        rivalPlatformMarkers.firstOrNull { text.contains(it, ignoreCase = true) }?.let { marker ->
+            AppLog.d(AppLog.TAG_PARSER, "Uber: skipping — rival platform text detected ('$marker')")
+            return null
+        }
 
         // Kwota — wspólna logika z fallbackiem
         val (rawAmount, parsedAmount) = OcrOfferParser.extractAmount(text) ?: run {
