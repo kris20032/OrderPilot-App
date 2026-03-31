@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-31
-**Obecny etap:** Fix Uber foreground popup + Samsung fix + audyt kodu. Czeka na build + test u taty.
-**Aktywne branche:** `fix-formaty` (Samsung fix + Uber foreground fix + audyt), `feature/multi-overlay` (tip development)
+**Ostatnia aktualizacja:** 2026-04-01
+**Obecny etap:** Fix fałszywej belki Ubera na Xiaomi (persistent overlay). Samsung OK, Xiaomi OK z Boltem, Wolt/Bolt triggerowały fałszywą belkę Ubera. Czeka na build + test.
+**Aktywne branche:** `fix-formaty` (Samsung fix + Xiaomi phantom overlay fix + audyt), `feature/multi-overlay` (tip development)
 
 ---
 
@@ -26,7 +26,8 @@
 | Medium | Refactor: OfferDuplicateChecker | ✅ Naprawione (03-31) — usunięcie duplikacji kodu |
 | Low | Refactor: named constants | ✅ Naprawione (03-31) — 8 magicznych liczb → czytelne stałe |
 | **High** | Fix: Uber popup niewykrywany gdy Uber jest foreground | ✅ Naprawione (03-31) — isUberForeground() bypass dla CONTENT_CHANGED + watch mode |
-| **High** | Build + test Samsung fix + audyt u taty | Czeka na build w Android Studio |
+| **High** | Fix: Fałszywa belka Ubera na Xiaomi (persistent overlay) | ✅ Naprawione (04-01) — state transition w handleWindowsChanged() + guard w UberOcrParser |
+| **High** | Build + test Samsung fix + Xiaomi fix u taty | Czeka na build w Android Studio |
 | **High** | Merge do `feature/production-app` | Po potwierdzeniu stabilności |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
 | Low | Mruganie belki Uber jasny→ciemny | Monitorowane |
@@ -71,6 +72,7 @@
 
 | Data | Zmiana |
 |------|--------|
+| 04-01 | **Fix: Fałszywa belka Ubera na Xiaomi** — Uber trzyma stały pusty overlay (type=3) na Xiaomi. WINDOWS_CHANGED triggerował fałszywy screenshot → UberOcrParser parsował popup Wolta/Bolta jako Uber. Fix: state transition (trigger TYLKO na nowy overlay) + guard w UberOcrParser (odrzuca frazy Wolta/Bolta) |
 | 03-31 | **Fix: Uber foreground popup** — gdy Uber jest na pierwszym planie, popup jest wewnątrz okna apki (type=1, nie overlay). `isUberForeground()` bypass przepuszcza eventy do throttlera bez wymogu overlay window |
 | 03-31 | **Audyt kodu v2** — 6 dodatkowych fixów: synchronized w ScreenCaptureService, @Volatile uberWatchJob, PopupCropper bounds check, OfferDuplicateChecker (usunięcie duplikacji kodu), named constants (8 magicznych liczb → stałe) |
 | 03-31 | **Audyt kodu v1** — 9 fixów z przeglądu codebase: memory leaki (5x try-finally na bitmap/node recycle), crash guard (pipeline.isInitialized + image.planes.isEmpty), Glovo distance cap 20→50km, @Volatile na EventThrottler |
@@ -156,6 +158,14 @@
 | Popup nad Samsung launcher (14,98 zł) | Belka NIE — Samsung nie wysłał eventów accessibility. **Fix:** TYPE_WINDOWS_CHANGED + getWindows() overlay detection |
 | Popup gdy Uber jest foreground (13,63 zł) | Belka NIE przez 16s — popup wewnątrz okna apki (type=1, nie overlay). **Fix:** isUberForeground() bypass |
 | False triggers — przeglądanie mapy (22:03) | 7+ screenshotów na nic. **Fix:** filtr CONTENT_CHANGED bez overlay okna |
+
+### Xiaomi — Samsung fix + Uber foreground fix (2026-03-31)
+| Problem | Wynik |
+|---------|-------|
+| Samsung: belka działa prawidłowo | ✅ Kilka zleceń z Ubera i innych apek — belka za każdym razem OK |
+| Xiaomi: Wolt zlecenie → fałszywa belka Ubera | ❌→✅ Persistent overlay Ubera (type=3) triggerował screenshot. Fix: state transition + parser guard |
+| Xiaomi: Bolt zlecenie → fałszywa belka Ubera | ❌→✅ Ten sam problem. Fix jw. |
+| Xiaomi: Uber zlecenie → belka prawidłowa | ✅ Uber działa poprawnie przez CONTENT_CHANGED |
 
 ### Bolt Food (2026-03-22 — 2026-03-26)
 - ~~Zlecenie przyszło, belka nie zadziałała — pakiet `com.bolt.deliverycourier` nie był w supportedPackages.~~ Naprawione.
