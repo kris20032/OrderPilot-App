@@ -22,14 +22,14 @@ class WoltOcrParser : OcrOfferParser {
     // Dystans: "1.7 km", "4.1 km" lub "5 km" (OCR czasem gubi część dziesiętną)
     private val distanceRegex = Regex("""(\d+(?:[.,]\d+)?)[\s\u00A0]*(?:km|км)""", RegexOption.IGNORE_CASE)
 
-    // Frazy specyficzne dla Ubera — Wolt nigdy ich nie używa.
+    // Frazy specyficzne dla Ubera/Bolta — Wolt nigdy ich nie używa.
     private val rivalPlatformMarkers = listOf(
         // Uber PL/EN/UK
         "Łącznie", "Lacznie", "Загалом",
         "Dostawa ·", "Delivery ·",
         "Jesteś w trybie online", "You're online",
-        // Bolt EN
-        "Looking for orders", "Go offline"
+        // Bolt offer popup / idle
+        "Decline", "Show map", "Looking for orders", "Go offline"
     )
 
     override fun parse(ocrLines: List<String>): Offer? {

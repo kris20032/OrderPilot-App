@@ -95,12 +95,9 @@ class CourierAccessibilityService : AccessibilityService() {
         // więc eventów z Ubera NIGDY nie skipujemy — popup jest zawsze widoczny.
         // Skipujemy TYLKO eventy z Wolta gdy foreground to inna apka kurierska,
         // bo Wolt generuje "szum" (eventy 2048) bez widocznego popupu.
-        if (pkg != "com.ubercab.driver") {
-            val activePackage = rootInActiveWindow?.packageName?.toString()
-            if (activePackage != null && activePackage != pkg && activePackage in courierPackages) {
-                AppLog.d(AppLog.TAG_SERVICE, "Skipping screenshot for $pkg — foreground is rival platform $activePackage")
-                return
-            }
+        if (isRivalInForeground(pkg)) {
+            AppLog.d(AppLog.TAG_SERVICE, "Skipping screenshot for $pkg — rival platform in foreground")
+            return
         }
 
         // Uber false trigger reduction: jeśli event to CONTENT_CHANGED (mapa/UI scroll)
@@ -117,6 +114,12 @@ class CourierAccessibilityService : AccessibilityService() {
 
         // Primary: MediaProjection pipeline (jeśli aktywna) + Fallback: takeScreenshot (API 30+)
         throttler.onEvent(scope) {
+            // Context validation: rival mógł wejść na foreground podczas throttle delay (100ms)
+            if (isRivalInForeground(pkg)) {
+                AppLog.d(AppLog.TAG_SERVICE, "$pkg: rival in foreground after throttle — aborting pipeline")
+                return@onEvent
+            }
+
             // Diagnostyka: loguj okna Ubera gdy user jest w apce (throttle 10s)
             if (pkg == "com.ubercab.driver") {
                 logUberWindowDiagnostics()
@@ -143,6 +146,11 @@ class CourierAccessibilityService : AccessibilityService() {
                         delay(RETRY_DELAY_MS)
                         if (ServiceLocator.overlayManager.getActiveOffers()[plat] != null) {
                             AppLog.d(AppLog.TAG_SERVICE, "${plat.name}: overlay shown after $i retries — stopping")
+                            break
+                        }
+                        // Context validation: rival mógł wejść na foreground między retryami
+                        if (isRivalInForeground(pkg)) {
+                            AppLog.d(AppLog.TAG_SERVICE, "${plat.name}: rival in foreground during retry $i — stopping")
                             break
                         }
                         // Uber: sprawdź czy overlay okno nadal istnieje (user mógł przełączyć apkę)
@@ -236,6 +244,19 @@ class CourierAccessibilityService : AccessibilityService() {
         } catch (e: Exception) {
             false
         }
+    }
+
+    /**
+     * Uniwersalny context validation: czy inna apka kurierska jest na foreground?
+     * Fail-open: null (nieznany foreground) → false → screenshot przechodzi.
+     * Uber exempt: jego popup jest overlay nad każdą apką — foreground to zawsze inna apka.
+     */
+    private fun isRivalInForeground(pkg: String): Boolean {
+        if (pkg == "com.ubercab.driver") return false
+        val activePackage = try {
+            rootInActiveWindow?.packageName?.toString()
+        } catch (e: Exception) { null }
+        return activePackage != null && activePackage != pkg && activePackage in courierPackages
     }
 
     private fun hasUberOverlayWindow(): Boolean {
