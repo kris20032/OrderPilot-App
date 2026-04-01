@@ -27,7 +27,8 @@ class WoltOcrParser : OcrOfferParser {
         // Uber PL/EN/UK
         "Łącznie", "Lacznie", "Загалом",
         "Dostawa ·", "Delivery ·",
-        "Jesteś w trybie online", "You're online",
+        "Jesteś w trybie online", "You're online", "Ви онлайн",
+        "Includes expected tip",
         // Bolt offer popup / idle
         "Decline", "Show map", "Looking for orders", "Go offline"
     )
@@ -45,7 +46,7 @@ class WoltOcrParser : OcrOfferParser {
 
         // Kwota — wspólna logika z fallbackiem
         val (rawAmount, parsedAmount) = OcrOfferParser.extractAmount(text) ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Wolt: no amount found")
+            AppLog.w(AppLog.TAG_PARSER, "Wolt: no amount found | text=${text.take(200)}")
             return null
         }
         val amount = OcrOfferParser.sanitizeAmount(rawAmount, parsedAmount) ?: run {
@@ -62,14 +63,14 @@ class WoltOcrParser : OcrOfferParser {
             )
             if (max > 0) max else null
         } ?: timeSingleRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Wolt: no time found")
+            AppLog.w(AppLog.TAG_PARSER, "Wolt: no time found | text=${text.take(200)}")
             return null
         }
         val minutes = hours * 60 + mins
 
         val distance = distanceRegex.find(text)?.groupValues?.get(1)?.toDoubleLocale()
 
-        val offer = Offer(Platform.WOLT, amount, minutes, distance, "zł")
+        val offer = Offer(Platform.WOLT, amount, minutes, distance, OcrOfferParser.detectCurrency(text))
         AppLog.d(AppLog.TAG_PARSER, "Wolt parsed offer: $offer")
         return offer
     }

@@ -22,7 +22,7 @@ class UberOcrParser : OcrOfferParser {
     private val rivalPlatformMarkers = listOf(
         // Wolt PL/EN/UK
         "Odbiór za", "Pickup in", "Забери через",
-        "Spodziewany zarobek", "Expected earnings", "Очікуваний заробіток",
+        "Spodziewany zarobek", "Expected earnings", "Estimated earnings", "Очікуваний заробіток",
         "Dostawa od", "Delivery from", "Доставка від",
         // Bolt PL/EN
         "Potwierdź odbiór", "Confirm pickup",
@@ -40,7 +40,7 @@ class UberOcrParser : OcrOfferParser {
 
         // Kwota — wspólna logika z fallbackiem
         val (rawAmount, parsedAmount) = OcrOfferParser.extractAmount(text) ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Uber: no amount found")
+            AppLog.w(AppLog.TAG_PARSER, "Uber: no amount found | text=${text.take(200)}")
             return null
         }
         val amount = OcrOfferParser.sanitizeAmount(rawAmount, parsedAmount) ?: run {
@@ -49,7 +49,7 @@ class UberOcrParser : OcrOfferParser {
         }
 
         val mins = timeRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Uber: no time found")
+            AppLog.w(AppLog.TAG_PARSER, "Uber: no time found | text=${text.take(200)}")
             return null
         }
         val hours = hourRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: 0

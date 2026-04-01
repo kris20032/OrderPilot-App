@@ -72,7 +72,7 @@ class GlovoOcrParser : OcrOfferParser {
         AppLog.d(AppLog.TAG_PARSER, "Glovo: amounts found = $amounts")
 
         val amount = amounts.maxOrNull() ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Glovo: no amount found")
+            AppLog.w(AppLog.TAG_PARSER, "Glovo: no amount found | text=${text.take(200)}")
             return null
         }
 
@@ -88,7 +88,7 @@ class GlovoOcrParser : OcrOfferParser {
 
         return when {
             distances.isEmpty() -> {
-                AppLog.w(AppLog.TAG_PARSER, "Glovo: no distances found")
+                AppLog.w(AppLog.TAG_PARSER, "Glovo: no distances found | text=${text.take(200)}")
                 null
             }
             distances.size == 1 -> {
@@ -105,7 +105,7 @@ class GlovoOcrParser : OcrOfferParser {
                     amount = amount,
                     estimatedMinutes = 0,
                     distanceKm = totalKm,
-                    currency = "zł",
+                    currency = OcrOfferParser.detectCurrency(text),
                     pickupDistanceKm = distances[0],
                     isPartial = false
                 )

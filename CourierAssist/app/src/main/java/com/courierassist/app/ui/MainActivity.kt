@@ -212,6 +212,6 @@ class MainActivity : AppCompatActivity() {
             contentResolver,
             android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
         ) ?: ""
-        return enabledServices.lowercase().contains("courierassist")
+        return enabledServices.lowercase(Locale.ROOT).contains("courierassist")
     }
 }

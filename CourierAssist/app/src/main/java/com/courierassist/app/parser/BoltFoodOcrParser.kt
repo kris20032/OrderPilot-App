@@ -26,10 +26,11 @@ class BoltFoodOcrParser : OcrOfferParser {
         // Uber PL/EN/UK
         "Łącznie", "Lacznie", "Загалом",
         "Dostawa ·", "Delivery ·",
-        "Jesteś w trybie online", "You're online",
+        "Jesteś w trybie online", "You're online", "Ви онлайн",
+        "Includes expected tip",
         // Wolt PL/EN/UK
         "Odbiór za", "Pickup in", "Забери через",
-        "Spodziewany zarobek", "Expected earnings", "Очікуваний заробіток"
+        "Spodziewany zarobek", "Expected earnings", "Estimated earnings", "Очікуваний заробіток"
     )
 
     override fun parse(ocrLines: List<String>): Offer? {
@@ -53,7 +54,7 @@ class BoltFoodOcrParser : OcrOfferParser {
         AppLog.d(AppLog.TAG_PARSER, "Bolt: amounts found = $amounts")
 
         val amount = amounts.maxOrNull() ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Bolt: no amount found")
+            AppLog.w(AppLog.TAG_PARSER, "Bolt: no amount found | text=${text.take(200)}")
             return null
         }
 
@@ -63,7 +64,7 @@ class BoltFoodOcrParser : OcrOfferParser {
             .toList()
         val hours = hourRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: 0
         val minutes = (allMinutes.maxOrNull() ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Bolt: no time found")
+            AppLog.w(AppLog.TAG_PARSER, "Bolt: no time found | text=${text.take(200)}")
             return null
         }) + hours * 60
 
@@ -77,7 +78,7 @@ class BoltFoodOcrParser : OcrOfferParser {
 
         val distance = allDistances.maxOrNull()
 
-        val offer = Offer(Platform.BOLT, amount, minutes, distance, "zł")
+        val offer = Offer(Platform.BOLT, amount, minutes, distance, OcrOfferParser.detectCurrency(text))
         AppLog.d(AppLog.TAG_PARSER, "Bolt parsed offer: $offer")
         return offer
     }

@@ -19,6 +19,7 @@ import com.courierassist.app.databinding.ActivitySetupBinding
 import com.courierassist.app.di.ServiceLocator
 import com.courierassist.app.domain.AppLanguage
 import com.google.android.material.button.MaterialButton
+import java.util.Locale
 
 class SetupActivity : AppCompatActivity() {
 
@@ -67,7 +68,7 @@ class SetupActivity : AppCompatActivity() {
     }
 
     private fun detectManufacturer(): Manufacturer {
-        val m = Build.MANUFACTURER.lowercase()
+        val m = Build.MANUFACTURER.lowercase(Locale.ROOT)
         return when {
             m == "samsung" -> Manufacturer.SAMSUNG
             m == "xiaomi" || m == "redmi" || m == "poco" -> Manufacturer.XIAOMI
@@ -305,7 +306,7 @@ class SetupActivity : AppCompatActivity() {
             contentResolver,
             Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
         ) ?: ""
-        return enabledServices.lowercase().contains("courierassist")
+        return enabledServices.lowercase(Locale.ROOT).contains("courierassist")
     }
 
     private fun isBatteryOptimizationDisabled(): Boolean {
@@ -439,7 +440,7 @@ class SetupActivity : AppCompatActivity() {
                     context.contentResolver,
                     Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
                 ) ?: ""
-                enabled.lowercase().contains("courierassist")
+                enabled.lowercase(Locale.ROOT).contains("courierassist")
             }
             val batteryOk = (context.getSystemService(POWER_SERVICE) as PowerManager)
                 .isIgnoringBatteryOptimizations(context.packageName)

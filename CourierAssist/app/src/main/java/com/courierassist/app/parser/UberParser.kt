@@ -4,6 +4,7 @@ import android.util.Log
 import android.view.accessibility.AccessibilityNodeInfo
 import com.courierassist.app.domain.Offer
 import com.courierassist.app.domain.Platform
+import java.util.Locale
 
 class UberParser : OfferParser {
 
@@ -49,7 +50,7 @@ class UberParser : OfferParser {
         var hasAcceptButton = false
 
         for (text in texts) {
-            val lower = text.lowercase()
+            val lower = text.lowercase(Locale.ROOT)
 
             if (!hasAcceptButton) {
                 for (acceptText in ACCEPT_TEXTS) {
