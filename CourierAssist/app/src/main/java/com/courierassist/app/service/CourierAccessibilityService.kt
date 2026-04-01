@@ -215,6 +215,11 @@ class CourierAccessibilityService : AccessibilityService() {
                         AppLog.d(AppLog.TAG_SERVICE, "UBER: overlay window gone during retries (WINDOWS_CHANGED) — stopping")
                         break
                     }
+                    // Od retry 2: jeśli rival courier na ekranie i overlay Ubera pusty → phantom overlay, stop
+                    if (i >= 2 && isRivalCourierInForeground() && !hasUberOverlayWithContent()) {
+                        AppLog.d(AppLog.TAG_SERVICE, "UBER: rival foreground + phantom overlay — stopping retries at $i")
+                        break
+                    }
                     AppLog.d(AppLog.TAG_SERVICE, "UBER: spaced retry $i/$UBER_MAX_RETRIES via WINDOWS_CHANGED (T+${i * RETRY_DELAY_MS}ms)")
                     processViaScreenshot("com.ubercab.driver", retryIndex = i)
                 }
@@ -270,6 +275,39 @@ class CourierAccessibilityService : AccessibilityService() {
             AppLog.w(AppLog.TAG_SERVICE, "hasUberOverlayWindow error: ${e.message}")
             false
         }
+    }
+
+    /**
+     * Sprawdza czy overlay okno Ubera ma jakąkolwiek treść tekstową.
+     * Phantom overlay (Xiaomi) = type=3 ale pusty. Prawdziwy popup = ma tekst.
+     */
+    private fun hasUberOverlayWithContent(): Boolean {
+        return try {
+            windows?.any { w ->
+                val root = w.root
+                try {
+                    val pkg = root?.packageName?.toString()
+                    if (pkg != "com.ubercab.driver" || w.type == AccessibilityWindowInfo.TYPE_APPLICATION) return@any false
+                    val text = root?.let { AccessibilityTextCollector.collectText(it) } ?: ""
+                    text.isNotBlank()
+                } finally {
+                    root?.recycle()
+                }
+            } ?: false
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    /**
+     * Sprawdza czy foreground to inna apka kurierska (nie Uber).
+     * Używane w watch mode i retries, żeby nie screenshotować popupu rivala.
+     */
+    private fun isRivalCourierInForeground(): Boolean {
+        val activePackage = try {
+            rootInActiveWindow?.packageName?.toString()
+        } catch (e: Exception) { null }
+        return activePackage != null && activePackage != "com.ubercab.driver" && activePackage in courierPackages
     }
 
     /**
@@ -422,6 +460,11 @@ class CourierAccessibilityService : AccessibilityService() {
                 // Gdy Uber jest foreground, popup jest wewnątrz okna apki (nie overlay) — screenshotuj.
                 if (!isUberForeground() && !hasUberOverlayWindow()) {
                     AppLog.d(AppLog.TAG_SERVICE, "Uber watch: no overlay window and not foreground — skipping screenshot")
+                    continue
+                }
+                // Rival courier na ekranie + overlay Ubera pusty = phantom → nie screenshotuj rivala
+                if (isRivalCourierInForeground() && !hasUberOverlayWithContent()) {
+                    AppLog.d(AppLog.TAG_SERVICE, "Uber watch: rival courier foreground + phantom overlay — skipping screenshot")
                     continue
                 }
                 // Jeśli MediaProjection aktywna — użyj pipeline zamiast screenshot

@@ -25,7 +25,8 @@ class UberOcrParser : OcrOfferParser {
         "Spodziewany zarobek", "Expected earnings", "Очікуваний заробіток",
         "Dostawa od", "Delivery from", "Доставка від",
         // Bolt PL/EN
-        "Potwierdź odbiór", "Confirm pickup"
+        "Potwierdź odbiór", "Confirm pickup",
+        "Decline", "Show map", "Looking for orders", "Go offline"
     )
 
     override fun parse(ocrLines: List<String>): Offer? {

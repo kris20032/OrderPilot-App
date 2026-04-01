@@ -14,21 +14,27 @@ object OfferDuplicateChecker {
 
     /**
      * Czy inna platforma już wyświetla belkę z podobnymi danymi?
-     * Tolerancja: ±1 min czasu, ±0.5 km dystansu (lub ±0.5 zł kwoty gdy brak dystansu).
+     * Duplikat = 2 z 3 wymiarów się zgadzają:
+     * - kwota ±0.5 zł
+     * - czas ±5 min (parsery OCR mogą wyciągnąć różne wartości z tego samego tekstu)
+     * - dystans ±0.5 km
      */
     fun isCrossPlatformDuplicate(offer: Offer, activeOffers: Map<Platform, Offer>): Boolean {
         for ((otherPlatform, otherOffer) in activeOffers) {
             if (otherPlatform == offer.platform) continue
 
-            val minutesClose = abs(offer.estimatedMinutes - otherOffer.estimatedMinutes) <= 1
+            val amountClose = abs(offer.amount - otherOffer.amount) < 0.5
+            val minutesClose = abs(offer.estimatedMinutes - otherOffer.estimatedMinutes) <= 5
             val distanceClose = if (offer.distanceKm != null && otherOffer.distanceKm != null) {
                 abs(offer.distanceKm - otherOffer.distanceKm) <= 0.5
             } else {
-                abs(offer.amount - otherOffer.amount) < 0.5
+                false
             }
 
-            if (minutesClose && distanceClose) {
-                AppLog.d(AppLog.TAG_PIPELINE, "Cross-platform duplicate: ${offer.platform} ≈ ${otherPlatform} (${offer.estimatedMinutes}min/${offer.distanceKm}km) — skipping")
+            // 2 z 3 wymiarów muszą się zgadzać
+            val matchCount = listOf(amountClose, minutesClose, distanceClose).count { it }
+            if (matchCount >= 2) {
+                AppLog.d(AppLog.TAG_PIPELINE, "Cross-platform duplicate: ${offer.platform} ≈ ${otherPlatform} (amount=${offer.amount}/${otherOffer.amount}, min=${offer.estimatedMinutes}/${otherOffer.estimatedMinutes}, km=${offer.distanceKm}/${otherOffer.distanceKm}) — skipping")
                 return true
             }
         }
