@@ -74,6 +74,7 @@
 
 | Data | Zmiana |
 |------|--------|
+| 04-01 | **PopupCropper crop ratio 40%→30%** — na Xiaomi popup zaczynał się od 36% ekranu, margines tylko 4%. Zmiana na 30% daje 6% marginesu, lepiej pokrywa różne aspect ratio |
 | 04-01 | **Fix: Retry cross-contamination** — Wolt retry robił screenshot gdy Bolt był na ekranie → WoltOcrParser parsował popup Bolta jako Wolt. Fix: `isRivalInForeground()` helper, sprawdzany w throttler callback (po 100ms delay) i w każdym retry przed screenshotem. Uber exempt (overlay nad wszystkim). |
 | 04-01 | **Defense in depth: guardy parserów** — WoltOcrParser + BoltFoodOcrParser odrzucają tekst z frazami rival platform (Uber/Bolt/Wolt), analogicznie do UberOcrParser |
 | 04-01 | **Fix: Fałszywa belka Ubera na Xiaomi** — Uber trzyma stały pusty overlay (type=3) na Xiaomi. WINDOWS_CHANGED triggerował fałszywy screenshot → UberOcrParser parsował popup Wolta/Bolta jako Uber. Fix: state transition (trigger TYLKO na nowy overlay) + guard w UberOcrParser (odrzuca frazy Wolta/Bolta) |
