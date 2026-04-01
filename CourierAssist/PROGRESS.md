@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-04-01
-**Obecny etap:** Fix fałszywej belki Ubera na Xiaomi (persistent overlay). Samsung OK, Xiaomi OK z Boltem, Wolt/Bolt triggerowały fałszywą belkę Ubera. Czeka na build + test.
-**Aktywne branche:** `fix-formaty` (Samsung fix + Xiaomi phantom overlay fix + audyt), `feature/multi-overlay` (tip development)
+**Obecny etap:** Fix cross-contamination retry (Wolt retry parsował popup Bolta) + uniwersalny context validation dla screenshot pipeline. Czeka na build + test.
+**Aktywne branche:** `fix-formaty` (Samsung fix + Xiaomi phantom overlay fix + audyt + retry context validation), `feature/multi-overlay` (tip development)
 
 ---
 
@@ -27,6 +27,8 @@
 | Low | Refactor: named constants | ✅ Naprawione (03-31) — 8 magicznych liczb → czytelne stałe |
 | **High** | Fix: Uber popup niewykrywany gdy Uber jest foreground | ✅ Naprawione (03-31) — isUberForeground() bypass dla CONTENT_CHANGED + watch mode |
 | **High** | Fix: Fałszywa belka Ubera na Xiaomi (persistent overlay) | ✅ Naprawione (04-01) — state transition w handleWindowsChanged() + guard w UberOcrParser |
+| **High** | Fix: Fałszywa belka Wolta przy zleceniu Bolta (retry cross-contamination) | ✅ Naprawione (04-01) — uniwersalny `isRivalInForeground()` w throttler callback + retry loop |
+| **Medium** | Defense in depth: guardy w WoltOcrParser i BoltFoodOcrParser | ✅ Naprawione (04-01) — odrzucają tekst rival platform |
 | **High** | Build + test Samsung fix + Xiaomi fix u taty | Czeka na build w Android Studio |
 | **High** | Merge do `feature/production-app` | Po potwierdzeniu stabilności |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
@@ -72,6 +74,8 @@
 
 | Data | Zmiana |
 |------|--------|
+| 04-01 | **Fix: Retry cross-contamination** — Wolt retry robił screenshot gdy Bolt był na ekranie → WoltOcrParser parsował popup Bolta jako Wolt. Fix: `isRivalInForeground()` helper, sprawdzany w throttler callback (po 100ms delay) i w każdym retry przed screenshotem. Uber exempt (overlay nad wszystkim). |
+| 04-01 | **Defense in depth: guardy parserów** — WoltOcrParser + BoltFoodOcrParser odrzucają tekst z frazami rival platform (Uber/Bolt/Wolt), analogicznie do UberOcrParser |
 | 04-01 | **Fix: Fałszywa belka Ubera na Xiaomi** — Uber trzyma stały pusty overlay (type=3) na Xiaomi. WINDOWS_CHANGED triggerował fałszywy screenshot → UberOcrParser parsował popup Wolta/Bolta jako Uber. Fix: state transition (trigger TYLKO na nowy overlay) + guard w UberOcrParser (odrzuca frazy Wolta/Bolta) |
 | 03-31 | **Fix: Uber foreground popup** — gdy Uber jest na pierwszym planie, popup jest wewnątrz okna apki (type=1, nie overlay). `isUberForeground()` bypass przepuszcza eventy do throttlera bez wymogu overlay window |
 | 03-31 | **Audyt kodu v2** — 6 dodatkowych fixów: synchronized w ScreenCaptureService, @Volatile uberWatchJob, PopupCropper bounds check, OfferDuplicateChecker (usunięcie duplikacji kodu), named constants (8 magicznych liczb → stałe) |
@@ -159,13 +163,14 @@
 | Popup gdy Uber jest foreground (13,63 zł) | Belka NIE przez 16s — popup wewnątrz okna apki (type=1, nie overlay). **Fix:** isUberForeground() bypass |
 | False triggers — przeglądanie mapy (22:03) | 7+ screenshotów na nic. **Fix:** filtr CONTENT_CHANGED bez overlay okna |
 
-### Xiaomi — Samsung fix + Uber foreground fix (2026-03-31)
+### Xiaomi — testy 2026-04-01
 | Problem | Wynik |
 |---------|-------|
 | Samsung: belka działa prawidłowo | ✅ Kilka zleceń z Ubera i innych apek — belka za każdym razem OK |
 | Xiaomi: Wolt zlecenie → fałszywa belka Ubera | ❌→✅ Persistent overlay Ubera (type=3) triggerował screenshot. Fix: state transition + parser guard |
 | Xiaomi: Bolt zlecenie → fałszywa belka Ubera | ❌→✅ Ten sam problem. Fix jw. |
 | Xiaomi: Uber zlecenie → belka prawidłowa | ✅ Uber działa poprawnie przez CONTENT_CHANGED |
+| Xiaomi: Bolt zlecenie (16,18 zł) → fałszywa belka Wolta | ❌→✅ Wolt retry robił screenshot gdy Bolt był na ekranie. Fix: isRivalInForeground() w throttler callback + retry loop |
 
 ### Bolt Food (2026-03-22 — 2026-03-26)
 - ~~Zlecenie przyszło, belka nie zadziałała — pakiet `com.bolt.deliverycourier` nie był w supportedPackages.~~ Naprawione.
