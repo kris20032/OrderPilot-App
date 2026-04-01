@@ -6,9 +6,10 @@ import com.courierassist.app.di.AppLog
 class PopupCropper {
 
     companion object {
-        // Uber's offer popup occupies roughly the bottom 60% of the screen.
-        // The crop starts at 40% from the top, keeping everything below that.
-        private const val CROP_START_RATIO = 0.40
+        // Popup kurierski zajmuje dolną część ekranu. Crop od 30% od góry (dolne 70%).
+        // Margines bezpieczeństwa na różne aspect ratio (foldable, 21:9, tablety).
+        // Wcześniej 40% — na Xiaomi popup zaczynał się od 36%, margines tylko 4%.
+        private const val CROP_START_RATIO = 0.30
     }
 
     fun crop(fullScreenBitmap: Bitmap): Bitmap {
