@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-04-01
-**Obecny etap:** Fix cross-contamination retry (Wolt retry parsował popup Bolta) + uniwersalny context validation dla screenshot pipeline. Czeka na build + test.
-**Aktywne branche:** `fix-formaty` (Samsung fix + Xiaomi phantom overlay fix + audyt + retry context validation), `feature/multi-overlay` (tip development)
+**Obecny etap:** Audyt lokalizacyjny ukończony — locale safety, nowe rival markery, auto currency detection, OCR text logging. Czeka na build + test.
+**Aktywne branche:** `fix/locale-audit` (audyt lokalizacyjny, oparty na fix-formaty), `fix-formaty` (Samsung/Xiaomi fixy + retry validation), `feature/multi-overlay` (tip development)
 
 ---
 
@@ -29,6 +29,7 @@
 | **High** | Fix: Fałszywa belka Ubera na Xiaomi (persistent overlay) | ✅ Naprawione (04-01) — state transition w handleWindowsChanged() + guard w UberOcrParser |
 | **High** | Fix: Fałszywa belka Wolta przy zleceniu Bolta (retry cross-contamination) | ✅ Naprawione (04-01) — uniwersalny `isRivalInForeground()` w throttler callback + retry loop |
 | **Medium** | Defense in depth: guardy w WoltOcrParser i BoltFoodOcrParser | ✅ Naprawione (04-01) — odrzucają tekst rival platform |
+| **Medium** | Audyt lokalizacyjny: Locale.ROOT, rival markery EN/UK, detectCurrency, OCR logging | ✅ Zaimplementowane (04-01) — branch `fix/locale-audit` |
 | **High** | Build + test Samsung fix + Xiaomi fix u taty | Czeka na build w Android Studio |
 | **High** | Merge do `feature/production-app` | Po potwierdzeniu stabilności |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
@@ -40,6 +41,7 @@
 
 | Branch | Cel | Status |
 |--------|-----|--------|
+| `fix/locale-audit` | Audyt lokalizacyjny (Locale.ROOT, markery, currency, logging) | **Aktywny** — czeka na build + test |
 | `feature/xiaomi-testing` | Fixy z testów Xiaomi (4 bugi) | **Aktywny** — czeka na retest |
 | `feature/multi-overlay` | Multi-overlay + wszystkie fixy | Tip development |
 | `feature/production-app` | Główny branch produkcyjny | Na GitHub (37 ahead of main) |
@@ -74,6 +76,7 @@
 
 | Data | Zmiana |
 |------|--------|
+| 04-01 | **Audyt lokalizacyjny** — `.lowercase(Locale.ROOT)` w 5 miejscach (Turkish locale safety), nowe rival markery EN/UK ("Includes expected tip", "Estimated earnings", "Ви онлайн"), `detectCurrency(text)` zamiast hardcoded "zł" w Wolt/Glovo/Bolt, OCR text logging przy parse failure (`text.take(200)`) |
 | 04-01 | **PopupCropper crop ratio 40%→30%** — na Xiaomi popup zaczynał się od 36% ekranu, margines tylko 4%. Zmiana na 30% daje 6% marginesu, lepiej pokrywa różne aspect ratio |
 | 04-01 | **Fix: Retry cross-contamination** — Wolt retry robił screenshot gdy Bolt był na ekranie → WoltOcrParser parsował popup Bolta jako Wolt. Fix: `isRivalInForeground()` helper, sprawdzany w throttler callback (po 100ms delay) i w każdym retry przed screenshotem. Uber exempt (overlay nad wszystkim). |
 | 04-01 | **Defense in depth: guardy parserów** — WoltOcrParser + BoltFoodOcrParser odrzucają tekst z frazami rival platform (Uber/Bolt/Wolt), analogicznie do UberOcrParser |
