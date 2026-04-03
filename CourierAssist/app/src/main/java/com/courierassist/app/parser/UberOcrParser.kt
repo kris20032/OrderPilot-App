@@ -1,68 +1,90 @@
 package com.courierassist.app.parser
 
-import android.util.Log
+import com.courierassist.app.di.AppLog
 import com.courierassist.app.domain.Offer
 import com.courierassist.app.domain.Platform
 
-class UberOcrParser {
+class UberOcrParser : OcrOfferParser {
 
-    companion object {
-        private const val TAG = "CourierAssist"
+    override val platform = Platform.UBER
+    override val supportedPackages = setOf("com.ubercab.driver", "com.ubercab.eats")
 
-        // "14,64 zł" or "14.64 zł"
-        private val AMOUNT_REGEX = Regex("""(\d+[.,]\d+)\s*zł""", RegexOption.IGNORE_CASE)
+    // Czas: "14 min", "14min", "14 хв"
+    private val timeRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв|XB)""", RegexOption.IGNORE_CASE)
+    private val hourRegex = Regex("""(\d+)[\s\u00A0]*(?:godz|год|hr|hour)""", RegexOption.IGNORE_CASE)
 
-        // "26 min" — usually inside "Łącznie 26 min (5.6 km)"
-        private val TIME_REGEX = Regex("""(\d+)\s*min""", RegexOption.IGNORE_CASE)
+    // Dystans: "(1.0 km)", "1,5 km" — wymaga spacji/nawias/minus przed liczbą
+    private val distanceRegex = Regex("""[\s\u00A0(-](\d+[.,]\d+)[\s\u00A0]*(?:km|км)""", RegexOption.IGNORE_CASE)
 
-        // "(5.6 km)" or "(5,6 km)"
-        private val DISTANCE_REGEX = Regex("""\((\d+[.,]\d+)\s*km\)""", RegexOption.IGNORE_CASE)
+    // Frazy specyficzne dla Wolta/Bolta — Uber nigdy ich nie używa.
+    // Defense in depth: nawet jeśli screenshot z popupem innej platformy
+    // dotrze do tego parsera, zwróci null zamiast fałszywej oferty.
+    private val rivalPlatformMarkers = listOf(
+        // Wolt PL/EN/UK
+        "Odbiór za", "Pickup in", "Забери через",
+        "Spodziewany zarobek", "Expected earnings", "Estimated earnings", "Очікуваний заробіток",
+        "Dostawa od", "Delivery from", "Доставка від",
+        // Bolt PL/EN
+        "Potwierdź odbiór", "Confirm pickup",
+        "Decline", "Show map", "Looking for orders", "Go offline"
+    )
 
-        // Accept button in PL / EN / UK
-        private val ACCEPT_TEXTS = listOf("akceptuj", "accept", "прийняти")
-    }
+    // Frazy z ekranu historii/szczegółów przejazdu — nigdy nie pojawiają się na popupie oferty.
+    // Popup oferty ma "Łącznie X min (Y km)", historia ma etykiety "Czas trwania", "Odległość".
+    private val historyScreenMarkers = listOf(
+        // PL
+        "Czas trwania", "Odległość", "Twój przychód",
+        // EN
+        "Trip duration", "Your earnings", "Distance", "Trip fare",
+        // UK
+        "Тривалість", "Відстань", "Ваш заробіток"
+    )
 
-    fun parse(ocrLines: List<String>): Offer? {
-        if (ocrLines.isEmpty()) return null
+    override fun parse(ocrLines: List<String>): Offer? {
+        val text = OcrOfferParser.normalizeOcrDigits(ocrLines.joinToString(" "))
 
-        var amount: Double? = null
-        var minutes: Int? = null
-        var distanceKm: Double? = null
-        var hasAccept = false
-
-        for (line in ocrLines) {
-            if (amount == null) {
-                AMOUNT_REGEX.find(line)?.let {
-                    amount = it.groupValues[1].replace(",", ".").toDoubleOrNull()
-                }
-            }
-            if (minutes == null) {
-                TIME_REGEX.find(line)?.let {
-                    minutes = it.groupValues[1].toIntOrNull()
-                }
-            }
-            if (distanceKm == null) {
-                DISTANCE_REGEX.find(line)?.let {
-                    distanceKm = it.groupValues[1].replace(",", ".").toDoubleOrNull()
-                }
-            }
-            if (!hasAccept && ACCEPT_TEXTS.any { line.lowercase().contains(it) }) {
-                hasAccept = true
-            }
-        }
-
-        if (amount == null || minutes == null) {
-            Log.d(TAG, "UberOcrParser: incomplete — amount=$amount minutes=$minutes hasAccept=$hasAccept")
+        // Guard: odrzuć tekst z UI innej platformy kurierskiej
+        rivalPlatformMarkers.firstOrNull { text.contains(it, ignoreCase = true) }?.let { marker ->
+            AppLog.d(AppLog.TAG_PARSER, "Uber: skipping — rival platform text detected ('$marker')")
             return null
         }
 
-        val offer = Offer(
-            platform = Platform.UBER,
-            amount = amount!!,
-            estimatedMinutes = minutes!!,
-            distanceKm = distanceKm
-        )
-        Log.d(TAG, "UberOcrParser: parsed offer=$offer")
+        // Guard: odrzuć ekran historii/szczegółów przejazdu
+        historyScreenMarkers.firstOrNull { text.contains(it, ignoreCase = true) }?.let { marker ->
+            AppLog.d(AppLog.TAG_PARSER, "Uber: skipping — history screen detected ('$marker')")
+            return null
+        }
+
+        // Kwota — wspólna logika z fallbackiem
+        val (rawAmount, parsedAmount) = OcrOfferParser.extractAmount(text) ?: run {
+            AppLog.w(AppLog.TAG_PARSER, "Uber: no amount found | text=${text.take(200)}")
+            return null
+        }
+        val amount = OcrOfferParser.sanitizeAmount(rawAmount, parsedAmount) ?: run {
+            AppLog.w(AppLog.TAG_PARSER, "Uber: amount rejected by sanitize")
+            return null
+        }
+
+        val mins = timeRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: run {
+            AppLog.w(AppLog.TAG_PARSER, "Uber: no time found | text=${text.take(200)}")
+            return null
+        }
+        val hours = hourRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        val minutes = hours * 60 + mins
+
+        // Prawdziwe zlecenie Uber ma max ~120 min. Powyżej 180 min = ekran statystyk/zestawienia
+        if (minutes > 180) {
+            AppLog.d(AppLog.TAG_PARSER, "Uber: rejecting — time ${minutes} min too high (statistics screen?)")
+            return null
+        }
+
+        val distance = distanceRegex.find(text)?.groupValues?.get(1)?.toDoubleLocale()
+        val detectedCurrency = OcrOfferParser.detectCurrency(text)
+
+        val offer = Offer(Platform.UBER, amount, minutes, distance, detectedCurrency)
+        AppLog.d(AppLog.TAG_PARSER, "Parsed offer: $offer")
         return offer
     }
+
+    private fun String.toDoubleLocale(): Double? = replace(",", ".").toDoubleOrNull()
 }
