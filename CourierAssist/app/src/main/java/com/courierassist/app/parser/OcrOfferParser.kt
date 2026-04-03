@@ -45,6 +45,7 @@ interface OcrOfferParser {
             return text
                 .replace(Regex("""[lI|](?=\d)"""), "1")   // l8 → 18, I8 → 18
                 .replace(Regex("""(?<=\d)[lI|](?=\d)"""), "1") // 1l0 → 110
+                .replace(Regex("""(?<=\s|^)[lI|](?=\s*(?:godz|год|hr|hour))"""), "1") // l godz → 1 godz
         }
 
         /**

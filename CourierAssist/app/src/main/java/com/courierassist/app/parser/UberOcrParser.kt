@@ -35,7 +35,7 @@ class UberOcrParser : OcrOfferParser {
         // PL
         "Czas trwania", "Odległość", "Twój przychód",
         // EN
-        "Trip duration", "Your earnings",
+        "Trip duration", "Your earnings", "Distance", "Trip fare",
         // UK
         "Тривалість", "Відстань", "Ваш заробіток"
     )
