@@ -29,12 +29,29 @@ class UberOcrParser : OcrOfferParser {
         "Decline", "Show map", "Looking for orders", "Go offline"
     )
 
+    // Frazy z ekranu historii/szczegółów przejazdu — nigdy nie pojawiają się na popupie oferty.
+    // Popup oferty ma "Łącznie X min (Y km)", historia ma etykiety "Czas trwania", "Odległość".
+    private val historyScreenMarkers = listOf(
+        // PL
+        "Czas trwania", "Odległość", "Twój przychód",
+        // EN
+        "Trip duration", "Your earnings",
+        // UK
+        "Тривалість", "Відстань", "Ваш заробіток"
+    )
+
     override fun parse(ocrLines: List<String>): Offer? {
-        val text = ocrLines.joinToString(" ")
+        val text = OcrOfferParser.normalizeOcrDigits(ocrLines.joinToString(" "))
 
         // Guard: odrzuć tekst z UI innej platformy kurierskiej
         rivalPlatformMarkers.firstOrNull { text.contains(it, ignoreCase = true) }?.let { marker ->
             AppLog.d(AppLog.TAG_PARSER, "Uber: skipping — rival platform text detected ('$marker')")
+            return null
+        }
+
+        // Guard: odrzuć ekran historii/szczegółów przejazdu
+        historyScreenMarkers.firstOrNull { text.contains(it, ignoreCase = true) }?.let { marker ->
+            AppLog.d(AppLog.TAG_PARSER, "Uber: skipping — history screen detected ('$marker')")
             return null
         }
 

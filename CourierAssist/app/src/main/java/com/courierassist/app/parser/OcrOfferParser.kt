@@ -17,9 +17,10 @@ interface OcrOfferParser {
         private const val WS = """[\s\u00A0]"""
 
         // Symbole waluty PLN w różnych formatach OCR:
-        // zł, zl (OCR gubi ł), zt (OCR zamienia ł→t), z (OCR gubi ł całkiem),
+        // zł, zl (OCR gubi ł), zt (OCR zamienia ł→t),
         // PLN (angielski), грн (ukraiński), rpH (OCR czyta грн jako łacinkę), ₴ (symbol hrywny)
-        private const val CUR = """(?:zł|zl|zt|z(?=\s|\d|$)|PLN|грн|rpH|₴)"""
+        // UWAGA: usunięto z(?=\s|\d|$) — matchowało końcówki polskich słów ("Nasz", "przez", "bez")
+        private const val CUR = """(?:zł|zl|zt|PLN|грн|rpH|₴)"""
 
         // Główny regex: LICZBA + WALUTA (np. "7,86 zł", "7.86 PLN", "7,86zl")
         val AMOUNT_SUFFIX_REGEX = Regex("""(\d+(?:[.,]\d+)?)${WS}*${CUR}""", RegexOption.IGNORE_CASE)
@@ -29,7 +30,8 @@ interface OcrOfferParser {
 
         // Fallback: luźna liczba dziesiętna (np. "7.86") — NOT obok min/km/хв/км
         // Wymaga separatora dziesiętnego żeby odfiltrować losowe liczby całkowite
-        val AMOUNT_FALLBACK_REGEX = Regex("""(?<!\d)(\d+[.,]\d+)(?!\s*(?:min|хв|XB|km|км|mi))""", RegexOption.IGNORE_CASE)
+        // \d* w lookahead zapobiega backtrackowi: "5.86 km" → match "5.8" + lookahead "6\s*km" → odrzucone
+        val AMOUNT_FALLBACK_REGEX = Regex("""(?<!\d)(\d+[.,]\d+)(?!\d*\s*(?:min|хв|XB|km|км|mi))""", RegexOption.IGNORE_CASE)
 
         // Regex do detekcji waluty (do wyświetlenia w belce)
         val CURRENCY_DETECT_REGEX = Regex("""(zł|zl|zt|PLN|грн|rpH|₴)""", RegexOption.IGNORE_CASE)

@@ -40,8 +40,10 @@ class CourierAccessibilityService : AccessibilityService() {
     private val resultExpiryMs = 60_000L
     private var lastWindowDiagTime = 0L
     @Volatile private var lastUberEventTime = 0L
+    @Volatile private var lastBoltEventTime = 0L
     @Volatile private var isRetrying = false
     @Volatile private var uberWatchJob: Job? = null
+    @Volatile private var boltWatchJob: Job? = null
     @Volatile private var hadUberOverlayWindow = false
 
     override fun onServiceConnected() {
@@ -79,6 +81,12 @@ class CourierAccessibilityService : AccessibilityService() {
         }
 
         val throttler = throttlers.getOrPut(pkg) { EventThrottler() }
+
+        // Bolt watch mode: aktualizuj timestamp i uruchom periodic tree check
+        if (pkg == "com.bolt.deliverycourier") {
+            lastBoltEventTime = System.currentTimeMillis()
+            startBoltWatchIfNeeded()
+        }
 
         // Glovo/Bolt: accessibility tree first (natywne UI — tekst widoczny w drzewie)
         val platform = ServiceLocator.parserRegistry.getParser(pkg)?.platform
@@ -477,6 +485,39 @@ class CourierAccessibilityService : AccessibilityService() {
                 }
             }
             AppLog.d(AppLog.TAG_SERVICE, "Uber watch: stopped")
+        }
+    }
+
+    /**
+     * Bolt watch mode — safety net na brakujące accessibility eventy.
+     * Bolt Food nie generuje eventów gdy popup oferty się pojawia (~13s ciszy w testach).
+     * Periodic tree read co 2.5s jest lekki (~10ms) i łapie ofertę nawet bez eventów.
+     * Zatrzymuje się po 60s bez eventów Bolta.
+     */
+    private fun startBoltWatchIfNeeded() {
+        if (boltWatchJob?.isActive == true) return
+
+        boltWatchJob = scope.launch {
+            AppLog.d(AppLog.TAG_SERVICE, "Bolt watch: started")
+            while (isActive) {
+                delay(WATCH_INTERVAL_MS)
+                val sinceLastEvent = System.currentTimeMillis() - lastBoltEventTime
+                if (sinceLastEvent > WATCH_TIMEOUT_MS) {
+                    AppLog.d(AppLog.TAG_SERVICE, "Bolt watch: no events for ${sinceLastEvent / 1000}s, stopping")
+                    break
+                }
+                // Jeśli belka Bolta jest już widoczna — nie sprawdzamy
+                if (ServiceLocator.overlayManager.getActiveOffers()[Platform.BOLT] != null) continue
+                // Jeśli Bolt nie jest foreground — nie sprawdzamy drzewa
+                val activePackage = try {
+                    rootInActiveWindow?.packageName?.toString()
+                } catch (e: Exception) { null }
+                if (activePackage != "com.bolt.deliverycourier") continue
+
+                AppLog.d(AppLog.TAG_SERVICE, "Bolt watch: periodic tree check")
+                processViaAccessibilityTree("com.bolt.deliverycourier")
+            }
+            AppLog.d(AppLog.TAG_SERVICE, "Bolt watch: stopped")
         }
     }
 
