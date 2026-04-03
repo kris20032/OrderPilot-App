@@ -1,8 +1,8 @@
 # CourierAssist — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-04-01
-**Obecny etap:** Audyt lokalizacyjny ukończony — locale safety, nowe rival markery, auto currency detection, OCR text logging. Czeka na build + test.
-**Aktywne branche:** `fix/locale-audit` (audyt lokalizacyjny, oparty na fix-formaty), `fix-formaty` (Samsung/Xiaomi fixy + retry validation), `feature/multi-overlay` (tip development)
+**Ostatnia aktualizacja:** 2026-04-03
+**Obecny etap:** Fix: parser false positives (Google Maps, Uber historia) + Bolt watch mode. Zmergowane do `fix-formaty`. Czeka na build + test.
+**Aktywne branche:** `fix-formaty` (Samsung/Xiaomi fixy + retry validation + parser false positives + Bolt watch), `fix/locale-audit` (audyt lokalizacyjny), `feature/multi-overlay` (tip development)
 
 ---
 
@@ -30,6 +30,11 @@
 | **High** | Fix: Fałszywa belka Wolta przy zleceniu Bolta (retry cross-contamination) | ✅ Naprawione (04-01) — uniwersalny `isRivalInForeground()` w throttler callback + retry loop |
 | **Medium** | Defense in depth: guardy w WoltOcrParser i BoltFoodOcrParser | ✅ Naprawione (04-01) — odrzucają tekst rival platform |
 | **Medium** | Audyt lokalizacyjny: Locale.ROOT, rival markery EN/UK, detectCurrency, OCR logging | ✅ Zaimplementowane (04-01) — branch `fix/locale-audit` |
+| **High** | Fix: Fałszywa belka w Google Maps — CUR regex `z(?=\s|\d|$)` matchował polskie słowa | ✅ Naprawione (04-03) — usunięto `z(?=\s|\d|$)` z CUR |
+| **High** | Fix: Fallback regex backtracking — "5.86 km" matchowane jako kwota "5.8" | ✅ Naprawione (04-03) — `\d*` w lookahead |
+| **High** | Fix: Uber historia — belka na ekranach przeszłych zleceń | ✅ Naprawione (04-03) — historyScreenMarkers guard w UberOcrParser |
+| **Medium** | Fix: OCR digit normalization przed parsowaniem czasu | ✅ Naprawione (04-03) — normalizeOcrDigits() na początku parse() |
+| **High** | Fix: Bolt missed offers — belka pojawiała się dopiero po zamknięciu zlecenia | ✅ Naprawione (04-03) — Bolt watch mode (tree read co 2.5s) |
 | **High** | Build + test Samsung fix + Xiaomi fix u taty | Czeka na build w Android Studio |
 | **High** | Merge do `feature/production-app` | Po potwierdzeniu stabilności |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
@@ -41,6 +46,7 @@
 
 | Branch | Cel | Status |
 |--------|-----|--------|
+| `fix-formaty` | Samsung/Xiaomi fixy + retry validation + parser false positives + Bolt watch | **Aktywny** — czeka na build + test |
 | `fix/locale-audit` | Audyt lokalizacyjny (Locale.ROOT, markery, currency, logging) | **Aktywny** — czeka na build + test |
 | `feature/xiaomi-testing` | Fixy z testów Xiaomi (4 bugi) | **Aktywny** — czeka na retest |
 | `feature/multi-overlay` | Multi-overlay + wszystkie fixy | Tip development |
@@ -72,10 +78,12 @@
 
 ---
 
-## Ostatnie zmiany (2026-03-14 — 2026-03-31)
+## Ostatnie zmiany (2026-03-14 — 2026-04-03)
 
 | Data | Zmiana |
 |------|--------|
+| 04-03 | **Fix: Parser false positives** — usunięto `z(?=\s|\d|$)` z CUR (Google Maps "Nasz 48 min" matchowało jako kwota), dodano `\d*` w fallback regex lookahead (backtracking "5.86 km"→"5.8"), guard na ekran historii Ubera (historyScreenMarkers), normalizeOcrDigits() przed parsowaniem czasu |
+| 04-03 | **Bolt watch mode** — tree-based periodic check co 2.5s (analogiczny do Uber watch mode). Bolt nie generuje accessibility eventów przy popupie oferty → watch mode łapie ofertę przez accessibility tree read (~10ms). Timeout 60s, auto-stop. |
 | 04-01 | **Audyt lokalizacyjny** — `.lowercase(Locale.ROOT)` w 5 miejscach (Turkish locale safety), nowe rival markery EN/UK ("Includes expected tip", "Estimated earnings", "Ви онлайн"), `detectCurrency(text)` zamiast hardcoded "zł" w Wolt/Glovo/Bolt, OCR text logging przy parse failure (`text.take(200)`) |
 | 04-01 | **PopupCropper crop ratio 40%→30%** — na Xiaomi popup zaczynał się od 36% ekranu, margines tylko 4%. Zmiana na 30% daje 6% marginesu, lepiej pokrywa różne aspect ratio |
 | 04-01 | **Fix: Retry cross-contamination** — Wolt retry robił screenshot gdy Bolt był na ekranie → WoltOcrParser parsował popup Bolta jako Wolt. Fix: `isRivalInForeground()` helper, sprawdzany w throttler callback (po 100ms delay) i w każdym retry przed screenshotem. Uber exempt (overlay nad wszystkim). |
@@ -175,6 +183,14 @@
 | Xiaomi: Bolt zlecenie → fałszywa belka Ubera | ❌→✅ Ten sam problem. Fix jw. |
 | Xiaomi: Uber zlecenie → belka prawidłowa | ✅ Uber działa poprawnie przez CONTENT_CHANGED |
 | Xiaomi: Bolt zlecenie (16,18 zł) → fałszywa belka Wolta | ❌→✅ Wolt retry robił screenshot gdy Bolt był na ekranie. Fix: isRivalInForeground() w throttler callback + retry loop |
+
+### Problemy z pola 2026-04-03
+| Problem | Wynik |
+|---------|-------|
+| Uber historia (19.74 zł) — belka pokazała 5.86 zł / 14 min | ❌→✅ Root cause: crop ucina prawdziwą kwotę, fallback regex backtrackuje "5.86 km"→"5.8". Fix: `\d*` w lookahead + historyScreenMarkers guard |
+| Uber historia (48.65 zł) — belka pokazała 48 zł / 7 min | ❌→✅ Root cause: CUR `z(?=\s|\d|$)` matchuje "Nasz" + brak OCR normalization na czas. Fix: usunięto z CUR + normalizeOcrDigits() |
+| Google Maps "Nasz 48 min" → fałszywa belka 48 zł | ❌→✅ Root cause: `z` w "Nasz" + spacja + "48" matchowało CUR regex. Fix: usunięto `z(?=\s|\d|$)` |
+| Bolt zlecenie — belka dopiero po ~13s (po kliknięciu Odrzuć) | ❌→✅ Root cause: Bolt nie generuje eventów przy popupie. Fix: Bolt watch mode (tree read co 2.5s) |
 
 ### Bolt Food (2026-03-22 — 2026-03-26)
 - ~~Zlecenie przyszło, belka nie zadziałała — pakiet `com.bolt.deliverycourier` nie był w supportedPackages.~~ Naprawione.
