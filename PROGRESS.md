@@ -1,8 +1,8 @@
-# CourierAssist — Status Postępu
+# OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-31
-**Obecny etap:** Samsung fix + audyt kodu (v1+v2) na branchu `fix-formaty`. Czeka na build + test u taty.
-**Aktywne branche:** `fix-formaty` (Samsung fix + audyt + Uber timing), `feature/production-app` (główny), `feature/multi-overlay` (tip development)
+**Ostatnia aktualizacja:** 2026-04-04
+**Obecny etap:** Rename CourierAssist → OrderPilot (package, klasy, zasoby, docs). Czeka na build + test.
+**Aktywne branche:** `fix-formaty` (rename + parser false positives + Bolt watch mode), `feature/production-app` (główny), `feature/multi-overlay` (tip development)
 
 ---
 
@@ -70,6 +70,9 @@
 
 | Data | Zmiana |
 |------|--------|
+| 04-04 | **Rename CourierAssist → OrderPilot** — package `com.orderpilot.app`, klasy (OrderPilotApp, OrderPilotAccessibilityService), moduł `OrderPilot/`, SharedPrefs key, log tagi CA_→OP_, strings.xml (3 locale), themes.xml, docs, memory files. Zero pozostałości. |
+| 04-03 | **Parser false positives** — usunięty regex `z` z CUR, fix backtracking AMOUNT_FALLBACK_REGEX, guard historyScreenMarkers w UberOcrParser, normalizeOcrDigits() przed parsowaniem czasu |
+| 04-03 | **Bolt watch mode** — tree-based periodic read co 2.5s (Bolt nie generuje accessibility eventów przy popupie oferty) |
 | 03-31 | Audyt kodu v2: synchronized w ScreenCaptureService, @Volatile na uberWatchJob, PopupCropper bounds check, OfferDuplicateChecker (wspólna logika), named constants (RETRY_DELAY_MS itp.) |
 | 03-31 | Audyt kodu v1: 5x try-finally (bitmap/node recycle), pipeline.isInitialized guard, image.planes guard, Glovo distance cap 20→50km, @Volatile na EventThrottler |
 | 03-31 | Samsung fix: TYPE_WINDOWS_CHANGED (event systemowy) + overlay detection po typie okna + false trigger filter (CONTENT_CHANGED bez overlay = skip) + watch mode 60s |
@@ -82,7 +85,7 @@
 | 03-26 | Fix: isUserStopped — reset po MIUI kill (monitoring wznawia się poprawnie) |
 | 03-26 | Fix: GlovoOcrParser — guard przed przechwyceniem eventów Ubera |
 | 03-26 | Fix: Uber retry — 3s opóźnienie po nieudanym screenshocie |
-| 03-25 | Setup wizard v2: karty per producent (Samsung/Xiaomi/Huawei/Oppo/OnePlus), toast hints (skrócone — "Znajdź CourierAssist i włącz przełącznik"), domyślny język z system locale |
+| 03-25 | Setup wizard v2: karty per producent (Samsung/Xiaomi/Huawei/Oppo/OnePlus), toast hints (skrócone — "Znajdź OrderPilot i włącz przełącznik"), domyślny język z system locale |
 | 03-25 | Test na Xiaomi z FakeUberApp: belka działa, wizard Xiaomi OK, task-removed OK, toast hints OK (pushowano na GitHub) |
 | 03-25 | Fix: MIUI fałszywie zatrzymywał monitoring po Home — zamiana ActivityLifecycleCallbacks na onTaskRemoved() w serwisach |
 | 03-25 | Fix: OCR ukraiński — Latin lookalikes (rpH/XB) we wszystkich parserach, distance regex poluzowany, logowanie linii OCR |

@@ -1,4 +1,4 @@
-# CourierAssist
+# OrderPilot
 
 Aplikacja Android dla kurierów (Glovo, UberEats, Wolt, Bolt Food) — ocenia opłacalność zlecenia w czasie rzeczywistym przez nakładkę (overlay): zielony/żółty/czerwony + PLN/h.
 
@@ -21,7 +21,7 @@ Działa przez AccessibilityService — zero ryzyka bana, bez API.
 ## Struktura repo
 
 ```
-CourierAssist-App/
+OrderPilot-App/
 ├── README.md
 ├── RULES.md             ← zasady współpracy (PRZECZYTAJ)
 ├── PROGRESS.md          ← aktualny status
@@ -29,6 +29,6 @@ CourierAssist-App/
 │   ├── PLAN.md          ← aktywny plan + otwarte zadania
 │   ├── ARCHITECTURE.md  ← architektura modułowa
 │   └── PRODUCT_SPEC.md  ← specyfikacja produktu
-├── CourierAssist/       ← projekt Android (app/)
+├── OrderPilot/       ← projekt Android (app/)
 └── FakeUberDriver/     ← aplikacja testowa (symuluje popupy Uber)
 ```

@@ -1,4 +1,4 @@
-# CourierAssist — Architektura Techniczna v1
+# OrderPilot — Architektura Techniczna v1
 
 **Data:** 2026-03-22
 **Status:** Zatwierdzona (aktualizacja 2026-03-22)
@@ -22,15 +22,15 @@ POC udowodnił że pipeline działa (AccessibilityService → MediaProjection �
 ## Struktura pakietów
 
 ```
-com.courierassist.app/
-├── di/           ← ServiceLocator, CourierAssistApp, AppLog (manual DI, logging)
+com.orderpilot.app/
+├── di/           ← ServiceLocator, OrderPilotApp, AppLog (manual DI, logging)
 ├── domain/       ← modele danych (czysta logika, zero Androida)
 ├── engine/       ← OfferAnalyzer, OfferFilter
 ├── parser/       ← OcrOfferParser (OCR), OfferParser (accessibility tree), Uber/Wolt/Glovo/Bolt parsery, ParserRegistry
 ├── capture/      ← ScreenCaptureService, PopupCropper
 ├── ocr/          ← OcrEngine (ML Kit wrapper)
 ├── pipeline/     ← PipelineOrchestrator (łączy capture→ocr→parse→analyze→overlay)
-├── service/      ← CourierAccessibilityService, EventThrottler, AccessibilityTextCollector
+├── service/      ← OrderPilotAccessibilityService, EventThrottler, AccessibilityTextCollector
 ├── overlay/      ← OverlayManager, SystemOverlayManager (multi-slot), OverlayViewFactory, OverlayAutoHider
 ├── settings/     ← SettingsRepository, modele ustawień
 ├── billing/      ← FeatureGate (stub v1)
@@ -389,10 +389,10 @@ class EventThrottler(
 }
 ```
 
-### CourierAccessibilityService
+### OrderPilotAccessibilityService
 
 ```kotlin
-class CourierAccessibilityService : AccessibilityService() {
+class OrderPilotAccessibilityService : AccessibilityService() {
     private lateinit var pipeline: PipelineOrchestrator
     private lateinit var throttler: EventThrottler
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
@@ -584,10 +584,10 @@ object ServiceLocator {
 }
 ```
 
-### CourierAssistApp (Application)
+### OrderPilotApp (Application)
 
 ```kotlin
-class CourierAssistApp : Application() {
+class OrderPilotApp : Application() {
     override fun onCreate() {
         super.onCreate()
         ServiceLocator.init(applicationContext)
@@ -643,7 +643,7 @@ object FeatureGate {
 
 ### Ścieżka 1: Accessibility Tree (Glovo, Bolt)
 ```
-[Popup Glovo/Bolt] ─── AccessibilityEvent ───→ [CourierAccessibilityService]
+[Popup Glovo/Bolt] ─── AccessibilityEvent ───→ [OrderPilotAccessibilityService]
                                                          │
                                                   EventThrottler (per platforma)
                                                   (100ms delay, 1.5s cooldown)
@@ -667,7 +667,7 @@ object FeatureGate {
 
 ### Ścieżka 2: MediaProjection OCR (Uber, Wolt)
 ```
-[Popup Uber/Wolt] ─── AccessibilityEvent ───→ [CourierAccessibilityService]
+[Popup Uber/Wolt] ─── AccessibilityEvent ───→ [OrderPilotAccessibilityService]
                                                          │
                                                   EventThrottler (per platforma)
                                                          │
@@ -747,7 +747,7 @@ STOP → isEnabled=false → AccessibilityService ignoruje eventy, belka hide
 | Pakiet | Plik | Opis |
 |--------|------|------|
 | `di` | `ServiceLocator.kt` | Manual DI — inicjalizacja wszystkich zależności |
-| `di` | `CourierAssistApp.kt` | Application class — wywołuje ServiceLocator.init() |
+| `di` | `OrderPilotApp.kt` | Application class — wywołuje ServiceLocator.init() |
 | `di` | `AppLog.kt` | Ring buffer logger (500 wpisów), zapis do Downloads |
 | `domain` | `Platform.kt` | Enum platform |
 | `domain` | `ProfitLevel.kt` | Enum GREEN/YELLOW/RED |
@@ -770,7 +770,7 @@ STOP → isEnabled=false → AccessibilityService ignoruje eventy, belka hide
 | `capture` | `PopupCropper.kt` | Przycina bitmapę do regionu popupu |
 | `ocr` | `OcrEngine.kt` | Wrapper ML Kit OCR |
 | `pipeline` | `PipelineOrchestrator.kt` | Orkiestracja pipeline'u |
-| `service` | `CourierAccessibilityService.kt` | AccessibilityService — nasłuchuje eventy |
+| `service` | `OrderPilotAccessibilityService.kt` | AccessibilityService — nasłuchuje eventy |
 | `service` | `EventThrottler.kt` | Throttling eventów (delay + cooldown, per platforma) |
 | `service` | `AccessibilityTextCollector.kt` | Zbiera tekst z accessibility tree (traversal) |
 | `overlay` | `OverlayManager.kt` | Interfejs + SystemOverlayManager |
@@ -841,7 +841,7 @@ STOP → isEnabled=false → AccessibilityService ignoruje eventy, belka hide
 7. **OCR** — OcrEngine wrapper (Sonnet)
 8. **Pipeline** — PipelineOrchestrator (Opus)
 9. **Overlay** — SystemOverlayManager, OverlayViewFactory, OverlayAutoHider (Sonnet)
-10. **Service** — CourierAccessibilityService, EventThrottler (Opus)
+10. **Service** — OrderPilotAccessibilityService, EventThrottler (Opus)
 11. **UI — MainActivity** — uprawnienia, START/STOP (Sonnet)
 12. **UI — SettingsActivity** (Sonnet)
 13. **Integracja + testy E2E** — FakeUberDriver → pełny pipeline (Opus)
