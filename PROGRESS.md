@@ -1,8 +1,8 @@
 # OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-04-04
-**Obecny etap:** Rename CourierAssist → OrderPilot (package, klasy, zasoby, docs). Czeka na build + test.
-**Aktywne branche:** `fix-formaty` (rename + parser false positives + Bolt watch mode), `feature/production-app` (główny), `feature/multi-overlay` (tip development)
+**Ostatnia aktualizacja:** 2026-04-08
+**Obecny etap:** State refactor (MonitoringController) + 3 bugi taty naprawione. Czeka na build + test u taty.
+**Aktywne branche:** `fix/state-refactor` (AKTYWNY — MonitoringController + bugfixy), `feature/production-app` (stable), `main`
 
 ---
 
@@ -10,16 +10,12 @@
 
 | Priorytet | Zadanie | Status |
 |-----------|---------|--------|
-| **High** | Samsung: Uber popup nad launcher — brak eventów | ✅ Naprawione (03-31) — TYPE_WINDOWS_CHANGED + overlay detection |
-| **High** | Samsung: False triggers (7+ screenshotów mapy) | ✅ Naprawione (03-31) — filtr CONTENT_CHANGED bez overlay |
-| **High** | Audyt kodu v1 — memory leaki + crash guards | ✅ Naprawione (03-31) — 5x try-finally, isInitialized, planes guard, Glovo 50km |
-| **High** | Audyt kodu v2 — thread safety + porządki | ✅ Naprawione (03-31) — synchronized, @Volatile, PopupCropper, OfferDuplicateChecker, named constants |
-| **High** | Build + test Samsung fix + audyt u taty | Czeka na build w Android Studio |
-| **High** | Merge `fix-formaty` → `feature/production-app` | Po potwierdzeniu stabilności |
+| **High** | Audyt state refactor (MonitoringController) | Czeka na audyt w nowej sesji — pierwszy audyt 04-08 zhalucynowany |
+| **High** | Build + test `fix/state-refactor` u taty | Czeka na build w Android Studio |
+| **High** | Merge `fix/state-refactor` → `feature/production-app` | Po potwierdzeniu stabilności |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
-| **High** | Budowanie APK release do dystrybucji beta | Następny krok |
+| **High** | Budowanie APK release do dystrybucji beta | Następny krok po stabilizacji |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
-| Low | Mruganie belki Uber jasny→ciemny | Monitorowane |
 
 ---
 
@@ -27,14 +23,9 @@
 
 | Branch | Cel | Status |
 |--------|-----|--------|
-| `feature/production-app` | Główny branch produkcyjny | Aktywny |
-| `fix-formaty` | Samsung fix + audyt v1+v2 + Uber timing + amount regex | Czeka na test (03-31) |
-| `feature/xiaomi-testing` | 4 bugi z testów Xiaomi (zmergowane do fix-formaty) | Zmergowany |
-| `feature/multi-overlay` | Multi-overlay + wszystkie fixy | Tip development |
+| `fix/state-refactor` | MonitoringController refactor + 3 bugi taty | **AKTYWNY** — czeka na audyt + build + test |
+| `feature/production-app` | Główny branch produkcyjny (stable) | Aktywny |
 | `main` | Stabilna baza z POC | Zablokowany na zmiany kodu |
-
-> **Archiwalne (zmergowane, do usunięcia):** `feature/setup-wizard-v2`, `feature/bolt-parser`, `feature/glovo-parser`, `feature/wolt-parser`, `feature/accessibility-fallback`, `feature/ui-redesign`, `feature/xiaomi-testing`, `fix/foreground-check`, `fix/screen-off-survival`
-> **Stale remote:** `remotes/origin/feature/ocr`, `remotes/origin/feature/setup-wizard-v2`
 
 > Workflow: nowy branch → testuj → merge do `feature/production-app`
 
@@ -66,10 +57,12 @@
 
 ---
 
-## Ostatnie zmiany (2026-03-14 — 2026-03-30)
+## Ostatnie zmiany
 
 | Data | Zmiana |
 |------|--------|
+| 04-08 | **3 bugi taty + fix logowania** — OcrOfferParser, UberOcrParser, PipelineOrchestrator, MainActivity, AppLog |
+| 04-08 | **State refactor (MonitoringController)** — zastąpienie `@Volatile isUserStopped` jednym persystowanym source of truth. `MonitoringController` object z `start()/stop()/isActive()`. 3-warstwowa gwarancja Stop. `onTaskRemoved()` NIE zmienia stanu. Waluta dynamiczna z `Offer.currency`. |
 | 04-04 | **Rename CourierAssist → OrderPilot** — package `com.orderpilot.app`, klasy (OrderPilotApp, OrderPilotAccessibilityService), moduł `OrderPilot/`, SharedPrefs key, log tagi CA_→OP_, strings.xml (3 locale), themes.xml, docs, memory files. Zero pozostałości. |
 | 04-03 | **Parser false positives** — usunięty regex `z` z CUR, fix backtracking AMOUNT_FALLBACK_REGEX, guard historyScreenMarkers w UberOcrParser, normalizeOcrDigits() przed parsowaniem czasu |
 | 04-03 | **Bolt watch mode** — tree-based periodic read co 2.5s (Bolt nie generuje accessibility eventów przy popupie oferty) |
