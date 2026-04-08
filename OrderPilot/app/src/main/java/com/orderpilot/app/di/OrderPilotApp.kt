@@ -14,6 +14,7 @@ class OrderPilotApp : Application() {
         setupCrashLogger()
         createNotificationChannel()
         ServiceLocator.init(applicationContext)
+        MonitoringController.initialize(applicationContext)
     }
 
     private fun setupCrashLogger() {

@@ -215,8 +215,8 @@ class ScreenCaptureService : Service() {
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
-        // NIE ustawiaj isUserStopped — MIUI zabija ten serwis niezależnie od akcji użytkownika.
-        // Tylko OrderPilotAccessibilityService.onTaskRemoved() ustawia flagę (serwis systemowy, MIUI go nie zabija).
+        // Swipe z recents =/= Stop — stan monitoringu żyje w MonitoringController (SharedPrefs).
+        // Tu tylko chowamy belki; MediaProjection i tak przestanie działać gdy system zabije serwis.
         Handler(Looper.getMainLooper()).post {
             try { ServiceLocator.overlayManager.hide() } catch (_: Exception) {}
         }

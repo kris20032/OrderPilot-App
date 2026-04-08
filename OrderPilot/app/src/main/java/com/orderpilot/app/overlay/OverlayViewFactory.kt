@@ -19,7 +19,8 @@ object OverlayViewFactory {
         val view = LayoutInflater.from(context).inflate(R.layout.overlay_offer, null)
         val textView = view.findViewById<TextView>(R.id.tv_overlay_text)
 
-        val l = labels(language)
+        val currency = result.offer.currency.ifBlank { "zł" }
+        val l = labels(language, currency)
         val nbsp = "\u00A0" // non-breaking space — trzyma wartość+jednostkę w jednej linii
         val parts = mutableListOf<String>()
         if (MetricType.ZL_PER_HOUR in config.visibleMetrics && result.zlPerHour != null)
@@ -69,9 +70,21 @@ object OverlayViewFactory {
         val km: String
     )
 
-    private fun labels(language: AppLanguage) = when (language) {
-        AppLanguage.PL -> Labels("zł/h", "zł/km", "zł", "min", "km")
-        AppLanguage.UK -> Labels("грн/год", "грн/км", "грн", "хв", "км")
-        AppLanguage.EN -> Labels("PLN/h", "PLN/km", "PLN", "min", "km")
+    /**
+     * Jednostki (czas/dystans) biorą z języka UI, waluta dynamicznie z Offer.currency (OCR).
+     * Fallback "zł" gdy OCR nie wykrył waluty — nigdy nie hardcodujemy grn/UAH, bo apka
+     * działa w PL i wszystkie platformy rozliczają się w PLN.
+     */
+    private fun labels(language: AppLanguage, currency: String): Labels {
+        val hourSuffix = if (language == AppLanguage.UK) "год" else "h"
+        val kmUnit = if (language == AppLanguage.UK) "км" else "km"
+        val minUnit = if (language == AppLanguage.UK) "хв" else "min"
+        return Labels(
+            currencyPerHour = "$currency/$hourSuffix",
+            currencyPerKm = "$currency/$kmUnit",
+            currency = currency,
+            minutes = minUnit,
+            km = kmUnit
+        )
     }
 }

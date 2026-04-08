@@ -19,6 +19,7 @@ import com.orderpilot.app.R
 import com.orderpilot.app.capture.ScreenCaptureService
 import com.orderpilot.app.databinding.ActivityMainBinding
 import com.orderpilot.app.di.AppLog
+import com.orderpilot.app.di.MonitoringController
 import com.orderpilot.app.di.ServiceLocator
 import com.orderpilot.app.domain.AppLanguage
 import com.orderpilot.app.service.OrderPilotAccessibilityService
@@ -56,10 +57,8 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // Świeże uruchomienie (nie powrót z tła) → Inactive do momentu kliknięcia START
-        if (savedInstanceState == null) {
-            OrderPilotAccessibilityService.isUserStopped = true
-        }
+        // Stan startowy pochodzi z MonitoringController (SharedPrefs) — przy fresh install = STOPPED.
+        // NIE resetujemy tu stanu — to był bug (nadpisywał ACTIVE przy rotacji/powrocie).
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -80,17 +79,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Reset flagi — otwarcie apki przez użytkownika wznawia monitoring.
-        // MIUI może zabić ScreenCaptureService w tle (ustawia isUserStopped=true w onTaskRemoved),
-        // ale AccessibilityService przeżywa — musi kontynuować przetwarzanie eventów.
-        if (isRunning || !OrderPilotAccessibilityService.isUserStopped) {
-            // Już działa — nie zmieniaj
-        } else if (OrderPilotAccessibilityService.isConnected) {
-            // AccessibilityService żyje ale isUserStopped=true po MIUI kill
-            // Użytkownik wrócił do apki — wznów monitoring
-            OrderPilotAccessibilityService.isUserStopped = false
-            AppLog.d(AppLog.TAG_SERVICE, "MainActivity.onResume: reset isUserStopped (user returned)")
-        }
+        // onResume NIE zmienia stanu monitoringu — czyta go z MonitoringController (SharedPrefs).
+        // Źródło prawdy: intencja usera (klik Start/Stop), nie stan runtime serwisów.
         if (ScreenCaptureService.isProjectionLost) {
             ScreenCaptureService.stopCapture(this)
             pendingStart = false
@@ -101,8 +91,7 @@ class MainActivity : AppCompatActivity() {
             }
             updateUi()
         } else if (!pendingStart) {
-            // Respektuj isUserStopped — jeśli użytkownik nie kliknął START, zostań Inactive
-            isRunning = !OrderPilotAccessibilityService.isUserStopped &&
+            isRunning = MonitoringController.isActive() &&
                 (ScreenCaptureService.instance != null || OrderPilotAccessibilityService.isConnected)
             updateUi()
         }
@@ -115,7 +104,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startCapture() {
-        OrderPilotAccessibilityService.isUserStopped = false
+        MonitoringController.start(this)
         if (!OrderPilotAccessibilityService.isConnected) {
             Toast.makeText(this, getString(R.string.accessibility_hint), Toast.LENGTH_LONG).show()
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
@@ -131,7 +120,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopCapture() {
-        OrderPilotAccessibilityService.isUserStopped = true
+        MonitoringController.stop(this)
+        OrderPilotAccessibilityService.cancelActiveJobs()
         ScreenCaptureService.stopCapture(this)
         isRunning = false
         pendingStart = false

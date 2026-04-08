@@ -80,17 +80,17 @@
     <string name="settings_open">Налаштування</string>
     <string name="settings_title">Налаштування</string>
     <string name="settings_thresholds_header">Пороги кольорів</string>
-    <string name="settings_green_threshold">Зелений від (грн/год)</string>
-    <string name="settings_yellow_threshold">Жовтий від (грн/год)</string>
-    <string name="settings_green_threshold_km">Зелений від (грн/км)</string>
-    <string name="settings_yellow_threshold_km">Жовтий від (грн/км)</string>
+    <string name="settings_green_threshold">Зелений від (zł/год)</string>
+    <string name="settings_yellow_threshold">Жовтий від (zł/год)</string>
+    <string name="settings_green_threshold_km">Зелений від (zł/км)</string>
+    <string name="settings_yellow_threshold_km">Жовтий від (zł/км)</string>
     <string name="settings_threshold_hint_global">Стандартні пороги для всіх платформ</string>
     <string name="settings_threshold_hint_platform">Порожнє = використовує глобальні налаштування</string>
     <string name="settings_display_time_platform">Час панелі: %d с</string>
     <string name="tab_global">Global</string>
     <string name="settings_metrics_header">Що показувати на панелі</string>
-    <string name="metric_zl_per_hour">грн/год</string>
-    <string name="metric_zl_per_km">грн/км</string>
+    <string name="metric_zl_per_hour">zł/год</string>
+    <string name="metric_zl_per_km">zł/км</string>
     <string name="metric_amount">Сума</string>
     <string name="metric_time">Час (хв)</string>
     <string name="metric_distance">Відстань (км)</string>

@@ -11,6 +11,7 @@ import android.view.accessibility.AccessibilityWindowInfo
 import androidx.annotation.RequiresApi
 import com.orderpilot.app.capture.ScreenCaptureService
 import com.orderpilot.app.di.AppLog
+import com.orderpilot.app.di.MonitoringController
 import com.orderpilot.app.di.ServiceLocator
 import com.orderpilot.app.domain.AnalysisResult
 import com.orderpilot.app.domain.Offer
@@ -49,13 +50,14 @@ class OrderPilotAccessibilityService : AccessibilityService() {
     override fun onServiceConnected() {
         pipeline = ServiceLocator.pipelineOrchestrator
         isConnected = true
+        serviceInstance = this
         AppLog.d(AppLog.TAG_SERVICE, "AccessibilityService connected")
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         event ?: return
         if (!::pipeline.isInitialized) return // event przed onServiceConnected()
-        if (isUserStopped) return
+        if (!MonitoringController.isActive()) return
 
         // TYPE_WINDOWS_CHANGED = event SYSTEMOWY (WindowManager) — nowe okno pojawiło się/zniknęło.
         // packageName jest null bo pochodzi z systemu, nie z aplikacji.
@@ -122,6 +124,7 @@ class OrderPilotAccessibilityService : AccessibilityService() {
 
         // Primary: MediaProjection pipeline (jeśli aktywna) + Fallback: takeScreenshot (API 30+)
         throttler.onEvent(scope) {
+            if (!MonitoringController.isActive()) return@onEvent
             // Context validation: rival mógł wejść na foreground podczas throttle delay (100ms)
             if (isRivalInForeground(pkg)) {
                 AppLog.d(AppLog.TAG_SERVICE, "$pkg: rival in foreground after throttle — aborting pipeline")
@@ -203,6 +206,7 @@ class OrderPilotAccessibilityService : AccessibilityService() {
 
         val throttler = throttlers.getOrPut("com.ubercab.driver") { EventThrottler() }
         throttler.onEvent(scope) {
+            if (!MonitoringController.isActive()) return@onEvent
             logUberWindowDiagnostics()
             if (isMediaProjectionAvailable()) {
                 pipeline.process("com.ubercab.driver")
@@ -375,6 +379,9 @@ class OrderPilotAccessibilityService : AccessibilityService() {
 
             if (isSameAsPrevious(offer.platform, result)) return
 
+            // Overlay guard — ostatnia bramka, blokuje belkę jeśli user kliknął Stop w trakcie
+            if (!MonitoringController.isActive()) return
+
             scope.launch(Dispatchers.Main) {
                 ServiceLocator.overlayManager.show(result, settings.display, settings.language)
                 ServiceLocator.overlayAutoHider.onOverlayShown(scope, settings.displayTimeFor(offer.platform) * 1000L, offer.platform)
@@ -429,6 +436,9 @@ class OrderPilotAccessibilityService : AccessibilityService() {
 
             if (isSameAsPrevious(offer.platform, result)) return
 
+            // Overlay guard — ostatnia bramka, blokuje belkę jeśli user kliknął Stop w trakcie
+            if (!MonitoringController.isActive()) return
+
             scope.launch(Dispatchers.Main) {
                 ServiceLocator.overlayManager.show(result, settings.display, settings.language)
                 ServiceLocator.overlayAutoHider.onOverlayShown(scope, settings.displayTimeFor(offer.platform) * 1000L, offer.platform)
@@ -453,7 +463,7 @@ class OrderPilotAccessibilityService : AccessibilityService() {
 
         uberWatchJob = scope.launch {
             AppLog.d(AppLog.TAG_SERVICE, "Uber watch: started")
-            while (isActive) {
+            while (isActive && MonitoringController.isActive()) {
                 delay(WATCH_INTERVAL_MS)
                 val sinceLastEvent = System.currentTimeMillis() - lastUberEventTime
                 if (sinceLastEvent > WATCH_TIMEOUT_MS) {
@@ -499,7 +509,7 @@ class OrderPilotAccessibilityService : AccessibilityService() {
 
         boltWatchJob = scope.launch {
             AppLog.d(AppLog.TAG_SERVICE, "Bolt watch: started")
-            while (isActive) {
+            while (isActive && MonitoringController.isActive()) {
                 delay(WATCH_INTERVAL_MS)
                 val sinceLastEvent = System.currentTimeMillis() - lastBoltEventTime
                 if (sinceLastEvent > WATCH_TIMEOUT_MS) {
@@ -580,15 +590,20 @@ class OrderPilotAccessibilityService : AccessibilityService() {
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
-        isUserStopped = true
+        // Swipe z recents NIE jest Stop — nie zmieniamy MonitoringState.
+        // Cancelujemy aktywne joby i chowamy belki, ale monitoring pozostaje aktywny
+        // (nowe eventy będą przetwarzane, bo AccessibilityService żyje niezależnie od task).
+        uberWatchJob?.cancel()
+        boltWatchJob?.cancel()
         android.os.Handler(android.os.Looper.getMainLooper()).post {
             try { ServiceLocator.overlayManager.hide() } catch (_: Exception) {}
         }
-        AppLog.d(AppLog.TAG_SERVICE, "App removed from recents — stopping monitoring")
+        AppLog.d(AppLog.TAG_SERVICE, "App removed from recents — cancelled watch jobs, hidden overlays (state unchanged)")
     }
 
     override fun onDestroy() {
         isConnected = false
+        if (serviceInstance === this) serviceInstance = null
         scope.cancel()
         super.onDestroy()
     }
@@ -599,7 +614,15 @@ class OrderPilotAccessibilityService : AccessibilityService() {
             private set
 
         @Volatile
-        var isUserStopped = false
+        private var serviceInstance: OrderPilotAccessibilityService? = null
+
+        /** Cancelling watch jobów wołane z UI po kliknięciu Stop — hard stop bez opóźnień. */
+        fun cancelActiveJobs() {
+            val instance = serviceInstance ?: return
+            instance.uberWatchJob?.cancel()
+            instance.boltWatchJob?.cancel()
+            AppLog.d(AppLog.TAG_SERVICE, "Watch jobs cancelled by user stop")
+        }
 
         private val watchedPackages: Set<String>
             get() = ServiceLocator.parserRegistry.getAllWatchedPackages()

@@ -391,7 +391,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="48dp"
                             android:gravity="center_vertical"
-                            android:text="Українська (грн)"
+                            android:text="Українська"
                             android:textSize="15sp"
                             android:textColor="@color/on_surface" />
 
