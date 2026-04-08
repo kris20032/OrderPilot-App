@@ -45,6 +45,8 @@ interface OcrOfferParser {
             return text
                 .replace(Regex("""[lI|](?=\d)"""), "1")   // l8 → 18, I8 → 18
                 .replace(Regex("""(?<=\d)[lI|](?=\d)"""), "1") // 1l0 → 110
+                // OCR klei "1" (jako "l") do poprzedniego słowa: "Łączniel godz" → "Łącznie 1 godz"
+                .replace(Regex("""(?<=[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻіїєґІЇЄҐ])[lI|](?=\s*(?:godz|год|hr|hour))"""), " 1")
                 .replace(Regex("""(?<=\s|^)[lI|](?=\s*(?:godz|год|hr|hour))"""), "1") // l godz → 1 godz
         }
 
@@ -116,16 +118,16 @@ interface OcrOfferParser {
 
         /**
          * Wykrywa walutę z tekstu OCR. Zwraca znormalizowany symbol.
+         * Priorytet: PLN (zł/PLN) → UAH (грн/₴). Apka działa w PL, platformy płacą w PLN.
+         * Ukraiński UI Glovo może mieć "грн" w etykietach ale kwoty są w zł.
          */
+        private val PLN_REGEX = Regex("""(zł|zl|zt|PLN)""", RegexOption.IGNORE_CASE)
+        private val UAH_REGEX = Regex("""(грн|rpH|₴)""", RegexOption.IGNORE_CASE)
+
         fun detectCurrency(text: String): String {
-            val raw = CURRENCY_DETECT_REGEX.find(text)?.groupValues?.get(1) ?: return "zł"
-            return when {
-                raw.equals("rpH", ignoreCase = true) -> "грн"
-                raw.equals("zl", ignoreCase = true) -> "zł"
-                raw.equals("zt", ignoreCase = true) -> "zł"
-                raw.equals("₴", ignoreCase = true) -> "грн"
-                else -> raw
-            }
+            if (PLN_REGEX.containsMatchIn(text)) return "zł"
+            UAH_REGEX.find(text)?.let { return "грн" }
+            return "zł"
         }
 
         /**

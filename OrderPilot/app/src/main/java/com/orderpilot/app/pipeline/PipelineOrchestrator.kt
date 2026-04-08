@@ -3,6 +3,7 @@ package com.orderpilot.app.pipeline
 import com.orderpilot.app.capture.PopupCropper
 import com.orderpilot.app.capture.ScreenCaptureService
 import com.orderpilot.app.di.AppLog
+import com.orderpilot.app.di.MonitoringController
 import com.orderpilot.app.domain.AnalysisResult
 import com.orderpilot.app.domain.Platform
 import com.orderpilot.app.engine.OfferAnalyzer
@@ -38,6 +39,7 @@ class PipelineOrchestrator(
 
     fun process(packageName: String) {
         scope.launch {
+            if (!MonitoringController.isActive()) return@launch
             val t0 = System.currentTimeMillis()
             val capture = captureService() ?: run {
                 AppLog.w(AppLog.TAG_PIPELINE, "ScreenCaptureService not ready")
@@ -98,6 +100,9 @@ class PipelineOrchestrator(
                 AppLog.d(AppLog.TAG_PIPELINE, "Same result as before for ${offer.platform}, skipping overlay update")
                 return@launch
             }
+
+            // Overlay guard — blokuje belkę jeśli user kliknął Stop w trakcie pipeline
+            if (!MonitoringController.isActive()) return@launch
 
             withContext(Dispatchers.Main) {
                 overlayManager.show(result, settings.display, settings.language)

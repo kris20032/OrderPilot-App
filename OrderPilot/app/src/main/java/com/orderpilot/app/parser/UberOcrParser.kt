@@ -69,7 +69,11 @@ class UberOcrParser : OcrOfferParser {
             AppLog.w(AppLog.TAG_PARSER, "Uber: no time found | text=${text.take(200)}")
             return null
         }
-        val hours = hourRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        val hourMatch = hourRegex.find(text)
+        val hours = hourMatch?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        if (hours > 0) {
+            AppLog.d(AppLog.TAG_PARSER, "Uber: hour match '${hourMatch?.value}' → ${hours}h ${mins}min")
+        }
         val minutes = hours * 60 + mins
 
         // Prawdziwe zlecenie Uber ma max ~120 min. Powyżej 180 min = ekran statystyk/zestawienia

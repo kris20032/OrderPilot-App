@@ -79,20 +79,24 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // onResume NIE zmienia stanu monitoringu — czyta go z MonitoringController (SharedPrefs).
-        // Źródło prawdy: intencja usera (klik Start/Stop), nie stan runtime serwisów.
+        // UI odzwierciedla MonitoringController (source of truth).
+        // Jeśli stan = ACTIVE (np. persystowany po restarcie procesu), UI pokazuje Active.
+        // User może kliknąć Stop żeby zatrzymać.
         if (ScreenCaptureService.isProjectionLost) {
             ScreenCaptureService.stopCapture(this)
             pendingStart = false
-            // Accessibility fallback nadal działa — nie ustawiaj Inactive
             if (!OrderPilotAccessibilityService.isConnected) {
+                // Brak projekcji i brak accessibility → monitoring nie działa → wyłącz
+                MonitoringController.stop(this)
                 isRunning = false
                 Toast.makeText(this, getString(R.string.toast_projection_lost), Toast.LENGTH_LONG).show()
+            } else {
+                // Projekcja utracona ale accessibility działa → monitoring kontynuuje jako fallback
+                isRunning = MonitoringController.isActive()
             }
             updateUi()
         } else if (!pendingStart) {
-            isRunning = MonitoringController.isActive() &&
-                (ScreenCaptureService.instance != null || OrderPilotAccessibilityService.isConnected)
+            isRunning = MonitoringController.isActive()
             updateUi()
         }
         updateAccessibilityHint()

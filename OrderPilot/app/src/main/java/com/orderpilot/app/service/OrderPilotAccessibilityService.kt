@@ -69,8 +69,8 @@ class OrderPilotAccessibilityService : AccessibilityService() {
         }
 
         val pkg = event.packageName?.toString() ?: return
-        AppLog.d(AppLog.TAG_SERVICE, "RAW event: pkg=$pkg type=${event.eventType}")
         if (pkg !in watchedPackages) return
+        AppLog.d(AppLog.TAG_SERVICE, "RAW event: pkg=$pkg type=${event.eventType}")
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED &&
             event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
 

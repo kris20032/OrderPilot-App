@@ -14,7 +14,7 @@ object AppLog {
     const val TAG_OVERLAY  = "OP_Overlay"
     const val TAG_SERVICE  = "OP_Service"
 
-    private const val BUFFER_SIZE = 500
+    private const val BUFFER_SIZE = 2000
     private val buffer = ArrayDeque<String>(BUFFER_SIZE)
     private val dateFormat = SimpleDateFormat("HH:mm:ss.SSS", Locale.US)
 
