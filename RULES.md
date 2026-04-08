@@ -195,6 +195,21 @@ git push
 
 ---
 
+## 4b. Analiza bugów — ZASADA OBOWIĄZKOWA DLA AI
+
+**Przy każdym zgłoszonym bugu AI MUSI przed zaproponowaniem fixa:**
+
+1. **Sprawdzić szerszy kontekst** — czy ten bug to objaw głębszego problemu architektonicznego?
+2. **Poszukać powiązanych bugów** — gdzie jeszcze ten sam wzorzec może powodować problemy?
+3. **Zaproponować szerszą analizę** — jeśli bug wskazuje na systemowy problem (np. rozproszony stan, brak source of truth), zgłoś to użytkownikowi PRZED pisaniem fixa.
+
+**Dlaczego:** Doświadczenie z bugami stanu aplikacji (04-08) — 3 bugi zgłoszone przez testera okazały się symptomem 6 powiązanych problemów. Wąski fix naprawiłby 3, zostawiając 3 ukryte.
+
+**Jak informować użytkownika:**
+> "Ten bug wygląda na objaw szerszego problemu z [X]. Chcesz żebym najpierw zrobił audyt [X] zanim napiszę fix?"
+
+---
+
 ## 5. Komunikacja podczas pracy
 
 **Zasada: Zwięźle, ale zrozumiale**
