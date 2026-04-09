@@ -1,8 +1,8 @@
 # OrderPilot — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-04-09
-**Obecny etap:** Audyt crash & lifecycle zakończony (realnych problemów mało). 3 defensive fixy naniesione. Czeka na build + test u taty.
-**Aktywne branche:** `fix/state-refactor` (AKTYWNY — MonitoringController + bugfixy + defensive fixes), `feature/production-app` (stable), `main`
+**Obecny etap:** Audyt concurrency i STOP logiki zakończony. Fix retry loop (isActive() guard). Czeka na build + test u taty.
+**Aktywne branche:** `fix/state-refactor` (AKTYWNY — MonitoringController + bugfixy + defensive fixes + retry fix), `feature/production-app` (stable), `main`
 
 ---
 
@@ -60,6 +60,7 @@
 
 | Data | Zmiana |
 |------|--------|
+| 04-09 | **Fix retry loop — isActive() guard** — audyt concurrency i STOP logiki. Dodano `if (!MonitoringController.isActive()) break` w obu retry pętlach (throttler callback + WINDOWS_CHANGED). Po STOP retries przerywają się natychmiast zamiast robić zbędne screenshoty przez 2.4s. |
 | 04-09 | **Audyt crash & lifecycle** — 3 subagenty + ręczna weryfikacja. Większość "critical" to false positives. 3 defensive fixy: WakeLock timeout 4h, MonitoringController.start() po potwierdzeniu MediaProjection, CopyOnWriteArrayList w listeners. App bezpieczna do release (crash-wise). |
 | 04-08 | **3 bugi taty + fix logowania** — OcrOfferParser, UberOcrParser, PipelineOrchestrator, MainActivity, AppLog |
 | 04-08 | **State refactor (MonitoringController)** — zastąpienie `@Volatile isUserStopped` jednym persystowanym source of truth. `MonitoringController` object z `start()/stop()/isActive()`. 3-warstwowa gwarancja Stop. `onTaskRemoved()` NIE zmienia stanu. Waluta dynamiczna z `Offer.currency`. |

@@ -155,6 +155,7 @@ class OrderPilotAccessibilityService : AccessibilityService() {
                 try {
                     for (i in 1..maxRetries) {
                         delay(RETRY_DELAY_MS)
+                        if (!MonitoringController.isActive()) break
                         if (ServiceLocator.overlayManager.getActiveOffers()[plat] != null) {
                             AppLog.d(AppLog.TAG_SERVICE, "${plat.name}: overlay shown after $i retries — stopping")
                             break
@@ -219,6 +220,7 @@ class OrderPilotAccessibilityService : AccessibilityService() {
             try {
                 for (i in 1..UBER_MAX_RETRIES) {
                     delay(RETRY_DELAY_MS)
+                    if (!MonitoringController.isActive()) break
                     if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] != null) {
                         AppLog.d(AppLog.TAG_SERVICE, "UBER: overlay shown after $i retries (WINDOWS_CHANGED) — stopping")
                         break
