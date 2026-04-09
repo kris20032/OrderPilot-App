@@ -108,12 +108,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startCapture() {
-        MonitoringController.start(this)
         if (!OrderPilotAccessibilityService.isConnected) {
+            // Accessibility nie podłączone → start monitoring (accessibility-only mode po powrocie)
+            MonitoringController.start(this)
+            isRunning = true
+            updateUi()
             Toast.makeText(this, getString(R.string.accessibility_hint), Toast.LENGTH_LONG).show()
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
             return
         }
+        // Accessibility OK → pytamy o MediaProjection. Stan ustawimy dopiero po potwierdzeniu.
         val manager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         val captureIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             manager.createScreenCaptureIntent(MediaProjectionConfig.createConfigForDefaultDisplay())
@@ -135,6 +139,7 @@ class MainActivity : AppCompatActivity() {
     @Suppress("OVERRIDE_DEPRECATION")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_MEDIA_PROJECTION && resultCode == RESULT_OK && data != null) {
+            MonitoringController.start(this)
             pendingStart = true
             ScreenCaptureService.startCapture(this, resultCode, data)
             isRunning = true

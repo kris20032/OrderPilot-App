@@ -3,11 +3,12 @@ package com.orderpilot.app.settings
 import android.content.Context
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.util.concurrent.CopyOnWriteArrayList
 
 class SharedPrefsSettingsRepository(context: Context) : SettingsRepository {
 
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    private val listeners = mutableListOf<(AppSettings) -> Unit>()
+    private val listeners = CopyOnWriteArrayList<(AppSettings) -> Unit>()
 
     override fun load(): AppSettings {
         val json = prefs.getString(KEY_SETTINGS, null) ?: return AppSettings()

@@ -33,6 +33,7 @@ class ScreenCaptureService : Service() {
         const val EXTRA_RESULT_DATA = "result_data"
         private const val NOTIFICATION_ID = 1001
         private const val WAKELOCK_TAG = "OrderPilot::ScreenCapture"
+        private const val WAKELOCK_TIMEOUT_MS = 4 * 60 * 60 * 1000L // 4h — max sesja kurierska
 
         @Volatile
         var instance: ScreenCaptureService? = null
@@ -164,9 +165,9 @@ class ScreenCaptureService : Service() {
     private fun acquireWakeLock() {
         val pm = getSystemService(POWER_SERVICE) as PowerManager
         wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG).apply {
-            acquire()
+            acquire(WAKELOCK_TIMEOUT_MS)
         }
-        AppLog.d(AppLog.TAG_CAPTURE, "WakeLock acquired")
+        AppLog.d(AppLog.TAG_CAPTURE, "WakeLock acquired (timeout=${WAKELOCK_TIMEOUT_MS / 60_000}min)")
     }
 
     private fun releaseWakeLock() {
