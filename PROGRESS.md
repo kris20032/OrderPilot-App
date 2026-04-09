@@ -1,8 +1,8 @@
 # OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-04-08
-**Obecny etap:** State refactor (MonitoringController) + 3 bugi taty naprawione. Czeka na build + test u taty.
-**Aktywne branche:** `fix/state-refactor` (AKTYWNY — MonitoringController + bugfixy), `feature/production-app` (stable), `main`
+**Ostatnia aktualizacja:** 2026-04-09
+**Obecny etap:** Audyt crash & lifecycle zakończony (realnych problemów mało). 3 defensive fixy naniesione. Czeka na build + test u taty.
+**Aktywne branche:** `fix/state-refactor` (AKTYWNY — MonitoringController + bugfixy + defensive fixes), `feature/production-app` (stable), `main`
 
 ---
 
@@ -10,7 +10,6 @@
 
 | Priorytet | Zadanie | Status |
 |-----------|---------|--------|
-| **High** | Audyt state refactor (MonitoringController) | Czeka na audyt w nowej sesji — pierwszy audyt 04-08 zhalucynowany |
 | **High** | Build + test `fix/state-refactor` u taty | Czeka na build w Android Studio |
 | **High** | Merge `fix/state-refactor` → `feature/production-app` | Po potwierdzeniu stabilności |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
@@ -61,6 +60,7 @@
 
 | Data | Zmiana |
 |------|--------|
+| 04-09 | **Audyt crash & lifecycle** — 3 subagenty + ręczna weryfikacja. Większość "critical" to false positives. 3 defensive fixy: WakeLock timeout 4h, MonitoringController.start() po potwierdzeniu MediaProjection, CopyOnWriteArrayList w listeners. App bezpieczna do release (crash-wise). |
 | 04-08 | **3 bugi taty + fix logowania** — OcrOfferParser, UberOcrParser, PipelineOrchestrator, MainActivity, AppLog |
 | 04-08 | **State refactor (MonitoringController)** — zastąpienie `@Volatile isUserStopped` jednym persystowanym source of truth. `MonitoringController` object z `start()/stop()/isActive()`. 3-warstwowa gwarancja Stop. `onTaskRemoved()` NIE zmienia stanu. Waluta dynamiczna z `Offer.currency`. |
 | 04-04 | **Rename CourierAssist → OrderPilot** — package `com.orderpilot.app`, klasy (OrderPilotApp, OrderPilotAccessibilityService), moduł `OrderPilot/`, SharedPrefs key, log tagi CA_→OP_, strings.xml (3 locale), themes.xml, docs, memory files. Zero pozostałości. |
