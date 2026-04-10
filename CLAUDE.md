@@ -2,10 +2,10 @@
 
 ## 🚨 AKTYWNY BRANCH (source of truth)
 
-**Obecny branch roboczy: `fix/state-refactor`**
-**Ostatnia aktualizacja tego wpisu: 2026-04-08**
+**Obecny branch roboczy: `feature/production-app`**
+**Ostatnia aktualizacja tego wpisu: 2026-04-10**
 
-Wszystkie nowe zmiany idą na `fix/state-refactor`. Po stabilizacji → merge do `feature/production-app` → merge do `main`.
+`fix/state-refactor` zmergowany po 2 dniach testów produkcyjnych. Nowe zmiany idą na nowy branch z `feature/production-app`.
 
 Jeśli zaczynasz sesję i aktywny branch tu wymieniony **nie zgadza się** z tym na czym jesteś → **STOP, nie pracuj, zapytaj użytkownika**. Nie próbuj „naprawiać" przez switch — może być powód dla którego jesteś gdzie indziej.
 
@@ -60,6 +60,7 @@ Subagenty (Agent tool, szczególnie Explore) potrafią **zhalucynować cały rap
 - `docs/PRODUCT_SPEC.md` — specyfikacja produktu
 - `PROGRESS.md` — status aktualnych zadań
 - `RULES.md` — zasady współpracy
+- `docs/future_polish_fixes.md` — **jedyne** źródło prawdy dla drobnych bugów, usprawnień i pomysłów na przyszłość. Przy pytaniach „co robimy?" / „co można poprawić?" → odwołaj się tu. NIE twórz duplikatów tego pliku.
 
 Więcej kontekstu (historia fixów, feedback, odkrycia) znajdziesz w auto-memory:
 `/Users/krzysztof/.claude/projects/-Users-krzysztof-Desktop-OrderPilot/memory/MEMORY.md`

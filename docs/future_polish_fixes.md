@@ -2,7 +2,7 @@
 
 > **⚠️ JEDYNE ŹRÓDŁO PRAWDY** dla drobnych bugów, usprawnień i pomysłów odkrytych podczas testów.
 >
-> **Lokalizacja:** `docs/FUTURE_POLISH_FIXES.md` (ten plik, w repo). **NIGDZIE INDZIEJ.**
+> **Lokalizacja:** `docs/future_polish_fixes.md` (ten plik, w repo). **NIGDZIE INDZIEJ.**
 >
 > **Dla AI:** Nie twórz równoległych plików o podobnej treści (np. `memory/future_polish_fixes.md`, `docs/TODO.md`, `polish_fixes.md`). Jeśli MEMORY.md lub inny plik md wspomina o tym dokumencie, powinien **linkować do tej ścieżki**, nigdy nie duplikować zawartości. Wcześniej istniał duplikat w auto-memory — usunięty 2026-04-08, bo dwa pliki = drift po 2-3 sesjach.
 >
@@ -107,3 +107,10 @@
 - **Ryzyko:** Na foldable (Samsung Fold, Motorola Razr) i tabletach aspect ratio jest niestandardowy. PopupCropper zakłada stały % — popup może być wyżej/niżej.
 - **Co zrobić:** Jeśli zdobędziemy foldable — przetestować. Ewentualnie: dynamiczny crop na podstawie wykrytego popup boundary (ML Kit bounding box).
 - **Status:** Brak telefonu — monitorowane na przyszłość.
+
+---
+
+### 16. Dodanie języka rosyjskiego
+- **Problem:** Apka obsługuje PL/EN/UK, ale brakuje rosyjskiego — potencjalni użytkownicy-kurierzy w RU/BY/KZ.
+- **Co zrobić:** Dodać `AppLanguage.RU`, `strings.xml` w `values-ru/`, rival markers RU, waluty RUB/BYN/KZT.
+- **Status:** Do zrobienia.

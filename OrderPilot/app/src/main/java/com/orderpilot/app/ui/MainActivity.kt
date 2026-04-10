@@ -98,6 +98,18 @@ class MainActivity : AppCompatActivity() {
         } else if (!pendingStart) {
             isRunning = MonitoringController.isActive()
             updateUi()
+            // Health-check: jeśli monitoring "active" ale AccessibilityService martwy (OEM kill)
+            if (isRunning && !OrderPilotAccessibilityService.isConnected) {
+                // Delay 500ms — daj czas na onServiceConnected() jeśli serwis dopiero startuje
+                binding.root.postDelayed({
+                    if (MonitoringController.isActive() && !OrderPilotAccessibilityService.isConnected) {
+                        MonitoringController.stop(this)
+                        isRunning = false
+                        updateUi()
+                        Toast.makeText(this, getString(R.string.toast_service_killed), Toast.LENGTH_LONG).show()
+                    }
+                }, 500)
+            }
         }
         updateAccessibilityHint()
     }

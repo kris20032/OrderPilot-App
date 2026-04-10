@@ -146,10 +146,10 @@ interface OcrOfferParser {
                     c
                 }
                 parsed >= 100 -> {
-                    // 3 cyfry bez separatora — nie wiemy czy np. 850=8.50 czy 85.0
-                    // Zostawiamy i logujemy, zbieramy dane z produkcji
-                    AppLog.w(AppLog.TAG_PARSER, "Amount 3-digit no separator: $rawMatch — leaving as-is")
-                    parsed
+                    // 3 cyfry bez separatora — 850 to raczej 8.50 niż 850 zł
+                    // Odrzucamy — safe fail (brak belki), retry zrobi nowy screenshot
+                    AppLog.w(AppLog.TAG_PARSER, "Amount 3-digit no separator: $rawMatch — rejecting (ambiguous)")
+                    return null
                 }
                 else -> parsed  // < 100 — prawidłowa wartość
             }

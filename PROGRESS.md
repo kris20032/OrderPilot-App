@@ -1,8 +1,8 @@
 # OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-04-09
-**Obecny etap:** Audyt concurrency i STOP logiki zakończony. Fix retry loop (isActive() guard). Czeka na build + test u taty.
-**Aktywne branche:** `fix/state-refactor` (AKTYWNY — MonitoringController + bugfixy + defensive fixes + retry fix), `feature/production-app` (stable), `main`
+**Ostatnia aktualizacja:** 2026-04-10
+**Obecny etap:** `fix/state-refactor` przetestowany produkcyjnie (tata jeździł 2 dni bez błędów). Merge do `feature/production-app` i `main`.
+**Aktywne branche:** `feature/production-app` (stable, aktualne), `main` (aktualne)
 
 ---
 
@@ -10,10 +10,10 @@
 
 | Priorytet | Zadanie | Status |
 |-----------|---------|--------|
-| **High** | Build + test `fix/state-refactor` u taty | Czeka na build w Android Studio |
-| **High** | Merge `fix/state-refactor` → `feature/production-app` | Po potwierdzeniu stabilności |
+| ~~**High**~~ | ~~Build + test `fix/state-refactor` u taty~~ | ✅ 2 dni bez błędów (04-09/10) |
+| ~~**High**~~ | ~~Merge `fix/state-refactor` → `feature/production-app` → `main`~~ | ✅ Zmergowany (04-10) |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
-| **High** | Budowanie APK release do dystrybucji beta | Następny krok po stabilizacji |
+| **High** | Budowanie APK release do dystrybucji beta | Następny krok |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
 
 ---
@@ -22,9 +22,9 @@
 
 | Branch | Cel | Status |
 |--------|-----|--------|
-| `fix/state-refactor` | MonitoringController refactor + 3 bugi taty | **AKTYWNY** — czeka na audyt + build + test |
-| `feature/production-app` | Główny branch produkcyjny (stable) | Aktywny |
-| `main` | Stabilna baza z POC | Zablokowany na zmiany kodu |
+| `feature/production-app` | Główny branch produkcyjny (stable) | **AKTYWNY** — aktualny po merge |
+| `main` | Stabilna baza — zsynchronizowany z production | Aktualny |
+| ~~`fix/state-refactor`~~ | ~~MonitoringController refactor + defensive fixy~~ | ✅ Zmergowany (04-10) |
 
 > Workflow: nowy branch → testuj → merge do `feature/production-app`
 
@@ -38,14 +38,15 @@
 3. ~~Setup wizard per producent~~ ✅ Gotowe (03-25)
 4. ~~Merge `feature/xiaomi-testing` → `feature/production-app`~~ ✅ (03-27)
 
-### Faza 1.5: Fixy z dalszych testów (teraz)
+### Faza 1.5: Fixy z dalszych testów — ZAKOŃCZONA (04-10)
 5. ~~Universal extractAmount()~~ ✅ (03-29)
 6. ~~Uber adaptive polling~~ → spaced retries + watch mode ✅ (03-30)
 7. ~~Samsung missed events~~ → TYPE_WINDOWS_CHANGED + false trigger filter ✅ (03-31)
 8. ~~Audyt kodu v1+v2~~ → 15 fixów (memory leaki, crash guards, thread safety, porządki) ✅ (03-31)
-9. Merge `fix-formaty` → `feature/production-app` — **po teście u taty**
+9. ~~State refactor + defensive fixy + timeouty~~ ✅ (04-08/10)
+10. ~~Merge `fix/state-refactor` → `feature/production-app` → `main`~~ ✅ (04-10)
 
-### Faza 2: Przygotowanie do beta testów
+### Faza 2: Przygotowanie do beta testów (teraz)
 8. Budowanie APK release (signed) do dystrybucji
 9. Glovo — weryfikacja na Xiaomi (tata nie był zalogowany)
 
@@ -60,6 +61,7 @@
 
 | Data | Zmiana |
 |------|--------|
+| 04-10 | **Merge `fix/state-refactor` → `feature/production-app` → `main`** — 2 dni testów produkcyjnych (tata) bez błędów. Defensive fixy: OCR timeout 5s, pipeline timeout 10s, health-check AccessibilityService w MainActivity (toast gdy OEM kill), odrzucanie ambiguous 3-cyfrowych kwot w parserze. |
 | 04-09 | **Fix retry loop — isActive() guard** — audyt concurrency i STOP logiki. Dodano `if (!MonitoringController.isActive()) break` w obu retry pętlach (throttler callback + WINDOWS_CHANGED). Po STOP retries przerywają się natychmiast zamiast robić zbędne screenshoty przez 2.4s. |
 | 04-09 | **Audyt crash & lifecycle** — 3 subagenty + ręczna weryfikacja. Większość "critical" to false positives. 3 defensive fixy: WakeLock timeout 4h, MonitoringController.start() po potwierdzeniu MediaProjection, CopyOnWriteArrayList w listeners. App bezpieczna do release (crash-wise). |
 | 04-08 | **3 bugi taty + fix logowania** — OcrOfferParser, UberOcrParser, PipelineOrchestrator, MainActivity, AppLog |

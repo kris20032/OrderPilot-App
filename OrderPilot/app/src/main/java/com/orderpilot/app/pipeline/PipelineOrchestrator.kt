@@ -19,6 +19,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.concurrent.ConcurrentHashMap
 
 class PipelineOrchestrator(
@@ -39,75 +40,81 @@ class PipelineOrchestrator(
 
     fun process(packageName: String) {
         scope.launch {
-            if (!MonitoringController.isActive()) return@launch
-            val t0 = System.currentTimeMillis()
-            val capture = captureService() ?: run {
-                AppLog.w(AppLog.TAG_PIPELINE, "ScreenCaptureService not ready")
-                return@launch
-            }
-            if (!capture.isReady()) {
-                AppLog.w(AppLog.TAG_PIPELINE, "capture.isReady()=false, skipping")
-                return@launch
-            }
+            withTimeoutOrNull(PIPELINE_TIMEOUT_MS) {
+                processInternal(packageName)
+            } ?: AppLog.w(AppLog.TAG_PIPELINE, "Pipeline timed out after ${PIPELINE_TIMEOUT_MS}ms")
+        }
+    }
 
-            val screenshot = capture.capture() ?: run {
-                AppLog.w(AppLog.TAG_PIPELINE, "Screenshot null")
-                return@launch
-            }
-            val tCapture = System.currentTimeMillis()
-            AppLog.d(AppLog.TAG_PIPELINE, "Screenshot captured [${tCapture - t0}ms]")
+    private suspend fun processInternal(packageName: String) {
+        if (!MonitoringController.isActive()) return
+        val t0 = System.currentTimeMillis()
+        val capture = captureService() ?: run {
+            AppLog.w(AppLog.TAG_PIPELINE, "ScreenCaptureService not ready")
+            return
+        }
+        if (!capture.isReady()) {
+            AppLog.w(AppLog.TAG_PIPELINE, "capture.isReady()=false, skipping")
+            return
+        }
 
-            val cropped = popupCropper.crop(screenshot)
-            screenshot.recycle()
+        val screenshot = capture.capture() ?: run {
+            AppLog.w(AppLog.TAG_PIPELINE, "Screenshot null")
+            return
+        }
+        val tCapture = System.currentTimeMillis()
+        AppLog.d(AppLog.TAG_PIPELINE, "Screenshot captured [${tCapture - t0}ms]")
 
-            val ocrLines: List<String>
-            try {
-                ocrLines = ocrEngine.recognize(cropped)
-            } finally {
-                cropped.recycle()
-            }
-            val tOcr = System.currentTimeMillis()
-            AppLog.d(AppLog.TAG_PIPELINE, "OCR done [${tOcr - tCapture}ms, total ${tOcr - t0}ms]")
-            if (ocrLines.isEmpty()) {
-                AppLog.w(AppLog.TAG_PIPELINE, "OCR returned no lines")
-                return@launch
-            }
+        val cropped = popupCropper.crop(screenshot)
+        screenshot.recycle()
 
-            val settings = settingsRepository.load()
-            val parser = parserRegistry.getParser(packageName) ?: run {
-                AppLog.w(AppLog.TAG_PIPELINE, "No parser for $packageName")
-                return@launch
-            }
-            val offer = parser.parse(ocrLines) ?: run {
-                AppLog.w(AppLog.TAG_PIPELINE, "Parser returned null")
-                return@launch
-            }
+        val ocrLines: List<String>
+        try {
+            ocrLines = ocrEngine.recognize(cropped)
+        } finally {
+            cropped.recycle()
+        }
+        val tOcr = System.currentTimeMillis()
+        AppLog.d(AppLog.TAG_PIPELINE, "OCR done [${tOcr - tCapture}ms, total ${tOcr - t0}ms]")
+        if (ocrLines.isEmpty()) {
+            AppLog.w(AppLog.TAG_PIPELINE, "OCR returned no lines")
+            return
+        }
 
-            if (!offerFilter.passes(offer, settings.filtersFor(offer.platform))) {
-                AppLog.d(AppLog.TAG_PIPELINE, "Offer filtered out")
-                return@launch
-            }
+        val settings = settingsRepository.load()
+        val parser = parserRegistry.getParser(packageName) ?: run {
+            AppLog.w(AppLog.TAG_PIPELINE, "No parser for $packageName")
+            return
+        }
+        val offer = parser.parse(ocrLines) ?: run {
+            AppLog.w(AppLog.TAG_PIPELINE, "Parser returned null")
+            return
+        }
 
-            // Cross-platform duplicate check
-            if (OfferDuplicateChecker.isCrossPlatformDuplicate(offer, overlayManager.getActiveOffers())) return@launch
+        if (!offerFilter.passes(offer, settings.filtersFor(offer.platform))) {
+            AppLog.d(AppLog.TAG_PIPELINE, "Offer filtered out")
+            return
+        }
 
-            val result = offerAnalyzer.analyze(offer, settings.thresholdsFor(offer.platform))
-            val tTotal = System.currentTimeMillis()
-            AppLog.d(AppLog.TAG_PIPELINE, "Analyzed: ${result.zlPerHour} zł/h → ${result.level} [total ${tTotal - t0}ms]")
+        // Cross-platform duplicate check
+        if (OfferDuplicateChecker.isCrossPlatformDuplicate(offer, overlayManager.getActiveOffers())) return
 
-            // Per-platform duplicate check
-            if (isSameAsPrevious(offer.platform, result)) {
-                AppLog.d(AppLog.TAG_PIPELINE, "Same result as before for ${offer.platform}, skipping overlay update")
-                return@launch
-            }
+        val result = offerAnalyzer.analyze(offer, settings.thresholdsFor(offer.platform))
+        val tTotal = System.currentTimeMillis()
+        AppLog.d(AppLog.TAG_PIPELINE, "Analyzed: ${result.zlPerHour} zł/h → ${result.level} [total ${tTotal - t0}ms]")
 
-            // Overlay guard — blokuje belkę jeśli user kliknął Stop w trakcie pipeline
-            if (!MonitoringController.isActive()) return@launch
+        // Per-platform duplicate check
+        if (isSameAsPrevious(offer.platform, result)) {
+            AppLog.d(AppLog.TAG_PIPELINE, "Same result as before for ${offer.platform}, skipping overlay update")
+            return
+        }
 
-            withContext(Dispatchers.Main) {
-                overlayManager.show(result, settings.display, settings.language)
-                overlayAutoHider.onOverlayShown(scope, settings.display.displayTimeSeconds * 1000L, result.offer.platform)
-            }
+        // Overlay guard — blokuje belkę jeśli user kliknął Stop w trakcie pipeline
+        if (!MonitoringController.isActive()) return
+
+        withContext(Dispatchers.Main) {
+            overlayManager.show(result, settings.display, settings.language)
+            overlayAutoHider.onOverlayShown(scope, settings.display.displayTimeSeconds * 1000L, result.offer.platform)
         }
     }
 
@@ -131,4 +138,8 @@ class PipelineOrchestrator(
     fun onOverlayHidden() { /* lastResults zachowane — resetują się po 60s bez zlecenia */ }
 
     fun cancel() = scope.cancel()
+
+    companion object {
+        private const val PIPELINE_TIMEOUT_MS = 10_000L // cały pipeline normalnie < 1s; 10s = safety net
+    }
 }
