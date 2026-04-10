@@ -478,8 +478,8 @@ class OrderPilotAccessibilityService : AccessibilityService() {
                 if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] != null) continue
                 // Jeśli Uber nie jest foreground i nie ma overlay okna — nie ma co screenshotować.
                 // Gdy Uber jest foreground, popup jest wewnątrz okna apki (nie overlay) — screenshotuj.
-                if (!isUberForeground() && !hasUberOverlayWindow()) {
-                    AppLog.d(AppLog.TAG_SERVICE, "Uber watch: no overlay window and not foreground — skipping screenshot")
+                if (!isUberForeground() && !hasUberOverlayWithContent()) {
+                    AppLog.d(AppLog.TAG_SERVICE, "Uber watch: no overlay content and not foreground — skipping screenshot")
                     continue
                 }
                 // Rival courier na ekranie + overlay Ubera pusty = phantom → nie screenshotuj rivala

@@ -31,7 +31,7 @@ interface OcrOfferParser {
         // Fallback: luźna liczba dziesiętna (np. "7.86") — NOT obok min/km/хв/км
         // Wymaga separatora dziesiętnego żeby odfiltrować losowe liczby całkowite
         // \d* w lookahead zapobiega backtrackowi: "5.86 km" → match "5.8" + lookahead "6\s*km" → odrzucone
-        val AMOUNT_FALLBACK_REGEX = Regex("""(?<!\d)(\d+[.,]\d+)(?!\d*\s*(?:min|хв|XB|km|км|mi))""", RegexOption.IGNORE_CASE)
+        val AMOUNT_FALLBACK_REGEX = Regex("""(?<!\d)(\d+[.,]\d{1,2})(?!\d*\s*(?:min|хв|XB|km|км|mi))""", RegexOption.IGNORE_CASE)
 
         // Regex do detekcji waluty (do wyświetlenia w belce)
         val CURRENCY_DETECT_REGEX = Regex("""(zł|zl|zt|PLN|грн|rpH|₴)""", RegexOption.IGNORE_CASE)

@@ -1,8 +1,8 @@
 # OrderPilot — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-04-10
-**Obecny etap:** `fix/state-refactor` przetestowany produkcyjnie (tata jeździł 2 dni bez błędów). Merge do `feature/production-app` i `main`.
-**Aktywne branche:** `feature/production-app` (stable, aktualne), `main` (aktualne)
+**Obecny etap:** Fix phantom overlay Xiaomi (false positive belka w Google Maps) — branch `fix/phantom-overlay-guard`, gotowy do testu.
+**Aktywne branche:** `fix/phantom-overlay-guard` (bieżący fix), `feature/production-app` (stable base), `main` (zsynchronizowany)
 
 ---
 
@@ -12,6 +12,7 @@
 |-----------|---------|--------|
 | ~~**High**~~ | ~~Build + test `fix/state-refactor` u taty~~ | ✅ 2 dni bez błędów (04-09/10) |
 | ~~**High**~~ | ~~Merge `fix/state-refactor` → `feature/production-app` → `main`~~ | ✅ Zmergowany (04-10) |
+| ~~**High**~~ | ~~Fix phantom overlay Xiaomi — false positive belka w Google Maps~~ | ✅ 2 zmiany (04-10), czeka na test produkcyjny |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
 | **High** | Budowanie APK release do dystrybucji beta | Następny krok |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
@@ -22,7 +23,8 @@
 
 | Branch | Cel | Status |
 |--------|-----|--------|
-| `feature/production-app` | Główny branch produkcyjny (stable) | **AKTYWNY** — aktualny po merge |
+| `fix/phantom-overlay-guard` | Fix false positive — phantom overlay Xiaomi | **BIEŻĄCY** — gotowy do testu |
+| `feature/production-app` | Główny branch produkcyjny (stable) | Base branch |
 | `main` | Stabilna baza — zsynchronizowany z production | Aktualny |
 | ~~`fix/state-refactor`~~ | ~~MonitoringController refactor + defensive fixy~~ | ✅ Zmergowany (04-10) |
 
@@ -61,6 +63,7 @@
 
 | Data | Zmiana |
 |------|--------|
+| 04-10 | **Fix phantom overlay Xiaomi** — watch mode guard: `hasUberOverlayWindow()` → `hasUberOverlayWithContent()` (linia 481). Phantom overlay Xiaomi (type=3, pusty) nie przepuszcza już periodic screenshot bez realnego popupu. Bonus: fallback amount regex `\d+` → `\d{1,2}` po separatorze — blokuje GPS coords jako false kwoty. |
 | 04-10 | **Merge `fix/state-refactor` → `feature/production-app` → `main`** — 2 dni testów produkcyjnych (tata) bez błędów. Defensive fixy: OCR timeout 5s, pipeline timeout 10s, health-check AccessibilityService w MainActivity (toast gdy OEM kill), odrzucanie ambiguous 3-cyfrowych kwot w parserze. |
 | 04-09 | **Fix retry loop — isActive() guard** — audyt concurrency i STOP logiki. Dodano `if (!MonitoringController.isActive()) break` w obu retry pętlach (throttler callback + WINDOWS_CHANGED). Po STOP retries przerywają się natychmiast zamiast robić zbędne screenshoty przez 2.4s. |
 | 04-09 | **Audyt crash & lifecycle** — 3 subagenty + ręczna weryfikacja. Większość "critical" to false positives. 3 defensive fixy: WakeLock timeout 4h, MonitoringController.start() po potwierdzeniu MediaProjection, CopyOnWriteArrayList w listeners. App bezpieczna do release (crash-wise). |
