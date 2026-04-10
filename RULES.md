@@ -1,10 +1,10 @@
-# Zasady pracy nad CourierAssist
+# Zasady pracy nad OrderPilot
 
 ## 1. Jak wracać do projektu po restarcie
 
 **Trigger phrases** - jak mnie przypomnieć o projekcie:
 - "wróćmy do pracy nad aplikacją dla kurierów"
-- "projekt CourierAssist"
+- "projekt OrderPilot"
 - "aplikacja dla kurierów"
 - "Glovo/UberEats/Wolt app"
 
@@ -15,44 +15,76 @@
 
 ---
 
-## 2. Podział pracy: Opus 4.6 vs Sonnet 4.5
+## 2. Podział pracy: Opus 4.6 vs Sonnet 4.6
 
 ### Przed każdym krokiem:
 **Informuję Cię:** "Teraz rekomenduje zmianę na [Opus/Sonnet], daj znać jak to zrobisz i będziemy kontynuować"
 
 ### Kiedy używać którego modelu:
 
-**Opus 4.6** - skomplikowane zadania:
-- TASK 2.1.1: AccessibilityService (konfiguracja, edge cases)
-- TASK 4.2.1: UberParser (parsowanie drzewa UI, regex, multi-język)
-- TASK 6.1.1: Integracja end-to-end (pipeline, debugowanie)
-- Debugowanie trudnych problemów
-- Decyzje architektoniczne
+**Opus 4.6** - skomplikowane zadania wymagające głębokiej analizy:
+- Debugowanie nieoczywistych bugów (crashe, race conditions, pipeline)
+- Decyzje architektoniczne i refaktoring wielu plików
+- Analiza logów i diagnoza problemów z MediaProjection/AccessibilityService
+- Zadania gdzie pierwsze podejście może być złe i trzeba rozważyć wiele opcji
 
-**Sonnet** - implementacja według spec:
-- TASK 1.1.1: Inicjalizacja projektu (boilerplate)
-- TASK 3.1.1: Modele domenowe (data class, enum)
-- TASK 3.2.1: OfferAnalyzer (matematyka)
-- TASK 5.1.1: Overlay (XML + WindowManager)
-- TASK 7.1.1: START/STOP UI
-- Testy jednostkowe
+**Sonnet 4.6** - implementacja według jasnej specyfikacji:
+- Nowe funkcje UI (XML, layouty, Activity)
+- Bugfixy z jasno zidentyfikowaną przyczyną
+- Zmiany w jednym lub kilku plikach
+- Aktualizacje dokumentacji i konfiguracji
 
 ---
 
-## 3. Aktualizacja PROGRESS.md
+## 3. Aktualizacja PROGRESS.md — ZASADA OBOWIĄZKOWA
 
-**Kiedy aktualizuję:**
-- Na początku każdego kroku (status: 🔄 W trakcie)
-- Po zakończeniu kroku (status: ✅ Ukończone)
-- Gdy napotkam problem (sekcja: ⚠️ Problemy / Notatki)
+**PROGRESS.md musi zawsze odzwierciedlać rzeczywisty stan projektu na GitHubie.**
+Każda osoba (lub AI) która wejdzie do repo powinna wiedzieć dokładnie co zostało zrobione, co jest w toku i co zostało do zrobienia — bez pytania nikogo.
 
-**Co aktualizuję:**
-- Data ostatniej aktualizacji
-- Obecny etap
-- Checklisty ([ ] → [x])
-- Notatki o problemach/decyzjach
+**Kiedy AI aktualizuje PROGRESS.md:**
+- Po każdym merge'u lub commicie który kończy logiczny krok pracy
+- Gdy pojawia się nowy bug / zadanie (dodaj do sekcji "Otwarte zadania")
+- Gdy zadanie zostaje ukończone (przenieś do sekcji "Ukończone")
+- NIE co każdy commit z kodu — tylko przy sensownych kamieniach milowych
 
-**Cel:** Sam muszę wiedzieć gdzie jesteśmy bez pytania Cię.
+**Co zawsze aktualizuję:**
+- Data ostatniej aktualizacji (nagłówek)
+- Obecny etap / aktywna praca
+- Status aktywnych branchy
+- Lista otwartych zadań (Jira, bugfixy, nowe funkcje) z priorytetem
+- Lista ukończonych zadań z datą
+
+**Zasada dla bugfixów i zadań spoza planu epiców:**
+- Bugfixy i zadania z Jiry trafiają do osobnych sekcji w PROGRESS.md (nie do tabeli epiców)
+- Każdy fix ma wpis: co, kiedy, na jakim branchu, jaki efekt
+
+**Cel:** Nowa osoba otwiera PROGRESS.md i w 2 minuty wie co się dzieje. AI nie musi pytać użytkownika o stan projektu.
+
+---
+
+## 3b. Sesja porządkowa — ZASADA OBOWIĄZKOWA DLA AI
+
+**Co to jest:** Przegląd spójności całego projektu. AI robi to samodzielnie i informuje użytkownika że to robi.
+
+**Kiedy:** Po każdych 5 zakończonych zadaniach (bugfix / feature / Jira task). AI liczy ukończone zadania i sam inicjuje sesję — użytkownik nie musi o tym pamiętać.
+
+**Co AI sprawdza i ewentualnie poprawia:**
+1. `PROGRESS.md` — czy lista zadań, branche i statusy są spójne z rzeczywistością
+2. `RULES.md` — czy zasady są nadal aktualne, czy coś wymaga korekty
+3. Branche na GitHubie — czy są przestarzałe branch'e do odnotowania
+4. Otwarte zadania — czy kolejność priorytetów jest nadal sensowna
+5. Historia commitów — czy ostatnie wpisy są zrozumiałe dla nowej osoby
+
+**Czego AI NIE robi w sesji porządkowej:**
+- Nie czyta każdego pliku kodu
+- Nie zmienia kodu aplikacji
+- Nie sprawdza czy kod się kompiluje
+
+**Jak AI informuje użytkownika:**
+> "Mamy 3 ukończone zadania od ostatniej sesji porządkowej. Robię przegląd projektu — zaraz raport."
+Po sprawdzeniu: krótki raport co poprawiono (lub "wszystko OK, nic do zmiany").
+
+**Commit po sesji:** Jeśli były zmiany — jeden commit z opisem `docs: sesja porządkowa`.
 
 ---
 
@@ -149,7 +181,7 @@ git push
 **AI:** Jeśli konflikt → zatrzymaj się i poinformuj użytkownika.
 
 ### GitHub repo:
-**Nazwa:** `CourierAssist-App` | **Typ:** Private | **Branch główny:** `main`
+**Nazwa:** `OrderPilot-App` | **Typ:** Private | **Branch główny:** `main`
 
 ---
 
@@ -160,6 +192,21 @@ git push
 3. Merge do main tylko gdy działa
 4. git push na końcu sesji
 ```
+
+---
+
+## 4b. Analiza bugów — ZASADA OBOWIĄZKOWA DLA AI
+
+**Przy każdym zgłoszonym bugu AI MUSI przed zaproponowaniem fixa:**
+
+1. **Sprawdzić szerszy kontekst** — czy ten bug to objaw głębszego problemu architektonicznego?
+2. **Poszukać powiązanych bugów** — gdzie jeszcze ten sam wzorzec może powodować problemy?
+3. **Zaproponować szerszą analizę** — jeśli bug wskazuje na systemowy problem (np. rozproszony stan, brak source of truth), zgłoś to użytkownikowi PRZED pisaniem fixa.
+
+**Dlaczego:** Doświadczenie z bugami stanu aplikacji (04-08) — 3 bugi zgłoszone przez testera okazały się symptomem 6 powiązanych problemów. Wąski fix naprawiłby 3, zostawiając 3 ukryte.
+
+**Jak informować użytkownika:**
+> "Ten bug wygląda na objaw szerszego problemu z [X]. Chcesz żebym najpierw zrobił audyt [X] zanim napiszę fix?"
 
 ---
 
@@ -199,9 +246,23 @@ git push
 
 ## 7. Testowanie i budowanie APK
 
-**Status:** TBD - ustalimy jak dotrzemy do odpowiedniego etapu
+**Workflow testów (ustalony 2026-03):**
 
-**Dla AI:** Jak dotrzemy do momentu testowania, zapytaj użytkownika jak chce to zorganizować.
+1. **AI pisze kod** w VSCode via Claude Code — edycja plików, commity, push
+2. **Krzysztof buduje APK** w Android Studio — Build → Run na telefonie lub debug APK
+3. **APK instalowane na telefonie taty** — via USB / adb / bezpośrednio
+4. **Tata testuje na prawdziwych zleceniach** — Uber, Wolt, Glovo, Bolt Food
+5. **Raportowanie wyników** — tata opisuje co działa / nie działa, ewentualnie zapisuje logi
+
+**Logi debugowe:**
+- Aplikacja ma ring buffer (500 wpisów) w pamięci
+- Przycisk "Zapisz logi" na ekranie głównym → plik w Downloads
+- AI analizuje logi po otrzymaniu od użytkownika
+
+**Dla AI:**
+- Nigdy nie buduj ani nie uruchamiaj aplikacji — daj instrukcje do Android Studio
+- Po fixie podaj co przetestować i jak zweryfikować poprawkę
+- Jeśli potrzebne logi — poproś użytkownika o kliknięcie "Zapisz logi" i przesłanie pliku
 
 ---
 
@@ -222,7 +283,7 @@ git push
 
 ## Lokalizacja projektu
 
-**Folder:** `/Users/krzysztof/Desktop/CourierAssist/`
+**Folder:** `/Users/krzysztof/Desktop/OrderPilot/`
 
 **Kluczowe pliki:**
 - `docs/PLAN.md` - plan etapów implementacji
@@ -236,7 +297,7 @@ git push
 
 **Obowiązuje wszystkich (AI + ludzie). Przed dodaniem pliku sprawdź tę sekcję.**
 
-### Repo root (`/CourierAssist-App/`)
+### Repo root (`/OrderPilot-App/`)
 Tylko pliki nawigacyjne — nic więcej:
 - `README.md` — wstęp, jak zacząć
 - `RULES.md` — zasady (ten plik)
@@ -260,33 +321,33 @@ testing/
 
 ### Projekt Android (`app/` po stworzeniu)
 ```
-app/src/main/java/com/courierassist/app/
-├── di/          ← ServiceLocator, CourierAssistApp, AppLog
+app/src/main/java/com/orderpilot/app/
+├── di/          ← ServiceLocator, OrderPilotApp, AppLog
 ├── domain/      ← Offer, Platform, AnalysisResult, ProfitLevel, MetricType, AppLanguage, ThemeMode
 ├── engine/      ← OfferAnalyzer, OfferFilter
-├── parser/      ← OcrOfferParser, UberOcrParser, ParserRegistry
+├── parser/      ← OcrOfferParser, OfferParser, UberOcrParser, UberParser, WoltOcrParser, GlovoOcrParser, BoltFoodOcrParser, ParserRegistry
 ├── capture/     ← ScreenCaptureService, PopupCropper
 ├── ocr/         ← OcrEngine
 ├── pipeline/    ← PipelineOrchestrator
-├── service/     ← CourierAccessibilityService, EventThrottler
+├── service/     ← OrderPilotAccessibilityService, EventThrottler, AccessibilityTextCollector
 ├── overlay/     ← OverlayManager, SystemOverlayManager, OverlayViewFactory, OverlayAutoHider
 ├── settings/    ← AppSettings, SettingsRepository, SharedPrefsSettingsRepository
 ├── billing/     ← FeatureGate
-└── ui/          ← MainActivity, SettingsActivity
+└── ui/          ← MainActivity, SettingsActivity, SetupActivity, LocaleHelper
 
-app/src/test/java/com/courierassist/app/
+app/src/test/java/com/orderpilot/app/
 ├── engine/      ← OfferAnalyzerTest, OfferFilterTest
-├── parser/      ← UberOcrParserTest, ParserRegistryTest
+├── parser/      ← UberOcrParserTest, WoltOcrParserTest, GlovoOcrParserTest
 ├── settings/    ← AppSettingsTest
 └── service/     ← EventThrottlerTest
 
 app/src/main/res/
 ├── xml/         ← accessibility_config.xml
-├── layout/      ← activity_main, activity_settings, overlay_offer
+├── layout/      ← activity_main, activity_settings, activity_setup, overlay_offer
 └── values/      ← kolory, stringi, style, themes
 ```
 
-**Zasada:** każdy nowy plik Kotlin trafia do odpowiedniej warstwy. Nie tworzyć plików bezpośrednio w `com.courierassist.app/` — zawsze w podfolderze warstwy.
+**Zasada:** każdy nowy plik Kotlin trafia do odpowiedniej warstwy. Nie tworzyć plików bezpośrednio w `com.orderpilot.app/` — zawsze w podfolderze warstwy.
 
 ---
 
@@ -301,4 +362,4 @@ app/src/main/res/
 
 ---
 
-**Ostatnia aktualizacja:** 2026-03-03
+**Ostatnia aktualizacja:** 2026-03-22

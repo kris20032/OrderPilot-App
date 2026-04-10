@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="uber_green">#06C167</color>
+    <color name="uber_green_dark">#049150</color>
+    <color name="popup_background">#FFFFFF</color>
+    <color name="popup_background_dark">#1C1C1C</color>
+    <color name="text_primary">#000000</color>
+    <color name="text_secondary">#717171</color>
+    <color name="badge_background">#06C167</color>
+    <color name="badge_text">#FFFFFF</color>
+    <color name="close_button">#F5F5F5</color>
+    <color name="progress_background">#E5E5E5</color>
+</resources>

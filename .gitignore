@@ -18,3 +18,9 @@ local.properties
 # Lokalne kopie branchy POC (nie commitować)
 FakeUberDriver 2/
 LukaszBranch/
+
+# Claude Code (lokalne ustawienia)
+.claude/
+
+# Dane testowe (logi, screenshoty — tylko lokalnie)
+test-data/
