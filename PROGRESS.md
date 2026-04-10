@@ -1,8 +1,8 @@
 # OrderPilot — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-04-10
-**Obecny etap:** Fix phantom overlay Xiaomi (false positive belka w Google Maps) — branch `fix/phantom-overlay-guard`, gotowy do testu.
-**Aktywne branche:** `fix/phantom-overlay-guard` (bieżący fix), `feature/production-app` (stable base), `main` (zsynchronizowany)
+**Obecny etap:** Skip MediaProjection na API 30+ (uproszczony start) + phantom overlay fix — branch `fix/phantom-overlay-guard`, czeka na test produkcyjny + merge.
+**Aktywne branche:** `fix/phantom-overlay-guard` (bieżący), `feature/production-app` (stable base), `main` (zsynchronizowany)
 
 ---
 
@@ -13,6 +13,7 @@
 | ~~**High**~~ | ~~Build + test `fix/state-refactor` u taty~~ | ✅ 2 dni bez błędów (04-09/10) |
 | ~~**High**~~ | ~~Merge `fix/state-refactor` → `feature/production-app` → `main`~~ | ✅ Zmergowany (04-10) |
 | ~~**High**~~ | ~~Fix phantom overlay Xiaomi — false positive belka w Google Maps~~ | ✅ 2 zmiany (04-10), czeka na test produkcyjny |
+| ~~**High**~~ | ~~Skip MediaProjection na API 30+ — uproszczony start~~ | ✅ Zaimplementowane (04-10), build OK |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
 | **High** | Budowanie APK release do dystrybucji beta | Następny krok |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
@@ -48,7 +49,11 @@
 9. ~~State refactor + defensive fixy + timeouty~~ ✅ (04-08/10)
 10. ~~Merge `fix/state-refactor` → `feature/production-app` → `main`~~ ✅ (04-10)
 
-### Faza 2: Przygotowanie do beta testów (teraz)
+### Faza 1.6: Ulepszenia przed beta (teraz)
+11. ~~Skip MediaProjection na API 30+~~ ✅ (04-10) — takeScreenshot() jedyna ścieżka, brak dialogu, brak foreground service
+12. Język rosyjski (future_polish_fixes #16) — w trakcie planowania
+
+### Faza 2: Przygotowanie do beta testów
 8. Budowanie APK release (signed) do dystrybucji
 9. Glovo — weryfikacja na Xiaomi (tata nie był zalogowany)
 
@@ -63,6 +68,7 @@
 
 | Data | Zmiana |
 |------|--------|
+| 04-10 | **Skip MediaProjection na API 30+** — na Android 11+ apka pomija dialog MediaProjection i foreground service. Screenshoty przez AccessibilityService.takeScreenshot(). Consecutive failure counter (alert po 10 porażkach) jako safety net. future_polish_fixes: punkt 9 resolved, punkt 7 z uwagą o ryzyku. |
 | 04-10 | **Fix phantom overlay Xiaomi** — watch mode guard: `hasUberOverlayWindow()` → `hasUberOverlayWithContent()` (linia 481). Phantom overlay Xiaomi (type=3, pusty) nie przepuszcza już periodic screenshot bez realnego popupu. Bonus: fallback amount regex `\d+` → `\d{1,2}` po separatorze — blokuje GPS coords jako false kwoty. |
 | 04-10 | **Merge `fix/state-refactor` → `feature/production-app` → `main`** — 2 dni testów produkcyjnych (tata) bez błędów. Defensive fixy: OCR timeout 5s, pipeline timeout 10s, health-check AccessibilityService w MainActivity (toast gdy OEM kill), odrzucanie ambiguous 3-cyfrowych kwot w parserze. |
 | 04-09 | **Fix retry loop — isActive() guard** — audyt concurrency i STOP logiki. Dodano `if (!MonitoringController.isActive()) break` w obu retry pętlach (throttler callback + WINDOWS_CHANGED). Po STOP retries przerywają się natychmiast zamiast robić zbędne screenshoty przez 2.4s. |
