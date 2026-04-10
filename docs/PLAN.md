@@ -38,4 +38,4 @@ Nowe stringi w `values/strings.xml`, `values-uk/strings.xml`, `values-en/strings
 
 ## Do rozważenia (nie pilne)
 - Usunięcie MediaProjection — takeScreenshot() daje te same wyniki, prostszy UX (brak dialogu)
-- Powiadomienie "wróć do aplikacji" — jeśli użytkownik nie korzysta z CourierAssist przez X dni, wysłać push notification zachęcający do powrotu (wzór: RideHelper "Zarabiaj więcej!")
+- Powiadomienie "wróć do aplikacji" — jeśli użytkownik nie korzysta z OrderPilot przez X dni, wysłać push notification zachęcający do powrotu (wzór: RideHelper "Zarabiaj więcej!")

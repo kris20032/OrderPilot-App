@@ -1,10 +1,10 @@
-# Zasady pracy nad CourierAssist
+# Zasady pracy nad OrderPilot
 
 ## 1. Jak wracać do projektu po restarcie
 
 **Trigger phrases** - jak mnie przypomnieć o projekcie:
 - "wróćmy do pracy nad aplikacją dla kurierów"
-- "projekt CourierAssist"
+- "projekt OrderPilot"
 - "aplikacja dla kurierów"
 - "Glovo/UberEats/Wolt app"
 
@@ -181,7 +181,7 @@ git push
 **AI:** Jeśli konflikt → zatrzymaj się i poinformuj użytkownika.
 
 ### GitHub repo:
-**Nazwa:** `CourierAssist-App` | **Typ:** Private | **Branch główny:** `main`
+**Nazwa:** `OrderPilot-App` | **Typ:** Private | **Branch główny:** `main`
 
 ---
 
@@ -192,6 +192,21 @@ git push
 3. Merge do main tylko gdy działa
 4. git push na końcu sesji
 ```
+
+---
+
+## 4b. Analiza bugów — ZASADA OBOWIĄZKOWA DLA AI
+
+**Przy każdym zgłoszonym bugu AI MUSI przed zaproponowaniem fixa:**
+
+1. **Sprawdzić szerszy kontekst** — czy ten bug to objaw głębszego problemu architektonicznego?
+2. **Poszukać powiązanych bugów** — gdzie jeszcze ten sam wzorzec może powodować problemy?
+3. **Zaproponować szerszą analizę** — jeśli bug wskazuje na systemowy problem (np. rozproszony stan, brak source of truth), zgłoś to użytkownikowi PRZED pisaniem fixa.
+
+**Dlaczego:** Doświadczenie z bugami stanu aplikacji (04-08) — 3 bugi zgłoszone przez testera okazały się symptomem 6 powiązanych problemów. Wąski fix naprawiłby 3, zostawiając 3 ukryte.
+
+**Jak informować użytkownika:**
+> "Ten bug wygląda na objaw szerszego problemu z [X]. Chcesz żebym najpierw zrobił audyt [X] zanim napiszę fix?"
 
 ---
 
@@ -268,7 +283,7 @@ git push
 
 ## Lokalizacja projektu
 
-**Folder:** `/Users/krzysztof/Desktop/CourierAssist/`
+**Folder:** `/Users/krzysztof/Desktop/OrderPilot/`
 
 **Kluczowe pliki:**
 - `docs/PLAN.md` - plan etapów implementacji
@@ -282,7 +297,7 @@ git push
 
 **Obowiązuje wszystkich (AI + ludzie). Przed dodaniem pliku sprawdź tę sekcję.**
 
-### Repo root (`/CourierAssist-App/`)
+### Repo root (`/OrderPilot-App/`)
 Tylko pliki nawigacyjne — nic więcej:
 - `README.md` — wstęp, jak zacząć
 - `RULES.md` — zasady (ten plik)
@@ -306,21 +321,21 @@ testing/
 
 ### Projekt Android (`app/` po stworzeniu)
 ```
-app/src/main/java/com/courierassist/app/
-├── di/          ← ServiceLocator, CourierAssistApp, AppLog
+app/src/main/java/com/orderpilot/app/
+├── di/          ← ServiceLocator, OrderPilotApp, AppLog
 ├── domain/      ← Offer, Platform, AnalysisResult, ProfitLevel, MetricType, AppLanguage, ThemeMode
 ├── engine/      ← OfferAnalyzer, OfferFilter
 ├── parser/      ← OcrOfferParser, OfferParser, UberOcrParser, UberParser, WoltOcrParser, GlovoOcrParser, BoltFoodOcrParser, ParserRegistry
 ├── capture/     ← ScreenCaptureService, PopupCropper
 ├── ocr/         ← OcrEngine
 ├── pipeline/    ← PipelineOrchestrator
-├── service/     ← CourierAccessibilityService, EventThrottler, AccessibilityTextCollector
+├── service/     ← OrderPilotAccessibilityService, EventThrottler, AccessibilityTextCollector
 ├── overlay/     ← OverlayManager, SystemOverlayManager, OverlayViewFactory, OverlayAutoHider
 ├── settings/    ← AppSettings, SettingsRepository, SharedPrefsSettingsRepository
 ├── billing/     ← FeatureGate
 └── ui/          ← MainActivity, SettingsActivity, SetupActivity, LocaleHelper
 
-app/src/test/java/com/courierassist/app/
+app/src/test/java/com/orderpilot/app/
 ├── engine/      ← OfferAnalyzerTest, OfferFilterTest
 ├── parser/      ← UberOcrParserTest, WoltOcrParserTest, GlovoOcrParserTest
 ├── settings/    ← AppSettingsTest
@@ -332,7 +347,7 @@ app/src/main/res/
 └── values/      ← kolory, stringi, style, themes
 ```
 
-**Zasada:** każdy nowy plik Kotlin trafia do odpowiedniej warstwy. Nie tworzyć plików bezpośrednio w `com.courierassist.app/` — zawsze w podfolderze warstwy.
+**Zasada:** każdy nowy plik Kotlin trafia do odpowiedniej warstwy. Nie tworzyć plików bezpośrednio w `com.orderpilot.app/` — zawsze w podfolderze warstwy.
 
 ---
 

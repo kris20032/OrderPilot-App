@@ -1,8 +1,8 @@
-# CourierAssist — Status Postępu
+# OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-03-27
-**Obecny etap:** Retest na Xiaomi zaliczony (03-27). Merge do `feature/production-app` gotowy. Faza beta: szukamy kurierów do zamkniętej grupy testerów.
-**Aktywne branche:** `feature/production-app` (główny), `feature/multi-overlay` (tip development)
+**Ostatnia aktualizacja:** 2026-04-10
+**Obecny etap:** `fix/state-refactor` przetestowany produkcyjnie (tata jeździł 2 dni bez błędów). Merge do `feature/production-app` i `main`.
+**Aktywne branche:** `feature/production-app` (stable, aktualne), `main` (aktualne)
 
 ---
 
@@ -10,13 +10,11 @@
 
 | Priorytet | Zadanie | Status |
 |-----------|---------|--------|
-| **High** | Merge `feature/xiaomi-testing` → `feature/production-app` | Gotowe do merge (03-27) |
+| ~~**High**~~ | ~~Build + test `fix/state-refactor` u taty~~ | ✅ 2 dni bez błędów (04-09/10) |
+| ~~**High**~~ | ~~Merge `fix/state-refactor` → `feature/production-app` → `main`~~ | ✅ Zmergowany (04-10) |
+| **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
 | **High** | Budowanie APK release do dystrybucji beta | Następny krok |
-| **High** | Znalezienie 3-5 kurierów beta testerów | W toku |
-| **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany podczas testów | Czeka na test |
-| Medium | Uber — belka pokazała 2 metryki zamiast 5 | Czekamy na logi + screeny od taty |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
-| Low | Mruganie belki Uber jasny→ciemny | Monitorowane |
 
 ---
 
@@ -24,12 +22,9 @@
 
 | Branch | Cel | Status |
 |--------|-----|--------|
-| `feature/production-app` | Główny branch produkcyjny | Aktywny |
-| `feature/xiaomi-testing` | 4 bugi z testów Xiaomi (Wolt/Uber/isUserStopped/Glovo) | Gotowy do merge (03-27) |
-| `feature/multi-overlay` | Multi-overlay + wszystkie fixy | Tip development |
-| `main` | Stabilna baza z POC | Zablokowany na zmiany kodu |
-
-> **Archiwalne:** `feature/setup-wizard-v2` (zmergowany do xiaomi-testing), `feature/bolt-parser`, `feature/glovo-parser`, `feature/wolt-parser`, `feature/accessibility-fallback`, `feature/ui-redesign`, `fix/screen-off-survival`
+| `feature/production-app` | Główny branch produkcyjny (stable) | **AKTYWNY** — aktualny po merge |
+| `main` | Stabilna baza — zsynchronizowany z production | Aktualny |
+| ~~`fix/state-refactor`~~ | ~~MonitoringController refactor + defensive fixy~~ | ✅ Zmergowany (04-10) |
 
 > Workflow: nowy branch → testuj → merge do `feature/production-app`
 
@@ -41,28 +36,52 @@
 1. ~~Testy produkcyjne u taty~~ ✅ Zaliczone (03-27, Xiaomi)
 2. ~~Bolt Food — retest~~ ✅ 4/4 zlecenia (03-26)
 3. ~~Setup wizard per producent~~ ✅ Gotowe (03-25)
-4. Merge `feature/xiaomi-testing` → `feature/production-app` ← **teraz**
+4. ~~Merge `feature/xiaomi-testing` → `feature/production-app`~~ ✅ (03-27)
+
+### Faza 1.5: Fixy z dalszych testów — ZAKOŃCZONA (04-10)
+5. ~~Universal extractAmount()~~ ✅ (03-29)
+6. ~~Uber adaptive polling~~ → spaced retries + watch mode ✅ (03-30)
+7. ~~Samsung missed events~~ → TYPE_WINDOWS_CHANGED + false trigger filter ✅ (03-31)
+8. ~~Audyt kodu v1+v2~~ → 15 fixów (memory leaki, crash guards, thread safety, porządki) ✅ (03-31)
+9. ~~State refactor + defensive fixy + timeouty~~ ✅ (04-08/10)
+10. ~~Merge `fix/state-refactor` → `feature/production-app` → `main`~~ ✅ (04-10)
 
 ### Faza 2: Przygotowanie do beta testów (teraz)
-5. Budowanie APK release (signed) do dystrybucji
-6. Glovo — weryfikacja na Xiaomi (tata nie był zalogowany)
+8. Budowanie APK release (signed) do dystrybucji
+9. Glovo — weryfikacja na Xiaomi (tata nie był zalogowany)
 
 ### Faza 3: Beta testy u zewnętrznych kurierów
-7. Znaleźć 3-5 kurierów na mieście (mix platform + modeli telefonów)
-8. Instalacja apki + konfiguracja na miejscu
-9. Zbieranie feedbacku przez WhatsApp/Telegram
+10. Znaleźć 3-5 kurierów na mieście (mix platform + modeli telefonów)
+11. Instalacja apki + konfiguracja na miejscu
+12. Zbieranie feedbacku przez WhatsApp/Telegram
 
 ---
 
-## Ostatnie zmiany (2026-03-14 — 2026-03-27)
+## Ostatnie zmiany
 
 | Data | Zmiana |
 |------|--------|
+| 04-10 | **Merge `fix/state-refactor` → `feature/production-app` → `main`** — 2 dni testów produkcyjnych (tata) bez błędów. Defensive fixy: OCR timeout 5s, pipeline timeout 10s, health-check AccessibilityService w MainActivity (toast gdy OEM kill), odrzucanie ambiguous 3-cyfrowych kwot w parserze. |
+| 04-09 | **Fix retry loop — isActive() guard** — audyt concurrency i STOP logiki. Dodano `if (!MonitoringController.isActive()) break` w obu retry pętlach (throttler callback + WINDOWS_CHANGED). Po STOP retries przerywają się natychmiast zamiast robić zbędne screenshoty przez 2.4s. |
+| 04-09 | **Audyt crash & lifecycle** — 3 subagenty + ręczna weryfikacja. Większość "critical" to false positives. 3 defensive fixy: WakeLock timeout 4h, MonitoringController.start() po potwierdzeniu MediaProjection, CopyOnWriteArrayList w listeners. App bezpieczna do release (crash-wise). |
+| 04-08 | **3 bugi taty + fix logowania** — OcrOfferParser, UberOcrParser, PipelineOrchestrator, MainActivity, AppLog |
+| 04-08 | **State refactor (MonitoringController)** — zastąpienie `@Volatile isUserStopped` jednym persystowanym source of truth. `MonitoringController` object z `start()/stop()/isActive()`. 3-warstwowa gwarancja Stop. `onTaskRemoved()` NIE zmienia stanu. Waluta dynamiczna z `Offer.currency`. |
+| 04-04 | **Rename CourierAssist → OrderPilot** — package `com.orderpilot.app`, klasy (OrderPilotApp, OrderPilotAccessibilityService), moduł `OrderPilot/`, SharedPrefs key, log tagi CA_→OP_, strings.xml (3 locale), themes.xml, docs, memory files. Zero pozostałości. |
+| 04-03 | **Parser false positives** — usunięty regex `z` z CUR, fix backtracking AMOUNT_FALLBACK_REGEX, guard historyScreenMarkers w UberOcrParser, normalizeOcrDigits() przed parsowaniem czasu |
+| 04-03 | **Bolt watch mode** — tree-based periodic read co 2.5s (Bolt nie generuje accessibility eventów przy popupie oferty) |
+| 03-31 | Audyt kodu v2: synchronized w ScreenCaptureService, @Volatile na uberWatchJob, PopupCropper bounds check, OfferDuplicateChecker (wspólna logika), named constants (RETRY_DELAY_MS itp.) |
+| 03-31 | Audyt kodu v1: 5x try-finally (bitmap/node recycle), pipeline.isInitialized guard, image.planes guard, Glovo distance cap 20→50km, @Volatile na EventThrottler |
+| 03-31 | Samsung fix: TYPE_WINDOWS_CHANGED (event systemowy) + overlay detection po typie okna + false trigger filter (CONTENT_CHANGED bez overlay = skip) + watch mode 60s |
+| 03-30 | Uber: spaced retries (delay 600ms, 4 retries pokrywające 0-2400ms) — fix errorCode=3 od back-to-back. Watch mode: periodic screenshot co 2.5s gdy Uber aktywny (safety net na opóźnione eventy). Wolt: 2 spaced retries (proaktywna ochrona). Flaga isRetrying zapobiega kolizji watch mode + retries. |
+| 03-30 | Diagnostyka Samsung: getWindows() logging + OCR normalizacja l/I/|→1 obok cyfr |
+| 03-29 | Uber: adaptive back-to-back polling (7 prób w ~2.9s zamiast 1 retry po 3s) — ZASTĄPIONE przez spaced retries 03-30 |
+| 03-29 | Diagnostyka: debug screenshoty do Downloads + logi retry z retryIndex, screenOn, bitmap size, cropY |
+| 03-29 | Universal extractAmount() w OcrOfferParser — 3-krokowy fallback (LICZBA+WALUTA, WALUTA+LICZBA, luźna liczba), obsługa PLN/zł/грн/₴ |
 | 03-26 | Fix: WoltOcrParser — usunięto guard fraz Uber-specyficznych (blokował 100% ofert Wolta po polsku) |
 | 03-26 | Fix: isUserStopped — reset po MIUI kill (monitoring wznawia się poprawnie) |
 | 03-26 | Fix: GlovoOcrParser — guard przed przechwyceniem eventów Ubera |
 | 03-26 | Fix: Uber retry — 3s opóźnienie po nieudanym screenshocie |
-| 03-25 | Setup wizard v2: karty per producent (Samsung/Xiaomi/Huawei/Oppo/OnePlus), toast hints (skrócone — "Znajdź CourierAssist i włącz przełącznik"), domyślny język z system locale |
+| 03-25 | Setup wizard v2: karty per producent (Samsung/Xiaomi/Huawei/Oppo/OnePlus), toast hints (skrócone — "Znajdź OrderPilot i włącz przełącznik"), domyślny język z system locale |
 | 03-25 | Test na Xiaomi z FakeUberApp: belka działa, wizard Xiaomi OK, task-removed OK, toast hints OK (pushowano na GitHub) |
 | 03-25 | Fix: MIUI fałszywie zatrzymywał monitoring po Home — zamiana ActivityLifecycleCallbacks na onTaskRemoved() w serwisach |
 | 03-25 | Fix: OCR ukraiński — Latin lookalikes (rpH/XB) we wszystkich parserach, distance regex poluzowany, logowanie linii OCR |

@@ -1,4 +1,4 @@
-# CourierAssist — Specyfikacja Produktu v1
+# OrderPilot — Specyfikacja Produktu v1
 
 **Data:** 2026-03-17
 **Status:** Zatwierdzona (aktualizacja 2026-03-17)
