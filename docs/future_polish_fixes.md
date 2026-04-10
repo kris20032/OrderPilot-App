@@ -53,7 +53,8 @@
   - Setup wizard: pole wyboru pojazdu (rower / rower elektryczny / skuter / auto)
   - Engine: tabela prędkości per typ pojazdu → dystans / prędkość = szacunkowy czas
   - GlovoOcrParser/OfferAnalyzer: przekazywanie dystansu → wyliczanie zł/h
-- **Status:** Pomysł — jeszcze nie implementujemy.
+- **Uwaga:** Ryzykowne — szacunkowe prędkości (rower vs auto, centrum vs obrzeża) mogą dawać niedokładne zł/h. Brak czasu oczekiwania w restauracji (5-15 min) dodatkowo zaburza wynik. Może wprowadzić więcej problemów niż korzyści (utrata zaufania do apki). Wymaga dokładnego przemyślenia mechanizmu.
+- **Status:** Pomysł — odłożony, wymaga lepszego podejścia.
 
 ---
 
@@ -62,11 +63,8 @@
 
 ---
 
-### 9. Lepsza diagnostyka błędów OCR
-- **Problem:** Gdy ML Kit padnie, `recognize()` zwraca pustą listę — nie da się odróżnić "brak tekstu" od "OCR się wysypał".
-- **Fix:** Logować typ wyniku (sukces vs błąd) wyraźniej, ewentualnie zwracać Result<List<String>>.
-- **Ryzyko:** Bardzo niskie — zmiana diagnostyczna.
-- **Status:** Do zrobienia przy porządkach.
+### 9. ~~Lepsza diagnostyka błędów OCR~~ ✅ ROZWIĄZANE (2026-04-10)
+- OCR timeout 5s loguje osobno "timed out" vs "failed" vs pusta lista — diagnostyka wystarczająca.
 
 ---
 

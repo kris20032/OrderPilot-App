@@ -46,6 +46,8 @@ class OrderPilotAccessibilityService : AccessibilityService() {
     @Volatile private var uberWatchJob: Job? = null
     @Volatile private var boltWatchJob: Job? = null
     @Volatile private var hadUberOverlayWindow = false
+    @Volatile private var consecutiveScreenshotFailures = 0
+    private var screenshotAlertShown = false
 
     override fun onServiceConnected() {
         pipeline = ServiceLocator.pipelineOrchestrator
@@ -406,9 +408,21 @@ class OrderPilotAccessibilityService : AccessibilityService() {
             val screenOn = (getSystemService(POWER_SERVICE) as? PowerManager)?.isInteractive ?: true
             AppLog.d(AppLog.TAG_SERVICE, "Taking screenshot via AccessibilityService API (retry=$retryIndex, screenOn=$screenOn)")
             bitmap = withTimeoutOrNull(SCREENSHOT_TIMEOUT_MS) { takeScreenshotSuspend() } ?: run {
-                AppLog.w(AppLog.TAG_SERVICE, "Screenshot returned null or timed out (retry=$retryIndex)")
+                consecutiveScreenshotFailures++
+                AppLog.w(AppLog.TAG_SERVICE, "Screenshot returned null or timed out (retry=$retryIndex, consecutive failures: $consecutiveScreenshotFailures)")
+                if (consecutiveScreenshotFailures >= SCREENSHOT_FAILURE_ALERT_THRESHOLD && !screenshotAlertShown) {
+                    screenshotAlertShown = true
+                    AppLog.w(AppLog.TAG_SERVICE, "ALERT: $consecutiveScreenshotFailures consecutive screenshot failures — notifying user")
+                    android.os.Handler(android.os.Looper.getMainLooper()).post {
+                        android.widget.Toast.makeText(applicationContext, "OrderPilot: zrzuty ekranu nie działają — sprawdź uprawnienia", android.widget.Toast.LENGTH_LONG).show()
+                    }
+                }
                 return
             }
+
+            // Screenshot success — reset failure counter
+            consecutiveScreenshotFailures = 0
+            screenshotAlertShown = false
 
             AppLog.d(AppLog.TAG_SERVICE, "Screenshot bitmap: ${bitmap.width}x${bitmap.height} (retry=$retryIndex)")
 
@@ -638,6 +652,7 @@ class OrderPilotAccessibilityService : AccessibilityService() {
         private const val UBER_MAX_RETRIES = 4         // Uber React Native: wolny rendering
         private const val WOLT_MAX_RETRIES = 2          // Wolt natywne UI: szybki rendering
         private const val CROP_TOP_RATIO = 0.4f         // crop dolne 60% screenshota
+        private const val SCREENSHOT_FAILURE_ALERT_THRESHOLD = 10  // alert po 10 porażkach z rzędu
 
         /** Paczki kurierskie — blokujemy screenshot tylko gdy foreground to INNA z tych apek */
         private val courierPackages = setOf(

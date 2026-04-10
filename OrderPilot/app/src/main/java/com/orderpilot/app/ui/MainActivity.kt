@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity() {
         // UI odzwierciedla MonitoringController (source of truth).
         // Jeśli stan = ACTIVE (np. persystowany po restarcie procesu), UI pokazuje Active.
         // User może kliknąć Stop żeby zatrzymać.
-        if (ScreenCaptureService.isProjectionLost) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && ScreenCaptureService.isProjectionLost) {
             ScreenCaptureService.stopCapture(this)
             pendingStart = false
             if (!OrderPilotAccessibilityService.isConnected) {
@@ -129,7 +129,18 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
             return
         }
-        // Accessibility OK → pytamy o MediaProjection. Stan ustawimy dopiero po potwierdzeniu.
+
+        // API 30+ → takeScreenshot() wystarczy, skip MediaProjection dialog
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            AppLog.d(AppLog.TAG_MAIN, "Started monitoring (API ${Build.VERSION.SDK_INT}, screenshot: takeScreenshot)")
+            MonitoringController.start(this)
+            isRunning = true
+            updateUi()
+            return
+        }
+
+        // API < 30 → MediaProjection dialog
+        AppLog.d(AppLog.TAG_MAIN, "Started monitoring (API ${Build.VERSION.SDK_INT}, screenshot: MediaProjection)")
         val manager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         val captureIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             manager.createScreenCaptureIntent(MediaProjectionConfig.createConfigForDefaultDisplay())
@@ -142,7 +153,9 @@ class MainActivity : AppCompatActivity() {
     private fun stopCapture() {
         MonitoringController.stop(this)
         OrderPilotAccessibilityService.cancelActiveJobs()
-        ScreenCaptureService.stopCapture(this)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            ScreenCaptureService.stopCapture(this)
+        }
         isRunning = false
         pendingStart = false
         updateUi()

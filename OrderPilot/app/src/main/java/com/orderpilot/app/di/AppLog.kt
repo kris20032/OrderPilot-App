@@ -13,6 +13,7 @@ object AppLog {
     const val TAG_PARSER   = "OP_Parser"
     const val TAG_OVERLAY  = "OP_Overlay"
     const val TAG_SERVICE  = "OP_Service"
+    const val TAG_MAIN     = "OP_Main"
 
     private const val BUFFER_SIZE = 2000
     private val buffer = ArrayDeque<String>(BUFFER_SIZE)
