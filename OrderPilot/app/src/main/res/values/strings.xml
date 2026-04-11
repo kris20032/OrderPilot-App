@@ -106,4 +106,17 @@
     <string name="toast_logs_saved">Logi zapisane w Downloads</string>
     <string name="toast_logs_error">Błąd zapisu logów</string>
     <string name="settings_validation_error">Próg zielony musi być wyższy niż żółty</string>
+
+    <string name="toast_notification_denied">Powiadomienia wyłączone — nie zobaczysz statusu monitoringu w pasku</string>
+
+    <!-- Foreground service notification -->
+    <string name="notif_monitoring_title">Monitoring zamówień aktywny</string>
+    <string name="notif_monitoring_text">OrderPilot nasłuchuje nowych zleceń</string>
+
+    <!-- Watchdog recovery notification -->
+    <string name="notif_watchdog_title">Monitoring zatrzymany</string>
+    <string name="notif_watchdog_text">Kliknij, aby przywrócić działanie</string>
+
+    <!-- Notification permission hint -->
+    <string name="hint_notifications_disabled">Powiadomienia wyłączone — monitoring działa, ale nie zobaczysz statusu ani alertów o problemach</string>
 </resources>

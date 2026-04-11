@@ -105,4 +105,17 @@
     <string name="toast_logs_saved">Логи сохранены в Downloads</string>
     <string name="toast_logs_error">Ошибка сохранения логов</string>
     <string name="settings_validation_error">Зелёный порог должен быть выше жёлтого</string>
+
+    <string name="toast_notification_denied">Уведомления отключены — вы не увидите статус мониторинга в строке состояния</string>
+
+    <!-- Foreground service notification -->
+    <string name="notif_monitoring_title">Мониторинг заказов активен</string>
+    <string name="notif_monitoring_text">OrderPilot отслеживает новые заказы</string>
+
+    <!-- Watchdog recovery notification -->
+    <string name="notif_watchdog_title">Мониторинг остановлен</string>
+    <string name="notif_watchdog_text">Нажмите, чтобы восстановить работу</string>
+
+    <!-- Notification permission hint -->
+    <string name="hint_notifications_disabled">Уведомления отключены — мониторинг работает, но вы не увидите статус или оповещения о проблемах</string>
 </resources>

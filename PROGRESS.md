@@ -1,7 +1,7 @@
 # OrderPilot — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-04-11
-**Obecny etap:** Język rosyjski zaimplementowany (UI + parsery + rival markers) — branch `fix/phantom-overlay-guard`, czeka na build + test.
+**Obecny etap:** Audyt niezawodności + 4 HIGH fixy (BOOT_COMPLETED, watchdog race, health-check delay, notification UX) — branch `fix/phantom-overlay-guard`, czeka na build + test (reboot/kill/Doze).
 **Aktywne branche:** `fix/phantom-overlay-guard` (bieżący), `feature/production-app` (stable base), `main` (zsynchronizowany)
 
 ---
@@ -15,6 +15,7 @@
 | ~~**High**~~ | ~~Fix phantom overlay Xiaomi — false positive belka w Google Maps~~ | ✅ 2 zmiany (04-10), czeka na test produkcyjny |
 | ~~**High**~~ | ~~Skip MediaProjection na API 30+ — uproszczony start~~ | ✅ Zaimplementowane (04-10), build OK |
 | ~~**High**~~ | ~~Język rosyjski (UI + parsery + rival markers)~~ | ✅ Zaimplementowany (04-11), czeka na build |
+| ~~**High**~~ | ~~Audyt niezawodności + 4 HIGH fixy (boot/watchdog/delay/notif)~~ | ✅ Zaimplementowane (04-11), czeka na test |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
 | **High** | Budowanie APK release do dystrybucji beta | Następny krok |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
@@ -53,6 +54,7 @@
 ### Faza 1.6: Ulepszenia przed beta (teraz)
 11. ~~Skip MediaProjection na API 30+~~ ✅ (04-10) — takeScreenshot() jedyna ścieżka, brak dialogu, brak foreground service
 12. ~~Język rosyjski~~ ✅ (04-11) — AppLanguage.RU, values-ru/strings.xml, rival markers RU we wszystkich parserach, filtr gotówkowy RU w Glovo, overlay units ч/км/мин
+13. ~~Audyt niezawodności + HIGH fixy~~ ✅ (04-11) — BootReceiver, watchdog race guard, health-check 2500ms, notification permission UI hint
 
 ### Faza 2: Przygotowanie do beta testów
 8. Budowanie APK release (signed) do dystrybucji
@@ -69,6 +71,7 @@
 
 | Data | Zmiana |
 |------|--------|
+| 04-11 | **Audyt niezawodności** — 7 problemów zidentyfikowanych (4 HIGH, 3 MEDIUM). 4 HIGH fixy: BootReceiver (wznowienie po reboot), watchdog race guard (initialize() w doWork()), health-check delay 500→2500ms (false stop po Doze), notification permission UI hint (persistent banner gdy denied). |
 | 04-11 | **Język rosyjski** — AppLanguage.RU, values-ru/strings.xml (109 stringów), rival markers RU we wszystkich 4 parserach (synonimy per concept), filtr gotówkowy RU w GlovoOcrParser (prefix "наличн"), overlay units ч/км/мин. Punkt #10 (usunięcie MediaProjection) zamknięty jako nieaktualny. Punkt #17 (wskaźnik akceptacji) dodany do future_polish_fixes. |
 | 04-10 | **Skip MediaProjection na API 30+** — na Android 11+ apka pomija dialog MediaProjection i foreground service. Screenshoty przez AccessibilityService.takeScreenshot(). Consecutive failure counter (alert po 10 porażkach) jako safety net. future_polish_fixes: punkt 9 resolved, punkt 7 z uwagą o ryzyku. |
 | 04-10 | **Fix phantom overlay Xiaomi** — watch mode guard: `hasUberOverlayWindow()` → `hasUberOverlayWithContent()` (linia 481). Phantom overlay Xiaomi (type=3, pusty) nie przepuszcza już periodic screenshot bez realnego popupu. Bonus: fallback amount regex `\d+` → `\d{1,2}` po separatorze — blokuje GPS coords jako false kwoty. |

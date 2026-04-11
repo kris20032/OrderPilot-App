@@ -105,4 +105,17 @@
     <string name="toast_logs_saved">Logs saved to Downloads</string>
     <string name="toast_logs_error">Error saving logs</string>
     <string name="settings_validation_error">Green threshold must be higher than yellow</string>
+
+    <string name="toast_notification_denied">Notifications disabled — you won\'t see monitoring status in the status bar</string>
+
+    <!-- Foreground service notification -->
+    <string name="notif_monitoring_title">Order monitoring active</string>
+    <string name="notif_monitoring_text">OrderPilot is listening for new orders</string>
+
+    <!-- Watchdog recovery notification -->
+    <string name="notif_watchdog_title">Monitoring stopped</string>
+    <string name="notif_watchdog_text">Tap to restore monitoring</string>
+
+    <!-- Notification permission hint -->
+    <string name="hint_notifications_disabled">Notifications disabled — monitoring works, but you won\'t see status or problem alerts</string>
 </resources>

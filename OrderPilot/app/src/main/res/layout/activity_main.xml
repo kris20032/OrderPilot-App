@@ -131,6 +131,23 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btn_toggle" />
 
+    <!-- Hint o notyfikacjach — widoczny gdy POST_NOTIFICATIONS denied -->
+    <TextView
+        android:id="@+id/tv_notification_hint"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/hint_notifications_disabled"
+        android:textSize="12sp"
+        android:textColor="@color/on_surface_variant"
+        android:gravity="center"
+        android:background="@color/surface"
+        android:padding="8dp"
+        android:visibility="gone"
+        android:layout_marginTop="12dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_save_logs" />
+
     <!-- Hint o dostepnosci — widoczny tylko gdy accessibility wylaczone -->
     <LinearLayout
         android:id="@+id/layout_accessibility_hint"
@@ -142,7 +159,7 @@
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_save_logs">
+        app:layout_constraintTop_toBottomOf="@id/tv_notification_hint">
 
         <TextView
             android:id="@+id/tv_accessibility_hint"

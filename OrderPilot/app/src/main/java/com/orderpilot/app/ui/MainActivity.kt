@@ -7,6 +7,8 @@ import android.content.Intent
 import android.graphics.drawable.GradientDrawable
 import android.media.projection.MediaProjectionConfig
 import android.media.projection.MediaProjectionManager
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -46,6 +48,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_MEDIA_PROJECTION = 1001
+        private const val REQUEST_NOTIFICATION_PERMISSION = 1002
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,7 +103,7 @@ class MainActivity : AppCompatActivity() {
             updateUi()
             // Health-check: jeśli monitoring "active" ale AccessibilityService martwy (OEM kill)
             if (isRunning && !OrderPilotAccessibilityService.isConnected) {
-                // Delay 500ms — daj czas na onServiceConnected() jeśli serwis dopiero startuje
+                // Delay 2500ms — daj czas na onServiceConnected() po Doze wakeup / process restart
                 binding.root.postDelayed({
                     if (MonitoringController.isActive() && !OrderPilotAccessibilityService.isConnected) {
                         MonitoringController.stop(this)
@@ -108,10 +111,11 @@ class MainActivity : AppCompatActivity() {
                         updateUi()
                         Toast.makeText(this, getString(R.string.toast_service_killed), Toast.LENGTH_LONG).show()
                     }
-                }, 500)
+                }, 2500)
             }
         }
         updateAccessibilityHint()
+        updateNotificationHint()
     }
 
     override fun onPause() {
@@ -119,7 +123,26 @@ class MainActivity : AppCompatActivity() {
         dotPulseAnimator?.cancel()
     }
 
+    private fun ensureNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_NOTIFICATION_PERMISSION)
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_NOTIFICATION_PERMISSION) {
+            if (grantResults.isNotEmpty() && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, getString(R.string.toast_notification_denied), Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     private fun startCapture() {
+        ensureNotificationPermission()
+
         if (!OrderPilotAccessibilityService.isConnected) {
             // Accessibility nie podłączone → start monitoring (accessibility-only mode po powrocie)
             MonitoringController.start(this)
@@ -209,6 +232,16 @@ class MainActivity : AppCompatActivity() {
             }.start()
 
         updateAccessibilityHint()
+        updateNotificationHint()
+    }
+
+    private fun updateNotificationHint() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val denied = checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+            binding.tvNotificationHint.visibility = if (denied && isRunning) View.VISIBLE else View.GONE
+        } else {
+            binding.tvNotificationHint.visibility = View.GONE
+        }
     }
 
     private fun updateAccessibilityHint() {
