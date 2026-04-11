@@ -19,7 +19,7 @@ class GlovoOcrParser : OcrOfferParser {
         // Guard: Uber popup — "Łącznie X min" to format Ubera, Glovo tego nie używa.
         // Gdy Glovo event triggeruje screenshot a na ekranie jest popup Ubera,
         // GlovoOcrParser widzi 1 kwotę + 1 dystans → "partial" → null, blokując Ubera.
-        val uberMarkers = listOf("Łącznie", "Lacznie", "Загалом")
+        val uberMarkers = listOf("Łącznie", "Lacznie", "Загалом", "Итого")
         if (uberMarkers.any { text.contains(it, ignoreCase = true) }) {
             AppLog.d(AppLog.TAG_PARSER, "Glovo: skipping — Uber popup text detected")
             return null
@@ -29,6 +29,7 @@ class GlovoOcrParser : OcrOfferParser {
         if (text.contains("Potwierdź odbiór", ignoreCase = true) ||
             text.contains("Potwierdz odbior", ignoreCase = true) ||
             text.contains("Підтвердити отримання", ignoreCase = true) ||
+            text.contains("Подтвердить получение", ignoreCase = true) ||
             text.contains("Confirm pickup", ignoreCase = true)) {
             AppLog.d(AppLog.TAG_PARSER, "Glovo: skipping — order details screen (Potwierdź odbiór)")
             return null
@@ -58,7 +59,13 @@ class GlovoOcrParser : OcrOfferParser {
                     prefix.contains("PAY ", ignoreCase = true) ||
                     prefix.contains("cash to partner", ignoreCase = true) ||
                     prefix.contains("change for", ignoreCase = true) ||
-                    prefix.contains("COLLECT", ignoreCase = true)
+                    prefix.contains("COLLECT", ignoreCase = true) ||
+                    // RU
+                    prefix.contains("ОПЛАТИТЕ", ignoreCase = true) ||
+                    prefix.contains("наличн", ignoreCase = true) ||
+                    prefix.contains("сдачу", ignoreCase = true) ||
+                    prefix.contains("ЗАБЕРИТЕ", ignoreCase = true) ||
+                    prefix.contains("ПОЛУЧИТЕ", ignoreCase = true)
 
                 if (isCashAmount) {
                     AppLog.d(AppLog.TAG_PARSER, "Glovo: skipping cash amount ${match.groupValues[1]} (cash/change)")

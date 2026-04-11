@@ -76,9 +76,20 @@ object OverlayViewFactory {
      * działa w PL i wszystkie platformy rozliczają się w PLN.
      */
     private fun labels(language: AppLanguage, currency: String): Labels {
-        val hourSuffix = if (language == AppLanguage.UK) "год" else "h"
-        val kmUnit = if (language == AppLanguage.UK) "км" else "km"
-        val minUnit = if (language == AppLanguage.UK) "хв" else "min"
+        val hourSuffix = when (language) {
+            AppLanguage.UK -> "год"
+            AppLanguage.RU -> "ч"
+            else -> "h"
+        }
+        val kmUnit = when (language) {
+            AppLanguage.UK, AppLanguage.RU -> "км"
+            else -> "km"
+        }
+        val minUnit = when (language) {
+            AppLanguage.UK -> "хв"
+            AppLanguage.RU -> "мин"
+            else -> "min"
+        }
         return Labels(
             currencyPerHour = "$currency/$hourSuffix",
             currencyPerKm = "$currency/$kmUnit",

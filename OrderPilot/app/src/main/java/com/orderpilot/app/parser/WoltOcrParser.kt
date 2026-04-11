@@ -29,6 +29,10 @@ class WoltOcrParser : OcrOfferParser {
         "Dostawa ·", "Delivery ·",
         "Jesteś w trybie online", "You're online", "Ви онлайн",
         "Includes expected tip",
+        // Uber RU
+        "Итого", "Всего",
+        "Вы онлайн", "Вы в сети",
+        "Включая чаевые",
         // Bolt offer popup / idle
         "Decline", "Show map", "Looking for orders", "Go offline"
     )

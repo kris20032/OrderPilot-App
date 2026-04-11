@@ -8,7 +8,7 @@
 >
 > **Użycie:** przy pytaniach „co robimy?" / „co można poprawić?" → odwołaj się do tego pliku.
 >
-> Ostatnia aktualizacja: 2026-04-08
+> Ostatnia aktualizacja: 2026-04-11
 
 ---
 
@@ -68,11 +68,9 @@
 
 ---
 
-### 10. Usunięcie MediaProjection — uproszczenie UX
-- **Problem:** takeScreenshot() (API 30+) daje te same wyniki co MediaProjection, ale nie wymaga dialogu ze zgodą.
-- **Fix:** Usunąć ScreenCaptureService i cały flow MediaProjection, zostawić tylko takeScreenshot().
-- **Ryzyko:** Średnie — spory kawałek kodu do usunięcia. Sprawdzić czy tata/brat mają Android 11+.
-- **Status:** Do rozważenia po stabilizacji.
+### 10. ~~Usunięcie MediaProjection~~ ✅ NIEAKTUALNE (2026-04-11)
+- API 30+ automatycznie pomija MediaProjection i używa `takeScreenshot()` — zaimplementowane 04-10.
+- Kod MediaProjection zostaje jako fallback dla API <30. Usuwanie go to refaktoring bez korzyści dla użytkownika.
 
 ---
 
@@ -108,7 +106,19 @@
 
 ---
 
-### 16. Dodanie języka rosyjskiego
-- **Problem:** Apka obsługuje PL/EN/UK, ale brakuje rosyjskiego — potencjalni użytkownicy-kurierzy w RU/BY/KZ.
-- **Co zrobić:** Dodać `AppLanguage.RU`, `strings.xml` w `values-ru/`, rival markers RU, waluty RUB/BYN/KZT.
-- **Status:** Do zrobienia.
+### 16. ~~Dodanie języka rosyjskiego~~ ✅ ZAIMPLEMENTOWANE (2026-04-11)
+- AppLanguage.RU, values-ru/strings.xml (109 stringów), rival markers RU w 4 parserach, filtr gotówkowy RU, overlay ч/км/мин.
+- Waluty (RUB/BYN/KZT) NIE dodane — osobne zadanie na przyszłość.
+
+---
+
+### 17. Wskaźnik akceptacji kursów — ochrona przed banem
+- **Problem:** Kurierzy używający OrderPilot mogą odrzucać zbyt wiele zleceń (bo widzą że zł/h jest niskie), co grozi obniżeniem acceptance rate i potencjalnym banem/depriorytetyzacją na platformie.
+- **Pomysł:** Wyświetlać użytkownikowi jego bieżący wskaźnik akceptacji (np. "Akceptacja: 73% — uwaga, poniżej 80%"), żeby świadomie decydował kiedy odrzucić a kiedy przyjąć słabsze zlecenie.
+- **Wymagane do analizy:**
+  - Skąd brać dane? Platformy raczej nie eksponują acceptance rate w accessibility tree ani na ekranie oferty. Możliwe źródła: ekran statystyk (OCR/tree read), ręczne wpisanie przez usera, zliczanie accept/reject w apce.
+  - Zliczanie lokalne (OrderPilot liczy ile belek user widział vs ile zaakceptował) — najprostsze, ale niedokładne (nie wie czy user naprawdę przyjął/odrzucił).
+  - Progi alarmowe per platforma — każda platforma ma inne zasady (Uber vs Glovo vs Bolt vs Wolt).
+  - UX: gdzie wyświetlać? Belka? Osobny widget? Ekran ustawień?
+- **Wstępny kierunek:** Hybryda — zliczanie lokalne (ile ofert widzianych w sesji) + oportunistyczny odczyt z ekranu statystyk platformy (gdy user wejdzie w ustawienia/statystyki → screenshot + OCR).
+- **Status:** Pomysł — wymaga analizy przed implementacją.

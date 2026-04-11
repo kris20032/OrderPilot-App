@@ -130,6 +130,7 @@ class SettingsActivity : AppCompatActivity() {
             AppLanguage.PL -> R.id.rb_lang_pl
             AppLanguage.UK -> R.id.rb_lang_uk
             AppLanguage.EN -> R.id.rb_lang_en
+            AppLanguage.RU -> R.id.rb_lang_ru
         }
         binding.rgLanguage.check(langRadio)
 
@@ -216,6 +217,7 @@ class SettingsActivity : AppCompatActivity() {
         val language = when (binding.rgLanguage.checkedRadioButtonId) {
             R.id.rb_lang_uk -> AppLanguage.UK
             R.id.rb_lang_en -> AppLanguage.EN
+            R.id.rb_lang_ru -> AppLanguage.RU
             else -> AppLanguage.PL
         }
 

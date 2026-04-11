@@ -28,9 +28,13 @@ class BoltFoodOcrParser : OcrOfferParser {
         "Dostawa ·", "Delivery ·",
         "Jesteś w trybie online", "You're online", "Ви онлайн",
         "Includes expected tip",
+        // Uber RU
+        "Итого", "Всего", "Вы онлайн", "Вы в сети", "Включая чаевые",
         // Wolt PL/EN/UK
         "Odbiór za", "Pickup in", "Забери через",
-        "Spodziewany zarobek", "Expected earnings", "Estimated earnings", "Очікуваний заробіток"
+        "Spodziewany zarobek", "Expected earnings", "Estimated earnings", "Очікуваний заробіток",
+        // Wolt RU
+        "Заберите через", "Забрать через", "Ожидаемый заработок", "Приблизительный заработок"
     )
 
     override fun parse(ocrLines: List<String>): Offer? {

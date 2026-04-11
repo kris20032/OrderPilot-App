@@ -24,9 +24,16 @@ class UberOcrParser : OcrOfferParser {
         "Odbiór za", "Pickup in", "Забери через",
         "Spodziewany zarobek", "Expected earnings", "Estimated earnings", "Очікуваний заробіток",
         "Dostawa od", "Delivery from", "Доставка від",
+        // Wolt RU
+        "Заберите через", "Забрать через",
+        "Ожидаемый заработок", "Приблизительный заработок",
+        "Доставка от",
         // Bolt PL/EN
         "Potwierdź odbiór", "Confirm pickup",
-        "Decline", "Show map", "Looking for orders", "Go offline"
+        "Decline", "Show map", "Looking for orders", "Go offline",
+        // Bolt RU
+        "Подтвердить получение", "Подтвердите получение",
+        "Отклонить", "Показать карту", "Ищу заказы", "Выйти из сети"
     )
 
     // Frazy z ekranu historii/szczegółów przejazdu — nigdy nie pojawiają się na popupie oferty.
@@ -37,7 +44,10 @@ class UberOcrParser : OcrOfferParser {
         // EN
         "Trip duration", "Your earnings", "Distance", "Trip fare",
         // UK
-        "Тривалість", "Відстань", "Ваш заробіток"
+        "Тривалість", "Відстань", "Ваш заробіток",
+        // RU
+        "Продолжительность", "Длительность", "Время поездки",
+        "Расстояние", "Ваш заработок", "Заработок", "Доход", "Стоимость поездки"
     )
 
     override fun parse(ocrLines: List<String>): Offer? {
