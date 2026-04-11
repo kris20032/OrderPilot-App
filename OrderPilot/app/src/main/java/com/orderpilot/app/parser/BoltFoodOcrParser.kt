@@ -15,7 +15,7 @@ class BoltFoodOcrParser : OcrOfferParser {
     )
 
     // Czas: "27 min", "27min", "27 хв"
-    private val timeRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв|XB)""", RegexOption.IGNORE_CASE)
+    private val timeRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв|XB|мін|мин)""", RegexOption.IGNORE_CASE)
     private val hourRegex = Regex("""(\d+)[\s\u00A0]*(?:godz|год|hr|hour)""", RegexOption.IGNORE_CASE)
 
     // Dystans: "2.2 km", "2,2 km", "5 km"

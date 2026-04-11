@@ -2,10 +2,10 @@
 
 ## 🚨 AKTYWNY BRANCH (source of truth)
 
-**Obecny branch roboczy: `feature/production-app`**
+**Obecny branch roboczy: `fix/phantom-overlay-guard`**
 **Ostatnia aktualizacja tego wpisu: 2026-04-10**
 
-`fix/state-refactor` zmergowany po 2 dniach testów produkcyjnych. Nowe zmiany idą na nowy branch z `feature/production-app`.
+`fix/state-refactor` zmergowany po 2 dniach testów produkcyjnych. Branch `fix/phantom-overlay-guard` utworzony z `feature/production-app` — phantom overlay fix + skip MediaProjection API 30+.
 
 Jeśli zaczynasz sesję i aktywny branch tu wymieniony **nie zgadza się** z tym na czym jesteś → **STOP, nie pracuj, zapytaj użytkownika**. Nie próbuj „naprawiać" przez switch — może być powód dla którego jesteś gdzie indziej.
 

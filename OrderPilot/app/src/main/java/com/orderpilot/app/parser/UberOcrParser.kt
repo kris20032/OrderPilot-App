@@ -10,7 +10,7 @@ class UberOcrParser : OcrOfferParser {
     override val supportedPackages = setOf("com.ubercab.driver", "com.ubercab.eats")
 
     // Czas: "14 min", "14min", "14 хв"
-    private val timeRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв|XB)""", RegexOption.IGNORE_CASE)
+    private val timeRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв|XB|мин)""", RegexOption.IGNORE_CASE)
     private val hourRegex = Regex("""(\d+)[\s\u00A0]*(?:godz|год|hr|hour)""", RegexOption.IGNORE_CASE)
 
     // Dystans: "(1.0 km)", "1,5 km" — wymaga spacji/nawias/minus przed liczbą

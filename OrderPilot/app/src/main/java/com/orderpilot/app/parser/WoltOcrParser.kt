@@ -11,10 +11,10 @@ class WoltOcrParser : OcrOfferParser {
 
     // Czas jako zakres: "16 - 19 min", "16 – 19 min", "16—19 min"
     // Bierzemy MAX (konserwatywne — niższe zł/h)
-    private val timeRangeRegex = Regex("""(\d+)[\s\u00A0]*[-\u2013\u2014][\s\u00A0]*(\d+)[\s\u00A0]*(?:min|хв|XB)""", RegexOption.IGNORE_CASE)
+    private val timeRangeRegex = Regex("""(\d+)[\s\u00A0]*[-\u2013\u2014][\s\u00A0]*(\d+)[\s\u00A0]*(?:min|хв|XB|мин)""", RegexOption.IGNORE_CASE)
 
     // Fallback: czas jako pojedyncza wartość "19 min"
-    private val timeSingleRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв|XB)""", RegexOption.IGNORE_CASE)
+    private val timeSingleRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв|XB|мін|мин)""", RegexOption.IGNORE_CASE)
 
     // Godziny: "1 godz.", "2 год", "1 hr"
     private val hourRegex = Regex("""(\d+)[\s\u00A0]*(?:godz|год|hr|hour)""", RegexOption.IGNORE_CASE)
