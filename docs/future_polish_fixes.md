@@ -79,11 +79,14 @@
 
 ---
 
-### 12. Test service restart po adb kill (diagnostyka stabilności)
-- **Co zrobić:** Podłączyć telefon USB, `adb shell am force-stop com.orderpilot.app`, sprawdzić czy AccessibilityService się restartuje.
-- **Dlaczego:** OEM-y (Xiaomi MIUI, Huawei EMUI, Samsung OneUI) agresywnie zabijają serwisy w tle. Jeśli serwis nie wstaje po killu — użytkownik traci monitoring bez świadomości.
-- **Kiedy:** Przy kolejnym teście u taty (Samsung + Xiaomi).
-- **Status:** Do przetestowania.
+### 12. ~~Test service restart po adb kill~~ ✅ PRZETESTOWANE (2026-04-11)
+- **Wynik (Samsung OneUI):** `adb shell am force-stop` zabija AccessibilityService. Samsung **NIE restartuje** serwisu automatycznie. Serwis znika z "Bound services", nie trafia do "Crashed services". Przy ponownym otwarciu apki wizard wykrywa brak usługi — user musi ręcznie włączyć ponownie.
+- **Wniosek:** Jeśli OEM zabije apkę w tle → monitoring umiera po cichu. User nie wie.
+- **Do zrobienia w przyszłości:**
+  - Persistent notification ("OrderPilot monitoruje") — gdy zniknie, user widzi że coś nie tak.
+  - Self-health check: `BOOT_COMPLETED` receiver + periodic alive-ping → powiadomienie "monitoring zatrzymany, kliknij żeby przywrócić".
+  - ~~Xiaomi (MIUI) — do przetestowania osobno~~ ✅ Przetestowane 04-11: identyczny wynik jak Samsung — serwis nie wstaje po force-stop.
+- **Status:** Zdiagnozowane, fix odłożony.
 
 ---
 
@@ -122,3 +125,60 @@
   - UX: gdzie wyświetlać? Belka? Osobny widget? Ekran ustawień?
 - **Wstępny kierunek:** Hybryda — zliczanie lokalne (ile ofert widzianych w sesji) + oportunistyczny odczyt z ekranu statystyk platformy (gdy user wejdzie w ustawienia/statystyki → screenshot + OCR).
 - **Status:** Pomysł — wymaga analizy przed implementacją.
+
+---
+
+### 18. Fałszywy parse ze screenshotów w galerii / innych apkach
+- **Problem:** Gdy użytkownik przegląda galerię zdjęć (lub inną apkę) na której widać stary screenshot zlecenia z belką OrderPilot, a w tym momencie Uber trzyma pusty overlay (znany problem Xiaomi — persistent type=3 overlay), nasz pipeline robi screenshot → OCR czyta stary screenshot z galerii → parser parsuje go jako nowe zlecenie → wyświetla belkę z błędnymi danymi.
+- **Zaobserwowane:** 2026-04-11, Xiaomi taty. Dwa przypadki:
+  1. Galeria zdjęć ze starym zleceniem + pusty persistent overlay Xiaomi → OCR odczytał 79 linii śmieci → fałszywy RED parse. Poprawiony ~4s później gdy przyszło prawdziwe zlecenie.
+  2. Przeglądanie ustawień Ubera (bez prawdziwego zlecenia) → belka się pojawiła na podstawie tekstu z ekranu ustawień.
+- **Potencjalne fixy:**
+  - Guard na liczbę linii OCR: normalny popup Ubera ma ~10-15 linii. Jeśli OCR zwraca >30-40 linii → prawdopodobnie screenshot złapał zły ekran → odrzuć i retry.
+  - Guard na foreground app: jeśli na pierwszym planie jest galeria/menedżer plików → skip screenshot.
+  - Guard na treść OCR: jeśli tekst zawiera nazwy plików (`.png`, `.txt`, `.jpg`) → odrzuć.
+- **Status:** Znany, niski priorytet. Na etapie testów wręcz przydatne (można testować pipeline ze starych screenshotów gdy nie ma nowych zleceń).
+
+---
+
+### 19. Większy krzyżyk zamknięcia belki (przycisk jak na Uberze)
+- **Problem:** Obecny krzyżyk (×) jest za mały — trudno trafić palcem, szczególnie w stresie gdy trzeba szybko zamknąć belkę.
+- **Propozycja taty:** Krzyżyk w formie wyraźnego przycisku (okrągły/kwadratowy z tłem), podobnie jak przycisk × na popupach Ubera.
+- **Status:** Do zrobienia — quick UX fix.
+
+---
+
+### 20. Możliwość przesuwania belki (drag)
+- **Problem:** Belka zasłania przycisk odrzucenia/anulacji zlecenia na platformie. Użytkownik musi najpierw zamknąć belkę żeby odrzucić zlecenie — to wkurzające i problematyczne, szczególnie przy krótkim timerze na decyzję.
+- **Propozycja taty:** Belka powinna być przesuwalna (drag & drop) żeby można ją przesunąć w inne miejsce ekranu bez zamykania.
+- **Potencjalne podejścia:**
+  - `OnTouchListener` z `ACTION_MOVE` na overlay WindowManager → aktualizacja `layoutParams.y`
+  - Zapamiętywanie ostatniej pozycji w SharedPreferences żeby belka pojawiała się tam gdzie user ją ostatnio zostawił
+  - Alternatywa: swipe-to-dismiss (przesunięcie w bok zamyka belkę) — prostsze ale nie rozwiązuje problemu zasłaniania
+- **Priorytet:** Wysoki — bezpośrednio wpływa na UX i decyzyjność kuriera.
+- **Status:** Do zrobienia.
+
+---
+
+### 21. Oznaczenie zlecenia gotówkowego na belce
+- **Problem:** Kurier nie widzi na belce czy zlecenie jest gotówkowe czy normalne. Musi sam sprawdzić na popupie platformy.
+- **Propozycja taty:** Dodać informację na belce: np. ikona 💵 lub tekst "GOTÓWKA" / "CASH" gdy zlecenie jest gotówkowe.
+- **Wymagane:**
+  - Parsery już wykrywają gotówkę (`OfferFilter`) — trzeba przekazać tę informację do overlay zamiast tylko filtrować.
+  - Rozszerzenie `Offer` o pole `isCash: Boolean` (lub już istnieje w logice filtra).
+  - `OverlayViewFactory` — dodanie oznaczenia na belce gdy `isCash = true`.
+- **Status:** Do zrobienia — wymaga przeglądu obecnej logiki filtra gotówkowego.
+
+---
+
+### 22. Aplikacja nie powinna startować automatycznie po instalacji
+- **Problem:** Po zainstalowaniu apki i przejściu wizarda monitoring od razu jest aktywny. Użytkownik powinien sam decydować kiedy włączyć monitoring — kliknąć "Start" świadomie.
+- **Oczekiwane zachowanie:** Po instalacji + wizard → apka w stanie NIEAKTYWNYM. User klika "Start" gdy chce zacząć pracę. Apka nie powinna sama startować monitoringu.
+- **Status:** Do zrobienia.
+
+---
+
+### 23. Wizard — poprawić instrukcje dla AccessibilityService
+- **Problem:** W wizardzie instrukcja włączenia AccessibilityService nie wspomina że trzeba najpierw wejść w "Zainstalowane aplikacje" (lub "Pobrane aplikacje") i dopiero tam znaleźć OrderPilot. User nie wie gdzie szukać.
+- **Fix:** Dodać krok w instrukcji: "Wejdź w Zainstalowane aplikacje → znajdź OrderPilot → włącz".
+- **Status:** Do zrobienia.
