@@ -1,7 +1,7 @@
 # OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-04-11
-**Obecny etap:** Audyt niezawodności + 4 HIGH fixy (BOOT_COMPLETED, watchdog race, health-check delay, notification UX) — branch `fix/phantom-overlay-guard`, czeka na build + test (reboot/kill/Doze).
+**Ostatnia aktualizacja:** 2026-04-12
+**Obecny etap:** Oznaczenie gotówki na belce (💵) zaimplementowane (04-12) — branch `fix/phantom-overlay-guard`, czeka na build + test.
 **Aktywne branche:** `fix/phantom-overlay-guard` (bieżący), `feature/production-app` (stable base), `main` (zsynchronizowany)
 
 ---
@@ -55,6 +55,8 @@
 11. ~~Skip MediaProjection na API 30+~~ ✅ (04-10) — takeScreenshot() jedyna ścieżka, brak dialogu, brak foreground service
 12. ~~Język rosyjski~~ ✅ (04-11) — AppLanguage.RU, values-ru/strings.xml, rival markers RU we wszystkich parserach, filtr gotówkowy RU w Glovo, overlay units ч/км/мин
 13. ~~Audyt niezawodności + HIGH fixy~~ ✅ (04-11) — BootReceiver, watchdog race guard, health-check 2500ms, notification permission UI hint
+14. ~~6 fixów z testów produkcyjnych~~ ✅ (04-12) — overlay units per waluta (nie per język UI), OCR digit normalization relaxed, guard statisticsScreen, setup battery button, overlay × kółko, wizard toast "Zainstalowane aplikacje"
+15. ~~Oznaczenie gotówki na belce~~ ✅ (04-12) — `isCash` w Offer, detekcja Glovo (per-amount + fallback), generyczne markery Wolt/Bolt, 💵 emoji na belce
 
 ### Faza 2: Przygotowanie do beta testów
 8. Budowanie APK release (signed) do dystrybucji
@@ -71,6 +73,8 @@
 
 | Data | Zmiana |
 |------|--------|
+| 04-12 | **Oznaczenie gotówki na belce** — `isCash: Boolean` w Offer, detekcja: Glovo (per-amount prefix + containsCashMarkers fallback), Wolt/Bolt (generyczne markery PL/EN/UK/RU). 💵 emoji na końcu belki. isSameAsPrevious uwzględnia isCash. Testy: 4 w GlovoOcrParserTest + 10 w OcrOfferParserTest. |
+| 04-12 | **6 fixów z testów produkcyjnych** — (1) Overlay units zależą od waluty zlecenia nie języka UI (zł→h/km/min zawsze), (2) OCR digit normalization relaxed (Z→7, O→0, L→1 fix PLN1Z.28), (3) Guard statisticsScreenMarkers w UberOcrParser, (4) Setup: przycisk "Zezwól na działanie w tle" + ukrywanie po zaliczeniu, (5) Overlay × jako kółko w odcieniu belki, (6) Wizard toast z krokiem "Zainstalowane aplikacje". |
 | 04-11 | **Audyt niezawodności** — 7 problemów zidentyfikowanych (4 HIGH, 3 MEDIUM). 4 HIGH fixy: BootReceiver (wznowienie po reboot), watchdog race guard (initialize() w doWork()), health-check delay 500→2500ms (false stop po Doze), notification permission UI hint (persistent banner gdy denied). |
 | 04-11 | **Język rosyjski** — AppLanguage.RU, values-ru/strings.xml (109 stringów), rival markers RU we wszystkich 4 parserach (synonimy per concept), filtr gotówkowy RU w GlovoOcrParser (prefix "наличн"), overlay units ч/км/мин. Punkt #10 (usunięcie MediaProjection) zamknięty jako nieaktualny. Punkt #17 (wskaźnik akceptacji) dodany do future_polish_fixes. |
 | 04-10 | **Skip MediaProjection na API 30+** — na Android 11+ apka pomija dialog MediaProjection i foreground service. Screenshoty przez AccessibilityService.takeScreenshot(). Consecutive failure counter (alert po 10 porażkach) jako safety net. future_polish_fixes: punkt 9 resolved, punkt 7 z uwagą o ryzyku. |

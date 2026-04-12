@@ -48,6 +48,10 @@ class WoltOcrParser : OcrOfferParser {
             return null
         }
 
+        // Detekcja gotówki (generyczne markery — do weryfikacji z prawdziwymi zleceniami)
+        val isCash = OcrOfferParser.containsCashMarkers(text)
+        if (isCash) AppLog.d(AppLog.TAG_PARSER, "Wolt: cash order detected")
+
         // Kwota — wspólna logika z fallbackiem
         val (rawAmount, parsedAmount) = OcrOfferParser.extractAmount(text) ?: run {
             AppLog.w(AppLog.TAG_PARSER, "Wolt: no amount found | text=${text.take(200)}")
@@ -74,7 +78,7 @@ class WoltOcrParser : OcrOfferParser {
 
         val distance = distanceRegex.find(text)?.groupValues?.get(1)?.toDoubleLocale()
 
-        val offer = Offer(Platform.WOLT, amount, minutes, distance, OcrOfferParser.detectCurrency(text))
+        val offer = Offer(Platform.WOLT, amount, minutes, distance, OcrOfferParser.detectCurrency(text), isCash = isCash)
         AppLog.d(AppLog.TAG_PARSER, "Wolt parsed offer: $offer")
         return offer
     }

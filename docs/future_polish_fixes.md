@@ -8,7 +8,7 @@
 >
 > **Użycie:** przy pytaniach „co robimy?" / „co można poprawić?" → odwołaj się do tego pliku.
 >
-> Ostatnia aktualizacja: 2026-04-11
+> Ostatnia aktualizacja: 2026-04-12
 
 ---
 
@@ -141,10 +141,8 @@
 
 ---
 
-### 19. Większy krzyżyk zamknięcia belki (przycisk jak na Uberze)
-- **Problem:** Obecny krzyżyk (×) jest za mały — trudno trafić palcem, szczególnie w stresie gdy trzeba szybko zamknąć belkę.
-- **Propozycja taty:** Krzyżyk w formie wyraźnego przycisku (okrągły/kwadratowy z tłem), podobnie jak przycisk × na popupach Ubera.
-- **Status:** Do zrobienia — quick UX fix.
+### 19. ~~Większy krzyżyk zamknięcia belki (przycisk jak na Uberze)~~ ✅ DONE (2026-04-12)
+- Przycisk × jako kółko w odcieniu belki (większy, lepiej widoczny). Zaimplementowany w overlay_offer.xml + OverlayViewFactory.
 
 ---
 
@@ -160,25 +158,10 @@
 
 ---
 
-### 21. Oznaczenie zlecenia gotówkowego na belce
-- **Problem:** Kurier nie widzi na belce czy zlecenie jest gotówkowe czy normalne. Musi sam sprawdzić na popupie platformy.
-- **Propozycja taty:** Dodać informację na belce: np. ikona 💵 lub tekst "GOTÓWKA" / "CASH" gdy zlecenie jest gotówkowe.
-- **Wymagane:**
-  - Parsery już wykrywają gotówkę (`OfferFilter`) — trzeba przekazać tę informację do overlay zamiast tylko filtrować.
-  - Rozszerzenie `Offer` o pole `isCash: Boolean` (lub już istnieje w logice filtra).
-  - `OverlayViewFactory` — dodanie oznaczenia na belce gdy `isCash = true`.
-- **Status:** Do zrobienia — wymaga przeglądu obecnej logiki filtra gotówkowego.
+### 21. ~~Oznaczenie zlecenia gotówkowego na belce~~ ✅ DONE (2026-04-12)
+- `isCash: Boolean` w Offer. Glovo: per-amount prefix detekcja + containsCashMarkers() fallback. Wolt/Bolt: generyczne markery PL/EN/UK/RU (do weryfikacji z prawdziwymi zleceniami). 💵 emoji na końcu belki. Testy jednostkowe.
 
 ---
 
-### 22. Aplikacja nie powinna startować automatycznie po instalacji
-- **Problem:** Po zainstalowaniu apki i przejściu wizarda monitoring od razu jest aktywny. Użytkownik powinien sam decydować kiedy włączyć monitoring — kliknąć "Start" świadomie.
-- **Oczekiwane zachowanie:** Po instalacji + wizard → apka w stanie NIEAKTYWNYM. User klika "Start" gdy chce zacząć pracę. Apka nie powinna sama startować monitoringu.
-- **Status:** Do zrobienia.
-
----
-
-### 23. Wizard — poprawić instrukcje dla AccessibilityService
-- **Problem:** W wizardzie instrukcja włączenia AccessibilityService nie wspomina że trzeba najpierw wejść w "Zainstalowane aplikacje" (lub "Pobrane aplikacje") i dopiero tam znaleźć OrderPilot. User nie wie gdzie szukać.
-- **Fix:** Dodać krok w instrukcji: "Wejdź w Zainstalowane aplikacje → znajdź OrderPilot → włącz".
-- **Status:** Do zrobienia.
+### 23. ~~Wizard — poprawić instrukcje dla AccessibilityService~~ ✅ DONE (2026-04-12)
+- Toast z krokiem "Zainstalowane aplikacje" dodany w SetupActivity. User widzi podpowiedź gdzie szukać OrderPilot.

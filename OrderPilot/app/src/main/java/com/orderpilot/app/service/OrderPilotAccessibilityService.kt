@@ -340,7 +340,8 @@ class OrderPilotAccessibilityService : AccessibilityService() {
             result.level == prev.level &&
             result.offer.amount == prev.offer.amount &&
             result.offer.estimatedMinutes == prev.offer.estimatedMinutes &&
-            result.offer.distanceKm == prev.offer.distanceKm) return true
+            result.offer.distanceKm == prev.offer.distanceKm &&
+            result.offer.isCash == prev.offer.isCash) return true
 
         lastResults[platform] = result
         lastResultTimes[platform] = now

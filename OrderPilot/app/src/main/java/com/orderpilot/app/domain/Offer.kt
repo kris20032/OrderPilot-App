@@ -7,5 +7,6 @@ data class Offer(
     val distanceKm: Double? = null,  // łączny dystans (pickup + delivery) lub sam pickup
     val currency: String = "zł",
     val pickupDistanceKm: Double? = null, // dystans do restauracji (Glovo)
-    val isPartial: Boolean = false        // true = widoczny tylko 1 dystans, czeka na scroll
+    val isPartial: Boolean = false,       // true = widoczny tylko 1 dystans, czeka na scroll
+    val isCash: Boolean = false           // true = zlecenie gotówkowe (kurier odbiera pieniądze)
 )

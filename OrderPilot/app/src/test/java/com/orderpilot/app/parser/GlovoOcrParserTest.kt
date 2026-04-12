@@ -227,4 +227,48 @@ class GlovoOcrParserTest {
         )
         assertNull(parser.parse(lines))
     }
+
+    // --- Testy isCash ---
+
+    @Test
+    fun `isCash true when cash amount filtered and courier fee present`() {
+        val lines = listOf(
+            "10,74 zł", "Kebab Lamh", "1,4 km", "Dostawa", "1,6 km",
+            "Płatność Zapłać gotówką partnerowi 31,50 zł"
+        )
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertTrue("Expected isCash=true for cash order", offer!!.isCash)
+        assertEquals(10.74, offer.amount, 0.01)
+    }
+
+    @Test
+    fun `isCash true when ODBIERZ cash present`() {
+        val lines = listOf(
+            "10,74 zł", "1,4 km", "1,6 km", "ODBIERZ 65,41 zł"
+        )
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertTrue("Expected isCash=true for ODBIERZ", offer!!.isCash)
+    }
+
+    @Test
+    fun `isCash false for regular non-cash offer`() {
+        val lines = listOf("11,50 zł", "Pizzeria 105", "1,4 km", "Dostawa", "1,6 km")
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertFalse("Expected isCash=false for regular offer", offer!!.isCash)
+    }
+
+    @Test
+    fun `isCash true via global fallback marker - POTRZEBNA GOTÓWKA`() {
+        // Tekst ma "GOTÓWK" w treści (globalny marker) ale kwota gotówkowa nie jest w prefixie
+        val lines = listOf(
+            "10,74 zł", "1,4 km", "1,6 km",
+            "POTRZEBNA GOTÓWKA"
+        )
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertTrue("Expected isCash=true via global cash marker", offer!!.isCash)
+    }
 }

@@ -36,6 +36,7 @@ class GlovoOcrParser : OcrOfferParser {
         }
 
         // Szukamy WSZYSTKICH kwot, odfiltruj kwoty gotówkowe (nie wynagrodzenie kuriera)
+        var hasCashAmount = false
         val amounts = OcrOfferParser.findAllAmounts(text)
             .mapNotNull { match ->
                 val prefixStart = maxOf(0, match.range.first - 40)
@@ -68,6 +69,7 @@ class GlovoOcrParser : OcrOfferParser {
                     prefix.contains("ПОЛУЧИТЕ", ignoreCase = true)
 
                 if (isCashAmount) {
+                    hasCashAmount = true
                     AppLog.d(AppLog.TAG_PARSER, "Glovo: skipping cash amount ${match.groupValues[1]} (cash/change)")
                     return@mapNotNull null
                 }
@@ -76,7 +78,9 @@ class GlovoOcrParser : OcrOfferParser {
             }
             .toList()
 
-        AppLog.d(AppLog.TAG_PARSER, "Glovo: amounts found = $amounts")
+        // Detekcja gotówki: per-amount (prefix) + globalny fallback (markery w tekście)
+        val isCash = hasCashAmount || OcrOfferParser.containsCashMarkers(text)
+        AppLog.d(AppLog.TAG_PARSER, "Glovo: amounts found = $amounts, isCash=$isCash")
 
         val amount = amounts.maxOrNull() ?: run {
             AppLog.w(AppLog.TAG_PARSER, "Glovo: no amount found | text=${text.take(200)}")
@@ -114,7 +118,8 @@ class GlovoOcrParser : OcrOfferParser {
                     distanceKm = totalKm,
                     currency = OcrOfferParser.detectCurrency(text),
                     pickupDistanceKm = distances[0],
-                    isPartial = false
+                    isPartial = false,
+                    isCash = isCash
                 )
             }
         }

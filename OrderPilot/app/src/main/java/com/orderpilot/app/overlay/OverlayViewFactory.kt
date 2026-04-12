@@ -38,6 +38,10 @@ object OverlayViewFactory {
         if (result.offer.isPartial)
             parts += "↓"
 
+        // Zlecenie gotówkowe — emoji na końcu (po metrykach)
+        if (result.offer.isCash)
+            parts += "\uD83D\uDCB5" // 💵
+
         // Etykieta platformy — widoczna tylko gdy 2 belki naraz
         if (platformLabel != null)
             parts.add(0, platformLabel)

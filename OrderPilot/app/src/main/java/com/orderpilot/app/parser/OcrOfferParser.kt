@@ -142,6 +142,26 @@ interface OcrOfferParser {
         }
 
         /**
+         * Generyczne markery gotówkowe — wykrywa czy tekst zawiera frazy
+         * wskazujące na zlecenie cash-on-delivery.
+         * Używane przez Wolt/Bolt (generyczny skan) i Glovo (fallback obok per-amount detekcji).
+         * Markery dla Wolt/Bolt to najlepsze zgadywanie — do weryfikacji z prawdziwymi zleceniami.
+         */
+        private val CASH_MARKERS = listOf(
+            // PL
+            "gotówk", "gotowk", "płatność gotówką", "platnosc gotowka",
+            // EN
+            "cash payment", "pay in cash", "cash on delivery",
+            // UK
+            "готівк", "оплата готівкою",
+            // RU
+            "наличн", "оплата наличными"
+        )
+
+        fun containsCashMarkers(text: String): Boolean =
+            CASH_MARKERS.any { text.contains(it, ignoreCase = true) }
+
+        /**
          * Koryguje kwotę gdy OCR zgubił separator dziesiętny.
          * @param rawMatch dopasowany ciąg znaków z regex (np. "1720", "17,20")
          * @param parsed sparsowana wartość (np. 1720.0, 17.20)

@@ -47,6 +47,10 @@ class BoltFoodOcrParser : OcrOfferParser {
             return null
         }
 
+        // Detekcja gotówki (generyczne markery — do weryfikacji z prawdziwymi zleceniami)
+        val isCash = OcrOfferParser.containsCashMarkers(text)
+        if (isCash) AppLog.d(AppLog.TAG_PARSER, "Bolt: cash order detected")
+
         // Szukamy WSZYSTKICH kwot i bierzemy NAJWIĘKSZĄ (przycisk ma kwotę zlecenia)
         val amounts = OcrOfferParser.findAllAmounts(text)
             .mapNotNull { match ->
@@ -82,7 +86,7 @@ class BoltFoodOcrParser : OcrOfferParser {
 
         val distance = allDistances.maxOrNull()
 
-        val offer = Offer(Platform.BOLT, amount, minutes, distance, OcrOfferParser.detectCurrency(text))
+        val offer = Offer(Platform.BOLT, amount, minutes, distance, OcrOfferParser.detectCurrency(text), isCash = isCash)
         AppLog.d(AppLog.TAG_PARSER, "Bolt parsed offer: $offer")
         return offer
     }
