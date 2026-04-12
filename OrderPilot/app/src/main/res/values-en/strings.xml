@@ -20,7 +20,7 @@
     <string name="setup_battery_title">Background activity</string>
     <string name="setup_battery_desc">Disable battery optimization so the app keeps running when the screen is off.</string>
     <string name="setup_open_settings">Open settings</string>
-    <string name="setup_disable_restrictions">Disable restrictions</string>
+    <string name="setup_disable_restrictions">Allow background activity</string>
     <string name="setup_open_app_info">Open app info</string>
     <string name="setup_continue">Continue</string>
     <string name="setup_check_settings">Check settings</string>
@@ -65,7 +65,7 @@
 
     <!-- Toast hints (wizard) -->
     <string name="toast_hint_overlay">Find "OrderPilot" and enable the toggle</string>
-    <string name="toast_hint_accessibility">Find "OrderPilot" and enable the toggle</string>
+    <string name="toast_hint_accessibility">Tap "Installed apps" → find OrderPilot → enable</string>
     <string name="toast_hint_samsung_battery">Tap "Battery" → select "Unrestricted"</string>
     <string name="toast_hint_samsung_sleeping">Open "Background usage limits" and remove OrderPilot from the lists</string>
     <string name="toast_hint_xiaomi_autostart">Find "OrderPilot" and enable the toggle</string>

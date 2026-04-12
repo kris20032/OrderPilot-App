@@ -21,7 +21,7 @@
     <string name="setup_battery_desc">Wyłącz optymalizację baterii, aby aplikacja działała po wygaszeniu ekranu.</string>
     <string name="setup_open_app_info">Otwórz info o aplikacji</string>
     <string name="setup_open_settings">Otwórz ustawienia</string>
-    <string name="setup_disable_restrictions">Wyłącz ograniczenia</string>
+    <string name="setup_disable_restrictions">Zezwól na działanie w tle</string>
     <string name="setup_continue">Kontynuuj</string>
     <string name="setup_check_settings">Sprawdź ustawienia</string>
 
@@ -65,7 +65,7 @@
 
     <!-- Toast hints (wizard) -->
     <string name="toast_hint_overlay">Znajdź „OrderPilot" i włącz przełącznik</string>
-    <string name="toast_hint_accessibility">Znajdź „OrderPilot" i włącz przełącznik</string>
+    <string name="toast_hint_accessibility">Wejdź w „Zainstalowane aplikacje" → znajdź OrderPilot → włącz</string>
     <string name="toast_hint_samsung_battery">Kliknij „Bateria" → wybierz „Bez ograniczeń"</string>
     <string name="toast_hint_samsung_sleeping">Otwórz „Limity użycia w tle" i usuń OrderPilot z list</string>
     <string name="toast_hint_xiaomi_autostart">Znajdź „OrderPilot" i włącz przełącznik</string>

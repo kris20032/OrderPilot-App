@@ -59,7 +59,26 @@ object OverlayViewFactory {
             setCornerRadius(14f * density)
         }
         view.background = bg
+
+        // Przycisk zamknięcia — kółko w lekko ciemniejszym odcieniu belki
+        val closeBtnInner = (view.findViewById<View>(R.id.tv_close) as? android.view.ViewGroup)
+            ?.getChildAt(0)
+        closeBtnInner?.background = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            // Przyciemniamy kolor belki o ~25% — subtelny kontrast, nie odcina się wizualnie
+            setColor(darkenColor(bgColor, 0.75f))
+        }
+
         return view
+    }
+
+    /** Przyciemnia kolor RGB zachowując alpha. factor=0.75 → 25% ciemniej. */
+    private fun darkenColor(color: Int, factor: Float): Int {
+        val a = Color.alpha(color)
+        val r = (Color.red(color) * factor).toInt().coerceIn(0, 255)
+        val g = (Color.green(color) * factor).toInt().coerceIn(0, 255)
+        val b = (Color.blue(color) * factor).toInt().coerceIn(0, 255)
+        return Color.argb(a, r, g, b)
     }
 
     private data class Labels(
@@ -71,25 +90,31 @@ object OverlayViewFactory {
     )
 
     /**
-     * Jednostki (czas/dystans) biorą z języka UI, waluta dynamicznie z Offer.currency (OCR).
-     * Fallback "zł" gdy OCR nie wykrył waluty — nigdy nie hardcodujemy grn/UAH, bo apka
-     * działa w PL i wszystkie platformy rozliczają się w PLN.
+     * Jednostki na belce zależą od WALUTY ZLECENIA (= rynek), NIE od języka UI apki.
+     * Język UI zmienia menu/ustawienia, ale belka musi być spójna z walutą:
+     *   zł → h/km/min (łacińskie, zrozumiałe w PL)
+     *   ₴  → год/км/хв (ukraińskie, rynek UA)
+     *   ₽  → ч/км/мин (rosyjskie, rynek RU)
+     * Fallback (nieznana waluta) → łacińskie jednostki.
      */
     private fun labels(language: AppLanguage, currency: String): Labels {
-        val hourSuffix = when (language) {
-            AppLanguage.UK -> "год"
-            AppLanguage.RU -> "ч"
-            else -> "h"
+        val hourSuffix: String
+        val kmUnit: String
+        val minUnit: String
+
+        when (currency) {
+            "₴", "грн" -> {
+                hourSuffix = "год"; kmUnit = "км"; minUnit = "хв"
+            }
+            "₽", "руб" -> {
+                hourSuffix = "ч"; kmUnit = "км"; minUnit = "мін"
+            }
+            else -> {
+                // zł, €, $, £ i każda inna — uniwersalne łacińskie jednostki
+                hourSuffix = "h"; kmUnit = "km"; minUnit = "min"
+            }
         }
-        val kmUnit = when (language) {
-            AppLanguage.UK, AppLanguage.RU -> "км"
-            else -> "km"
-        }
-        val minUnit = when (language) {
-            AppLanguage.UK -> "хв"
-            AppLanguage.RU -> "мин"
-            else -> "min"
-        }
+
         return Labels(
             currencyPerHour = "$currency/$hourSuffix",
             currencyPerKm = "$currency/$kmUnit",

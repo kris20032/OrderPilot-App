@@ -20,7 +20,7 @@
     <string name="setup_battery_title">Робота у фоновому режимі</string>
     <string name="setup_battery_desc">Вимкніть оптимізацію батареї, щоб додаток працював після вимкнення екрана.</string>
     <string name="setup_open_settings">Відкрити налаштування</string>
-    <string name="setup_disable_restrictions">Вимкнути обмеження</string>
+    <string name="setup_disable_restrictions">Дозволити роботу у фоні</string>
     <string name="setup_open_app_info">Відкрити інфо про додаток</string>
     <string name="setup_continue">Продовжити</string>
     <string name="setup_check_settings">Перевірити налаштування</string>
@@ -65,7 +65,7 @@
 
     <!-- Toast hints (wizard) -->
     <string name="toast_hint_overlay">Знайдіть «OrderPilot» і увімкніть перемикач</string>
-    <string name="toast_hint_accessibility">Знайдіть «OrderPilot» і увімкніть перемикач</string>
+    <string name="toast_hint_accessibility">Відкрийте «Встановлені додатки» → знайдіть OrderPilot → увімкніть</string>
     <string name="toast_hint_samsung_battery">Натисніть «Батарея» → виберіть «Без обмежень»</string>
     <string name="toast_hint_samsung_sleeping">Відкрийте «Обмеження фонового використання» і видаліть OrderPilot зі списків</string>
     <string name="toast_hint_xiaomi_autostart">Знайдіть «OrderPilot» і увімкніть перемикач</string>

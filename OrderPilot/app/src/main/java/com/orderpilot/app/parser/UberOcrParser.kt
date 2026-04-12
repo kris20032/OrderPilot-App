@@ -36,6 +36,18 @@ class UberOcrParser : OcrOfferParser {
         "Отклонить", "Показать карту", "Ищу заказы", "Выйти из сети"
     )
 
+    // Frazy z ekranu statystyk/zarobków — nigdy nie pojawiają się na popupie oferty.
+    private val statisticsScreenMarkers = listOf(
+        // PL
+        "Statystyki", "Podsumowanie", "Opłata netto", "Całkowity przychód", "Zobacz przychody", "Podatki",
+        // EN
+        "Statistics", "Summary", "Net fare", "Total earnings", "See earnings", "Taxes",
+        // UK
+        "Статистика", "Підсумок", "Оплата нетто", "Загальний дохід", "Податки",
+        // RU
+        "Статистика", "Итого", "Оплата нетто", "Общий доход", "Посмотреть доходы", "Налоги"
+    )
+
     // Frazy z ekranu historii/szczegółów przejazdu — nigdy nie pojawiają się na popupie oferty.
     // Popup oferty ma "Łącznie X min (Y km)", historia ma etykiety "Czas trwania", "Odległość".
     private val historyScreenMarkers = listOf(
@@ -56,6 +68,12 @@ class UberOcrParser : OcrOfferParser {
         // Guard: odrzuć tekst z UI innej platformy kurierskiej
         rivalPlatformMarkers.firstOrNull { text.contains(it, ignoreCase = true) }?.let { marker ->
             AppLog.d(AppLog.TAG_PARSER, "Uber: skipping — rival platform text detected ('$marker')")
+            return null
+        }
+
+        // Guard: odrzuć ekran statystyk/zarobków
+        statisticsScreenMarkers.firstOrNull { text.contains(it, ignoreCase = true) }?.let { marker ->
+            AppLog.d(AppLog.TAG_PARSER, "Uber: skipping — statistics screen detected ('$marker')")
             return null
         }
 

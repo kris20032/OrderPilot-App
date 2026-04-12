@@ -183,6 +183,30 @@ class UberOcrParserTest {
         assertNull(offer) // brak kwoty
     }
 
+    // --- Statistics screen guard ---
+
+    @Test
+    fun `PL - rejects statistics screen with Statystyki`() {
+        val lines = listOf("Statystyki", "Online", "2 godz. 31 min", "Pkt",
+            "Przejazdy", "5", "Opłata netto", "70,74 zł", "Podsumowanie")
+        assertNull(parser.parse(lines))
+    }
+
+    @Test
+    fun `PL - rejects statistics screen with Podsumowanie`() {
+        val lines = listOf("Sposób obliczania statystyk", "Podsumowanie",
+            "Opłata netto", "70,74 zł", "Podatki", "16,28 zł",
+            "Całkowity przychód 87,02 zł", "Zobacz przychody")
+        assertNull(parser.parse(lines))
+    }
+
+    @Test
+    fun `EN - rejects statistics screen`() {
+        val lines = listOf("Statistics", "Online", "2 hr 31 min", "Trips", "5",
+            "Net fare", "70.74 zł", "Summary")
+        assertNull(parser.parse(lines))
+    }
+
     // --- ParserRegistry ---
 
     @Test

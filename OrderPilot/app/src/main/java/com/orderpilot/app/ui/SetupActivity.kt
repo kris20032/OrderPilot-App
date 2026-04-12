@@ -286,6 +286,11 @@ class SetupActivity : AppCompatActivity() {
         setStatus(binding.tvAccessibilityStatus, accessibilityOk)
         setStatus(binding.tvBatteryStatus, batteryOk)
 
+        // Ukryj przyciski gdy dany krok jest już zaliczony — nie mylą użytkownika
+        binding.btnOverlay.visibility = if (overlayOk) View.GONE else View.VISIBLE
+        binding.btnAccessibility.visibility = if (accessibilityOk) View.GONE else View.VISIBLE
+        binding.btnBattery.visibility = if (batteryOk) View.GONE else View.VISIBLE
+
         val allRequiredOk = overlayOk && accessibilityOk && batteryOk
         binding.btnContinue.isEnabled = allRequiredOk
         binding.btnContinue.alpha = if (allRequiredOk) 1f else 0.4f
