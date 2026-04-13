@@ -102,7 +102,9 @@ class MainActivity : AppCompatActivity() {
             isRunning = MonitoringController.isActive()
             updateUi()
             // Health-check: jeśli monitoring "active" ale AccessibilityService martwy (OEM kill)
-            if (isRunning && !OrderPilotAccessibilityService.isConnected) {
+            // Skip jeśli świeżo po start() — AccessibilityService potrzebuje czasu na bind
+            val msSinceStart = MonitoringController.msSinceLastStart()
+            if (isRunning && !OrderPilotAccessibilityService.isConnected && msSinceStart > 30_000) {
                 // Delay 2500ms — daj czas na onServiceConnected() po Doze wakeup / process restart
                 binding.root.postDelayed({
                     if (MonitoringController.isActive() && !OrderPilotAccessibilityService.isConnected) {
