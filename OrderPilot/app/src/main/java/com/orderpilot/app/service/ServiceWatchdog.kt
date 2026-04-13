@@ -41,6 +41,14 @@ class ServiceWatchdog(context: Context, params: WorkerParameters) : Worker(conte
             return Result.success()
         }
 
+        // Grace period: po świeżym start() AccessibilityService potrzebuje kilku sekund na bind.
+        // Jeśli monitoring aktywny od mniej niż 30s → za wcześnie na diagnozę, skip.
+        val activeMs = MonitoringController.msSinceLastStart()
+        if (activeMs in 0..30_000) {
+            AppLog.d(TAG, "Watchdog: grace period (${activeMs}ms since start), skipping check")
+            return Result.success()
+        }
+
         // Sprawdz 2 rzeczy: czy serwis jest ENABLED w ustawieniach I czy jest CONNECTED (bound)
         val isEnabled = isAccessibilityEnabled(applicationContext)
         val isConnected = OrderPilotAccessibilityService.isConnected

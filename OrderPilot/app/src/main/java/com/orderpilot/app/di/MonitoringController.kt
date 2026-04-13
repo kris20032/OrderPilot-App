@@ -28,6 +28,9 @@ object MonitoringController {
     @Volatile
     private var initialized = false
 
+    @Volatile
+    private var lastStartTimestamp: Long = 0L
+
     fun initialize(context: Context) {
         val prefs = context.applicationContext
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -50,6 +53,7 @@ object MonitoringController {
 
     fun start(context: Context) {
         cached = State.ACTIVE
+        lastStartTimestamp = System.currentTimeMillis()
         context.applicationContext
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
@@ -79,4 +83,10 @@ object MonitoringController {
     fun isActive(): Boolean = cached == State.ACTIVE
 
     fun state(): State = cached
+
+    /** Ile ms minęło od ostatniego start(). -1 jeśli nigdy nie startowano. */
+    fun msSinceLastStart(): Long {
+        if (lastStartTimestamp == 0L) return -1
+        return System.currentTimeMillis() - lastStartTimestamp
+    }
 }
