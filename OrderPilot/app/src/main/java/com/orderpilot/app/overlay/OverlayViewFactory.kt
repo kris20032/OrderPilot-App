@@ -66,13 +66,15 @@ object OverlayViewFactory {
         }
         view.background = bg
 
-        // Przycisk zamknięcia — kółko w lekko ciemniejszym odcieniu belki
+        // Przycisk zamknięcia — prawy górny róg belki, zaokrąglenie matching bar corner
+        val cornerPx = 14f * density
         val closeBtnInner = (view.findViewById<View>(R.id.tv_close) as? android.view.ViewGroup)
             ?.getChildAt(0)
         closeBtnInner?.background = GradientDrawable().apply {
-            shape = GradientDrawable.OVAL
-            // Przyciemniamy kolor belki o ~25% — subtelny kontrast, nie odcina się wizualnie
+            shape = GradientDrawable.RECTANGLE
             setColor(darkenColor(bgColor, 0.75f))
+            // cornerRadii: [topLeft, topLeft, topRight, topRight, bottomRight, bottomRight, bottomLeft, bottomLeft]
+            cornerRadii = floatArrayOf(0f, 0f, cornerPx, cornerPx, 0f, 0f, 0f, 0f)
         }
 
         // Drag handle — dwie kreski z lewej strony belki
@@ -100,7 +102,7 @@ object OverlayViewFactory {
         val line2 = makeLine()
 
         return LayerDrawable(arrayOf(line1, line2)).apply {
-            val handleWidth = (28 * density).toInt()
+            val handleWidth = (36 * density).toInt() // View jest 36dp, kreski wycentrowane
             val insetH = (handleWidth - lineWidth) / 2
             val gap = (3 * density).toInt() // offset od środka: -3dp i +3dp
 
