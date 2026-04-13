@@ -66,15 +66,13 @@ object OverlayViewFactory {
         }
         view.background = bg
 
-        // Przycisk zamknięcia — prawy górny róg belki, zaokrąglenie matching bar corner
-        val cornerPx = 14f * density
+        // Przycisk zamknięcia — prawy górny róg, zaokrąglenie jak belka (14dp) na wszystkich rogach
         val closeBtnInner = (view.findViewById<View>(R.id.tv_close) as? android.view.ViewGroup)
             ?.getChildAt(0)
         closeBtnInner?.background = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             setColor(darkenColor(bgColor, 0.75f))
-            // cornerRadii: [topLeft, topLeft, topRight, topRight, bottomRight, bottomRight, bottomLeft, bottomLeft]
-            cornerRadii = floatArrayOf(0f, 0f, cornerPx, cornerPx, 0f, 0f, 0f, 0f)
+            setCornerRadius(14f * density)
         }
 
         // Drag handle — dwie kreski z lewej strony belki
