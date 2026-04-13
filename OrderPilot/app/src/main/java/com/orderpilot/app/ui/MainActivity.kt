@@ -145,8 +145,8 @@ class MainActivity : AppCompatActivity() {
     private fun startCapture() {
         ensureNotificationPermission()
 
-        if (!OrderPilotAccessibilityService.isConnected) {
-            // Accessibility nie podłączone → start monitoring (accessibility-only mode po powrocie)
+        if (!OrderPilotAccessibilityService.isConnected && !isAccessibilityEnabled()) {
+            // Accessibility nie włączone w systemie → kieruj do ustawień
             MonitoringController.start(this)
             isRunning = true
             updateUi()
