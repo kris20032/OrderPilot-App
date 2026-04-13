@@ -268,23 +268,8 @@ class SetupActivity : AppCompatActivity() {
         container.addView(stepLayout)
     }
 
-    private var hintHandler: android.os.Handler? = null
-
     private fun showHint(resId: Int) {
-        val msg = getString(resId)
-        // Toast wyżej (30% ekranu od góry) i dłużej (~7s = 2x LENGTH_LONG)
-        val toast = Toast.makeText(this, msg, Toast.LENGTH_LONG)
-        toast.setGravity(android.view.Gravity.TOP or android.view.Gravity.CENTER_HORIZONTAL,
-            0, (resources.displayMetrics.heightPixels * 0.30).toInt())
-        toast.show()
-
-        if (hintHandler == null) hintHandler = android.os.Handler(mainLooper)
-        hintHandler?.postDelayed({
-            val toast2 = Toast.makeText(this@SetupActivity, msg, Toast.LENGTH_LONG)
-            toast2.setGravity(android.view.Gravity.TOP or android.view.Gravity.CENTER_HORIZONTAL,
-                0, (resources.displayMetrics.heightPixels * 0.30).toInt())
-            toast2.show()
-        }, 2500)
+        Toast.makeText(this, getString(resId), Toast.LENGTH_LONG).show()
     }
 
     private fun dpToPx(dp: Int): Int =
