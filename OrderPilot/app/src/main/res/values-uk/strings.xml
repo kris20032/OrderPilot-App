@@ -8,6 +8,7 @@
     <string name="status_subtitle_running">Моніторинг Uber</string>
     <string name="status_subtitle_stopped">Зупинено</string>
     <string name="accessibility_hint">Увімкніть OrderPilot у:\nНалаштування → Спеціальні можливості → Встановлені додатки</string>
+    <string name="accessibility_rebind_hint">Вимкніть та увімкніть OrderPilot знову у:\nСпеціальні можливості → Встановлені додатки → OrderPilot</string>
     <string name="toast_projection_lost">Запис екрану було перервано. Натисніть Старт щоб відновити.</string>
     <string name="toast_service_killed">Сервіс було зупинено системою. Натисніть Старт щоб продовжити.</string>
 

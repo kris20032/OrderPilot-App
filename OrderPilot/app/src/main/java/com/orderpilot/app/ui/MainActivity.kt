@@ -145,13 +145,23 @@ class MainActivity : AppCompatActivity() {
     private fun startCapture() {
         ensureNotificationPermission()
 
-        if (!OrderPilotAccessibilityService.isConnected && !isAccessibilityEnabled()) {
-            // Accessibility nie włączone w systemie → kieruj do ustawień
-            MonitoringController.start(this)
-            isRunning = true
-            updateUi()
-            Toast.makeText(this, getString(R.string.accessibility_hint), Toast.LENGTH_LONG).show()
-            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+        if (!OrderPilotAccessibilityService.isConnected) {
+            if (isAccessibilityEnabled()) {
+                // Accessibility włączone w systemie ale serwis nie zbindowany (po reinstalacji/update)
+                // → wyłącz i włącz ponownie żeby system ponownie zbindował
+                MonitoringController.start(this)
+                isRunning = true
+                updateUi()
+                Toast.makeText(this, getString(R.string.accessibility_rebind_hint), Toast.LENGTH_LONG).show()
+                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            } else {
+                // Accessibility w ogóle nie włączone → kieruj do ustawień
+                MonitoringController.start(this)
+                isRunning = true
+                updateUi()
+                Toast.makeText(this, getString(R.string.accessibility_hint), Toast.LENGTH_LONG).show()
+                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            }
             return
         }
 
