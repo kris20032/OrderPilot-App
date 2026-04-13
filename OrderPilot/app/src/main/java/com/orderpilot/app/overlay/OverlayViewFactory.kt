@@ -3,6 +3,8 @@ package com.orderpilot.app.overlay
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
@@ -73,7 +75,40 @@ object OverlayViewFactory {
             setColor(darkenColor(bgColor, 0.75f))
         }
 
+        // Drag handle — dwie kreski z lewej strony belki
+        val dragHandle = view.findViewById<View>(R.id.drag_handle)
+        dragHandle?.background = createDragHandleDrawable(density)
+
         return view
+    }
+
+    /** Tworzy drawable z dwoma cienkimi białymi liniami (drag indicator). */
+    private fun createDragHandleDrawable(density: Float): LayerDrawable {
+        val lineColor = Color.argb(153, 255, 255, 255) // biały 60% alpha
+        val lineWidth = (12 * density).toInt()
+        val lineHeight = (2 * density).toInt()
+        val cornerRadius = 1f * density
+
+        fun makeLine() = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(lineColor)
+            setCornerRadius(cornerRadius)
+            setSize(lineWidth, lineHeight)
+        }
+
+        val line1 = makeLine()
+        val line2 = makeLine()
+
+        return LayerDrawable(arrayOf(line1, line2)).apply {
+            val handleWidth = (28 * density).toInt()
+            val insetH = (handleWidth - lineWidth) / 2
+            val gap = (3 * density).toInt() // offset od środka: -3dp i +3dp
+
+            setLayerGravity(0, Gravity.CENTER)
+            setLayerGravity(1, Gravity.CENTER)
+            setLayerInset(0, insetH, 0, insetH, gap + lineHeight)
+            setLayerInset(1, insetH, gap + lineHeight, insetH, 0)
+        }
     }
 
     /** Przyciemnia kolor RGB zachowując alpha. factor=0.75 → 25% ciemniej. */

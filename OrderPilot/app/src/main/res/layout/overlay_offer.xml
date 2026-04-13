@@ -7,11 +7,18 @@
     android:forceDarkAllowed="false"
     android:background="@drawable/overlay_background">
 
+    <View
+        android:id="@+id/drag_handle"
+        android:layout_width="28dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical|start"
+        android:layout_marginStart="4dp" />
+
     <TextView
         android:id="@+id/tv_overlay_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="20dp"
+        android:paddingStart="36dp"
         android:paddingEnd="48dp"
         android:paddingTop="14dp"
         android:paddingBottom="14dp"
