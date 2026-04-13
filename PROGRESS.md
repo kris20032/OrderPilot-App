@@ -1,8 +1,8 @@
 # OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-04-12
-**Obecny etap:** Oznaczenie gotówki na belce (💵) zaimplementowane (04-12) — branch `fix/phantom-overlay-guard`, czeka na build + test.
-**Aktywne branche:** `fix/phantom-overlay-guard` (bieżący), `feature/production-app` (stable base), `main` (zsynchronizowany)
+**Ostatnia aktualizacja:** 2026-04-13
+**Obecny etap:** Drag handle + fixy startup flow (watchdog grace period, accessibility rebind) — branch `feature/drag-handle`, przetestowane na Samsungu z FakeUberApp.
+**Aktywne branche:** `feature/drag-handle` (bieżący), `fix/phantom-overlay-guard` (base), `feature/production-app` (stable), `main` (zsynchronizowany)
 
 ---
 
@@ -16,6 +16,8 @@
 | ~~**High**~~ | ~~Skip MediaProjection na API 30+ — uproszczony start~~ | ✅ Zaimplementowane (04-10), build OK |
 | ~~**High**~~ | ~~Język rosyjski (UI + parsery + rival markers)~~ | ✅ Zaimplementowany (04-11), czeka na build |
 | ~~**High**~~ | ~~Audyt niezawodności + 4 HIGH fixy (boot/watchdog/delay/notif)~~ | ✅ Zaimplementowane (04-11), czeka na test |
+| ~~**High**~~ | ~~Drag handle — przesuwanie belki góra/dół~~ | ✅ Zaimplementowane + przetestowane (04-13) |
+| ~~**High**~~ | ~~Fixy startup flow (watchdog/health-check/accessibility rebind)~~ | ✅ 3 fixy (04-13) |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
 | **High** | Budowanie APK release do dystrybucji beta | Następny krok |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
@@ -26,7 +28,8 @@
 
 | Branch | Cel | Status |
 |--------|-----|--------|
-| `fix/phantom-overlay-guard` | Fix false positive — phantom overlay Xiaomi | **BIEŻĄCY** — gotowy do testu |
+| `feature/drag-handle` | Drag handle + startup fixy | **BIEŻĄCY** — przetestowane na Samsungu |
+| `fix/phantom-overlay-guard` | Fix false positive — phantom overlay Xiaomi | Base dla drag-handle |
 | `feature/production-app` | Główny branch produkcyjny (stable) | Base branch |
 | `main` | Stabilna baza — zsynchronizowany z production | Aktualny |
 | ~~`fix/state-refactor`~~ | ~~MonitoringController refactor + defensive fixy~~ | ✅ Zmergowany (04-10) |
@@ -57,6 +60,8 @@
 13. ~~Audyt niezawodności + HIGH fixy~~ ✅ (04-11) — BootReceiver, watchdog race guard, health-check 2500ms, notification permission UI hint
 14. ~~6 fixów z testów produkcyjnych~~ ✅ (04-12) — overlay units per waluta (nie per język UI), OCR digit normalization relaxed, guard statisticsScreen, setup battery button, overlay × kółko, wizard toast "Zainstalowane aplikacje"
 15. ~~Oznaczenie gotówki na belce~~ ✅ (04-12) — `isCash` w Offer, detekcja Glovo (per-amount + fallback), generyczne markery Wolt/Bolt, 💵 emoji na belce
+16. ~~Drag handle (przesuwanie belki)~~ ✅ (04-13) — drag handle po lewej, vertical-only, persystowana pozycja Y, touchSlop, close button w prawym górnym rogu
+17. ~~Fixy startup flow~~ ✅ (04-13) — watchdog grace period 30s, health-check grace period 30s, accessibility enabled-ale-nie-bound detection z re-toggle toast
 
 ### Faza 2: Przygotowanie do beta testów
 8. Budowanie APK release (signed) do dystrybucji
@@ -73,6 +78,8 @@
 
 | Data | Zmiana |
 |------|--------|
+| 04-13 | **Drag handle** — przesuwanie belki góra/dół (vertical-only, persystowana pozycja Y, touchSlop). Close button przeniesiony do prawego górnego rogu z zaokrągleniem 14dp. |
+| 04-13 | **Fixy startup flow** — (1) Watchdog grace period 30s po start() (zabijał monitoring 170ms po starcie), (2) Health-check w onResume() grace period 30s (ten sam problem), (3) Accessibility enabled-ale-nie-bound po reinstalacji — toast z instrukcją re-toggle zamiast przechodzenia dalej bez działającego serwisu. |
 | 04-12 | **Oznaczenie gotówki na belce** — `isCash: Boolean` w Offer, detekcja: Glovo (per-amount prefix + containsCashMarkers fallback), Wolt/Bolt (generyczne markery PL/EN/UK/RU). 💵 emoji na końcu belki. isSameAsPrevious uwzględnia isCash. Testy: 4 w GlovoOcrParserTest + 10 w OcrOfferParserTest. |
 | 04-12 | **6 fixów z testów produkcyjnych** — (1) Overlay units zależą od waluty zlecenia nie języka UI (zł→h/km/min zawsze), (2) OCR digit normalization relaxed (Z→7, O→0, L→1 fix PLN1Z.28), (3) Guard statisticsScreenMarkers w UberOcrParser, (4) Setup: przycisk "Zezwól na działanie w tle" + ukrywanie po zaliczeniu, (5) Overlay × jako kółko w odcieniu belki, (6) Wizard toast z krokiem "Zainstalowane aplikacje". |
 | 04-11 | **Audyt niezawodności** — 7 problemów zidentyfikowanych (4 HIGH, 3 MEDIUM). 4 HIGH fixy: BootReceiver (wznowienie po reboot), watchdog race guard (initialize() w doWork()), health-check delay 500→2500ms (false stop po Doze), notification permission UI hint (persistent banner gdy denied). |
