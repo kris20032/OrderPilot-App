@@ -284,7 +284,7 @@ class SetupActivity : AppCompatActivity() {
             toast2.setGravity(android.view.Gravity.TOP or android.view.Gravity.CENTER_HORIZONTAL,
                 0, (resources.displayMetrics.heightPixels * 0.30).toInt())
             toast2.show()
-        }, 3400)
+        }, 2500)
     }
 
     private fun dpToPx(dp: Int): Int =
