@@ -2,12 +2,12 @@
 
 ## 🚨 AKTYWNY BRANCH (source of truth)
 
-**Obecny branch roboczy: `fix/phantom-overlay-guard`**
-**Ostatnia aktualizacja tego wpisu: 2026-04-10**
+**Obecny branch roboczy: `feature/drag-handle`**
+**Ostatnia aktualizacja tego wpisu: 2026-04-16**
 
-`fix/state-refactor` zmergowany po 2 dniach testów produkcyjnych. Branch `fix/phantom-overlay-guard` utworzony z `feature/production-app` — phantom overlay fix + skip MediaProjection API 30+.
+> ℹ️ Te dwie linijki są **auto-aktualizowane** przez hook `.git/hooks/post-checkout` przy każdym `git checkout <branch>`. Nie edytuj ich ręcznie — po prostu przełącz branch i wpis się zmieni. Jeśli hook nie działa, sprawdź `.git/hooks/post-checkout` (powinien być wykonywalny).
 
-Jeśli zaczynasz sesję i aktywny branch tu wymieniony **nie zgadza się** z tym na czym jesteś → **STOP, nie pracuj, zapytaj użytkownika**. Nie próbuj „naprawiać" przez switch — może być powód dla którego jesteś gdzie indziej.
+Jeśli zaczynasz sesję i aktywny branch tu wymieniony **nie zgadza się** z tym na czym jesteś → **STOP, nie pracuj, zapytaj użytkownika**. Nie próbuj „naprawiać" przez switch — może być powód dla którego jesteś gdzie indziej (np. worktree `claude/*` z auto-halucynacji systemu).
 
 ## 🚨 PROTOKÓŁ STARTOWY SESJI (OBOWIĄZKOWY)
 

@@ -8,7 +8,7 @@
 >
 > **Użycie:** przy pytaniach „co robimy?" / „co można poprawić?" → odwołaj się do tego pliku.
 >
-> Ostatnia aktualizacja: 2026-04-12
+> Ostatnia aktualizacja: 2026-04-16
 
 ---
 
@@ -165,3 +165,34 @@
 
 ### 23. ~~Wizard — poprawić instrukcje dla AccessibilityService~~ ✅ DONE (2026-04-12)
 - Toast z krokiem "Zainstalowane aplikacje" dodany w SetupActivity. User widzi podpowiedź gdzie szukać OrderPilot.
+
+---
+
+### 24. Pozycjonowanie przycisku × na belce (branch `polishing`, 2026-04-16)
+- **Problem:** Obecnie × jest w prawym górnym rogu belki (po zmianie z 04-12). Feedback od taty: powinien być **wycentrowany w pionie** przy prawej krawędzi belki (center-vertical, nie top).
+- **Gdzie zmienić:** `overlay_offer.xml` layout — zmiana `android:layout_gravity` / constraint z `top|end` na `center_vertical|end` (lub odpowiednik w obecnym layoutcie).
+- **Uwaga:** Sprawdzić czy nie koliduje z drag handlem po lewej (drag handle jest full-height po lewej stronie — × po prawej też powinien być zauważalny w pionie na środku).
+- **Priorytet:** Niski (kosmetyka), ale user-facing więc warto zrobić w najbliższej iteracji.
+- **Status:** Do zrobienia w branchu `polishing`.
+
+---
+
+### 25. Waluta PLN zamiast "zł" przy lokaleu EN (branch `polishing`, 2026-04-16)
+- **Problem:** Gdy user ustawi w apce język angielski, belka nadal pokazuje `zł` po kwocie (np. `12.50 zł`). Tata uważa że powinno być `PLN` (ISO code) — bardziej zrozumiałe dla nie-Polaków.
+- **Zakres:** Tylko wyświetlanie na belce (overlay), przy AppLanguage.EN. Parsery dalej matchują `zł` (bo to źródło danych z platform w PL).
+- **Gdzie zmienić:** Resource string `values-en/strings.xml` dla jednostki waluty PLN, LUB logika formatowania overlay (jeśli hard-coded `zł`). Sprawdzić `OverlayViewFactory` / `overlay_offer.xml` / `strings.xml`.
+- **Uwaga:** Zostawić `zł` dla AppLanguage.PL, `грн` dla UA, `zł` albo PLN dla RU (do ustalenia — RU kurier w PL może preferować PLN).
+- **Priorytet:** Niski — dla większości użytkowników nieistotne, ale szybki fix.
+- **Status:** Do zrobienia w branchu `polishing`.
+
+---
+
+### 26. Docelowa ikona aplikacji (branch `polishing`, 2026-04-16)
+- **Problem:** Aktualna ikona apki to placeholder/domyślna z Android Studio. Przed wypuszczeniem bety na Play Store potrzebujemy czegoś własnego.
+- **Co zrobić:**
+  - Zaprojektować ikonę reprezentującą OrderPilot (pilot kursów? lupa + samochód? logo?).
+  - Wyprodukować warianty: `ic_launcher` (classic), `ic_launcher_round`, `ic_launcher_foreground` (adaptive icon), `ic_launcher_background`. Dla Play Store: 512x512 PNG.
+  - Sprawdzić czy notyfikacyjna ikona (`ic_notification.xml`, monochrome) jest zgodna z nowym brandingiem.
+- **Uwaga:** To zadanie design-first. Etap 1: ustalenie kierunku wizualnego z userem. Etap 2: produkcja zasobów. Można też rozważyć zlecenie projektantowi.
+- **Priorytet:** Średni — potrzebne przed publikacją bety na Play Store.
+- **Status:** Do zrobienia w branchu `polishing` (lub osobnym `feature/branding`).
