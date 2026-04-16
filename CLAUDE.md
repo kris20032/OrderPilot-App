@@ -2,7 +2,7 @@
 
 ## 🚨 AKTYWNY BRANCH (source of truth)
 
-**Obecny branch roboczy: `feature/drag-handle`**
+**Obecny branch roboczy: `polishing`**
 **Ostatnia aktualizacja tego wpisu: 2026-04-16**
 
 > ℹ️ Te dwie linijki są **auto-aktualizowane** przez hook `.git/hooks/post-checkout` przy każdym `git checkout <branch>`. Nie edytuj ich ręcznie — po prostu przełącz branch i wpis się zmieni. Jeśli hook nie działa, sprawdź `.git/hooks/post-checkout` (powinien być wykonywalny).
