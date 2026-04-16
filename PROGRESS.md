@@ -38,9 +38,11 @@
 | `polishing` | 3 drobnostki: × center ✅, PLN przy EN ✅, docelowa ikonka TODO | **BIEŻĄCY** |
 | `feature/production-app` | Główny branch produkcyjny (stable) | Synced (tip `ce2f3dd`, 04-16) |
 | `main` | Stabilna baza | Synced przez merge `2a94316` (04-16) |
-| ~~`feature/drag-handle`~~ | ~~Drag handle + startup fixy~~ | ✅ Zmergowany (04-16) — do posprzątania |
-| ~~`fix/phantom-overlay-guard`~~ | ~~Phantom overlay Xiaomi + skip MediaProjection API 30+~~ | ✅ Zmergowany przez drag-handle (04-16) — do posprzątania |
-| ~~`fix/state-refactor`~~ | ~~MonitoringController refactor + defensive fixy~~ | ✅ Zmergowany (04-10) |
+| ~~`feature/drag-handle`~~ | ~~Drag handle + startup fixy~~ | ✅ Zmergowany (04-16), branch usunięty (04-16) |
+| ~~`fix/phantom-overlay-guard`~~ | ~~Phantom overlay Xiaomi + skip MediaProjection API 30+~~ | ✅ Zmergowany przez drag-handle (04-16), branch usunięty (04-16) |
+| ~~`fix/state-refactor`~~ | ~~MonitoringController refactor + defensive fixy~~ | ✅ Zmergowany (04-10), branch usunięty w cleanupie 04-16 |
+
+**Sprzątnięte 04-16 (zachowane pozostałe, nie-merged):** W cleanupie 04-16 usunięto 42 lokalnych + 13 remote zmergowanych branchy (wszystkie `claude/*` auto-worktree oraz stare `feature/*` i `fix/*`). Zachowane nie-merged: `feature/fake-uber-driver` (narzędzie testowe FakeUberApp), `feature/glovo-parser`, `fix/parser-false-positives-bolt-watch`, `claude/hardcore-darwin` (docs audyt lokalizacyjny 04-01).
 
 > Workflow: nowy branch → testuj → merge do `feature/production-app` → `main`
 
