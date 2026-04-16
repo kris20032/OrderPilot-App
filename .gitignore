@@ -24,3 +24,6 @@ LukaszBranch/
 
 # Dane testowe (logi, screenshoty — tylko lokalnie)
 test-data/
+
+# Mockupy wizualne belki (dev assets — nie commitować, iterujemy lokalnie)
+mockup_*.html
