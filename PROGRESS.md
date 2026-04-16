@@ -1,8 +1,8 @@
 # OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-04-13
-**Obecny etap:** Drag handle + fixy startup flow (watchdog grace period, accessibility rebind) — branch `feature/drag-handle`, przetestowane na Samsungu z FakeUberApp.
-**Aktywne branche:** `feature/drag-handle` (bieżący), `fix/phantom-overlay-guard` (base), `feature/production-app` (stable), `main` (zsynchronizowany)
+**Ostatnia aktualizacja:** 2026-04-16
+**Obecny etap:** Polishing — 3 drobnostki (× center-vertical ✅, PLN zamiast zł przy EN ✅, docelowa ikonka TODO). Branch `polishing`, utworzony z `main` po merge drag-handle → production-app → main (04-16, kilka dni testów u taty bez większych błędów).
+**Aktywne branche:** `polishing` (bieżący), `feature/production-app` (synced, tip ce2f3dd), `main` (synced przez merge 2a94316)
 
 ---
 
@@ -18,8 +18,15 @@
 | ~~**High**~~ | ~~Audyt niezawodności + 4 HIGH fixy (boot/watchdog/delay/notif)~~ | ✅ Zaimplementowane (04-11), czeka na test |
 | ~~**High**~~ | ~~Drag handle — przesuwanie belki góra/dół~~ | ✅ Zaimplementowane + przetestowane (04-13) |
 | ~~**High**~~ | ~~Fixy startup flow (watchdog/health-check/accessibility rebind)~~ | ✅ 3 fixy (04-13) |
+| ~~**High**~~ | ~~Merge drag-handle → production-app + main~~ | ✅ Zmergowane (04-16, po kilku dniach testów u taty) |
+| ~~**High**~~ | ~~Hook auto-branch w CLAUDE.md (`.git/hooks/post-checkout`)~~ | ✅ (04-16) |
+| ~~**Low**~~ | ~~Polishing #24 — × button center-vertical na belce~~ | ✅ (04-16) |
+| ~~**Low**~~ | ~~Polishing #25 — PLN zamiast zł przy UI EN~~ | ✅ (04-16) |
+| **Medium** | Polishing #26 — docelowa ikona aplikacji (adaptive + Play Store) | Design-first, w trakcie |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
-| **High** | Budowanie APK release do dystrybucji beta | Następny krok |
+| **High** | Budowanie APK release (signed) do dystrybucji beta | Po polishingu |
+| **High** | Beta testy na Play Store — 3-5+ kurierów, mix platform | Po signed APK |
+| **Medium** | Profile social media + strategia promocji (przed oficjalnym release) | Do rozpoczęcia równolegle z betą |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
 
 ---
@@ -28,13 +35,14 @@
 
 | Branch | Cel | Status |
 |--------|-----|--------|
-| `feature/drag-handle` | Drag handle + startup fixy | **BIEŻĄCY** — przetestowane na Samsungu |
-| `fix/phantom-overlay-guard` | Fix false positive — phantom overlay Xiaomi | Base dla drag-handle |
-| `feature/production-app` | Główny branch produkcyjny (stable) | Base branch |
-| `main` | Stabilna baza — zsynchronizowany z production | Aktualny |
+| `polishing` | 3 drobnostki: × center ✅, PLN przy EN ✅, docelowa ikonka TODO | **BIEŻĄCY** |
+| `feature/production-app` | Główny branch produkcyjny (stable) | Synced (tip `ce2f3dd`, 04-16) |
+| `main` | Stabilna baza | Synced przez merge `2a94316` (04-16) |
+| ~~`feature/drag-handle`~~ | ~~Drag handle + startup fixy~~ | ✅ Zmergowany (04-16) — do posprzątania |
+| ~~`fix/phantom-overlay-guard`~~ | ~~Phantom overlay Xiaomi + skip MediaProjection API 30+~~ | ✅ Zmergowany przez drag-handle (04-16) — do posprzątania |
 | ~~`fix/state-refactor`~~ | ~~MonitoringController refactor + defensive fixy~~ | ✅ Zmergowany (04-10) |
 
-> Workflow: nowy branch → testuj → merge do `feature/production-app`
+> Workflow: nowy branch → testuj → merge do `feature/production-app` → `main`
 
 ---
 

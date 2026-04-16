@@ -168,22 +168,13 @@
 
 ---
 
-### 24. Pozycjonowanie przycisku × na belce (branch `polishing`, 2026-04-16)
-- **Problem:** Obecnie × jest w prawym górnym rogu belki (po zmianie z 04-12). Feedback od taty: powinien być **wycentrowany w pionie** przy prawej krawędzi belki (center-vertical, nie top).
-- **Gdzie zmienić:** `overlay_offer.xml` layout — zmiana `android:layout_gravity` / constraint z `top|end` na `center_vertical|end` (lub odpowiednik w obecnym layoutcie).
-- **Uwaga:** Sprawdzić czy nie koliduje z drag handlem po lewej (drag handle jest full-height po lewej stronie — × po prawej też powinien być zauważalny w pionie na środku).
-- **Priorytet:** Niski (kosmetyka), ale user-facing więc warto zrobić w najbliższej iteracji.
-- **Status:** Do zrobienia w branchu `polishing`.
+### 24. ~~Pozycjonowanie przycisku × na belce~~ ✅ DONE (2026-04-16)
+- `overlay_offer.xml`: `layout_gravity="center_vertical|end"` zamiast `top|end`, usunięty `layout_marginTop="4dp"`. `marginEnd="4dp"` zostaje. Przycisk × wycentrowany w pionie przy prawej krawędzi belki.
 
 ---
 
-### 25. Waluta PLN zamiast "zł" przy lokaleu EN (branch `polishing`, 2026-04-16)
-- **Problem:** Gdy user ustawi w apce język angielski, belka nadal pokazuje `zł` po kwocie (np. `12.50 zł`). Tata uważa że powinno być `PLN` (ISO code) — bardziej zrozumiałe dla nie-Polaków.
-- **Zakres:** Tylko wyświetlanie na belce (overlay), przy AppLanguage.EN. Parsery dalej matchują `zł` (bo to źródło danych z platform w PL).
-- **Gdzie zmienić:** Resource string `values-en/strings.xml` dla jednostki waluty PLN, LUB logika formatowania overlay (jeśli hard-coded `zł`). Sprawdzić `OverlayViewFactory` / `overlay_offer.xml` / `strings.xml`.
-- **Uwaga:** Zostawić `zł` dla AppLanguage.PL, `грн` dla UA, `zł` albo PLN dla RU (do ustalenia — RU kurier w PL może preferować PLN).
-- **Priorytet:** Niski — dla większości użytkowników nieistotne, ale szybki fix.
-- **Status:** Do zrobienia w branchu `polishing`.
+### 25. ~~Waluta PLN zamiast "zł" przy lokaleu EN~~ ✅ DONE (2026-04-16)
+- `OverlayViewFactory.labels()`: override — gdy `language == AppLanguage.EN && currency == "zł"` → `displayCurrency = "PLN"`. Dotyczy tylko wyświetlania na belce (currency, currencyPerHour, currencyPerKm). Parsery dalej matchują `zł` na wejściu. Inne lokale (PL/UK/RU) + inne waluty (₴/₽/€) bez zmian.
 
 ---
 
