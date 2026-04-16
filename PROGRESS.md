@@ -1,8 +1,8 @@
 # OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-04-10
-**Obecny etap:** `fix/state-refactor` przetestowany produkcyjnie (tata jeździł 2 dni bez błędów). Merge do `feature/production-app` i `main`.
-**Aktywne branche:** `feature/production-app` (stable, aktualne), `main` (aktualne)
+**Ostatnia aktualizacja:** 2026-04-13
+**Obecny etap:** Drag handle + fixy startup flow (watchdog grace period, accessibility rebind) — branch `feature/drag-handle`, przetestowane na Samsungu z FakeUberApp.
+**Aktywne branche:** `feature/drag-handle` (bieżący), `fix/phantom-overlay-guard` (base), `feature/production-app` (stable), `main` (zsynchronizowany)
 
 ---
 
@@ -12,6 +12,12 @@
 |-----------|---------|--------|
 | ~~**High**~~ | ~~Build + test `fix/state-refactor` u taty~~ | ✅ 2 dni bez błędów (04-09/10) |
 | ~~**High**~~ | ~~Merge `fix/state-refactor` → `feature/production-app` → `main`~~ | ✅ Zmergowany (04-10) |
+| ~~**High**~~ | ~~Fix phantom overlay Xiaomi — false positive belka w Google Maps~~ | ✅ 2 zmiany (04-10), czeka na test produkcyjny |
+| ~~**High**~~ | ~~Skip MediaProjection na API 30+ — uproszczony start~~ | ✅ Zaimplementowane (04-10), build OK |
+| ~~**High**~~ | ~~Język rosyjski (UI + parsery + rival markers)~~ | ✅ Zaimplementowany (04-11), czeka na build |
+| ~~**High**~~ | ~~Audyt niezawodności + 4 HIGH fixy (boot/watchdog/delay/notif)~~ | ✅ Zaimplementowane (04-11), czeka na test |
+| ~~**High**~~ | ~~Drag handle — przesuwanie belki góra/dół~~ | ✅ Zaimplementowane + przetestowane (04-13) |
+| ~~**High**~~ | ~~Fixy startup flow (watchdog/health-check/accessibility rebind)~~ | ✅ 3 fixy (04-13) |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
 | **High** | Budowanie APK release do dystrybucji beta | Następny krok |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
@@ -22,7 +28,9 @@
 
 | Branch | Cel | Status |
 |--------|-----|--------|
-| `feature/production-app` | Główny branch produkcyjny (stable) | **AKTYWNY** — aktualny po merge |
+| `feature/drag-handle` | Drag handle + startup fixy | **BIEŻĄCY** — przetestowane na Samsungu |
+| `fix/phantom-overlay-guard` | Fix false positive — phantom overlay Xiaomi | Base dla drag-handle |
+| `feature/production-app` | Główny branch produkcyjny (stable) | Base branch |
 | `main` | Stabilna baza — zsynchronizowany z production | Aktualny |
 | ~~`fix/state-refactor`~~ | ~~MonitoringController refactor + defensive fixy~~ | ✅ Zmergowany (04-10) |
 
@@ -46,7 +54,16 @@
 9. ~~State refactor + defensive fixy + timeouty~~ ✅ (04-08/10)
 10. ~~Merge `fix/state-refactor` → `feature/production-app` → `main`~~ ✅ (04-10)
 
-### Faza 2: Przygotowanie do beta testów (teraz)
+### Faza 1.6: Ulepszenia przed beta (teraz)
+11. ~~Skip MediaProjection na API 30+~~ ✅ (04-10) — takeScreenshot() jedyna ścieżka, brak dialogu, brak foreground service
+12. ~~Język rosyjski~~ ✅ (04-11) — AppLanguage.RU, values-ru/strings.xml, rival markers RU we wszystkich parserach, filtr gotówkowy RU w Glovo, overlay units ч/км/мин
+13. ~~Audyt niezawodności + HIGH fixy~~ ✅ (04-11) — BootReceiver, watchdog race guard, health-check 2500ms, notification permission UI hint
+14. ~~6 fixów z testów produkcyjnych~~ ✅ (04-12) — overlay units per waluta (nie per język UI), OCR digit normalization relaxed, guard statisticsScreen, setup battery button, overlay × kółko, wizard toast "Zainstalowane aplikacje"
+15. ~~Oznaczenie gotówki na belce~~ ✅ (04-12) — `isCash` w Offer, detekcja Glovo (per-amount + fallback), generyczne markery Wolt/Bolt, 💵 emoji na belce
+16. ~~Drag handle (przesuwanie belki)~~ ✅ (04-13) — drag handle po lewej, vertical-only, persystowana pozycja Y, touchSlop, close button w prawym górnym rogu
+17. ~~Fixy startup flow~~ ✅ (04-13) — watchdog grace period 30s, health-check grace period 30s, accessibility enabled-ale-nie-bound detection z re-toggle toast
+
+### Faza 2: Przygotowanie do beta testów
 8. Budowanie APK release (signed) do dystrybucji
 9. Glovo — weryfikacja na Xiaomi (tata nie był zalogowany)
 
@@ -61,6 +78,14 @@
 
 | Data | Zmiana |
 |------|--------|
+| 04-13 | **Drag handle** — przesuwanie belki góra/dół (vertical-only, persystowana pozycja Y, touchSlop). Close button przeniesiony do prawego górnego rogu z zaokrągleniem 14dp. |
+| 04-13 | **Fixy startup flow** — (1) Watchdog grace period 30s po start() (zabijał monitoring 170ms po starcie), (2) Health-check w onResume() grace period 30s (ten sam problem), (3) Accessibility enabled-ale-nie-bound po reinstalacji — toast z instrukcją re-toggle zamiast przechodzenia dalej bez działającego serwisu. |
+| 04-12 | **Oznaczenie gotówki na belce** — `isCash: Boolean` w Offer, detekcja: Glovo (per-amount prefix + containsCashMarkers fallback), Wolt/Bolt (generyczne markery PL/EN/UK/RU). 💵 emoji na końcu belki. isSameAsPrevious uwzględnia isCash. Testy: 4 w GlovoOcrParserTest + 10 w OcrOfferParserTest. |
+| 04-12 | **6 fixów z testów produkcyjnych** — (1) Overlay units zależą od waluty zlecenia nie języka UI (zł→h/km/min zawsze), (2) OCR digit normalization relaxed (Z→7, O→0, L→1 fix PLN1Z.28), (3) Guard statisticsScreenMarkers w UberOcrParser, (4) Setup: przycisk "Zezwól na działanie w tle" + ukrywanie po zaliczeniu, (5) Overlay × jako kółko w odcieniu belki, (6) Wizard toast z krokiem "Zainstalowane aplikacje". |
+| 04-11 | **Audyt niezawodności** — 7 problemów zidentyfikowanych (4 HIGH, 3 MEDIUM). 4 HIGH fixy: BootReceiver (wznowienie po reboot), watchdog race guard (initialize() w doWork()), health-check delay 500→2500ms (false stop po Doze), notification permission UI hint (persistent banner gdy denied). |
+| 04-11 | **Język rosyjski** — AppLanguage.RU, values-ru/strings.xml (109 stringów), rival markers RU we wszystkich 4 parserach (synonimy per concept), filtr gotówkowy RU w GlovoOcrParser (prefix "наличн"), overlay units ч/км/мин. Punkt #10 (usunięcie MediaProjection) zamknięty jako nieaktualny. Punkt #17 (wskaźnik akceptacji) dodany do future_polish_fixes. |
+| 04-10 | **Skip MediaProjection na API 30+** — na Android 11+ apka pomija dialog MediaProjection i foreground service. Screenshoty przez AccessibilityService.takeScreenshot(). Consecutive failure counter (alert po 10 porażkach) jako safety net. future_polish_fixes: punkt 9 resolved, punkt 7 z uwagą o ryzyku. |
+| 04-10 | **Fix phantom overlay Xiaomi** — watch mode guard: `hasUberOverlayWindow()` → `hasUberOverlayWithContent()` (linia 481). Phantom overlay Xiaomi (type=3, pusty) nie przepuszcza już periodic screenshot bez realnego popupu. Bonus: fallback amount regex `\d+` → `\d{1,2}` po separatorze — blokuje GPS coords jako false kwoty. |
 | 04-10 | **Merge `fix/state-refactor` → `feature/production-app` → `main`** — 2 dni testów produkcyjnych (tata) bez błędów. Defensive fixy: OCR timeout 5s, pipeline timeout 10s, health-check AccessibilityService w MainActivity (toast gdy OEM kill), odrzucanie ambiguous 3-cyfrowych kwot w parserze. |
 | 04-09 | **Fix retry loop — isActive() guard** — audyt concurrency i STOP logiki. Dodano `if (!MonitoringController.isActive()) break` w obu retry pętlach (throttler callback + WINDOWS_CHANGED). Po STOP retries przerywają się natychmiast zamiast robić zbędne screenshoty przez 2.4s. |
 | 04-09 | **Audyt crash & lifecycle** — 3 subagenty + ręczna weryfikacja. Większość "critical" to false positives. 3 defensive fixy: WakeLock timeout 4h, MonitoringController.start() po potwierdzeniu MediaProjection, CopyOnWriteArrayList w listeners. App bezpieczna do release (crash-wise). |

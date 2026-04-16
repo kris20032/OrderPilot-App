@@ -8,6 +8,7 @@
     <string name="status_subtitle_running">Monitoring Uber</string>
     <string name="status_subtitle_stopped">Stopped</string>
     <string name="accessibility_hint">Enable OrderPilot in:\nSettings → Accessibility → Installed apps</string>
+    <string name="accessibility_rebind_hint">Turn OrderPilot OFF and ON again in:\nAccessibility → Installed apps → OrderPilot</string>
     <string name="toast_projection_lost">Screen recording was interrupted. Tap Start to resume.</string>
     <string name="toast_service_killed">Service was stopped by the system. Tap Start to resume.</string>
 
@@ -20,7 +21,7 @@
     <string name="setup_battery_title">Background activity</string>
     <string name="setup_battery_desc">Disable battery optimization so the app keeps running when the screen is off.</string>
     <string name="setup_open_settings">Open settings</string>
-    <string name="setup_disable_restrictions">Disable restrictions</string>
+    <string name="setup_disable_restrictions">Allow background activity</string>
     <string name="setup_open_app_info">Open app info</string>
     <string name="setup_continue">Continue</string>
     <string name="setup_check_settings">Check settings</string>
@@ -65,7 +66,7 @@
 
     <!-- Toast hints (wizard) -->
     <string name="toast_hint_overlay">Find "OrderPilot" and enable the toggle</string>
-    <string name="toast_hint_accessibility">Find "OrderPilot" and enable the toggle</string>
+    <string name="toast_hint_accessibility">Tap "Installed apps" → find OrderPilot → enable</string>
     <string name="toast_hint_samsung_battery">Tap "Battery" → select "Unrestricted"</string>
     <string name="toast_hint_samsung_sleeping">Open "Background usage limits" and remove OrderPilot from the lists</string>
     <string name="toast_hint_xiaomi_autostart">Find "OrderPilot" and enable the toggle</string>
@@ -105,4 +106,17 @@
     <string name="toast_logs_saved">Logs saved to Downloads</string>
     <string name="toast_logs_error">Error saving logs</string>
     <string name="settings_validation_error">Green threshold must be higher than yellow</string>
+
+    <string name="toast_notification_denied">Notifications disabled — you won\'t see monitoring status in the status bar</string>
+
+    <!-- Foreground service notification -->
+    <string name="notif_monitoring_title">Order monitoring active</string>
+    <string name="notif_monitoring_text">OrderPilot is listening for new orders</string>
+
+    <!-- Watchdog recovery notification -->
+    <string name="notif_watchdog_title">Monitoring stopped</string>
+    <string name="notif_watchdog_text">Tap to restore monitoring</string>
+
+    <!-- Notification permission hint -->
+    <string name="hint_notifications_disabled">Notifications disabled — monitoring works, but you won\'t see status or problem alerts</string>
 </resources>

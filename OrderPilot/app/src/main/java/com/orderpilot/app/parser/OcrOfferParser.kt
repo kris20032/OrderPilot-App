@@ -31,20 +31,31 @@ interface OcrOfferParser {
         // Fallback: luźna liczba dziesiętna (np. "7.86") — NOT obok min/km/хв/км
         // Wymaga separatora dziesiętnego żeby odfiltrować losowe liczby całkowite
         // \d* w lookahead zapobiega backtrackowi: "5.86 km" → match "5.8" + lookahead "6\s*km" → odrzucone
-        val AMOUNT_FALLBACK_REGEX = Regex("""(?<!\d)(\d+[.,]\d+)(?!\d*\s*(?:min|хв|XB|km|км|mi))""", RegexOption.IGNORE_CASE)
+        val AMOUNT_FALLBACK_REGEX = Regex("""(?<!\d)(\d+[.,]\d{1,2})(?!\d*\s*(?:min|хв|XB|мін|мин|km|км|mi))""", RegexOption.IGNORE_CASE)
 
         // Regex do detekcji waluty (do wyświetlenia w belce)
         val CURRENCY_DETECT_REGEX = Regex("""(zł|zl|zt|PLN|грн|rpH|₴)""", RegexOption.IGNORE_CASE)
 
         /**
-         * Normalizuje typowe błędy OCR w cyfrach:
-         * - 'l' (lowercase L), 'I' (uppercase i), '|' (pipe) obok cyfr → '1'
-         * OCR często myli te znaki z cyfrą 1 (np. "l8,64 zł" zamiast "18,64 zł").
+         * Normalizuje typowe błędy OCR w cyfrach.
+         * Reguły aktywują się TYLKO gdy znak jest otoczony kontekstem liczbowym
+         * (cyfra, kropka, przecinek) — bezpieczne, nie psuje normalnego tekstu.
+         *
+         * Zaobserwowane błędy OCR z produkcji:
+         * - 'l/I/|' → '1': "PLN1L.31" (L zamiast 1), "l8,64 zł" (l zamiast 1)
+         * - 'Z' → '7':    "PLN1Z.28" (Z zamiast 7) — font sans-serif Ubera
+         * - 'O' → '0':    klasyczny OCR error
          */
         fun normalizeOcrDigits(text: String): String {
             return text
-                .replace(Regex("""[lI|](?=\d)"""), "1")   // l8 → 18, I8 → 18
-                .replace(Regex("""(?<=\d)[lI|](?=\d)"""), "1") // 1l0 → 110
+                // l/I/| → 1: przed cyfrą (l8 → 18) lub po cyfrze przed .,digit (1L.31 → 11.31)
+                .replace(Regex("""[lI|](?=\d)"""), "1")
+                .replace(Regex("""(?<=\d)[lI|](?=[.,\d])"""), "1")
+                // Z/z → 7: po cyfrze przed .,digit (1Z.28 → 17.28) — OCR myli 7↔Z w sans-serif
+                .replace(Regex("""(?<=\d)[Zz](?=[.,\d])"""), "7")
+                // O/o → 0: otoczony cyframi/separatorami (1O.5 → 10.5, O8 → 08)
+                .replace(Regex("""(?<=\d)[Oo](?=[.,\d])"""), "0")
+                .replace(Regex("""[Oo](?=\d)"""), "0")
                 // OCR klei "1" (jako "l") do poprzedniego słowa: "Łączniel godz" → "Łącznie 1 godz"
                 .replace(Regex("""(?<=[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻіїєґІЇЄҐ])[lI|](?=\s*(?:godz|год|hr|hour))"""), " 1")
                 .replace(Regex("""(?<=\s|^)[lI|](?=\s*(?:godz|год|hr|hour))"""), "1") // l godz → 1 godz
@@ -129,6 +140,26 @@ interface OcrOfferParser {
             UAH_REGEX.find(text)?.let { return "грн" }
             return "zł"
         }
+
+        /**
+         * Generyczne markery gotówkowe — wykrywa czy tekst zawiera frazy
+         * wskazujące na zlecenie cash-on-delivery.
+         * Używane przez Wolt/Bolt (generyczny skan) i Glovo (fallback obok per-amount detekcji).
+         * Markery dla Wolt/Bolt to najlepsze zgadywanie — do weryfikacji z prawdziwymi zleceniami.
+         */
+        private val CASH_MARKERS = listOf(
+            // PL
+            "gotówk", "gotowk", "płatność gotówką", "platnosc gotowka",
+            // EN
+            "cash payment", "pay in cash", "cash on delivery",
+            // UK
+            "готівк", "оплата готівкою",
+            // RU
+            "наличн", "оплата наличными"
+        )
+
+        fun containsCashMarkers(text: String): Boolean =
+            CASH_MARKERS.any { text.contains(it, ignoreCase = true) }
 
         /**
          * Koryguje kwotę gdy OCR zgubił separator dziesiętny.

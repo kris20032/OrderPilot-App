@@ -19,7 +19,7 @@ class GlovoOcrParser : OcrOfferParser {
         // Guard: Uber popup — "Łącznie X min" to format Ubera, Glovo tego nie używa.
         // Gdy Glovo event triggeruje screenshot a na ekranie jest popup Ubera,
         // GlovoOcrParser widzi 1 kwotę + 1 dystans → "partial" → null, blokując Ubera.
-        val uberMarkers = listOf("Łącznie", "Lacznie", "Загалом")
+        val uberMarkers = listOf("Łącznie", "Lacznie", "Загалом", "Итого")
         if (uberMarkers.any { text.contains(it, ignoreCase = true) }) {
             AppLog.d(AppLog.TAG_PARSER, "Glovo: skipping — Uber popup text detected")
             return null
@@ -29,12 +29,14 @@ class GlovoOcrParser : OcrOfferParser {
         if (text.contains("Potwierdź odbiór", ignoreCase = true) ||
             text.contains("Potwierdz odbior", ignoreCase = true) ||
             text.contains("Підтвердити отримання", ignoreCase = true) ||
+            text.contains("Подтвердить получение", ignoreCase = true) ||
             text.contains("Confirm pickup", ignoreCase = true)) {
             AppLog.d(AppLog.TAG_PARSER, "Glovo: skipping — order details screen (Potwierdź odbiór)")
             return null
         }
 
         // Szukamy WSZYSTKICH kwot, odfiltruj kwoty gotówkowe (nie wynagrodzenie kuriera)
+        var hasCashAmount = false
         val amounts = OcrOfferParser.findAllAmounts(text)
             .mapNotNull { match ->
                 val prefixStart = maxOf(0, match.range.first - 40)
@@ -58,9 +60,16 @@ class GlovoOcrParser : OcrOfferParser {
                     prefix.contains("PAY ", ignoreCase = true) ||
                     prefix.contains("cash to partner", ignoreCase = true) ||
                     prefix.contains("change for", ignoreCase = true) ||
-                    prefix.contains("COLLECT", ignoreCase = true)
+                    prefix.contains("COLLECT", ignoreCase = true) ||
+                    // RU
+                    prefix.contains("ОПЛАТИТЕ", ignoreCase = true) ||
+                    prefix.contains("наличн", ignoreCase = true) ||
+                    prefix.contains("сдачу", ignoreCase = true) ||
+                    prefix.contains("ЗАБЕРИТЕ", ignoreCase = true) ||
+                    prefix.contains("ПОЛУЧИТЕ", ignoreCase = true)
 
                 if (isCashAmount) {
+                    hasCashAmount = true
                     AppLog.d(AppLog.TAG_PARSER, "Glovo: skipping cash amount ${match.groupValues[1]} (cash/change)")
                     return@mapNotNull null
                 }
@@ -69,7 +78,9 @@ class GlovoOcrParser : OcrOfferParser {
             }
             .toList()
 
-        AppLog.d(AppLog.TAG_PARSER, "Glovo: amounts found = $amounts")
+        // Detekcja gotówki: per-amount (prefix) + globalny fallback (markery w tekście)
+        val isCash = hasCashAmount || OcrOfferParser.containsCashMarkers(text)
+        AppLog.d(AppLog.TAG_PARSER, "Glovo: amounts found = $amounts, isCash=$isCash")
 
         val amount = amounts.maxOrNull() ?: run {
             AppLog.w(AppLog.TAG_PARSER, "Glovo: no amount found | text=${text.take(200)}")
@@ -107,7 +118,8 @@ class GlovoOcrParser : OcrOfferParser {
                     distanceKm = totalKm,
                     currency = OcrOfferParser.detectCurrency(text),
                     pickupDistanceKm = distances[0],
-                    isPartial = false
+                    isPartial = false,
+                    isCash = isCash
                 )
             }
         }

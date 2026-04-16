@@ -15,7 +15,7 @@ class BoltFoodOcrParser : OcrOfferParser {
     )
 
     // Czas: "27 min", "27min", "27 хв"
-    private val timeRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв|XB)""", RegexOption.IGNORE_CASE)
+    private val timeRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв|XB|мін|мин)""", RegexOption.IGNORE_CASE)
     private val hourRegex = Regex("""(\d+)[\s\u00A0]*(?:godz|год|hr|hour)""", RegexOption.IGNORE_CASE)
 
     // Dystans: "2.2 km", "2,2 km", "5 km"
@@ -28,9 +28,13 @@ class BoltFoodOcrParser : OcrOfferParser {
         "Dostawa ·", "Delivery ·",
         "Jesteś w trybie online", "You're online", "Ви онлайн",
         "Includes expected tip",
+        // Uber RU
+        "Итого", "Всего", "Вы онлайн", "Вы в сети", "Включая чаевые",
         // Wolt PL/EN/UK
         "Odbiór za", "Pickup in", "Забери через",
-        "Spodziewany zarobek", "Expected earnings", "Estimated earnings", "Очікуваний заробіток"
+        "Spodziewany zarobek", "Expected earnings", "Estimated earnings", "Очікуваний заробіток",
+        // Wolt RU
+        "Заберите через", "Забрать через", "Ожидаемый заработок", "Приблизительный заработок"
     )
 
     override fun parse(ocrLines: List<String>): Offer? {
@@ -42,6 +46,10 @@ class BoltFoodOcrParser : OcrOfferParser {
             AppLog.d(AppLog.TAG_PARSER, "Bolt: skipping — rival platform text detected ('$marker')")
             return null
         }
+
+        // Detekcja gotówki (generyczne markery — do weryfikacji z prawdziwymi zleceniami)
+        val isCash = OcrOfferParser.containsCashMarkers(text)
+        if (isCash) AppLog.d(AppLog.TAG_PARSER, "Bolt: cash order detected")
 
         // Szukamy WSZYSTKICH kwot i bierzemy NAJWIĘKSZĄ (przycisk ma kwotę zlecenia)
         val amounts = OcrOfferParser.findAllAmounts(text)
@@ -78,7 +86,7 @@ class BoltFoodOcrParser : OcrOfferParser {
 
         val distance = allDistances.maxOrNull()
 
-        val offer = Offer(Platform.BOLT, amount, minutes, distance, OcrOfferParser.detectCurrency(text))
+        val offer = Offer(Platform.BOLT, amount, minutes, distance, OcrOfferParser.detectCurrency(text), isCash = isCash)
         AppLog.d(AppLog.TAG_PARSER, "Bolt parsed offer: $offer")
         return offer
     }

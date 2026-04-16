@@ -8,7 +8,7 @@
 >
 > **Użycie:** przy pytaniach „co robimy?" / „co można poprawić?" → odwołaj się do tego pliku.
 >
-> Ostatnia aktualizacja: 2026-04-08
+> Ostatnia aktualizacja: 2026-04-16
 
 ---
 
@@ -53,7 +53,8 @@
   - Setup wizard: pole wyboru pojazdu (rower / rower elektryczny / skuter / auto)
   - Engine: tabela prędkości per typ pojazdu → dystans / prędkość = szacunkowy czas
   - GlovoOcrParser/OfferAnalyzer: przekazywanie dystansu → wyliczanie zł/h
-- **Status:** Pomysł — jeszcze nie implementujemy.
+- **Uwaga:** Ryzykowne — szacunkowe prędkości (rower vs auto, centrum vs obrzeża) mogą dawać niedokładne zł/h. Brak czasu oczekiwania w restauracji (5-15 min) dodatkowo zaburza wynik. Może wprowadzić więcej problemów niż korzyści (utrata zaufania do apki). Wymaga dokładnego przemyślenia mechanizmu.
+- **Status:** Pomysł — odłożony, wymaga lepszego podejścia.
 
 ---
 
@@ -62,19 +63,14 @@
 
 ---
 
-### 9. Lepsza diagnostyka błędów OCR
-- **Problem:** Gdy ML Kit padnie, `recognize()` zwraca pustą listę — nie da się odróżnić "brak tekstu" od "OCR się wysypał".
-- **Fix:** Logować typ wyniku (sukces vs błąd) wyraźniej, ewentualnie zwracać Result<List<String>>.
-- **Ryzyko:** Bardzo niskie — zmiana diagnostyczna.
-- **Status:** Do zrobienia przy porządkach.
+### 9. ~~Lepsza diagnostyka błędów OCR~~ ✅ ROZWIĄZANE (2026-04-10)
+- OCR timeout 5s loguje osobno "timed out" vs "failed" vs pusta lista — diagnostyka wystarczająca.
 
 ---
 
-### 10. Usunięcie MediaProjection — uproszczenie UX
-- **Problem:** takeScreenshot() (API 30+) daje te same wyniki co MediaProjection, ale nie wymaga dialogu ze zgodą.
-- **Fix:** Usunąć ScreenCaptureService i cały flow MediaProjection, zostawić tylko takeScreenshot().
-- **Ryzyko:** Średnie — spory kawałek kodu do usunięcia. Sprawdzić czy tata/brat mają Android 11+.
-- **Status:** Do rozważenia po stabilizacji.
+### 10. ~~Usunięcie MediaProjection~~ ✅ NIEAKTUALNE (2026-04-11)
+- API 30+ automatycznie pomija MediaProjection i używa `takeScreenshot()` — zaimplementowane 04-10.
+- Kod MediaProjection zostaje jako fallback dla API <30. Usuwanie go to refaktoring bez korzyści dla użytkownika.
 
 ---
 
@@ -83,11 +79,14 @@
 
 ---
 
-### 12. Test service restart po adb kill (diagnostyka stabilności)
-- **Co zrobić:** Podłączyć telefon USB, `adb shell am force-stop com.orderpilot.app`, sprawdzić czy AccessibilityService się restartuje.
-- **Dlaczego:** OEM-y (Xiaomi MIUI, Huawei EMUI, Samsung OneUI) agresywnie zabijają serwisy w tle. Jeśli serwis nie wstaje po killu — użytkownik traci monitoring bez świadomości.
-- **Kiedy:** Przy kolejnym teście u taty (Samsung + Xiaomi).
-- **Status:** Do przetestowania.
+### 12. ~~Test service restart po adb kill~~ ✅ PRZETESTOWANE (2026-04-11)
+- **Wynik (Samsung OneUI):** `adb shell am force-stop` zabija AccessibilityService. Samsung **NIE restartuje** serwisu automatycznie. Serwis znika z "Bound services", nie trafia do "Crashed services". Przy ponownym otwarciu apki wizard wykrywa brak usługi — user musi ręcznie włączyć ponownie.
+- **Wniosek:** Jeśli OEM zabije apkę w tle → monitoring umiera po cichu. User nie wie.
+- **Do zrobienia w przyszłości:**
+  - Persistent notification ("OrderPilot monitoruje") — gdy zniknie, user widzi że coś nie tak.
+  - Self-health check: `BOOT_COMPLETED` receiver + periodic alive-ping → powiadomienie "monitoring zatrzymany, kliknij żeby przywrócić".
+  - ~~Xiaomi (MIUI) — do przetestowania osobno~~ ✅ Przetestowane 04-11: identyczny wynik jak Samsung — serwis nie wstaje po force-stop.
+- **Status:** Zdiagnozowane, fix odłożony.
 
 ---
 
@@ -110,7 +109,90 @@
 
 ---
 
-### 16. Dodanie języka rosyjskiego
-- **Problem:** Apka obsługuje PL/EN/UK, ale brakuje rosyjskiego — potencjalni użytkownicy-kurierzy w RU/BY/KZ.
-- **Co zrobić:** Dodać `AppLanguage.RU`, `strings.xml` w `values-ru/`, rival markers RU, waluty RUB/BYN/KZT.
+### 16. ~~Dodanie języka rosyjskiego~~ ✅ ZAIMPLEMENTOWANE (2026-04-11)
+- AppLanguage.RU, values-ru/strings.xml (109 stringów), rival markers RU w 4 parserach, filtr gotówkowy RU, overlay ч/км/мин.
+- Waluty (RUB/BYN/KZT) NIE dodane — osobne zadanie na przyszłość.
+
+---
+
+### 17. Wskaźnik akceptacji kursów — ochrona przed banem
+- **Problem:** Kurierzy używający OrderPilot mogą odrzucać zbyt wiele zleceń (bo widzą że zł/h jest niskie), co grozi obniżeniem acceptance rate i potencjalnym banem/depriorytetyzacją na platformie.
+- **Pomysł:** Wyświetlać użytkownikowi jego bieżący wskaźnik akceptacji (np. "Akceptacja: 73% — uwaga, poniżej 80%"), żeby świadomie decydował kiedy odrzucić a kiedy przyjąć słabsze zlecenie.
+- **Wymagane do analizy:**
+  - Skąd brać dane? Platformy raczej nie eksponują acceptance rate w accessibility tree ani na ekranie oferty. Możliwe źródła: ekran statystyk (OCR/tree read), ręczne wpisanie przez usera, zliczanie accept/reject w apce.
+  - Zliczanie lokalne (OrderPilot liczy ile belek user widział vs ile zaakceptował) — najprostsze, ale niedokładne (nie wie czy user naprawdę przyjął/odrzucił).
+  - Progi alarmowe per platforma — każda platforma ma inne zasady (Uber vs Glovo vs Bolt vs Wolt).
+  - UX: gdzie wyświetlać? Belka? Osobny widget? Ekran ustawień?
+- **Wstępny kierunek:** Hybryda — zliczanie lokalne (ile ofert widzianych w sesji) + oportunistyczny odczyt z ekranu statystyk platformy (gdy user wejdzie w ustawienia/statystyki → screenshot + OCR).
+- **Status:** Pomysł — wymaga analizy przed implementacją.
+
+---
+
+### 18. Fałszywy parse ze screenshotów w galerii / innych apkach
+- **Problem:** Gdy użytkownik przegląda galerię zdjęć (lub inną apkę) na której widać stary screenshot zlecenia z belką OrderPilot, a w tym momencie Uber trzyma pusty overlay (znany problem Xiaomi — persistent type=3 overlay), nasz pipeline robi screenshot → OCR czyta stary screenshot z galerii → parser parsuje go jako nowe zlecenie → wyświetla belkę z błędnymi danymi.
+- **Zaobserwowane:** 2026-04-11, Xiaomi taty. Dwa przypadki:
+  1. Galeria zdjęć ze starym zleceniem + pusty persistent overlay Xiaomi → OCR odczytał 79 linii śmieci → fałszywy RED parse. Poprawiony ~4s później gdy przyszło prawdziwe zlecenie.
+  2. Przeglądanie ustawień Ubera (bez prawdziwego zlecenia) → belka się pojawiła na podstawie tekstu z ekranu ustawień.
+- **Potencjalne fixy:**
+  - Guard na liczbę linii OCR: normalny popup Ubera ma ~10-15 linii. Jeśli OCR zwraca >30-40 linii → prawdopodobnie screenshot złapał zły ekran → odrzuć i retry.
+  - Guard na foreground app: jeśli na pierwszym planie jest galeria/menedżer plików → skip screenshot.
+  - Guard na treść OCR: jeśli tekst zawiera nazwy plików (`.png`, `.txt`, `.jpg`) → odrzuć.
+- **Status:** Znany, niski priorytet. Na etapie testów wręcz przydatne (można testować pipeline ze starych screenshotów gdy nie ma nowych zleceń).
+
+---
+
+### 19. ~~Większy krzyżyk zamknięcia belki (przycisk jak na Uberze)~~ ✅ DONE (2026-04-12)
+- Przycisk × jako kółko w odcieniu belki (większy, lepiej widoczny). Zaimplementowany w overlay_offer.xml + OverlayViewFactory.
+
+---
+
+### 20. Możliwość przesuwania belki (drag)
+- **Problem:** Belka zasłania przycisk odrzucenia/anulacji zlecenia na platformie. Użytkownik musi najpierw zamknąć belkę żeby odrzucić zlecenie — to wkurzające i problematyczne, szczególnie przy krótkim timerze na decyzję.
+- **Propozycja taty:** Belka powinna być przesuwalna (drag & drop) żeby można ją przesunąć w inne miejsce ekranu bez zamykania.
+- **Potencjalne podejścia:**
+  - `OnTouchListener` z `ACTION_MOVE` na overlay WindowManager → aktualizacja `layoutParams.y`
+  - Zapamiętywanie ostatniej pozycji w SharedPreferences żeby belka pojawiała się tam gdzie user ją ostatnio zostawił
+  - Alternatywa: swipe-to-dismiss (przesunięcie w bok zamyka belkę) — prostsze ale nie rozwiązuje problemu zasłaniania
+- **Priorytet:** Wysoki — bezpośrednio wpływa na UX i decyzyjność kuriera.
 - **Status:** Do zrobienia.
+
+---
+
+### 21. ~~Oznaczenie zlecenia gotówkowego na belce~~ ✅ DONE (2026-04-12)
+- `isCash: Boolean` w Offer. Glovo: per-amount prefix detekcja + containsCashMarkers() fallback. Wolt/Bolt: generyczne markery PL/EN/UK/RU (do weryfikacji z prawdziwymi zleceniami). 💵 emoji na końcu belki. Testy jednostkowe.
+
+---
+
+### 23. ~~Wizard — poprawić instrukcje dla AccessibilityService~~ ✅ DONE (2026-04-12)
+- Toast z krokiem "Zainstalowane aplikacje" dodany w SetupActivity. User widzi podpowiedź gdzie szukać OrderPilot.
+
+---
+
+### 24. Pozycjonowanie przycisku × na belce (branch `polishing`, 2026-04-16)
+- **Problem:** Obecnie × jest w prawym górnym rogu belki (po zmianie z 04-12). Feedback od taty: powinien być **wycentrowany w pionie** przy prawej krawędzi belki (center-vertical, nie top).
+- **Gdzie zmienić:** `overlay_offer.xml` layout — zmiana `android:layout_gravity` / constraint z `top|end` na `center_vertical|end` (lub odpowiednik w obecnym layoutcie).
+- **Uwaga:** Sprawdzić czy nie koliduje z drag handlem po lewej (drag handle jest full-height po lewej stronie — × po prawej też powinien być zauważalny w pionie na środku).
+- **Priorytet:** Niski (kosmetyka), ale user-facing więc warto zrobić w najbliższej iteracji.
+- **Status:** Do zrobienia w branchu `polishing`.
+
+---
+
+### 25. Waluta PLN zamiast "zł" przy lokaleu EN (branch `polishing`, 2026-04-16)
+- **Problem:** Gdy user ustawi w apce język angielski, belka nadal pokazuje `zł` po kwocie (np. `12.50 zł`). Tata uważa że powinno być `PLN` (ISO code) — bardziej zrozumiałe dla nie-Polaków.
+- **Zakres:** Tylko wyświetlanie na belce (overlay), przy AppLanguage.EN. Parsery dalej matchują `zł` (bo to źródło danych z platform w PL).
+- **Gdzie zmienić:** Resource string `values-en/strings.xml` dla jednostki waluty PLN, LUB logika formatowania overlay (jeśli hard-coded `zł`). Sprawdzić `OverlayViewFactory` / `overlay_offer.xml` / `strings.xml`.
+- **Uwaga:** Zostawić `zł` dla AppLanguage.PL, `грн` dla UA, `zł` albo PLN dla RU (do ustalenia — RU kurier w PL może preferować PLN).
+- **Priorytet:** Niski — dla większości użytkowników nieistotne, ale szybki fix.
+- **Status:** Do zrobienia w branchu `polishing`.
+
+---
+
+### 26. Docelowa ikona aplikacji (branch `polishing`, 2026-04-16)
+- **Problem:** Aktualna ikona apki to placeholder/domyślna z Android Studio. Przed wypuszczeniem bety na Play Store potrzebujemy czegoś własnego.
+- **Co zrobić:**
+  - Zaprojektować ikonę reprezentującą OrderPilot (pilot kursów? lupa + samochód? logo?).
+  - Wyprodukować warianty: `ic_launcher` (classic), `ic_launcher_round`, `ic_launcher_foreground` (adaptive icon), `ic_launcher_background`. Dla Play Store: 512x512 PNG.
+  - Sprawdzić czy notyfikacyjna ikona (`ic_notification.xml`, monochrome) jest zgodna z nowym brandingiem.
+- **Uwaga:** To zadanie design-first. Etap 1: ustalenie kierunku wizualnego z userem. Etap 2: produkcja zasobów. Można też rozważyć zlecenie projektantowi.
+- **Priorytet:** Średni — potrzebne przed publikacją bety na Play Store.
+- **Status:** Do zrobienia w branchu `polishing` (lub osobnym `feature/branding`).

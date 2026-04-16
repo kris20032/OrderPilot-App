@@ -8,6 +8,7 @@
     <string name="status_subtitle_running">Monitorowanie Uber</string>
     <string name="status_subtitle_stopped">Zatrzymane</string>
     <string name="accessibility_hint">Włącz OrderPilot w:\nUstawienia → Dostępność → Zainstalowane aplikacje</string>
+    <string name="accessibility_rebind_hint">Wyłącz i włącz ponownie OrderPilot w:\nDostępność → Zainstalowane aplikacje → OrderPilot</string>
     <string name="toast_projection_lost">Nagrywanie ekranu zostało przerwane. Kliknij Start żeby wznowić.</string>
     <string name="toast_service_killed">Serwis został zatrzymany przez system. Kliknij Start żeby wznowić.</string>
 
@@ -21,7 +22,7 @@
     <string name="setup_battery_desc">Wyłącz optymalizację baterii, aby aplikacja działała po wygaszeniu ekranu.</string>
     <string name="setup_open_app_info">Otwórz info o aplikacji</string>
     <string name="setup_open_settings">Otwórz ustawienia</string>
-    <string name="setup_disable_restrictions">Wyłącz ograniczenia</string>
+    <string name="setup_disable_restrictions">Zezwól na działanie w tle</string>
     <string name="setup_continue">Kontynuuj</string>
     <string name="setup_check_settings">Sprawdź ustawienia</string>
 
@@ -65,7 +66,7 @@
 
     <!-- Toast hints (wizard) -->
     <string name="toast_hint_overlay">Znajdź „OrderPilot" i włącz przełącznik</string>
-    <string name="toast_hint_accessibility">Znajdź „OrderPilot" i włącz przełącznik</string>
+    <string name="toast_hint_accessibility">Wejdź w „Zainstalowane aplikacje" → znajdź OrderPilot → włącz</string>
     <string name="toast_hint_samsung_battery">Kliknij „Bateria" → wybierz „Bez ograniczeń"</string>
     <string name="toast_hint_samsung_sleeping">Otwórz „Limity użycia w tle" i usuń OrderPilot z list</string>
     <string name="toast_hint_xiaomi_autostart">Znajdź „OrderPilot" i włącz przełącznik</string>
@@ -106,4 +107,17 @@
     <string name="toast_logs_saved">Logi zapisane w Downloads</string>
     <string name="toast_logs_error">Błąd zapisu logów</string>
     <string name="settings_validation_error">Próg zielony musi być wyższy niż żółty</string>
+
+    <string name="toast_notification_denied">Powiadomienia wyłączone — nie zobaczysz statusu monitoringu w pasku</string>
+
+    <!-- Foreground service notification -->
+    <string name="notif_monitoring_title">Monitoring zamówień aktywny</string>
+    <string name="notif_monitoring_text">OrderPilot nasłuchuje nowych zleceń</string>
+
+    <!-- Watchdog recovery notification -->
+    <string name="notif_watchdog_title">Monitoring zatrzymany</string>
+    <string name="notif_watchdog_text">Kliknij, aby przywrócić działanie</string>
+
+    <!-- Notification permission hint -->
+    <string name="hint_notifications_disabled">Powiadomienia wyłączone — monitoring działa, ale nie zobaczysz statusu ani alertów o problemach</string>
 </resources>

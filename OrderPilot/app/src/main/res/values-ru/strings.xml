@@ -1,0 +1,122 @@
+<resources>
+    <string name="app_name">OrderPilot</string>
+    <string name="accessibility_service_description">OrderPilot анализирует предложения доставки и показывает оверлей прибыльности.</string>
+    <string name="btn_start">Старт</string>
+    <string name="btn_stop">Стоп</string>
+    <string name="status_running">Активен</string>
+    <string name="status_stopped">Неактивен</string>
+    <string name="status_subtitle_running">Мониторинг Uber</string>
+    <string name="status_subtitle_stopped">Остановлен</string>
+    <string name="accessibility_hint">Включите OrderPilot в:\nНастройки → Специальные возможности → Установленные приложения</string>
+    <string name="accessibility_rebind_hint">Выключите и включите OrderPilot заново в:\nСпециальные возможности → Установленные приложения → OrderPilot</string>
+    <string name="toast_projection_lost">Запись экрана была прервана. Нажмите Старт чтобы возобновить.</string>
+    <string name="toast_service_killed">Сервис был остановлен системой. Нажмите Старт чтобы продолжить.</string>
+
+    <!-- SetupActivity -->
+    <string name="setup_subtitle">Настройте приложение для правильной работы в фоновом режиме.</string>
+    <string name="setup_overlay_title">Отображение поверх других приложений</string>
+    <string name="setup_overlay_desc">Необходимо для отображения панели с результатами поверх приложения Uber.</string>
+    <string name="setup_accessibility_title">Служба специальных возможностей</string>
+    <string name="setup_accessibility_desc">Включите OrderPilot в:\nНастройки → Специальные возможности → Установленные приложения → OrderPilot</string>
+    <string name="setup_battery_title">Работа в фоновом режиме</string>
+    <string name="setup_battery_desc">Отключите оптимизацию батареи, чтобы приложение работало после выключения экрана.</string>
+    <string name="setup_open_settings">Открыть настройки</string>
+    <string name="setup_disable_restrictions">Разрешить работу в фоне</string>
+    <string name="setup_open_app_info">Открыть информацию о приложении</string>
+    <string name="setup_continue">Продолжить</string>
+    <string name="setup_check_settings">Проверить настройки</string>
+
+    <!-- Manufacturer card -->
+    <string name="setup_manufacturer_title">%s: дополнительные настройки</string>
+    <string name="setup_manufacturer_subtitle">Рекомендуется — предотвращает остановку приложения в фоновом режиме</string>
+
+    <!-- Samsung -->
+    <string name="setup_samsung_step1">Откройте информацию о приложении → нажмите «Батарея» → установите «Без ограничений»</string>
+    <string name="setup_samsung_step1_btn">Открыть информацию о приложении</string>
+    <string name="setup_samsung_step2">Настройки → Обслуживание устройства → Батарея → Ограничения фонового использования → удалите OrderPilot из списков «Спящие приложения» и «Глубоко спящие»</string>
+    <string name="setup_samsung_step2_btn">Открыть настройки батареи</string>
+    <string name="setup_samsung_step3">Отключите «Переводить неиспользуемые приложения в спящий режим» на том же экране</string>
+
+    <!-- Xiaomi / Redmi / POCO -->
+    <string name="setup_xiaomi_step1">Включите Автозапуск — позволяет приложению запускаться автоматически после перезагрузки телефона</string>
+    <string name="setup_xiaomi_step1_btn">Открыть Автозапуск</string>
+    <string name="setup_xiaomi_step2">Настройки → Приложения → OrderPilot → Экономия батареи → установите «Без ограничений»</string>
+    <string name="setup_xiaomi_step2_btn">Открыть настройки батареи</string>
+    <string name="setup_xiaomi_step3">Откройте список последних приложений (квадратная кнопка внизу) → найдите OrderPilot → потяните вниз или удерживайте → нажмите замок</string>
+
+    <!-- Huawei / Honor -->
+    <string name="setup_huawei_step1">Настройки → Батарея → Запуск приложений → найдите OrderPilot → отключите «Управлять автоматически» → включите все 3 переключателя вручную (автозапуск, работа в фоне, фоновая активность)</string>
+    <string name="setup_huawei_step1_btn">Открыть настройки батареи</string>
+    <string name="setup_huawei_step2">Настройки → Приложения → OrderPilot → Батарея → «Не оптимизировать»</string>
+    <string name="setup_huawei_step2_btn">Открыть информацию о приложении</string>
+
+    <!-- Oppo / Realme -->
+    <string name="setup_oppo_step1">Информация о приложении → Батарея → включите «Разрешить работу в фоне»</string>
+    <string name="setup_oppo_step1_btn">Открыть информацию о приложении</string>
+    <string name="setup_oppo_step2">Информация о приложении → включите «Автоматический запуск» (Auto-launch)</string>
+    <string name="setup_oppo_step2_btn">Открыть информацию о приложении</string>
+    <string name="setup_oppo_step3">Настройки → Батарея → Управление батареей → OrderPilot → включите автозапуск и фоновую активность</string>
+
+    <!-- OnePlus -->
+    <string name="setup_oneplus_step1">Настройки → Приложения → Специальный доступ → Оптимизация батареи → найдите OrderPilot → установите «Не оптимизировать»</string>
+    <string name="setup_oneplus_step1_btn">Открыть оптимизацию батареи</string>
+    <string name="setup_oneplus_step2">Настройки → Батарея → Расширенная оптимизация → отключите «Глубокая оптимизация»</string>
+    <string name="setup_oneplus_step2_btn">Открыть настройки батареи</string>
+    <string name="setup_oneplus_step3">Откройте список последних приложений → найдите OrderPilot → удерживайте → нажмите замок</string>
+
+    <!-- Toast hints (wizard) -->
+    <string name="toast_hint_overlay">Найдите «OrderPilot» и включите переключатель</string>
+    <string name="toast_hint_accessibility">Откройте «Установленные приложения» → найдите OrderPilot → включите</string>
+    <string name="toast_hint_samsung_battery">Нажмите «Батарея» → выберите «Без ограничений»</string>
+    <string name="toast_hint_samsung_sleeping">Откройте «Ограничения фонового использования» и удалите OrderPilot из списков</string>
+    <string name="toast_hint_xiaomi_autostart">Найдите «OrderPilot» и включите переключатель</string>
+    <string name="toast_hint_xiaomi_battery">Нажмите «Экономия батареи» → выберите «Без ограничений»</string>
+    <string name="toast_hint_huawei_launch">Найдите «OrderPilot» → отключите «Управлять автоматически» → включите 3 переключателя</string>
+    <string name="toast_hint_huawei_optimize">Нажмите «Батарея» → выберите «Не оптимизировать»</string>
+    <string name="toast_hint_oppo_background">Нажмите «Батарея» → включите «Разрешить работу в фоне»</string>
+    <string name="toast_hint_oppo_autolaunch">Включите «Автоматический запуск» (Auto-launch)</string>
+    <string name="toast_hint_oneplus_optimize">Найдите «OrderPilot» → выберите «Не оптимизировать»</string>
+    <string name="toast_hint_oneplus_deep">Отключите «Глубокая оптимизация» / «Расширенная оптимизация»</string>
+
+    <!-- SettingsActivity -->
+    <string name="settings_open">Настройки</string>
+    <string name="settings_title">Настройки</string>
+    <string name="settings_thresholds_header">Пороги цветов</string>
+    <string name="settings_green_threshold">Зелёный от (zł/ч)</string>
+    <string name="settings_yellow_threshold">Жёлтый от (zł/ч)</string>
+    <string name="settings_green_threshold_km">Зелёный от (zł/км)</string>
+    <string name="settings_yellow_threshold_km">Жёлтый от (zł/км)</string>
+    <string name="settings_threshold_hint_global">Стандартные пороги для всех платформ</string>
+    <string name="settings_threshold_hint_platform">Пусто = используются глобальные настройки</string>
+    <string name="settings_display_time_platform">Время панели: %d с</string>
+    <string name="tab_global">Global</string>
+    <string name="settings_metrics_header">Что показывать на панели</string>
+    <string name="metric_zl_per_hour">zł/ч</string>
+    <string name="metric_zl_per_km">zł/км</string>
+    <string name="metric_amount">Сумма</string>
+    <string name="metric_time">Время (мин)</string>
+    <string name="metric_distance">Расстояние (км)</string>
+    <string name="settings_language_header">Язык приложения</string>
+    <string name="settings_overlay_header">Внешний вид панели</string>
+    <string name="settings_opacity">Прозрачность: %d%%</string>
+    <string name="settings_display_time">Время отображения: %d с</string>
+    <string name="settings_save">Сохранить настройки</string>
+    <string name="settings_saved">Настройки сохранены</string>
+    <string name="btn_save_logs">Сохранить логи</string>
+    <string name="toast_logs_saved">Логи сохранены в Downloads</string>
+    <string name="toast_logs_error">Ошибка сохранения логов</string>
+    <string name="settings_validation_error">Зелёный порог должен быть выше жёлтого</string>
+
+    <string name="toast_notification_denied">Уведомления отключены — вы не увидите статус мониторинга в строке состояния</string>
+
+    <!-- Foreground service notification -->
+    <string name="notif_monitoring_title">Мониторинг заказов активен</string>
+    <string name="notif_monitoring_text">OrderPilot отслеживает новые заказы</string>
+
+    <!-- Watchdog recovery notification -->
+    <string name="notif_watchdog_title">Мониторинг остановлен</string>
+    <string name="notif_watchdog_text">Нажмите, чтобы восстановить работу</string>
+
+    <!-- Notification permission hint -->
+    <string name="hint_notifications_disabled">Уведомления отключены — мониторинг работает, но вы не увидите статус или оповещения о проблемах</string>
+</resources>

@@ -7,6 +7,8 @@ import android.content.Intent
 import android.graphics.drawable.GradientDrawable
 import android.media.projection.MediaProjectionConfig
 import android.media.projection.MediaProjectionManager
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -46,6 +48,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_MEDIA_PROJECTION = 1001
+        private const val REQUEST_NOTIFICATION_PERMISSION = 1002
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,7 +85,7 @@ class MainActivity : AppCompatActivity() {
         // UI odzwierciedla MonitoringController (source of truth).
         // Jeśli stan = ACTIVE (np. persystowany po restarcie procesu), UI pokazuje Active.
         // User może kliknąć Stop żeby zatrzymać.
-        if (ScreenCaptureService.isProjectionLost) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && ScreenCaptureService.isProjectionLost) {
             ScreenCaptureService.stopCapture(this)
             pendingStart = false
             if (!OrderPilotAccessibilityService.isConnected) {
@@ -99,8 +102,10 @@ class MainActivity : AppCompatActivity() {
             isRunning = MonitoringController.isActive()
             updateUi()
             // Health-check: jeśli monitoring "active" ale AccessibilityService martwy (OEM kill)
-            if (isRunning && !OrderPilotAccessibilityService.isConnected) {
-                // Delay 500ms — daj czas na onServiceConnected() jeśli serwis dopiero startuje
+            // Skip jeśli świeżo po start() — AccessibilityService potrzebuje czasu na bind
+            val msSinceStart = MonitoringController.msSinceLastStart()
+            if (isRunning && !OrderPilotAccessibilityService.isConnected && msSinceStart > 30_000) {
+                // Delay 2500ms — daj czas na onServiceConnected() po Doze wakeup / process restart
                 binding.root.postDelayed({
                     if (MonitoringController.isActive() && !OrderPilotAccessibilityService.isConnected) {
                         MonitoringController.stop(this)
@@ -108,10 +113,11 @@ class MainActivity : AppCompatActivity() {
                         updateUi()
                         Toast.makeText(this, getString(R.string.toast_service_killed), Toast.LENGTH_LONG).show()
                     }
-                }, 500)
+                }, 2500)
             }
         }
         updateAccessibilityHint()
+        updateNotificationHint()
     }
 
     override fun onPause() {
@@ -119,17 +125,57 @@ class MainActivity : AppCompatActivity() {
         dotPulseAnimator?.cancel()
     }
 
+    private fun ensureNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_NOTIFICATION_PERMISSION)
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_NOTIFICATION_PERMISSION) {
+            if (grantResults.isNotEmpty() && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, getString(R.string.toast_notification_denied), Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     private fun startCapture() {
+        ensureNotificationPermission()
+
         if (!OrderPilotAccessibilityService.isConnected) {
-            // Accessibility nie podłączone → start monitoring (accessibility-only mode po powrocie)
+            if (isAccessibilityEnabled()) {
+                // Accessibility włączone w systemie ale serwis nie zbindowany (po reinstalacji/update)
+                // → wyłącz i włącz ponownie żeby system ponownie zbindował
+                MonitoringController.start(this)
+                isRunning = true
+                updateUi()
+                Toast.makeText(this, getString(R.string.accessibility_rebind_hint), Toast.LENGTH_LONG).show()
+                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            } else {
+                // Accessibility w ogóle nie włączone → kieruj do ustawień
+                MonitoringController.start(this)
+                isRunning = true
+                updateUi()
+                Toast.makeText(this, getString(R.string.accessibility_hint), Toast.LENGTH_LONG).show()
+                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            }
+            return
+        }
+
+        // API 30+ → takeScreenshot() wystarczy, skip MediaProjection dialog
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            AppLog.d(AppLog.TAG_MAIN, "Started monitoring (API ${Build.VERSION.SDK_INT}, screenshot: takeScreenshot)")
             MonitoringController.start(this)
             isRunning = true
             updateUi()
-            Toast.makeText(this, getString(R.string.accessibility_hint), Toast.LENGTH_LONG).show()
-            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
             return
         }
-        // Accessibility OK → pytamy o MediaProjection. Stan ustawimy dopiero po potwierdzeniu.
+
+        // API < 30 → MediaProjection dialog
+        AppLog.d(AppLog.TAG_MAIN, "Started monitoring (API ${Build.VERSION.SDK_INT}, screenshot: MediaProjection)")
         val manager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         val captureIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             manager.createScreenCaptureIntent(MediaProjectionConfig.createConfigForDefaultDisplay())
@@ -142,7 +188,9 @@ class MainActivity : AppCompatActivity() {
     private fun stopCapture() {
         MonitoringController.stop(this)
         OrderPilotAccessibilityService.cancelActiveJobs()
-        ScreenCaptureService.stopCapture(this)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            ScreenCaptureService.stopCapture(this)
+        }
         isRunning = false
         pendingStart = false
         updateUi()
@@ -196,6 +244,16 @@ class MainActivity : AppCompatActivity() {
             }.start()
 
         updateAccessibilityHint()
+        updateNotificationHint()
+    }
+
+    private fun updateNotificationHint() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val denied = checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+            binding.tvNotificationHint.visibility = if (denied && isRunning) View.VISIBLE else View.GONE
+        } else {
+            binding.tvNotificationHint.visibility = View.GONE
+        }
     }
 
     private fun updateAccessibilityHint() {

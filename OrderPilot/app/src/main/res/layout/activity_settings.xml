@@ -404,6 +404,15 @@
                             android:textSize="15sp"
                             android:textColor="@color/on_surface" />
 
+                        <RadioButton
+                            android:id="@+id/rb_lang_ru"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:gravity="center_vertical"
+                            android:text="Русский"
+                            android:textSize="15sp"
+                            android:textColor="@color/on_surface" />
+
                     </RadioGroup>
 
                 </LinearLayout>

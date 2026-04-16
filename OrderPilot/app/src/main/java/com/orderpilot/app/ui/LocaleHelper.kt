@@ -12,6 +12,7 @@ object LocaleHelper {
             AppLanguage.PL -> Locale("pl")
             AppLanguage.UK -> Locale("uk")
             AppLanguage.EN -> Locale("en")
+            AppLanguage.RU -> Locale("ru")
         }
         Locale.setDefault(locale)
         val config = Configuration(context.resources.configuration)

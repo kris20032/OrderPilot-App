@@ -3,6 +3,8 @@ package com.orderpilot.app.overlay
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
@@ -38,6 +40,10 @@ object OverlayViewFactory {
         if (result.offer.isPartial)
             parts += "↓"
 
+        // Zlecenie gotówkowe — emoji na końcu (po metrykach)
+        if (result.offer.isCash)
+            parts += "\uD83D\uDCB5" // 💵
+
         // Etykieta platformy — widoczna tylko gdy 2 belki naraz
         if (platformLabel != null)
             parts.add(0, platformLabel)
@@ -59,7 +65,59 @@ object OverlayViewFactory {
             setCornerRadius(14f * density)
         }
         view.background = bg
+
+        // Przycisk zamknięcia — prawy górny róg, zaokrąglenie jak belka (14dp) na wszystkich rogach
+        val closeBtnInner = (view.findViewById<View>(R.id.tv_close) as? android.view.ViewGroup)
+            ?.getChildAt(0)
+        closeBtnInner?.background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(darkenColor(bgColor, 0.75f))
+            setCornerRadius(14f * density)
+        }
+
+        // Drag handle — dwie kreski z lewej strony belki
+        val dragHandle = view.findViewById<View>(R.id.drag_handle)
+        dragHandle?.background = createDragHandleDrawable(density)
+
         return view
+    }
+
+    /** Tworzy drawable z dwoma cienkimi białymi liniami (drag indicator). */
+    private fun createDragHandleDrawable(density: Float): LayerDrawable {
+        val lineColor = Color.argb(153, 255, 255, 255) // biały 60% alpha
+        val lineWidth = (12 * density).toInt()
+        val lineHeight = (2 * density).toInt()
+        val cornerRadius = 1f * density
+
+        fun makeLine() = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(lineColor)
+            setCornerRadius(cornerRadius)
+            setSize(lineWidth, lineHeight)
+        }
+
+        val line1 = makeLine()
+        val line2 = makeLine()
+
+        return LayerDrawable(arrayOf(line1, line2)).apply {
+            val handleWidth = (36 * density).toInt() // View jest 36dp, kreski wycentrowane
+            val insetH = (handleWidth - lineWidth) / 2
+            val gap = (3 * density).toInt() // offset od środka: -3dp i +3dp
+
+            setLayerGravity(0, Gravity.CENTER)
+            setLayerGravity(1, Gravity.CENTER)
+            setLayerInset(0, insetH, 0, insetH, gap + lineHeight)
+            setLayerInset(1, insetH, gap + lineHeight, insetH, 0)
+        }
+    }
+
+    /** Przyciemnia kolor RGB zachowując alpha. factor=0.75 → 25% ciemniej. */
+    private fun darkenColor(color: Int, factor: Float): Int {
+        val a = Color.alpha(color)
+        val r = (Color.red(color) * factor).toInt().coerceIn(0, 255)
+        val g = (Color.green(color) * factor).toInt().coerceIn(0, 255)
+        val b = (Color.blue(color) * factor).toInt().coerceIn(0, 255)
+        return Color.argb(a, r, g, b)
     }
 
     private data class Labels(
@@ -71,14 +129,31 @@ object OverlayViewFactory {
     )
 
     /**
-     * Jednostki (czas/dystans) biorą z języka UI, waluta dynamicznie z Offer.currency (OCR).
-     * Fallback "zł" gdy OCR nie wykrył waluty — nigdy nie hardcodujemy grn/UAH, bo apka
-     * działa w PL i wszystkie platformy rozliczają się w PLN.
+     * Jednostki na belce zależą od WALUTY ZLECENIA (= rynek), NIE od języka UI apki.
+     * Język UI zmienia menu/ustawienia, ale belka musi być spójna z walutą:
+     *   zł → h/km/min (łacińskie, zrozumiałe w PL)
+     *   ₴  → год/км/хв (ukraińskie, rynek UA)
+     *   ₽  → ч/км/мин (rosyjskie, rynek RU)
+     * Fallback (nieznana waluta) → łacińskie jednostki.
      */
     private fun labels(language: AppLanguage, currency: String): Labels {
-        val hourSuffix = if (language == AppLanguage.UK) "год" else "h"
-        val kmUnit = if (language == AppLanguage.UK) "км" else "km"
-        val minUnit = if (language == AppLanguage.UK) "хв" else "min"
+        val hourSuffix: String
+        val kmUnit: String
+        val minUnit: String
+
+        when (currency) {
+            "₴", "грн" -> {
+                hourSuffix = "год"; kmUnit = "км"; minUnit = "хв"
+            }
+            "₽", "руб" -> {
+                hourSuffix = "ч"; kmUnit = "км"; minUnit = "мін"
+            }
+            else -> {
+                // zł, €, $, £ i każda inna — uniwersalne łacińskie jednostki
+                hourSuffix = "h"; kmUnit = "km"; minUnit = "min"
+            }
+        }
+
         return Labels(
             currencyPerHour = "$currency/$hourSuffix",
             currencyPerKm = "$currency/$kmUnit",

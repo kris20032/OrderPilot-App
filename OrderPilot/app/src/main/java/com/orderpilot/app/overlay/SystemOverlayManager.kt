@@ -4,9 +4,12 @@ import android.content.Context
 import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.TouchDelegate
 import android.view.View
+import android.view.ViewConfiguration
 import android.view.WindowManager
+import kotlin.math.abs
 import com.orderpilot.app.R
 import com.orderpilot.app.domain.AnalysisResult
 import com.orderpilot.app.domain.AppLanguage
@@ -18,9 +21,16 @@ class SystemOverlayManager(private val context: Context) : OverlayManager {
 
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val density = context.resources.displayMetrics.density
-    private val topY = (48 * density).toInt()
+    private val screenHeight = context.resources.displayMetrics.heightPixels
+    private val defaultTopY = (48 * density).toInt()
     private val slotHeight = (60 * density).toInt() // fallback jeśli view.height jeszcze niedostępne
     private val slotGap = (4 * density).toInt()
+    private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+
+    // Persystowana pozycja Y (góra stosu belek)
+    private val prefs = context.getSharedPreferences("order_pilot_settings", Context.MODE_PRIVATE)
+    private var currentTopY: Int = prefs.getInt("overlay_y_position", defaultTopY)
+        .coerceIn(0, screenHeight - slotHeight)
 
     private data class OverlaySlot(
         val view: View,
@@ -94,6 +104,7 @@ class SystemOverlayManager(private val context: Context) : OverlayManager {
 
         val params = createParams(position)
         setupCloseButton(view, platform)
+        setupDragHandle(view)
 
         try {
             windowManager.addView(view, params)
@@ -118,6 +129,7 @@ class SystemOverlayManager(private val context: Context) : OverlayManager {
         val newView = OverlayViewFactory.create(context, old.result, old.displayConfig, old.language, label)
         val params = createParams(index)
         setupCloseButton(newView, old.platform)
+        setupDragHandle(newView)
 
         try {
             windowManager.addView(newView, params)
@@ -128,7 +140,7 @@ class SystemOverlayManager(private val context: Context) : OverlayManager {
     }
 
     private fun repositionAll() {
-        var currentY = topY
+        var currentY = currentTopY
         for (i in slots.indices) {
             try {
                 val params = slots[i].view.layoutParams as WindowManager.LayoutParams
@@ -152,7 +164,50 @@ class SystemOverlayManager(private val context: Context) : OverlayManager {
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.TOP
-            y = topY + slotIndex * (slotHeight + slotGap)
+            y = currentTopY + slotIndex * (slotHeight + slotGap)
+        }
+    }
+
+    private fun saveTopY() {
+        prefs.edit().putInt("overlay_y_position", currentTopY).apply()
+    }
+
+    private fun computeTotalSlotsHeight(): Int = synchronized(slotsLock) {
+        if (slots.isEmpty()) return slotHeight
+        val heights = slots.sumOf { it.view.height.takeIf { h -> h > 0 } ?: slotHeight }
+        heights + (slots.size - 1) * slotGap
+    }
+
+    private fun setupDragHandle(view: View) {
+        val dragHandle = view.findViewById<View>(R.id.drag_handle) ?: return
+
+        var initialRawY = 0f
+        var initialTopY = 0
+        var isDragging = false
+
+        dragHandle.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    initialRawY = event.rawY
+                    initialTopY = currentTopY
+                    isDragging = false
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val delta = (event.rawY - initialRawY).toInt()
+                    if (!isDragging && abs(delta) < touchSlop) return@setOnTouchListener true
+                    isDragging = true
+                    val totalHeight = computeTotalSlotsHeight()
+                    currentTopY = (initialTopY + delta).coerceIn(0, screenHeight - totalHeight)
+                    repositionAll()
+                    true
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    if (isDragging) saveTopY()
+                    true
+                }
+                else -> false
+            }
         }
     }
 

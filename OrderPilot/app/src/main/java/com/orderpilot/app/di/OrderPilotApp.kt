@@ -4,6 +4,7 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Environment
+import com.orderpilot.app.service.ServiceWatchdog
 import java.io.File
 import java.util.Date
 
@@ -13,6 +14,7 @@ class OrderPilotApp : Application() {
         super.onCreate()
         setupCrashLogger()
         createNotificationChannel()
+        ServiceWatchdog.createNotificationChannel(this)
         ServiceLocator.init(applicationContext)
         MonitoringController.initialize(applicationContext)
     }

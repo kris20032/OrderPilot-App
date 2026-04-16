@@ -11,10 +11,10 @@ class WoltOcrParser : OcrOfferParser {
 
     // Czas jako zakres: "16 - 19 min", "16 – 19 min", "16—19 min"
     // Bierzemy MAX (konserwatywne — niższe zł/h)
-    private val timeRangeRegex = Regex("""(\d+)[\s\u00A0]*[-\u2013\u2014][\s\u00A0]*(\d+)[\s\u00A0]*(?:min|хв|XB)""", RegexOption.IGNORE_CASE)
+    private val timeRangeRegex = Regex("""(\d+)[\s\u00A0]*[-\u2013\u2014][\s\u00A0]*(\d+)[\s\u00A0]*(?:min|хв|XB|мин)""", RegexOption.IGNORE_CASE)
 
     // Fallback: czas jako pojedyncza wartość "19 min"
-    private val timeSingleRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв|XB)""", RegexOption.IGNORE_CASE)
+    private val timeSingleRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв|XB|мін|мин)""", RegexOption.IGNORE_CASE)
 
     // Godziny: "1 godz.", "2 год", "1 hr"
     private val hourRegex = Regex("""(\d+)[\s\u00A0]*(?:godz|год|hr|hour)""", RegexOption.IGNORE_CASE)
@@ -29,6 +29,10 @@ class WoltOcrParser : OcrOfferParser {
         "Dostawa ·", "Delivery ·",
         "Jesteś w trybie online", "You're online", "Ви онлайн",
         "Includes expected tip",
+        // Uber RU
+        "Итого", "Всего",
+        "Вы онлайн", "Вы в сети",
+        "Включая чаевые",
         // Bolt offer popup / idle
         "Decline", "Show map", "Looking for orders", "Go offline"
     )
@@ -43,6 +47,10 @@ class WoltOcrParser : OcrOfferParser {
             AppLog.d(AppLog.TAG_PARSER, "Wolt: skipping — rival platform text detected ('$marker')")
             return null
         }
+
+        // Detekcja gotówki (generyczne markery — do weryfikacji z prawdziwymi zleceniami)
+        val isCash = OcrOfferParser.containsCashMarkers(text)
+        if (isCash) AppLog.d(AppLog.TAG_PARSER, "Wolt: cash order detected")
 
         // Kwota — wspólna logika z fallbackiem
         val (rawAmount, parsedAmount) = OcrOfferParser.extractAmount(text) ?: run {
@@ -70,7 +78,7 @@ class WoltOcrParser : OcrOfferParser {
 
         val distance = distanceRegex.find(text)?.groupValues?.get(1)?.toDoubleLocale()
 
-        val offer = Offer(Platform.WOLT, amount, minutes, distance, OcrOfferParser.detectCurrency(text))
+        val offer = Offer(Platform.WOLT, amount, minutes, distance, OcrOfferParser.detectCurrency(text), isCash = isCash)
         AppLog.d(AppLog.TAG_PARSER, "Wolt parsed offer: $offer")
         return offer
     }

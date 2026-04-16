@@ -10,7 +10,7 @@ class UberOcrParser : OcrOfferParser {
     override val supportedPackages = setOf("com.ubercab.driver", "com.ubercab.eats")
 
     // Czas: "14 min", "14min", "14 хв"
-    private val timeRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв|XB)""", RegexOption.IGNORE_CASE)
+    private val timeRegex = Regex("""(\d+)[\s\u00A0]*(?:min|хв|XB|мин)""", RegexOption.IGNORE_CASE)
     private val hourRegex = Regex("""(\d+)[\s\u00A0]*(?:godz|год|hr|hour)""", RegexOption.IGNORE_CASE)
 
     // Dystans: "(1.0 km)", "1,5 km" — wymaga spacji/nawias/minus przed liczbą
@@ -24,9 +24,28 @@ class UberOcrParser : OcrOfferParser {
         "Odbiór za", "Pickup in", "Забери через",
         "Spodziewany zarobek", "Expected earnings", "Estimated earnings", "Очікуваний заробіток",
         "Dostawa od", "Delivery from", "Доставка від",
+        // Wolt RU
+        "Заберите через", "Забрать через",
+        "Ожидаемый заработок", "Приблизительный заработок",
+        "Доставка от",
         // Bolt PL/EN
         "Potwierdź odbiór", "Confirm pickup",
-        "Decline", "Show map", "Looking for orders", "Go offline"
+        "Decline", "Show map", "Looking for orders", "Go offline",
+        // Bolt RU
+        "Подтвердить получение", "Подтвердите получение",
+        "Отклонить", "Показать карту", "Ищу заказы", "Выйти из сети"
+    )
+
+    // Frazy z ekranu statystyk/zarobków — nigdy nie pojawiają się na popupie oferty.
+    private val statisticsScreenMarkers = listOf(
+        // PL
+        "Statystyki", "Podsumowanie", "Opłata netto", "Całkowity przychód", "Zobacz przychody", "Podatki",
+        // EN
+        "Statistics", "Summary", "Net fare", "Total earnings", "See earnings", "Taxes",
+        // UK
+        "Статистика", "Підсумок", "Оплата нетто", "Загальний дохід", "Податки",
+        // RU
+        "Статистика", "Итого", "Оплата нетто", "Общий доход", "Посмотреть доходы", "Налоги"
     )
 
     // Frazy z ekranu historii/szczegółów przejazdu — nigdy nie pojawiają się na popupie oferty.
@@ -37,7 +56,10 @@ class UberOcrParser : OcrOfferParser {
         // EN
         "Trip duration", "Your earnings", "Distance", "Trip fare",
         // UK
-        "Тривалість", "Відстань", "Ваш заробіток"
+        "Тривалість", "Відстань", "Ваш заробіток",
+        // RU
+        "Продолжительность", "Длительность", "Время поездки",
+        "Расстояние", "Ваш заработок", "Заработок", "Доход", "Стоимость поездки"
     )
 
     override fun parse(ocrLines: List<String>): Offer? {
@@ -46,6 +68,12 @@ class UberOcrParser : OcrOfferParser {
         // Guard: odrzuć tekst z UI innej platformy kurierskiej
         rivalPlatformMarkers.firstOrNull { text.contains(it, ignoreCase = true) }?.let { marker ->
             AppLog.d(AppLog.TAG_PARSER, "Uber: skipping — rival platform text detected ('$marker')")
+            return null
+        }
+
+        // Guard: odrzuć ekran statystyk/zarobków
+        statisticsScreenMarkers.firstOrNull { text.contains(it, ignoreCase = true) }?.let { marker ->
+            AppLog.d(AppLog.TAG_PARSER, "Uber: skipping — statistics screen detected ('$marker')")
             return null
         }
 
