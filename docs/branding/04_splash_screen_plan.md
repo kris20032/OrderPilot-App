@@ -1,28 +1,23 @@
 # 04 · Splash Screen Plan — Android 12+ SplashScreen API
 
-**Status:** 🟡 ZAIMPLEMENTOWANY ale **SPLASH NIE WIDOCZNY** przy cold start — do zbadania w kolejnej sesji
+**Status:** ✅ ZAIMPLEMENTOWANY + ZWERYFIKOWANY NA URZĄDZENIU (Samsung OneUI, 2026-04-19)
 **Zależy od:** ✅ Logo A1 zaimplementowane (`c9d692d`)
-**Branch:** `feature/splash-screen` (utworzony z `polishing`, nie zmergowany)
-**Data implementacji:** 2026-04-19
+**Branch:** `feature/splash-screen` (gotowy do merge do `polishing`)
+**Data implementacji + weryfikacji:** 2026-04-19
 
 ---
 
-## ⚠️ Status po pierwszym teście (2026-04-19)
+## ✅ Weryfikacja na urządzeniu (2026-04-19)
 
-**Problem:** Aplikacja otwiera się za szybko — splash nie jest widoczny wcale. Nawet próba z debugowym `setKeepOnScreenCondition` trzymającym splash 2s nie pomogła — użytkownik dalej go nie widział.
+Splash poprawnie wyświetla się przy **cold start**:
+- Tło `#0A1220` (navy) — pełnoekranowe
+- Ikona A1 (ring + strzała + ticki) w pomarańczu `#FF6B2C` — wyśrodkowana, wszystkie elementy widoczne (ticki NIE są przycięte)
+- System reveal animation Android 12+ (OneUI) działa natywnie
+- Smooth handoff do MainActivity
 
-**Hipotezy do sprawdzenia w kolejnej sesji:**
-1. **Gradle sync / build cache** — może APK nie został przebudowany po dodaniu dependency/theme (spróbować `Build → Clean Project` + `Rebuild`)
-2. **Theme inheritance** — `Theme.SplashScreen` może nie być dostępny bez prawidłowego parentu; sprawdzić czy `androidx.core:core-splashscreen:1.0.1` faktycznie zadziałał (dostępność `@style/Theme.SplashScreen` w merged resources)
-3. **MainActivity theme override** — może jakiś inny theme override (np. w `attachBaseContext` lub gdzieś indziej) nadpisuje splash theme przed system handoff
-4. **Warm start vs cold start** — splash pokazuje się TYLKO przy cold start (app killed, process not in memory). Jeśli aplikacja była w recents, to warm start = brak splasha. Test: force-stop z Settings → Apps, potem launch.
-5. **OEM quirk (Samsung)** — niektóre Samsung skórki (OneUI) mają własne override splash behavior, zwłaszcza na launcher z „clean speed animation"
-6. **installSplashScreen() timing** — upewnić się że wywołanie jest naprawdę pierwsze w `onCreate`, przed innymi side-effectami (np. `attachBaseContext` już tworzy LocaleHelper → może być problem z ordering)
+**Kluczowy insight (do zapamiętania na przyszłość):** splash pokazuje się **tylko przy cold start** (process killed). Jeśli aplikacja jest w recents → warm start → brak splasha. Przy testowaniu: **Settings → Apps → OrderPilot → Force Stop**, potem launch z launchera.
 
-**Następny krok:** Przed merge — zdiagnozować czemu splash nie jest widoczny. Opcje debug:
-- Dodać `AppLog.d` tuż po `installSplashScreen()` żeby potwierdzić że linia się wykonuje
-- Sprawdzić w `adb logcat | grep SplashScreen` podczas cold startu
-- Zajrzeć do `merged_manifest.xml` w build output żeby potwierdzić że theme się zaaplikował
+Pierwszy test zawiódł bo app startowała z warm state (launch zaraz po poprzednim killu przez Android Studio Run, ale proces był w cache). Force-stop wymusił prawdziwy cold start → splash widoczny.
 
 ---
 

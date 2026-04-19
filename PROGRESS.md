@@ -1,7 +1,7 @@
 # OrderPilot — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-04-19
-**Obecny etap:** Polishing + branding — ikona A1 ✅ merged do polishing (commit c9d692d). Splash screen zaimplementowany (feature/splash-screen) ale **nie widoczny** na teście — do zbadania później.
+**Obecny etap:** Polishing + branding — ikona A1 ✅ merged do polishing (commit c9d692d). Splash screen ✅ zaimplementowany + zweryfikowany na urządzeniu (feature/splash-screen, gotowy do merge).
 **Aktywne branche:** `feature/splash-screen` (bieżący), `polishing` (synced), `feature/production-app`, `main`
 
 ---
@@ -23,7 +23,7 @@
 | ~~**Low**~~ | ~~Polishing #24 — × button center-vertical na belce~~ | ✅ (04-16) |
 | ~~**Low**~~ | ~~Polishing #25 — PLN zamiast zł przy UI EN~~ | ✅ (04-16) |
 | ~~**Medium**~~ | ~~Polishing #26 — docelowa ikona aplikacji (A1 Arrow-Up Reticle)~~ | ✅ Zaimplementowana + zweryfikowana na urządzeniu (04-19, commit c9d692d) |
-| **Medium** | Splash screen — widoczność na teście | 🟡 Zaimplementowany (feature/splash-screen) ale nie widoczny przy cold start — do zbadania (build/theme config/OEM?) |
+| ~~**Medium**~~ | ~~Splash screen — Android 12+ SplashScreen API (navy bg + A1 ikona)~~ | ✅ Zaimplementowany + zweryfikowany na urządzeniu (04-19, branch `feature/splash-screen`, gotowy do merge). Insight: splash widoczny TYLKO przy cold start — po zmianach trzeba Force Stop w Settings, inaczej warm start pomija splash. |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
 | **High** | Budowanie APK release (signed) do dystrybucji beta | Po polishingu |
 | **High** | Beta testy na Play Store — 3-5+ kurierów, mix platform | Po signed APK |
