@@ -1,8 +1,8 @@
 # OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-04-16
-**Obecny etap:** Polishing — 3 drobnostki (× center-vertical ✅, PLN zamiast zł przy EN ✅, docelowa ikonka TODO). Branch `polishing`, utworzony z `main` po merge drag-handle → production-app → main (04-16, kilka dni testów u taty bez większych błędów).
-**Aktywne branche:** `polishing` (bieżący), `feature/production-app` (synced, tip ce2f3dd), `main` (synced przez merge 2a94316)
+**Ostatnia aktualizacja:** 2026-04-19
+**Obecny etap:** Polishing + branding — ikona A1 ✅ merged do polishing (commit c9d692d). Splash screen zaimplementowany (feature/splash-screen) ale **nie widoczny** na teście — do zbadania później.
+**Aktywne branche:** `feature/splash-screen` (bieżący), `polishing` (synced), `feature/production-app`, `main`
 
 ---
 
@@ -22,7 +22,8 @@
 | ~~**High**~~ | ~~Hook auto-branch w CLAUDE.md (`.git/hooks/post-checkout`)~~ | ✅ (04-16) |
 | ~~**Low**~~ | ~~Polishing #24 — × button center-vertical na belce~~ | ✅ (04-16) |
 | ~~**Low**~~ | ~~Polishing #25 — PLN zamiast zł przy UI EN~~ | ✅ (04-16) |
-| **Medium** | Polishing #26 — docelowa ikona aplikacji (adaptive + Play Store) | Design-first, w trakcie |
+| ~~**Medium**~~ | ~~Polishing #26 — docelowa ikona aplikacji (A1 Arrow-Up Reticle)~~ | ✅ Zaimplementowana + zweryfikowana na urządzeniu (04-19, commit c9d692d) |
+| **Medium** | Splash screen — widoczność na teście | 🟡 Zaimplementowany (feature/splash-screen) ale nie widoczny przy cold start — do zbadania (build/theme config/OEM?) |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
 | **High** | Budowanie APK release (signed) do dystrybucji beta | Po polishingu |
 | **High** | Beta testy na Play Store — 3-5+ kurierów, mix platform | Po signed APK |

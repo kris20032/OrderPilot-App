@@ -1,8 +1,30 @@
 # 04 · Splash Screen Plan — Android 12+ SplashScreen API
 
-**Status:** 🟡 READY FOR IMPLEMENTATION (next task)
+**Status:** 🟡 ZAIMPLEMENTOWANY ale **SPLASH NIE WIDOCZNY** przy cold start — do zbadania w kolejnej sesji
 **Zależy od:** ✅ Logo A1 zaimplementowane (`c9d692d`)
-**Target branch:** nowy `feature/splash-screen` z `polishing`
+**Branch:** `feature/splash-screen` (utworzony z `polishing`, nie zmergowany)
+**Data implementacji:** 2026-04-19
+
+---
+
+## ⚠️ Status po pierwszym teście (2026-04-19)
+
+**Problem:** Aplikacja otwiera się za szybko — splash nie jest widoczny wcale. Nawet próba z debugowym `setKeepOnScreenCondition` trzymającym splash 2s nie pomogła — użytkownik dalej go nie widział.
+
+**Hipotezy do sprawdzenia w kolejnej sesji:**
+1. **Gradle sync / build cache** — może APK nie został przebudowany po dodaniu dependency/theme (spróbować `Build → Clean Project` + `Rebuild`)
+2. **Theme inheritance** — `Theme.SplashScreen` może nie być dostępny bez prawidłowego parentu; sprawdzić czy `androidx.core:core-splashscreen:1.0.1` faktycznie zadziałał (dostępność `@style/Theme.SplashScreen` w merged resources)
+3. **MainActivity theme override** — może jakiś inny theme override (np. w `attachBaseContext` lub gdzieś indziej) nadpisuje splash theme przed system handoff
+4. **Warm start vs cold start** — splash pokazuje się TYLKO przy cold start (app killed, process not in memory). Jeśli aplikacja była w recents, to warm start = brak splasha. Test: force-stop z Settings → Apps, potem launch.
+5. **OEM quirk (Samsung)** — niektóre Samsung skórki (OneUI) mają własne override splash behavior, zwłaszcza na launcher z „clean speed animation"
+6. **installSplashScreen() timing** — upewnić się że wywołanie jest naprawdę pierwsze w `onCreate`, przed innymi side-effectami (np. `attachBaseContext` już tworzy LocaleHelper → może być problem z ordering)
+
+**Następny krok:** Przed merge — zdiagnozować czemu splash nie jest widoczny. Opcje debug:
+- Dodać `AppLog.d` tuż po `installSplashScreen()` żeby potwierdzić że linia się wykonuje
+- Sprawdzić w `adb logcat | grep SplashScreen` podczas cold startu
+- Zajrzeć do `merged_manifest.xml` w build output żeby potwierdzić że theme się zaaplikował
+
+---
 
 ---
 

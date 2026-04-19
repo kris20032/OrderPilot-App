@@ -17,6 +17,7 @@ import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.orderpilot.app.R
 import com.orderpilot.app.capture.ScreenCaptureService
 import com.orderpilot.app.databinding.ActivityMainBinding
@@ -52,6 +53,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // MUSI być przed super.onCreate() — inaczej splash się nie wyświetli.
+        installSplashScreen()
         super.onCreate(savedInstanceState)
 
         if (!SetupActivity.isSetupComplete(this)) {
