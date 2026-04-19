@@ -3,7 +3,7 @@
 ## 🚨 AKTYWNY BRANCH (source of truth)
 
 **Obecny branch roboczy: `polishing`**
-**Ostatnia aktualizacja tego wpisu: 2026-04-16**
+**Ostatnia aktualizacja tego wpisu: 2026-04-19**
 
 > ℹ️ Te dwie linijki są **auto-aktualizowane** przez hook `.git/hooks/post-checkout` przy każdym `git checkout <branch>`. Nie edytuj ich ręcznie — po prostu przełącz branch i wpis się zmieni. Jeśli hook nie działa (np. po świeżym klonie repo), uruchom `./scripts/install-hooks.sh` żeby go zainstalować — źródło hooka jest w `scripts/git-hooks/post-checkout`, bo katalog `.git/hooks/` nie jest wersjonowany przez git.
 

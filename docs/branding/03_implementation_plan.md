@@ -1,9 +1,9 @@
 # 03 · Implementation Plan — Logo → App Integration
 
-**Status:** 🟢 READY FOR IMPLEMENTATION
+**Status:** 🚀 IMPLEMENTED + VERIFIED ON DEVICE (2026-04-19)
 **Input:** A1 Final (post-QA) — patrz `01_logo_decision.md` sekcja 6-7
 **Kontekst QA:** `02_qa_fixes.md`
-**Target branch:** `polishing` (lub nowy `feature/app-icon-refresh`)
+**Implementacja na:** `feature/app-icon-refresh` → merged to `polishing` (commit `c9d692d`)
 
 ---
 
@@ -277,6 +277,40 @@ W `themes.xml`:
 - [ ] Backup aktualnej ikony (git log identyfikuje commit)
 - [ ] Xiaomi (tata) dostępny do testu — umówić datę
 - [ ] Czas rezerwowy: ~2h na generację + integrację + test + commit
+
+---
+
+## Integration complete — 2026-04-19
+
+**Wykonano w jednej sesji** (branch `feature/app-icon-refresh` → merged `polishing`, commit `c9d692d`):
+
+### Pliki zmienione (17) + dodane (1)
+| Plik | Typ zmiany |
+|---|---|
+| `res/drawable/ic_launcher_background.xml` | przepisany (162 → 9 linii, solid `#0A1220`) |
+| `res/drawable/ic_launcher_foreground.xml` | przepisany (vector A1, viewport 1024 = 1:1 z master) |
+| `res/drawable/ic_launcher_monochrome.xml` | **NEW** (simplified A1, white, dla Android 13+ themed) |
+| `res/drawable/ic_notification.xml` | przepisany (24dp native, donut ring + head + shaft) |
+| `res/mipmap-anydpi/ic_launcher.xml` | monochrome tag → dedykowany drawable |
+| `res/mipmap-anydpi/ic_launcher_round.xml` | monochrome tag → dedykowany drawable |
+| `res/mipmap-{m,h,xh,xxh,xxxh}dpi/ic_launcher.webp` | 5 × regenerowane z master SVG |
+| `res/mipmap-{m,h,xh,xxh,xxxh}dpi/ic_launcher_round.webp` | 5 × regenerowane (identyczne) |
+| `res/values/colors.xml` | +2 entry (`logo_background`, `logo_accent`) |
+
+### Weryfikacja na urządzeniu
+- ✅ Launcher: ring + strzała + ticki wszystko czytelne, tip breakthrough widoczny
+- ✅ Kontrast: wybija się obok Messenger/YouTube/Snapchat/Gmail (jedyna navy+pomarańcz)
+- ✅ OLED dark wallpaper edge case: squircle `#0A1220` subtelnie ginie, ALE identity trzymają pomarańczowe elementy — zgodnie z QA prognozą, nie potrzeba bump do `#12192B`
+- ✅ Notification small icon: brak regresji, `MonitoringForegroundService` + `ServiceWatchdog` działają
+
+### Narzędzia użyte
+- `brew install librsvg webp` (rsvg-convert + cwebp) — zainstalowane 2026-04-19, pozostają w systemie
+- Master SVG: `/tmp/op_logo_master.svg` (tymczasowy, nie w repo — spec jest w `01_logo_decision.md` sekcja 7)
+
+### Decyzje odłożone → zrealizowane w następnych sesjach
+- Simplified 24dp glyph → **zrobiony w tym tasku** (ic_notification)
+- Splash screen → **następny task** (plan w `04_splash_screen_plan.md`)
+- Wordmark / horizontal lockup → niezmienione (osobny task przy marketing)
 
 ---
 
