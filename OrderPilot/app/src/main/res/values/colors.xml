@@ -28,4 +28,8 @@
     <!-- Outline -->
     <color name="outline">#CCCCCC</color>
     <color name="outline_variant">#E8E8E8</color>
+
+    <!-- Logo (A1 Arrow-Up Reticle) — patrz docs/branding/ -->
+    <color name="logo_background">#0A1220</color>
+    <color name="logo_accent">#FF6B2C</color>
 </resources>

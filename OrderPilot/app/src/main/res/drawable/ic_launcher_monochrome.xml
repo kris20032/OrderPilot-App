@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    OrderPilot monochrome icon (Android 13+ themed icons)
+    Simplified A1: ring + arrow (BEZ tickków, bez tła)
+    System zastępuje fill własnym kolorem z theme; używamy white jako baseline.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
+
+    <!-- Ring -->
+    <path
+        android:pathData="M 252,512 a 260,260 0 1,0 520,0 a 260,260 0 1,0 -520,0 Z"
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="56" />
+
+    <!-- Head -->
+    <path
+        android:pathData="M 512,192 L 574,320 L 450,320 Z"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Shaft -->
+    <path
+        android:pathData="M 500,320 h 24 a 6,6 0 0,1 6,6 v 316 a 6,6 0 0,1 -6,6 h -24 a 6,6 0 0,1 -6,-6 v -316 a 6,6 0 0,1 6,-6 Z"
+        android:fillColor="#FFFFFF" />
+
+</vector>
