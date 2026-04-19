@@ -1,8 +1,8 @@
 # OrderPilot — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-04-19
-**Obecny etap:** Polishing + branding — ikona A1 ✅ merged do polishing (commit c9d692d). Splash screen ✅ zaimplementowany + zweryfikowany na urządzeniu (feature/splash-screen, gotowy do merge).
-**Aktywne branche:** `feature/splash-screen` (bieżący), `polishing` (synced), `feature/production-app`, `main`
+**Obecny etap:** Play Store prep — gap analysis v2 gotowy (`docs/play-store/01_analysis_v2.md`) po krytycznym review. Kluczowa decyzja strategiczna: `isAccessibilityTool="false"` + Alternative Use track przez Permissions Declaration Form. Następny krok: plan implementacyjny (02_implementation_plan.md) po akceptacji analizy.
+**Aktywne branche:** `play-store-prep` (bieżący), `polishing` (synced + splash zmergowany), `feature/production-app`, `main`
 
 ---
 
@@ -24,10 +24,13 @@
 | ~~**Low**~~ | ~~Polishing #25 — PLN zamiast zł przy UI EN~~ | ✅ (04-16) |
 | ~~**Medium**~~ | ~~Polishing #26 — docelowa ikona aplikacji (A1 Arrow-Up Reticle)~~ | ✅ Zaimplementowana + zweryfikowana na urządzeniu (04-19, commit c9d692d) |
 | ~~**Medium**~~ | ~~Splash screen — Android 12+ SplashScreen API (navy bg + A1 ikona)~~ | ✅ Zaimplementowany + zweryfikowany na urządzeniu (04-19, branch `feature/splash-screen`, gotowy do merge). Insight: splash widoczny TYLKO przy cold start — po zmianach trzeba Force Stop w Settings, inaczej warm start pomija splash. |
+| **High** | Play Store release — gap analysis v2 | ✅ Gotowa (04-19, `docs/play-store/01_analysis_v2.md` na `play-store-prep`). Czeka na akceptację użytkownika przed planem implementacyjnym |
+| **High** | Play Store release — plan implementacyjny (02_implementation_plan.md) | Po akceptacji analizy v2 |
+| **High** | Play Store release — implementacja (DisclosureActivity, consent flag, signing, AAB, Privacy Policy, video demo, store assets, Permissions Declarations, Closed Testing) | Po planie |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
-| **High** | Budowanie APK release (signed) do dystrybucji beta | Po polishingu |
-| **High** | Beta testy na Play Store — 3-5+ kurierów, mix platform | Po signed APK |
-| **Medium** | Profile social media + strategia promocji (przed oficjalnym release) | Do rozpoczęcia równolegle z betą |
+| **High** | Budowanie signed AAB (release) do Closed Testing | Częśc Play Store prep |
+| **High** | Closed Testing na Play Store — 12-20+ kurierów, mix platform, 14 dni minimum | Po signed AAB + rekrutacji testerów |
+| **Medium** | Profile social media + strategia promocji (przed oficjalnym release) | Do rozpoczęcia równolegle z Closed Testing |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
 
 ---
