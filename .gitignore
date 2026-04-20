@@ -27,3 +27,7 @@ test-data/
 
 # Mockupy wizualne belki (dev assets — nie commitować, iterujemy lokalnie)
 mockup_*.html
+
+# Release signing — NIGDY nie commitować keystore ani haseł
+keystore/
+keystore.properties
