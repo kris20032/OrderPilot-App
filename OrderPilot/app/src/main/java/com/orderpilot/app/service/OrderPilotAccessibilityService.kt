@@ -277,7 +277,7 @@ class OrderPilotAccessibilityService : AccessibilityService() {
         val activePackage = try {
             rootInActiveWindow?.packageName?.toString()
         } catch (e: Exception) { null }
-        return activePackage != null && activePackage != pkg && activePackage in courierPackages
+        return activePackage != null && activePackage != pkg && activePackage in watchedPackages
     }
 
     private fun hasUberOverlayWindow(): Boolean {
@@ -323,7 +323,7 @@ class OrderPilotAccessibilityService : AccessibilityService() {
         val activePackage = try {
             rootInActiveWindow?.packageName?.toString()
         } catch (e: Exception) { null }
-        return activePackage != null && activePackage != "com.ubercab.driver" && activePackage in courierPackages
+        return activePackage != null && activePackage != "com.ubercab.driver" && activePackage in watchedPackages
     }
 
     /**
@@ -654,13 +654,5 @@ class OrderPilotAccessibilityService : AccessibilityService() {
         private const val WOLT_MAX_RETRIES = 2          // Wolt natywne UI: szybki rendering
         private const val CROP_TOP_RATIO = 0.4f         // crop dolne 60% screenshota
         private const val SCREENSHOT_FAILURE_ALERT_THRESHOLD = 10  // alert po 10 porażkach z rzędu
-
-        /** Paczki kurierskie — blokujemy screenshot tylko gdy foreground to INNA z tych apek */
-        private val courierPackages = setOf(
-            "com.ubercab.driver",
-            "com.wolt.courierapp",
-            "com.logistics.rider.glovo",
-            "com.bolt.deliverycourier"
-        )
     }
 }

@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">OrderPilot</string>
-    <string name="accessibility_service_description">OrderPilot analyzes delivery offers and shows profitability overlay.</string>
+    <string name="accessibility_service_description">OrderPilot odczytuje zawartość ekranu wyłącznie z aplikacji kurierskich Uber Driver, Wolt Courier, Glovo Courier i Bolt Food, aby wykryć nowe zlecenia i wyświetlić na nakładce wyliczoną stawkę godzinową (zł/h). Dane z ekranu są przetwarzane wyłącznie na Twoim urządzeniu, nigdzie nie są wysyłane ani trwale zapisywane. Możesz wyłączyć usługę w dowolnym momencie w ustawieniach systemowych.</string>
     <string name="btn_start">Start</string>
     <string name="btn_stop">Stop</string>
     <string name="status_running">Active</string>

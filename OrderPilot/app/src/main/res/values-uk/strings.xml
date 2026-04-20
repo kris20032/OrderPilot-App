@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">OrderPilot</string>
-    <string name="accessibility_service_description">OrderPilot аналізує пропозиції доставки та показує оверлей прибутковості.</string>
+    <string name="accessibility_service_description">OrderPilot зчитує вміст екрана виключно з кур\'єрських застосунків Uber Driver, Wolt Courier, Glovo Courier і Bolt Food, щоб виявляти нові замовлення та показувати на оверлеї обчислену погодинну ставку (zł/год). Дані з екрана обробляються лише на Вашому пристрої, нікуди не надсилаються й не зберігаються постійно. Ви можете вимкнути сервіс у будь-який момент у системних налаштуваннях.</string>
     <string name="btn_start">Старт</string>
     <string name="btn_stop">Стоп</string>
     <string name="status_running">Активний</string>

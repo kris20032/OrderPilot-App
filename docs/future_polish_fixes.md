@@ -8,7 +8,7 @@
 >
 > **Użycie:** przy pytaniach „co robimy?" / „co można poprawić?" → odwołaj się do tego pliku.
 >
-> Ostatnia aktualizacja: 2026-04-16
+> Ostatnia aktualizacja: 2026-04-19
 
 ---
 
@@ -187,3 +187,22 @@
 - **Uwaga:** To zadanie design-first. Etap 1: ustalenie kierunku wizualnego z userem. Etap 2: produkcja zasobów. Można też rozważyć zlecenie projektantowi.
 - **Priorytet:** Średni — potrzebne przed publikacją bety na Play Store.
 - **Status:** Do zrobienia w branchu `polishing` (lub osobnym `feature/branding`).
+
+---
+
+### 27. Setup wizard — przycisk „Allow background activity" nie działa po usunięciu `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` (branch `play-store-prep`, 2026-04-19)
+- **Problem:** Po usunięciu permission `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` w Batch 1 Play Store prep (Task 2.11, AndroidManifest.xml), kliknięcie „Allow background activity" w Setup wizard nie pokazuje **nic** — system nie otwiera dialogu i **nie rzuca wyjątku**, więc fallback w `try/catch` (`SetupActivity.kt:340-344`) się nie aktywuje.
+- **Skutek:** `isIgnoringBatteryOptimizations(packageName)` zostaje `false` → `isSetupComplete()` zwraca `false` (linia 440-453) → przycisk **Continue zostaje szary** → user nie może przejść dalej w setupie. **Hard block całego setup flow.**
+- **Root cause:** `Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` (linia 337) wymaga deklaracji permission w manifeście. Bez niej intent nie pokazuje dialogu i nie rzuca catchable exception (zachowanie różni się między wersjami Androida).
+- **DECYZJA (2026-04-19): Opcja A — bezpieczna pod Play Store policy.**
+  - W `SetupActivity.requestBatteryOptimizationExemption()` (linia 336-345) **usunąć** próbę `ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` i od razu wołać `Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)` (lista wszystkich apek).
+  - Dodać `Toast` z hintem (i18n we wszystkich 4 stringach: PL/EN/UK/RU): „Znajdź OrderPilot na liście i wybierz 'Bez ograniczeń'" / „Find OrderPilot in the list and select 'Don't optimize'" / etc.
+  - Pozostawić `isSetupComplete()` bez zmian (battery dalej hard requirement) — user dokończy ręcznie i `onResume()` odświeży stan.
+- **Dlaczego Opcja A, nie B/C:**
+  - **Opcja B (battery jako soft requirement):** odrzucone — degradacja niezawodności na Xiaomi/Samsung; userzy pominą krok i zacznie się dzwonienie „nie działa po wyłączeniu ekranu".
+  - **Opcja C (revert permission):** odrzucone — Play policy traktuje `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` jako restricted permission; ryzyko rejection w Play Console review (Risk #7 z `01_analysis_v2.md`). Zgodne z rekomendacją w `02_implementation_plan.md` Task 2.11.
+- **Status:** **OTWARTE — fix odłożony.** Decyzja podjęta (A), implementacja na następną sesję. Aktualnie blokuje pełen smoke test Batch 1 na telefonie.
+- **Pliki do zmiany przy implementacji:**
+  - `OrderPilot/app/src/main/java/com/orderpilot/app/ui/SetupActivity.kt` (funkcja `requestBatteryOptimizationExemption()` + `Toast` z hintem)
+  - `OrderPilot/app/src/main/res/values/strings.xml` + `values-en/`, `values-uk/`, `values-ru/` — nowy string `toast_hint_battery_optimization` z hintem dla użytkownika
+- **Powiązane:** `docs/play-store/02_implementation_plan.md` Task 2.11 (Plan A → fix tutaj uzupełnia decyzję); `docs/play-store/01_analysis_v2.md` Risk #7.
