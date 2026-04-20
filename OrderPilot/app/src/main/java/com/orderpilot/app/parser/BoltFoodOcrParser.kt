@@ -39,7 +39,7 @@ class BoltFoodOcrParser : OcrOfferParser {
 
     override fun parse(ocrLines: List<String>): Offer? {
         val text = ocrLines.joinToString(" ")
-        AppLog.d(AppLog.TAG_PARSER, "Bolt OCR: $text")
+        AppLog.d(AppLog.TAG_PARSER, "Bolt OCR: lines=${ocrLines.size} textLen=${text.length}")
 
         // Guard: odrzuć tekst z UI innej platformy kurierskiej
         rivalPlatformMarkers.firstOrNull { text.contains(it, ignoreCase = true) }?.let { marker ->
@@ -62,7 +62,7 @@ class BoltFoodOcrParser : OcrOfferParser {
         AppLog.d(AppLog.TAG_PARSER, "Bolt: amounts found = $amounts")
 
         val amount = amounts.maxOrNull() ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Bolt: no amount found | text=${text.take(200)}")
+            AppLog.w(AppLog.TAG_PARSER, "Bolt: no amount found | textLen=${text.length}")
             return null
         }
 
@@ -72,7 +72,7 @@ class BoltFoodOcrParser : OcrOfferParser {
             .toList()
         val hours = hourRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: 0
         val minutes = (allMinutes.maxOrNull() ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Bolt: no time found | text=${text.take(200)}")
+            AppLog.w(AppLog.TAG_PARSER, "Bolt: no time found | textLen=${text.length}")
             return null
         }) + hours * 60
 

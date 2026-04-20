@@ -14,7 +14,7 @@ class GlovoOcrParser : OcrOfferParser {
 
     override fun parse(ocrLines: List<String>): Offer? {
         val text = ocrLines.joinToString(" ")
-        AppLog.d(AppLog.TAG_PARSER, "Glovo OCR: $text")
+        AppLog.d(AppLog.TAG_PARSER, "Glovo OCR: lines=${ocrLines.size} textLen=${text.length}")
 
         // Guard: Uber popup — "Łącznie X min" to format Ubera, Glovo tego nie używa.
         // Gdy Glovo event triggeruje screenshot a na ekranie jest popup Ubera,
@@ -83,7 +83,7 @@ class GlovoOcrParser : OcrOfferParser {
         AppLog.d(AppLog.TAG_PARSER, "Glovo: amounts found = $amounts, isCash=$isCash")
 
         val amount = amounts.maxOrNull() ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Glovo: no amount found | text=${text.take(200)}")
+            AppLog.w(AppLog.TAG_PARSER, "Glovo: no amount found | textLen=${text.length}")
             return null
         }
 
@@ -99,7 +99,7 @@ class GlovoOcrParser : OcrOfferParser {
 
         return when {
             distances.isEmpty() -> {
-                AppLog.w(AppLog.TAG_PARSER, "Glovo: no distances found | text=${text.take(200)}")
+                AppLog.w(AppLog.TAG_PARSER, "Glovo: no distances found | textLen=${text.length}")
                 null
             }
             distances.size == 1 -> {

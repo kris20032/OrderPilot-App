@@ -260,14 +260,16 @@ PARALLEL OK z Phase 1 (różne pliki).
 - **Ref:** M20, Risk #5.
 - **Risk if missing:** Data Safety reject.
 
-#### Task 2.3 — Decyzja `allowBackup` (F3, V20)
-- **Krok A (V20):** Read `OrderPilot/app/src/main/res/xml/backup_rules.xml` + `data_extraction_rules.xml`. Sprawdzić co backupowane.
-- **Decision criterion:**
-  - Jeśli backup obejmuje wyłącznie SharedPrefs z user settings (theme, language, thresholds, position Y) → zostawić `allowBackup="true"` + ewentualnie dodać exclude na `disclosureAcceptedVersion` (żeby user musiał re-confirm po restore).
-  - Jeśli backup obejmuje cache OCR / offer history / logs → albo dodać `<exclude>`, albo flip na `allowBackup="false"`.
-- **ASSUMPTION default:** `allowBackup="false"` jeśli niejasne (prostsze; user może ustawić ponownie).
-- **Plik:** `OrderPilot/app/src/main/AndroidManifest.xml:16` lub `res/xml/backup_rules.xml`.
-- **Ref:** F3, V20.
+#### Task 2.3 — Decyzja `allowBackup` (F3, V20 — WYKONANE 2026-04-20)
+- **Decyzja:** `allowBackup="true"` zostawić, ale z dedykowanymi regułami include/exclude.
+- **Rationale (V20 audit):**
+  - `order_pilot_settings.xml` (current SharedPrefs) — zawiera tylko user preferences (thresholds, theme, language, Y position, monitoring_state flag). Monitoring_state jest nieszkodliwy: bez systemowych grantów (accessibility, overlay, battery) wizard i tak startuje od zera na nowym urządzeniu. → **include**.
+  - `order_pilot_disclosure.xml` (Phase 3 dedykowany plik) — zarezerwowany na `disclosureAcceptedVersion` i inne consent flagi. KD5 Play Store wymaga świeżego accept disclosure po restore na nowym urządzeniu. → **exclude**.
+- **Implementacja:**
+  - `backup_rules.xml` (API 23+): `<full-backup-content>` z `<include>` settings + `<exclude>` disclosure
+  - `data_extraction_rules.xml` (API 31+): `<cloud-backup>` + `<device-transfer>` z tą samą parą reguł
+- **Pliki:** `res/xml/backup_rules.xml`, `res/xml/data_extraction_rules.xml`
+- **Ref:** F3, V20, KD5.
 
 #### Task 2.4 — Rozszerzyć `accessibility_service_description` (F1, F4)
 - **Pliki:** `res/values/strings.xml:3`, `res/values-en/strings.xml:3`, `res/values-uk/strings.xml:3`, `res/values-ru/strings.xml:3`.
@@ -345,21 +347,18 @@ PARALLEL OK z Phase 1 (różne pliki).
 - **Decision:** jeśli nie używany → usunąć (mniej sensitive flags = mniejsza scrutiny). Jeśli używany (np. dla Uber popup detection) → zostawić + udokumentować w Permissions Declaration dlaczego.
 - **Ref:** F12.
 
-#### Task 2.7 — Logcat audit (F6, V4)
-- **Akcja:** Grep `Log\.\|AppLog\.` w całym kodzie (Kotlin + Java).
-- **Per-call-site review:** każdy log który emituje variable `text` / `offer.text` / `ocrResult` / `treeContent` / `screenshot bytes` / cokolwiek z user data → **REMOVE**.
-- **Co zostawić:** structural logs only (event types, timings, errors, package names, status flags).
-- **Reason:** Data Safety mówi „no data collected"; logcat z user data = mismatch (Risk #5).
+#### Task 2.7 — Logcat audit (F6, V4 — WYKONANE 2026-04-20)
+- **Znaleziono 2 kategorie leakage:**
+  - **Cat 1 — pełny dump OCR:** `BoltFoodOcrParser` / `GlovoOcrParser` / `WoltOcrParser` logowały `"OCR: $text"` przy wejściu; `OcrEngine` logował każdą linię w forEachIndexed.
+  - **Cat 2 — częściowy dump (`text.take(200)`):** 3 fallback site w każdym z 4 parserów OCR + 3 site w `OrderPilotAccessibilityService` (tree text, screenshot OCR preview, Uber windows).
+- **Naprawa:** wszystkie leaki zastąpione metadanymi (`textLen=${text.length}`, `lines=${ocrLines.size}`, `retry=$retryIndex`). Liczbowe logi (kwoty, dystanse, czasy, offer summary) zostają — `Offer` data class ma tylko pola numeric/enum/boolean (bez textual content).
+- **Weryfikacja:** `grep -E 'AppLog\.[dwe].*\$(text|line|preview)'` = zero wyników; `grep 'text\.take\('` = zero wyników.
 - **Ref:** F6, V4, Risk #5.
-- **Risk if missing:** Data Safety reject + potencjalny account action.
-- **Verification:** po audicie odtworzyć cały flow (Uber/Wolt/Glovo/Bolt offer) z `adb logcat | grep OrderPilot` — żaden log nie zawiera offer content.
 
-#### Task 2.8 — Save logs feature audit (F7, V5)
-- **Akcja:** zlokalizować implementację `btn_save_logs` (najprawdopodobniej `SettingsActivity.kt` lub `MainActivity.kt`); odczytać kod generujący treść pliku.
-- **Decision tree:**
-  - Plik = pure structural (no offer text, no OCR output) → leave as-is.
-  - Plik zawiera user data → albo (a) zredagować do structural-only, albo (b) usunąć feature.
-- **Ref:** F7, V5, Risk #5.
+#### Task 2.8 — Save logs feature audit (F7, V5 — WYKONANE 2026-04-20)
+- **Lokalizacja:** `MainActivity.saveLogs()` → pisze `AppLog.getBufferedLogs()` do pliku.
+- **Wynik audytu:** buffer jest populated wyłącznie przez `AppLog.d/w/e` call-sites, które zostały wyczyszczone w ramach Task 2.7. Czyli save-logs automatycznie dziedziczy czysty stan — **żadnych dodatkowych zmian nie trzeba**.
+- **Ref:** F7, V5, Risk #5; pokrewne: Task 2.7.
 
 #### Task 2.9 — Spójność wordingu `PROPERTY_SPECIAL_USE_FGS_SUBTYPE` (F9)
 - **Plik:** `OrderPilot/app/src/main/AndroidManifest.xml:52-54`.
@@ -368,12 +367,11 @@ PARALLEL OK z Phase 1 (różne pliki).
 - **Ref:** F9, KD6.
 - **Risk if missing:** mismatch flagowany przez review.
 
-#### Task 2.10 — `ScreenCaptureService` foreground guard (F11, V6)
-- **Plik:** `OrderPilot/app/src/main/java/com/orderpilot/app/capture/ScreenCaptureService.kt` (+ caller).
-- **Krok A (V6):** code review — sprawdzić czy `startForeground` jest wołany dopiero PO successful MediaProjection result (nie wcześniej); sprawdzić czy screenshot trigger ma foreground check (tylko 4 target package names).
-- **Krok B (jeśli brak):** dodać guard przed `takeScreenshot()` — `if (currentForegroundPackage !in TARGET_PACKAGES) return`.
+#### Task 2.10 — `ScreenCaptureService` foreground guard (F11, V6 — WYKONANE 2026-04-20)
+- **Znaleziono:** `capture()` nie miał własnego filtra per-pakiet — polegał wyłącznie na tym, że `PipelineOrchestrator` jest jedynym callerem i już filtruje. OK w praktyce, ale MediaProjection token sam w sobie = capture dowolnego ekranu.
+- **Naprawa (defensive, V6):** `ScreenCaptureService.capture(packageName: String)` — nowy argument. Funkcja odmawia i zwraca `null` jeśli `packageName !in ServiceLocator.parserRegistry.getAllWatchedPackages()`. `PipelineOrchestrator.processInternal` przekazuje `packageName` (już dostępny z event callbacka).
+- **Single source of truth:** `ParserRegistry.getAllWatchedPackages()` — ten sam zestaw co `watchedPackages` w AccService (Task 2.0a).
 - **Ref:** F11, V6, KD2, Risk #2.
-- **Risk if missing:** crash na Android 10+ + reviewer flag „captures any screen".
 
 #### Task 2.11 — Decyzja `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` (V11, Risk #7)
 - **Status (2026-04-19):** **ZREALIZOWANE jako Plan B** — permission usunięty w Batch 1 (preemptywnie pod Play policy, nie czekamy na reject).

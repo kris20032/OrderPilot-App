@@ -361,7 +361,7 @@ class OrderPilotAccessibilityService : AccessibilityService() {
             } finally {
                 root.recycle()
             }
-            AppLog.d(AppLog.TAG_SERVICE, "Tree text ($packageName): ${text.take(200)}")
+            AppLog.d(AppLog.TAG_SERVICE, "Tree text ($packageName): len=${text.length}")
 
             val lines = text.lines().filter { it.isNotBlank() }
             val parser = ServiceLocator.parserRegistry.getParser(packageName) ?: return
@@ -432,7 +432,7 @@ class OrderPilotAccessibilityService : AccessibilityService() {
             croppedBitmap = Bitmap.createBitmap(bitmap, 0, startY, bitmap.width, bitmap.height - startY)
 
             val lines = ServiceLocator.ocrEngine.recognize(croppedBitmap)
-            AppLog.d(AppLog.TAG_SERVICE, "Screenshot OCR: ${lines.size} lines → ${lines.take(3)} (retry=$retryIndex)")
+            AppLog.d(AppLog.TAG_SERVICE, "Screenshot OCR: ${lines.size} lines (retry=$retryIndex)")
 
             val parser = ServiceLocator.parserRegistry.getParser(packageName) ?: return
             val offer = parser.parse(lines)
@@ -569,8 +569,7 @@ class OrderPilotAccessibilityService : AccessibilityService() {
                     AppLog.d(AppLog.TAG_SERVICE, "  Window[$i]: type=${w.type}, layer=${w.layer}, pkg=$pkg")
                     if (root != null && pkg == "com.ubercab.driver") {
                         val text = AccessibilityTextCollector.collectText(root)
-                        val preview = text.take(300).replace("\n", " | ")
-                        AppLog.d(AppLog.TAG_SERVICE, "  Window[$i] Uber text: $preview")
+                        AppLog.d(AppLog.TAG_SERVICE, "  Window[$i] Uber text: len=${text.length}")
                     }
                 } finally {
                     root?.recycle()

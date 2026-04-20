@@ -85,7 +85,7 @@ class UberOcrParser : OcrOfferParser {
 
         // Kwota — wspólna logika z fallbackiem
         val (rawAmount, parsedAmount) = OcrOfferParser.extractAmount(text) ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Uber: no amount found | text=${text.take(200)}")
+            AppLog.w(AppLog.TAG_PARSER, "Uber: no amount found | textLen=${text.length}")
             return null
         }
         val amount = OcrOfferParser.sanitizeAmount(rawAmount, parsedAmount) ?: run {
@@ -94,13 +94,13 @@ class UberOcrParser : OcrOfferParser {
         }
 
         val mins = timeRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Uber: no time found | text=${text.take(200)}")
+            AppLog.w(AppLog.TAG_PARSER, "Uber: no time found | textLen=${text.length}")
             return null
         }
         val hourMatch = hourRegex.find(text)
         val hours = hourMatch?.groupValues?.get(1)?.toIntOrNull() ?: 0
         if (hours > 0) {
-            AppLog.d(AppLog.TAG_PARSER, "Uber: hour match '${hourMatch?.value}' → ${hours}h ${mins}min")
+            AppLog.d(AppLog.TAG_PARSER, "Uber: hour match → ${hours}h ${mins}min")
         }
         val minutes = hours * 60 + mins
 

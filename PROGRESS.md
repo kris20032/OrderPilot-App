@@ -1,7 +1,7 @@
 # OrderPilot — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-04-20
-**Obecny etap:** Play Store prep — Batch 1 (manifest/config/strings) zrobiony. Fix regresji Setup wizard wdrożony (Opcja A — `ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS` + Toast hint w 4 lokalach). Czeka na build + smoke test. Plan: `docs/play-store/02_implementation_plan.md`.
+**Obecny etap:** Play Store prep — Batch 1 (manifest/config/strings) + fix Setup wizard + Batch 2 (audyty V20/V6/V4/V5) zrobione. Następnie: Batch 3 (DisclosureActivity + consent flag + flow). Plan: `docs/play-store/02_implementation_plan.md`.
 **Aktywne branche:** `play-store-prep` (bieżący), `polishing` (synced + splash zmergowany), `feature/production-app`, `main`
 
 ---

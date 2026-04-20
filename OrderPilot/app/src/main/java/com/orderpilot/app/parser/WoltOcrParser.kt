@@ -40,7 +40,7 @@ class WoltOcrParser : OcrOfferParser {
     override fun parse(ocrLines: List<String>): Offer? {
         val text = ocrLines.joinToString(" ")
 
-        AppLog.d(AppLog.TAG_PARSER, "Wolt OCR: $text")
+        AppLog.d(AppLog.TAG_PARSER, "Wolt OCR: lines=${ocrLines.size} textLen=${text.length}")
 
         // Guard: odrzuć tekst z UI innej platformy kurierskiej
         rivalPlatformMarkers.firstOrNull { text.contains(it, ignoreCase = true) }?.let { marker ->
@@ -54,7 +54,7 @@ class WoltOcrParser : OcrOfferParser {
 
         // Kwota — wspólna logika z fallbackiem
         val (rawAmount, parsedAmount) = OcrOfferParser.extractAmount(text) ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Wolt: no amount found | text=${text.take(200)}")
+            AppLog.w(AppLog.TAG_PARSER, "Wolt: no amount found | textLen=${text.length}")
             return null
         }
         val amount = OcrOfferParser.sanitizeAmount(rawAmount, parsedAmount) ?: run {
@@ -71,7 +71,7 @@ class WoltOcrParser : OcrOfferParser {
             )
             if (max > 0) max else null
         } ?: timeSingleRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Wolt: no time found | text=${text.take(200)}")
+            AppLog.w(AppLog.TAG_PARSER, "Wolt: no time found | textLen=${text.length}")
             return null
         }
         val minutes = hours * 60 + mins
