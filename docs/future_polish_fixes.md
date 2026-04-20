@@ -190,7 +190,7 @@
 
 ---
 
-### 27. Setup wizard — przycisk „Allow background activity" nie działa po usunięciu `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` (branch `play-store-prep`, 2026-04-19)
+### 27. ~~Setup wizard — przycisk „Allow background activity" nie działa po usunięciu `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`~~ ✅ DONE (2026-04-20, Opcja A)
 - **Problem:** Po usunięciu permission `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` w Batch 1 Play Store prep (Task 2.11, AndroidManifest.xml), kliknięcie „Allow background activity" w Setup wizard nie pokazuje **nic** — system nie otwiera dialogu i **nie rzuca wyjątku**, więc fallback w `try/catch` (`SetupActivity.kt:340-344`) się nie aktywuje.
 - **Skutek:** `isIgnoringBatteryOptimizations(packageName)` zostaje `false` → `isSetupComplete()` zwraca `false` (linia 440-453) → przycisk **Continue zostaje szary** → user nie może przejść dalej w setupie. **Hard block całego setup flow.**
 - **Root cause:** `Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` (linia 337) wymaga deklaracji permission w manifeście. Bez niej intent nie pokazuje dialogu i nie rzuca catchable exception (zachowanie różni się między wersjami Androida).
@@ -201,8 +201,8 @@
 - **Dlaczego Opcja A, nie B/C:**
   - **Opcja B (battery jako soft requirement):** odrzucone — degradacja niezawodności na Xiaomi/Samsung; userzy pominą krok i zacznie się dzwonienie „nie działa po wyłączeniu ekranu".
   - **Opcja C (revert permission):** odrzucone — Play policy traktuje `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` jako restricted permission; ryzyko rejection w Play Console review (Risk #7 z `01_analysis_v2.md`). Zgodne z rekomendacją w `02_implementation_plan.md` Task 2.11.
-- **Status:** **OTWARTE — fix odłożony.** Decyzja podjęta (A), implementacja na następną sesję. Aktualnie blokuje pełen smoke test Batch 1 na telefonie.
-- **Pliki do zmiany przy implementacji:**
-  - `OrderPilot/app/src/main/java/com/orderpilot/app/ui/SetupActivity.kt` (funkcja `requestBatteryOptimizationExemption()` + `Toast` z hintem)
-  - `OrderPilot/app/src/main/res/values/strings.xml` + `values-en/`, `values-uk/`, `values-ru/` — nowy string `toast_hint_battery_optimization` z hintem dla użytkownika
-- **Powiązane:** `docs/play-store/02_implementation_plan.md` Task 2.11 (Plan A → fix tutaj uzupełnia decyzję); `docs/play-store/01_analysis_v2.md` Risk #7.
+- **Status:** ✅ ZAIMPLEMENTOWANE (2026-04-20).
+- **Zmiany:**
+  - `SetupActivity.requestBatteryOptimizationExemption()` — usunięty `ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`, wołamy od razu `ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS` przez `safeStartActivity` (z fallbackiem do `ACTION_SETTINGS`). `Toast` z nowym hintem.
+  - Nowy string `toast_hint_battery_optimization` w 4 lokalach (PL/EN/UK/RU).
+- **Powiązane:** `docs/play-store/02_implementation_plan.md` Task 2.11; `docs/play-store/01_analysis_v2.md` Risk #7.

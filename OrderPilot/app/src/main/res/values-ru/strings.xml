@@ -67,6 +67,7 @@
     <!-- Toast hints (wizard) -->
     <string name="toast_hint_overlay">Найдите «OrderPilot» и включите переключатель</string>
     <string name="toast_hint_accessibility">Откройте «Установленные приложения» → найдите OrderPilot → включите</string>
+    <string name="toast_hint_battery_optimization">Найдите «OrderPilot» в списке и выберите «Не оптимизировать»</string>
     <string name="toast_hint_samsung_battery">Нажмите «Батарея» → выберите «Без ограничений»</string>
     <string name="toast_hint_samsung_sleeping">Откройте «Ограничения фонового использования» и удалите OrderPilot из списков</string>
     <string name="toast_hint_xiaomi_autostart">Найдите «OrderPilot» и включите переключатель</string>

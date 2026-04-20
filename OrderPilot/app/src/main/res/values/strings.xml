@@ -67,6 +67,7 @@
     <!-- Toast hints (wizard) -->
     <string name="toast_hint_overlay">Znajdź „OrderPilot" i włącz przełącznik</string>
     <string name="toast_hint_accessibility">Wejdź w „Zainstalowane aplikacje" → znajdź OrderPilot → włącz</string>
+    <string name="toast_hint_battery_optimization">Znajdź „OrderPilot" na liście i wybierz „Bez ograniczeń"</string>
     <string name="toast_hint_samsung_battery">Kliknij „Bateria" → wybierz „Bez ograniczeń"</string>
     <string name="toast_hint_samsung_sleeping">Otwórz „Limity użycia w tle" i usuń OrderPilot z list</string>
     <string name="toast_hint_xiaomi_autostart">Znajdź „OrderPilot" i włącz przełącznik</string>

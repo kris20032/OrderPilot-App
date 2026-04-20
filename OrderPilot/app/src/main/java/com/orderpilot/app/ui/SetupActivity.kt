@@ -334,14 +334,15 @@ class SetupActivity : AppCompatActivity() {
     }
 
     private fun requestBatteryOptimizationExemption() {
-        val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-            data = Uri.parse("package:$packageName")
-        }
-        try {
-            startActivity(intent)
-        } catch (_: Exception) {
-            startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
-        }
+        // Intentionally NOT using ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS —
+        // that intent wymaga deklaracji REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+        // w manifeście, której nie używamy (Play policy: restricted permission).
+        // Zamiast tego otwieramy listę wszystkich apek i pokazujemy hint.
+        safeStartActivity(
+            Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS),
+            Intent(Settings.ACTION_SETTINGS)
+        )
+        Toast.makeText(this, R.string.toast_hint_battery_optimization, Toast.LENGTH_LONG).show()
     }
 
     private fun openAppInfo() {

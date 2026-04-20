@@ -67,6 +67,7 @@
     <!-- Toast hints (wizard) -->
     <string name="toast_hint_overlay">Find "OrderPilot" and enable the toggle</string>
     <string name="toast_hint_accessibility">Tap "Installed apps" → find OrderPilot → enable</string>
+    <string name="toast_hint_battery_optimization">Find "OrderPilot" in the list and select "Don\'t optimize"</string>
     <string name="toast_hint_samsung_battery">Tap "Battery" → select "Unrestricted"</string>
     <string name="toast_hint_samsung_sleeping">Open "Background usage limits" and remove OrderPilot from the lists</string>
     <string name="toast_hint_xiaomi_autostart">Find "OrderPilot" and enable the toggle</string>

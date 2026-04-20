@@ -382,7 +382,7 @@ PARALLEL OK z Phase 1 (różne pliki).
   - **Plan B (wybrany):** usunąć permission + zaakceptować gorszą reliability na Xiaomi/Huawei (kompensacja przez manualny flow w Setup wizard).
 - **⚠️ Regresja (2026-04-19):** Usunięcie permission złamało Setup wizard — `Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` (SetupActivity.kt:337) nie pokazuje dialogu i **nie rzuca wyjątku** → fallback w try/catch się nie aktywuje → `batteryOk=false` → Continue szary → **hard block setupu**.
 - **Decyzja fixa (2026-04-20, Opcja A):** w `SetupActivity.requestBatteryOptimizationExemption()` usunąć `ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` i od razu wołać `Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)` (lista wszystkich apek) + pokazać `Toast` z hintem „Znajdź OrderPilot na liście i wybierz 'Bez ograniczeń'" (i18n PL/EN/UK/RU). Battery pozostaje hard requirement w `isSetupComplete()` — user dokończy ręcznie.
-- **Status fixa:** OTWARTE — decyzja podjęta, implementacja odłożona. Pełne uzasadnienie (dlaczego A, nie B-soft-requirement ani C-revert) w `docs/future_polish_fixes.md` #27.
+- **Status fixa:** ✅ ZAIMPLEMENTOWANE (2026-04-20). Pełne uzasadnienie (dlaczego A, nie B-soft-requirement ani C-revert) w `docs/future_polish_fixes.md` #27.
 - **Ref:** V11, Risk #7; `docs/future_polish_fixes.md` #27.
 
 ---
