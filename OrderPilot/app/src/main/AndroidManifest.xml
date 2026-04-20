@@ -42,6 +42,10 @@
         android:theme="@style/Theme.OrderPilot">
 
         <activity
+            android:name=".ui.DisclosureActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.SetupActivity"
             android:exported="false" />
 

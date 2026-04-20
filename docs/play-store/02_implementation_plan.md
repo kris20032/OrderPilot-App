@@ -389,52 +389,31 @@ PARALLEL OK z Phase 1 (różne pliki).
 
 **Cel:** disclosure flow zgodny z KD4; consent persistowany; wpiety przed accessibility grant.
 
-#### Task 3.1 — Implementacja `DisclosureActivity` (M1, F2, KD4)
-- **Pliki do utworzenia:**
+#### Task 3.1 — Implementacja `DisclosureActivity` (M1, F2, KD4 — WYKONANE 2026-04-20)
+- **Utworzone:**
   - `OrderPilot/app/src/main/java/com/orderpilot/app/ui/DisclosureActivity.kt`
   - `OrderPilot/app/src/main/res/layout/activity_disclosure.xml`
-- **Plik do edycji:** `OrderPilot/app/src/main/AndroidManifest.xml` — dodać `<activity android:name=".ui.DisclosureActivity" android:exported="false" />`.
-- **Layout requirements (KD4):**
-  - Pełny ekran (no scroll dla głównej treści, scroll OK dla data list)
-  - Title: „OrderPilot wymaga uprawnień Accessibility" (PL) / EN equivalent
-  - Body ~300 słów obejmujący 8 elementów z KD4 (identyfikacja apki w 1. zdaniu, lista czytanych danych, cel zł/h, zero network, retention max 30s, nie shared, etc.)
-  - Dwa przyciski **identyczne** wizualnie (rozmiar, kolor, kontrast): „Rozumiem, kontynuuj" + „Anuluj"
-  - PP link na dole
-- **Logika:**
-  - On „Anuluj" → `finishAffinity()` (zamyka apkę całkowicie, KD4 element 7)
-  - On „Rozumiem" → set `disclosureAcceptedVersion = CURRENT_VERSION` w SettingsRepository (Task 3.2) → `startActivity(Intent(this, SetupActivity::class.java))` → `finish()`
-- **Reason:** policy wymóg „Alternative use of accessibility".
+- **Manifest:** `<activity android:name=".ui.DisclosureActivity" android:exported="false" />` dodany przed SetupActivity.
+- **Layout:** NestedScrollView + MaterialCardView z body (~350 słów, 8 elementów KD4: identyfikacja w 1. zdaniu, lista 5 target apek, 4 punkty danych czytanych, cel zł/h, 4× NIE-robione (no server / no disk / no share / no ads), retention ~30s, cancel anytime, PP link). Oba przyciski filled primary tej samej klasy — zero dark pattern.
+- **Logika:** Accept → `DisclosureRepository.markAccepted()` → MainActivity → `finish()`. Cancel / back button → `finishAffinity()`.
 - **Ref:** M1, F2, KD4, Risk #1.
-- **Risk if missing:** instant policy reject.
 
-#### Task 3.2 — Consent flag w SettingsRepository (M5)
-- **Plik:** `OrderPilot/app/src/main/java/com/orderpilot/app/settings/SharedPrefsSettingsRepository.kt` (+ interface `SettingsRepository.kt`).
-- **Co dodać:**
-  - Field `disclosureAcceptedVersion: Int` (default 0)
-  - Const `CURRENT_DISCLOSURE_VERSION = 1` (bump przy zmianie wordingu disclosure)
-  - Setter + getter
-- **Reason:** versionowanie pozwala re-promptować user przy zmianie disclosure (np. dodanie nowej apki target).
-- **Ref:** M5, KD4.
+#### Task 3.2 — Consent flag (M5 — WYKONANE 2026-04-20)
+- **Decyzja architektoniczna:** zamiast rozszerzać `SharedPrefsSettingsRepository` (który używa `order_pilot_settings.xml` — plik w auto-backup), dedykowany `DisclosureRepository` używa **osobnego SharedPrefs** `order_pilot_disclosure.xml`.
+- **Rationale:** backup_rules.xml (Task 2.3) **exclude-uje** `order_pilot_disclosure.xml` — KD5 wymaga świeżego consent po restore. Gdyby flag był w tym samym pliku co user settings, trzeba by było albo exclude-ować cały plik ustawień (tracimy backup preferencji), albo robić custom `BackupAgent`. Osobny plik = najprostszy split.
+- **API:** `DisclosureRepository.isAccepted()`, `markAccepted()`, `acceptedVersion()`, `CURRENT_DISCLOSURE_VERSION = 1`. Zarejestrowany w `ServiceLocator.disclosureRepository`.
+- **Ref:** M5, KD4, KD5 (backup split).
 
-#### Task 3.3 — Wpięcie Disclosure w start flow (F2)
-- **Plik:** `OrderPilot/app/src/main/java/com/orderpilot/app/ui/MainActivity.kt:57` (region after splash).
-- **Co zmienić:** w `onCreate` (po splash exit) sprawdzić `settingsRepository.disclosureAcceptedVersion < CURRENT_DISCLOSURE_VERSION` → `startActivity(Intent(this, DisclosureActivity::class.java)); finish(); return`. Tylko jeśli == CURRENT → kontynuuj normalny flow (SetupActivity if not configured / direct main).
-- **Reason:** policy timing wymóg (KD4 element 8).
+#### Task 3.3 — Wpięcie Disclosure w start flow (F2 — WYKONANE 2026-04-20)
+- **MainActivity.onCreate** (po `installSplashScreen()` + `super.onCreate`): gate na `!disclosureRepository.isAccepted()` → redirect do `DisclosureActivity`. Gate jest PRZED `SetupActivity.isSetupComplete(this)` check — zgodnie z KD4 element 8 (disclosure przed grant).
+- **Flow:** cold start fresh install → splash → MainActivity (gate) → DisclosureActivity → Accept → MainActivity (gate passes) → SetupActivity (setup not complete).
 - **Ref:** F2, KD4, V14.
-- **Risk if missing:** disclosure pokazuje się po grant = niezgodne z policy.
 
-#### Task 3.4 — Stringi disclosure w PL + EN (M13)
-- **Pliki:** `res/values/strings.xml` (PL) + `res/values-en/strings.xml` (+ opcjonalnie UK/RU jako bonus, bo i tak istnieją).
-- **Min 8 nowych stringów (M13):**
-  - `disclosure_title`
-  - `disclosure_body` (~300 słów, 8 elementów KD4)
-  - `disclosure_button_accept`
-  - `disclosure_button_cancel`
-  - `disclosure_pp_link`
-  - `disclosure_data_item_screen_text`
-  - `disclosure_data_item_target_apps`
-  - `disclosure_purpose`
-- **Const PP URL:** dodać do `BuildConfig` lub `OrderPilotApp.kt` jako `const val PRIVACY_POLICY_URL = "https://..."`.
+#### Task 3.4 — Stringi disclosure (M13 — WYKONANE 2026-04-20)
+- **Stringi dodane w 4 locales:** PL (`values/`), EN (`values-en/`), UK (`values-uk/`), RU (`values-ru/`).
+- **Klucze:** `disclosure_title`, `disclosure_subtitle`, `disclosure_body`, `disclosure_button_accept`, `disclosure_button_cancel`, `disclosure_pp_link`, `toast_pp_error`.
+- **Body zawiera 8 elementów KD4:** identyfikacja w 1. zdaniu, lista 5 target apek, 4 punkty danych (kwota/czas/km/cash), cel (zł/h overlay), 4× NIE-robione, retention ~30s, cancel anytime, PP link pointer.
+- **Const PP URL:** `OrderPilotApp.PRIVACY_POLICY_URL` placeholder (`https://kris20032.github.io/OrderPilot-App/legal/privacy-policy.html`) — TODO Phase 4 Task 4.3 po realnym hostingu.
 - **Ref:** M13, KD4.
 
 #### Task 3.5 — Manualny test flow (V14)

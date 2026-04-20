@@ -57,6 +57,14 @@ class MainActivity : AppCompatActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
+        // Prominent Disclosure gate (KD4, Task 3.3). MUSI być przed setup check —
+        // Play policy wymaga że user widzi disclosure PRZED grant accessibility.
+        if (!ServiceLocator.disclosureRepository.isAccepted()) {
+            startActivity(Intent(this, DisclosureActivity::class.java))
+            finish()
+            return
+        }
+
         if (!SetupActivity.isSetupComplete(this)) {
             startActivity(Intent(this, SetupActivity::class.java))
             finish()

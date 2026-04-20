@@ -1,7 +1,7 @@
 # OrderPilot — Status Postępu
 
 **Ostatnia aktualizacja:** 2026-04-20
-**Obecny etap:** Play Store prep — Batch 1 (manifest/config/strings) + fix Setup wizard + Batch 2 (audyty V20/V6/V4/V5) zrobione. Następnie: Batch 3 (DisclosureActivity + consent flag + flow). Plan: `docs/play-store/02_implementation_plan.md`.
+**Obecny etap:** Play Store prep — Batch 1 (manifest/config/strings) + fix Setup wizard + Batch 2 (audyty V20/V6/V4/V5) + Batch 3 (DisclosureActivity + consent flag + flow wiring) zrobione. Następnie: Batch 4 (signingConfigs po wygenerowaniu keystore) + user actions (Privacy Policy hosting, Dev Account, store assets). Plan: `docs/play-store/02_implementation_plan.md`.
 **Aktywne branche:** `play-store-prep` (bieżący), `polishing` (synced + splash zmergowany), `feature/production-app`, `main`
 
 ---

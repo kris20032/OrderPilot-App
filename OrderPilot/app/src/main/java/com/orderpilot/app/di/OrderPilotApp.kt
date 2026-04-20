@@ -45,5 +45,14 @@ class OrderPilotApp : Application() {
 
     companion object {
         const val CHANNEL_ID = "order_pilot_service"
+
+        /**
+         * Privacy Policy URL — pokazywany w DisclosureActivity i SettingsActivity (M4, KD5).
+         *
+         * TODO(Phase 4, Task 4.3): zastąpić docelowym URL po wgraniu privacy-policy.html
+         * na GitHub Pages. Obecnie placeholder — jeśli user kliknie link przed Phase 4
+         * uploadem, zobaczy 404, ale DisclosureActivity nadal działa.
+         */
+        const val PRIVACY_POLICY_URL = "https://kris20032.github.io/OrderPilot-App/legal/privacy-policy.html"
     }
 }
