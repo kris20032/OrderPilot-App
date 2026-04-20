@@ -1,13 +1,17 @@
 package com.orderpilot.app.ui
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.orderpilot.app.R
 import com.orderpilot.app.databinding.ActivitySettingsBinding
+import com.orderpilot.app.di.OrderPilotApp
 import com.orderpilot.app.di.ServiceLocator
 import com.orderpilot.app.domain.AppLanguage
 import com.orderpilot.app.domain.MetricType
@@ -55,6 +59,16 @@ class SettingsActivity : AppCompatActivity() {
         loadSettings()
         setupSliders()
         binding.btnSave.setOnClickListener { saveSettings() }
+        binding.tvPpLink.setOnClickListener { openPrivacyPolicy() }
+    }
+
+    private fun openPrivacyPolicy() {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(OrderPilotApp.PRIVACY_POLICY_URL))
+        try {
+            startActivity(intent)
+        } catch (_: ActivityNotFoundException) {
+            Toast.makeText(this, R.string.toast_pp_error, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setupTabs() {

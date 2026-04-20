@@ -5,7 +5,7 @@
     <string name="btn_stop">Stop</string>
     <string name="status_running">Active</string>
     <string name="status_stopped">Inactive</string>
-    <string name="status_subtitle_running">Monitoring Uber</string>
+    <string name="status_subtitle_running">Offer detection</string>
     <string name="status_subtitle_stopped">Stopped</string>
     <string name="accessibility_hint">Enable OrderPilot in:\nSettings → Accessibility → Installed apps</string>
     <string name="accessibility_rebind_hint">Turn OrderPilot OFF and ON again in:\nAccessibility → Installed apps → OrderPilot</string>
@@ -108,18 +108,18 @@
     <string name="toast_logs_error">Error saving logs</string>
     <string name="settings_validation_error">Green threshold must be higher than yellow</string>
 
-    <string name="toast_notification_denied">Notifications disabled — you won\'t see monitoring status in the status bar</string>
+    <string name="toast_notification_denied">Notifications disabled — you won\'t see detection status in the status bar</string>
 
     <!-- Foreground service notification -->
-    <string name="notif_monitoring_title">Order monitoring active</string>
+    <string name="notif_monitoring_title">Offer detection active</string>
     <string name="notif_monitoring_text">OrderPilot is listening for new orders</string>
 
     <!-- Watchdog recovery notification -->
-    <string name="notif_watchdog_title">Monitoring stopped</string>
-    <string name="notif_watchdog_text">Tap to restore monitoring</string>
+    <string name="notif_watchdog_title">Offer detection stopped</string>
+    <string name="notif_watchdog_text">Tap to restore detection</string>
 
     <!-- Notification permission hint -->
-    <string name="hint_notifications_disabled">Notifications disabled — monitoring works, but you won\'t see status or problem alerts</string>
+    <string name="hint_notifications_disabled">Notifications disabled — detection works, but you won\'t see status or problem alerts</string>
 
     <!-- Prominent Disclosure (KD4, Task 3.4) -->
     <string name="disclosure_title">OrderPilot needs screen access</string>
@@ -129,4 +129,10 @@
     <string name="disclosure_button_cancel">Cancel</string>
     <string name="disclosure_pp_link">Privacy policy</string>
     <string name="toast_pp_error">Could not open the privacy policy</string>
+
+    <!-- About section (Settings) -->
+    <string name="settings_about_header">About</string>
+    <string name="settings_pp_link">Privacy policy</string>
+    <string name="about_non_affiliation">OrderPilot is an independent tool and is not affiliated with, endorsed by, or sponsored by Uber, Wolt, Glovo or Bolt. All trademarks belong to their respective owners.</string>
+    <string name="about_financial_disclaimer">Displayed rates (PLN/h, PLN/km) are indicative estimates based on data read from the offer screen. They are not financial advice or a guarantee of actual earnings.</string>
 </resources>

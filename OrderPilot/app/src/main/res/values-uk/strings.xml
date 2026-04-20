@@ -5,7 +5,7 @@
     <string name="btn_stop">Стоп</string>
     <string name="status_running">Активний</string>
     <string name="status_stopped">Неактивний</string>
-    <string name="status_subtitle_running">Моніторинг Uber</string>
+    <string name="status_subtitle_running">Виявлення замовлень</string>
     <string name="status_subtitle_stopped">Зупинено</string>
     <string name="accessibility_hint">Увімкніть OrderPilot у:\nНалаштування → Спеціальні можливості → Встановлені додатки</string>
     <string name="accessibility_rebind_hint">Вимкніть та увімкніть OrderPilot знову у:\nСпеціальні можливості → Встановлені додатки → OrderPilot</string>
@@ -108,18 +108,18 @@
     <string name="toast_logs_error">Помилка збереження логів</string>
     <string name="settings_validation_error">Зелений поріг має бути вищим за жовтий</string>
 
-    <string name="toast_notification_denied">Сповіщення вимкнено — ви не побачите статус моніторингу в рядку стану</string>
+    <string name="toast_notification_denied">Сповіщення вимкнено — ви не побачите статус виявлення в рядку стану</string>
 
     <!-- Foreground service notification -->
-    <string name="notif_monitoring_title">Моніторинг замовлень активний</string>
+    <string name="notif_monitoring_title">Виявлення замовлень активне</string>
     <string name="notif_monitoring_text">OrderPilot відстежує нові замовлення</string>
 
     <!-- Watchdog recovery notification -->
-    <string name="notif_watchdog_title">Моніторинг зупинено</string>
+    <string name="notif_watchdog_title">Виявлення замовлень зупинено</string>
     <string name="notif_watchdog_text">Натисніть, щоб відновити роботу</string>
 
     <!-- Notification permission hint -->
-    <string name="hint_notifications_disabled">Сповіщення вимкнено — моніторинг працює, але ви не побачите статус чи сповіщення про проблеми</string>
+    <string name="hint_notifications_disabled">Сповіщення вимкнено — виявлення працює, але ви не побачите статус чи сповіщення про проблеми</string>
 
     <!-- Prominent Disclosure (KD4, Task 3.4) -->
     <string name="disclosure_title">OrderPilot потребує доступу до екрана</string>
@@ -129,4 +129,10 @@
     <string name="disclosure_button_cancel">Скасувати</string>
     <string name="disclosure_pp_link">Політика конфіденційності</string>
     <string name="toast_pp_error">Не вдалося відкрити політику конфіденційності</string>
+
+    <!-- About section (Settings) -->
+    <string name="settings_about_header">Про застосунок</string>
+    <string name="settings_pp_link">Політика конфіденційності</string>
+    <string name="about_non_affiliation">OrderPilot — це незалежний інструмент, він не пов\'язаний, не підтримується й не спонсорується компаніями Uber, Wolt, Glovo чи Bolt. Усі назви та торгові марки належать їхнім власникам.</string>
+    <string name="about_financial_disclaimer">Показані ставки (PLN/год, PLN/км) — це орієнтовні обчислення на основі даних з екрана пропозиції. Вони не є фінансовою порадою чи гарантією фактичних заробітків.</string>
 </resources>

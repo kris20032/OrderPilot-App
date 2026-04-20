@@ -5,7 +5,7 @@
     <string name="btn_stop">Stop</string>
     <string name="status_running">Active</string>
     <string name="status_stopped">Inactive</string>
-    <string name="status_subtitle_running">Monitorowanie Uber</string>
+    <string name="status_subtitle_running">Wykrywanie zleceń</string>
     <string name="status_subtitle_stopped">Zatrzymane</string>
     <string name="accessibility_hint">Włącz OrderPilot w:\nUstawienia → Dostępność → Zainstalowane aplikacje</string>
     <string name="accessibility_rebind_hint">Wyłącz i włącz ponownie OrderPilot w:\nDostępność → Zainstalowane aplikacje → OrderPilot</string>
@@ -109,18 +109,18 @@
     <string name="toast_logs_error">Błąd zapisu logów</string>
     <string name="settings_validation_error">Próg zielony musi być wyższy niż żółty</string>
 
-    <string name="toast_notification_denied">Powiadomienia wyłączone — nie zobaczysz statusu monitoringu w pasku</string>
+    <string name="toast_notification_denied">Powiadomienia wyłączone — nie zobaczysz statusu wykrywania w pasku</string>
 
     <!-- Foreground service notification -->
-    <string name="notif_monitoring_title">Monitoring zamówień aktywny</string>
+    <string name="notif_monitoring_title">Wykrywanie zleceń aktywne</string>
     <string name="notif_monitoring_text">OrderPilot nasłuchuje nowych zleceń</string>
 
     <!-- Watchdog recovery notification -->
-    <string name="notif_watchdog_title">Monitoring zatrzymany</string>
+    <string name="notif_watchdog_title">Wykrywanie zleceń zatrzymane</string>
     <string name="notif_watchdog_text">Kliknij, aby przywrócić działanie</string>
 
     <!-- Notification permission hint -->
-    <string name="hint_notifications_disabled">Powiadomienia wyłączone — monitoring działa, ale nie zobaczysz statusu ani alertów o problemach</string>
+    <string name="hint_notifications_disabled">Powiadomienia wyłączone — wykrywanie działa, ale nie zobaczysz statusu ani alertów o problemach</string>
 
     <!-- Prominent Disclosure (KD4, Task 3.4) -->
     <string name="disclosure_title">OrderPilot potrzebuje dostępu do ekranu</string>
@@ -130,4 +130,10 @@
     <string name="disclosure_button_cancel">Anuluj</string>
     <string name="disclosure_pp_link">Polityka prywatności</string>
     <string name="toast_pp_error">Nie udało się otworzyć polityki prywatności</string>
+
+    <!-- About section (Settings) -->
+    <string name="settings_about_header">O aplikacji</string>
+    <string name="settings_pp_link">Polityka prywatności</string>
+    <string name="about_non_affiliation">OrderPilot to niezależne narzędzie i nie jest powiązany, wspierany ani sponsorowany przez Uber, Wolt, Glovo ani Bolt. Wszystkie nazwy i znaki towarowe należą do ich właścicieli.</string>
+    <string name="about_financial_disclaimer">Wyświetlane stawki (zł/h, zł/km) to orientacyjne wyliczenia na podstawie danych z ekranu oferty. Nie stanowią porady finansowej ani gwarancji rzeczywistych zarobków.</string>
 </resources>

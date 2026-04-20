@@ -420,26 +420,29 @@ PARALLEL OK z Phase 1 (różne pliki).
 - **Akcja użytkownika:** fresh install na Android Studio device. Verify: splash → DisclosureActivity (NIE SetupActivity) → klick „Anuluj" zamyka apkę / klick „Rozumiem" → SetupActivity → grant → MainActivity.
 - **Ref:** V14, Definition of Ready.
 
-#### Task 3.6 — In-app PP link w SettingsActivity (M4)
+#### Task 3.6 — In-app PP link w SettingsActivity (M4) ✅ WYKONANE 2026-04-20
 - **Plik:** `OrderPilot/app/src/main/java/com/orderpilot/app/ui/SettingsActivity.kt` + odpowiedni layout.
 - **Co dodać:** sekcja „Polityka prywatności" / „Privacy policy" → click → `Intent(ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL))`.
 - **Reason:** policy wymaga że PP jest dostępny z apki po grant (M4).
 - **Ref:** M4, KD5.
+- **Implementacja:** dodana karta „O aplikacji" w `activity_settings.xml` między Language card a save button; klikalny TextView `tv_pp_link` → `openPrivacyPolicy()` w `SettingsActivity.kt` (Intent ACTION_VIEW + fallback toast `toast_pp_error`). URL = `OrderPilotApp.PRIVACY_POLICY_URL` (placeholder do Phase 4 Task 4.3).
 
-#### Task 3.7 — Settings → About z disclaimers (M21, M22)
+#### Task 3.7 — Settings → About z disclaimers (M21, M22) ✅ WYKONANE 2026-04-20
 - **Plik:** `OrderPilot/app/src/main/java/com/orderpilot/app/ui/SettingsActivity.kt` (lub nowa sekcja About).
 - **Co dodać:**
   - String `about_non_affiliation`: „OrderPilot is not affiliated with, endorsed by, or sponsored by Uber, Wolt, Glovo, or Bolt." + PL equivalent
   - String `about_financial_disclaimer`: „Earnings estimates shown by OrderPilot are computational only and do not constitute financial advice." + PL equivalent
 - **Reason:** Risk #3 (trademark) + Risk #4 (deceptive) mitigation.
 - **Ref:** M21, M22, Risk #3, Risk #4.
+- **Implementacja:** stringi `settings_about_header`, `settings_pp_link`, `about_non_affiliation`, `about_financial_disclaimer` dodane w 4 locale (values, values-en, values-uk, values-ru). Disclaimery wyświetlone w tej samej karcie co PP link (textSize 12sp, on_surface_variant).
 
-#### Task 3.8 — Wording reframing „monitoring" (F10, P1)
+#### Task 3.8 — Wording reframing „monitoring" (F10, P1) ✅ WYKONANE 2026-04-20
 - **Pliki:** `res/values*/strings.xml` — `hint_notifications_disabled`, `notif_monitoring_*`, `toast_*`.
 - **Co zmienić:** „monitoring" / „monitorowanie" → „offer detection" / „wykrywanie zleceń" / „active" / „aktywny".
 - **Reason:** „monitoring" niesie konotację surveillance (Risk #4 mitigation).
 - **Ref:** F10, Risk #4.
 - **Priority:** P1, ale low-effort — robić w tej fazie.
+- **Implementacja:** w 4 locale zmienione user-facing stringi: `status_subtitle_running`, `toast_notification_denied`, `notif_monitoring_title`, `notif_watchdog_title`, `notif_watchdog_text`, `hint_notifications_disabled`. PL: „Wykrywanie zleceń"; EN: „Offer detection"; UK: „Виявлення замовлень"; RU: „Обнаружение заказов". Dodatkowo hardcoded kanał notyfikacji watchdoga w `ServiceWatchdog.kt` („Monitoring zatrzymany" → „Wykrywanie zleceń zatrzymane"). Wewnętrzne klasy (`MonitoringController`, `MonitoringForegroundService`) NIE zmieniane — to technical names, nie user-facing.
 
 ---
 
