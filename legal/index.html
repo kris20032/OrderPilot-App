@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OrderPilot — Dokumenty prawne / Legal</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #666;
+    --accent: #0a5cff;
+    --border: #e5e5e5;
+    --card-bg: #f9f9fb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121212;
+      --fg: #e8e8e8;
+      --muted: #a0a0a0;
+      --accent: #5a9dff;
+      --border: #2a2a2a;
+      --card-bg: #1a1a1a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 3rem 1.25rem 4rem;
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.6;
+  }
+  h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+  .subtitle { color: var(--muted); margin-top: 0; margin-bottom: 2.5rem; }
+  .card {
+    display: block;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+    text-decoration: none;
+    color: var(--fg);
+    transition: border-color 0.15s;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card h2 { margin: 0 0 0.3rem; font-size: 1.15rem; color: var(--accent); }
+  .card p { margin: 0; color: var(--muted); font-size: 0.95em; }
+  footer { margin-top: 4rem; color: var(--muted); font-size: 0.85em; text-align: center; }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<h1>OrderPilot</h1>
+<p class="subtitle">Dokumenty prawne / Legal documents</p>
+
+<a href="privacy-policy.html" class="card">
+  <h2>Polityka Prywatności (PL)</h2>
+  <p>Nie zbieramy żadnych Twoich danych. Serio. Oto szczegóły.</p>
+</a>
+
+<a href="privacy-policy-en.html" class="card">
+  <h2>Privacy Policy (EN)</h2>
+  <p>We collect zero data about you. Really. Here are the details.</p>
+</a>
+
+<a href="data-deletion.html" class="card">
+  <h2>Usunięcie danych / Data Deletion</h2>
+  <p>Instrukcje usunięcia danych aplikacji. Instructions for deleting app data.</p>
+</a>
+
+<footer>
+  <p>Kontakt / Contact: <a href="mailto:krzychu.brzezi@gmail.com">krzychu.brzezi@gmail.com</a></p>
+  <p>OrderPilot © 2026 · Krzysztof Brzezinski</p>
+</footer>
+
+</body>
+</html>

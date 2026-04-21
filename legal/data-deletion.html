@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usunięcie danych / Data Deletion — OrderPilot</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #666;
+    --accent: #0a5cff;
+    --border: #e5e5e5;
+    --code-bg: #f4f4f6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121212;
+      --fg: #e8e8e8;
+      --muted: #a0a0a0;
+      --accent: #5a9dff;
+      --border: #2a2a2a;
+      --code-bg: #1e1e1e;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.65;
+    font-size: 16px;
+  }
+  header { border-bottom: 1px solid var(--border); margin-bottom: 2rem; padding-bottom: 1rem; }
+  nav.lang { font-size: 0.9em; color: var(--muted); margin-bottom: 0.5rem; }
+  nav.lang a { color: var(--accent); text-decoration: none; margin-left: 0.5rem; }
+  h1 { font-size: 1.8rem; margin: 0.5rem 0 0.25rem; }
+  .subtitle { color: var(--muted); font-size: 0.95em; margin: 0; }
+  h2 { font-size: 1.3rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+  .tldr {
+    background: var(--code-bg);
+    border-left: 4px solid var(--accent);
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    border-radius: 4px;
+  }
+  code {
+    background: var(--code-bg);
+    padding: 0.1em 0.4em;
+    border-radius: 3px;
+    font-size: 0.9em;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+  a { color: var(--accent); }
+  ol li { margin-bottom: 0.6rem; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+  footer { margin-top: 3rem; color: var(--muted); font-size: 0.85em; text-align: center; }
+  section.lang-block { margin-bottom: 3rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="lang">Język / Language: <a href="#pl">Polski</a> · <a href="#en">English</a></nav>
+  <h1>Usunięcie danych / Data Deletion</h1>
+  <p class="subtitle">OrderPilot — aplikacja dla kurierów</p>
+</header>
+
+<section class="lang-block" id="pl">
+
+<h2>PL — Żądanie usunięcia danych</h2>
+
+<div class="tldr">
+  <strong>Nie mamy Twoich danych.</strong> OrderPilot nie posiada serwera, nie zbiera żadnych danych osobowych i nie wysyła niczego poza Twój telefon. Nie istnieją nasze kopie, które moglibyśmy usunąć.
+</div>
+
+<p>Wszystkie dane używane przez aplikację (ustawienia, logi, bufor analityczny) są przechowywane wyłącznie na Twoim telefonie. Aby je usunąć, masz dwie opcje:</p>
+
+<h2>Opcja 1 — Odinstaluj aplikację</h2>
+<ol>
+  <li>Otwórz <strong>Ustawienia → Aplikacje → OrderPilot</strong>.</li>
+  <li>Dotknij <strong>Odinstaluj</strong>.</li>
+</ol>
+<p>Odinstalowanie usuwa wszystkie dane aplikacji — ustawienia, logi, zapisane preferencje. Nic nie pozostaje.</p>
+
+<h2>Opcja 2 — Wyczyść dane aplikacji (bez odinstalowywania)</h2>
+<ol>
+  <li>Otwórz <strong>Ustawienia → Aplikacje → OrderPilot</strong>.</li>
+  <li>Wybierz <strong>Pamięć</strong> (lub „Storage").</li>
+  <li>Dotknij <strong>Wyczyść dane</strong> (lub „Clear data").</li>
+</ol>
+<p>Ta opcja usuwa ustawienia, logi i zgody, ale aplikacja pozostaje zainstalowana. Przy następnym uruchomieniu aplikacja zachowa się jak po świeżej instalacji.</p>
+
+<h2>A co z kopiami w chmurze?</h2>
+<p>Android może automatycznie backupować ustawienia aplikacji w ramach <strong>Android Auto Backup</strong> (Google Drive). Żeby usunąć tę kopię:</p>
+<ol>
+  <li>Aplikacja <strong>Google Drive</strong> → ustawienia → <strong>Kopie zapasowe</strong>.</li>
+  <li>Znajdź wpis „OrderPilot" i usuń.</li>
+</ol>
+<p>Alternatywnie: Settings → Google → Backup → Manage storage.</p>
+
+<h2>Kontakt</h2>
+<p>Jeśli masz dodatkowe pytania lub chcesz, żebym potwierdził na piśmie, że nie mamy żadnych Twoich danych, napisz:</p>
+<p><strong>Email:</strong> <a href="mailto:krzychu.brzezi@gmail.com">krzychu.brzezi@gmail.com</a></p>
+<p>Odpowiadam w ciągu kilku dni.</p>
+
+</section>
+
+<hr>
+
+<section class="lang-block" id="en">
+
+<h2>EN — Data Deletion Request</h2>
+
+<div class="tldr">
+  <strong>We do not have your data.</strong> OrderPilot has no server, collects no personal data, and transmits nothing off your phone. No copies exist on our side that we could delete.
+</div>
+
+<p>All data used by the app (settings, logs, analytical buffer) is stored exclusively on your phone. To delete it, you have two options:</p>
+
+<h2>Option 1 — Uninstall the app</h2>
+<ol>
+  <li>Open <strong>Settings → Apps → OrderPilot</strong>.</li>
+  <li>Tap <strong>Uninstall</strong>.</li>
+</ol>
+<p>Uninstalling removes all app data — settings, logs, saved preferences. Nothing remains.</p>
+
+<h2>Option 2 — Clear app data (without uninstalling)</h2>
+<ol>
+  <li>Open <strong>Settings → Apps → OrderPilot</strong>.</li>
+  <li>Choose <strong>Storage</strong>.</li>
+  <li>Tap <strong>Clear data</strong>.</li>
+</ol>
+<p>This option removes settings, logs, and consents, but the app remains installed. On next launch the app behaves as if freshly installed.</p>
+
+<h2>What about cloud backups?</h2>
+<p>Android may automatically back up app settings via <strong>Android Auto Backup</strong> (Google Drive). To delete this backup:</p>
+<ol>
+  <li><strong>Google Drive</strong> app → settings → <strong>Backups</strong>.</li>
+  <li>Find the „OrderPilot" entry and delete it.</li>
+</ol>
+<p>Alternatively: Settings → Google → Backup → Manage storage.</p>
+
+<h2>Contact</h2>
+<p>If you have further questions or want written confirmation that we hold no data about you, write to:</p>
+<p><strong>Email:</strong> <a href="mailto:krzychu.brzezi@gmail.com">krzychu.brzezi@gmail.com</a></p>
+<p>I reply within a few days.</p>
+
+</section>
+
+<footer>
+  <p>Wersja / Version: 1.0 · 21 kwietnia 2026 / 21 April 2026</p>
+  <p><a href="privacy-policy.html">Polityka Prywatności</a> · <a href="privacy-policy-en.html">Privacy Policy</a></p>
+</footer>
+
+</body>
+</html>
