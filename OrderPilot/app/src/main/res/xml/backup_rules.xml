@@ -14,6 +14,7 @@
       po przywróceniu na nowym urządzeniu. Plik zarezerwowany na Phase 3.
 -->
 <full-backup-content>
+    <!-- Tylko ustawienia użytkownika są backupowane. order_pilot_disclosure.xml
+         jest automatycznie wykluczone bo nie ma go w include (KD5). -->
     <include domain="sharedpref" path="order_pilot_settings.xml"/>
-    <exclude domain="sharedpref" path="order_pilot_disclosure.xml"/>
 </full-backup-content>

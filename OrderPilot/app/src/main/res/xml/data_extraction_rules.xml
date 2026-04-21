@@ -8,12 +8,12 @@
     urządzeniami — user musi ponownie zaakceptować Prominent Disclosure.
 -->
 <data-extraction-rules>
+    <!-- Tylko ustawienia użytkownika są backupowane. order_pilot_disclosure.xml
+         jest automatycznie wykluczone bo nie ma go w include (KD5). -->
     <cloud-backup>
         <include domain="sharedpref" path="order_pilot_settings.xml"/>
-        <exclude domain="sharedpref" path="order_pilot_disclosure.xml"/>
     </cloud-backup>
     <device-transfer>
         <include domain="sharedpref" path="order_pilot_settings.xml"/>
-        <exclude domain="sharedpref" path="order_pilot_disclosure.xml"/>
     </device-transfer>
 </data-extraction-rules>
