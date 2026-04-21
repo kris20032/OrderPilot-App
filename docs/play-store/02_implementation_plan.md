@@ -182,22 +182,18 @@ Numeracja Phase/Task liniowa — wykonywać top-down. Phase'y mogą się częśc
 
 **Cel:** generować signed AAB lokalnie, voidproof keystore.
 
-#### Task 1.1 — Wygenerowanie upload keystore
-- **Akcja:** `keytool -genkey -v -keystore orderpilot-upload.jks -keyalg RSA -keysize 2048 -validity 9125 -alias orderpilot-upload`
-- **Lokacja:** `~/keystores/orderpilot-upload.jks` (NIE w repo).
-- **Ref:** M3.
-- **Risk if missing:** brak — bez tego nie ma signed AAB.
+#### Task 1.1 — Wygenerowanie upload keystore ✅ WYKONANE 2026-04-21
+- **Zrobione:** `keytool -genkeypair` przez Android Studio JDK. Keystore w `OrderPilot/keystore/orderpilot-release.jks` (folder w `.gitignore`), alias `orderpilot`, RSA 2048, SHA384withRSA, ważny do 2053-09-05.
+- **Odstępstwo od planu:** lokalizacja `OrderPilot/keystore/` (w repo path, ale gitignored) zamiast `~/keystores/` — prościej dla gradle path resolution.
 
-#### Task 1.2 — Backup keystore (CRITICAL)
-- **Akcja:** kopia keystore + hasła do (a) password manager (1Password/Bitwarden), (b) offline storage (zaszyfrowany USB / drukowany QR).
+#### Task 1.2 — Backup keystore (CRITICAL) ⚠️ CZĘŚCIOWO WYKONANE 2026-04-21
+- **Zrobione:** lokalna kopia w `~/Documents/OrderPilot-Keystore-Backup/` (keystore + properties + README z instrukcjami i SHA256).
+- **TODO USER:** upload do chmury (iCloud / Google Drive / Dropbox) + pendrive. Hasło zapamiętane.
 - **Ref:** M30, V12.
-- **Risk if missing:** strata = nigdy nie zaktualizujesz apki na Play (przy self-managed signing). Z Play App Signing strata uploada = wymienialny przez support, ale i tak min 24-48h delay.
 
-#### Task 1.3 — `signingConfigs` w gradle
-- **Plik:** `OrderPilot/app/build.gradle.kts`.
-- **Co zmienić:** dodać `signingConfigs { create("release") { ... } }` czytający credentials z `~/.gradle/gradle.properties` (zmienne: `ORDERPILOT_KEYSTORE_PATH`, `ORDERPILOT_KEYSTORE_PASSWORD`, `ORDERPILOT_KEY_ALIAS`, `ORDERPILOT_KEY_PASSWORD`); `buildTypes.release.signingConfig = signingConfigs.getByName("release")`.
-- **Reason:** Play wymaga signed AAB.
-- **Risk if missing:** AAB unsigned = Console rejection na upload.
+#### Task 1.3 — `signingConfigs` w gradle ✅ WYKONANE 2026-04-21
+- **Zrobione:** `OrderPilot/app/build.gradle.kts` + `keystore.properties` (gitignored) + `keystore.properties.template` (w git). Commity `2777495` + lint fix `ad6edaa` (FullBackupContent).
+- **Odstępstwo od planu:** credentials w `keystore.properties` (per-project) zamiast `~/.gradle/gradle.properties` (global) — lepsze izolowanie projektu, prostszy setup dla future-me.
 
 #### Task 1.4 — Bump versionName
 - **Plik:** `OrderPilot/app/build.gradle.kts:15`.
@@ -211,10 +207,9 @@ Numeracja Phase/Task liniowa — wykonywać top-down. Phase'y mogą się częśc
 - **Risk if missing:** brak — non-blocker.
 - **Decision criterion:** włączyć tylko jeśli AAB > 50 MB lub Console flaguje size.
 
-#### Task 1.6 — Test build AAB lokalnie
-- **Akcja użytkownika (Android Studio):** `Build > Generate Signed App Bundle`.
-- **Walidacja:** sprawdzić obecność `app/build/outputs/bundle/release/app-release.aab`.
-- **Ref:** Definition of Ready „AAB builds poprawnie".
+#### Task 1.6 — Test build AAB lokalnie ✅ WYKONANE 2026-04-21
+- **Zrobione:** Generate Signed App Bundle w Android Studio → `OrderPilot/app/release/app-release.aab` (23 MB). Build successful po fix lint `FullBackupContent` (commit `ad6edaa`).
+- **Path:** w praktyce plik wylądował w `app/release/` nie `app/build/outputs/bundle/release/`.
 
 #### Task 1.7 — Test instalacji AAB przez bundletool
 - **Akcja użytkownika:** `bundletool build-apks --bundle=...aab --output=...apks --mode=universal --ks=...jks --ks-key-alias=...`; `bundletool install-apks --apks=...apks` na real device.
