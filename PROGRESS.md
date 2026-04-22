@@ -1,7 +1,7 @@
 # OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-04-21
-**Obecny etap:** Play Store prep — Batch 1-4 + Path A ZROBIONE. **Signed AAB zbudowany** (`OrderPilot/app/release/app-release.aab`, 23 MB, 2026-04-21). Keystore: `OrderPilot/keystore/orderpilot-release.jks` (SHA256 `AC:2D:E9:...:0D:96`, ważny do 2053). Lokalny backup: `~/Documents/OrderPilot-Keystore-Backup/` — wymaga uploadu do chmury przez usera. Dev Account w Play Console zweryfikowany (2026-04-21). Następnie: Phase 4 (Privacy Policy hosting), Phase 5 (store assets), Phase 6 (Closed Testing upload). Plan: `docs/play-store/02_implementation_plan.md`.
+**Ostatnia aktualizacja:** 2026-04-22
+**Obecny etap:** **🎉 Closed Testing release wysłany do review w Play Console (2026-04-22).** Package `com.orderpilot.app` zarejestrowany. AAB z Phase 4 (PP, Disclosure, signingConfigs) przesłany. Czeka na review Google + 12 testerów opted-in (min. 14 dni). Phase 4 Privacy Policy hostowana na GitHub Pages.
 **Aktywne branche:** `play-store-prep` (bieżący), `polishing` (synced + splash zmergowany), `feature/production-app`, `main`
 
 ---
@@ -35,12 +35,17 @@
 | ~~**High**~~ | ~~Play Store Phase 1 — keystore generation + local backup~~ | ✅ (04-21, keytool CLI) — **user MUSI jeszcze uploadować backup do chmury** |
 | ~~**High**~~ | ~~Play Store Phase 0 — Dev Account ($25 + identity verification)~~ | ✅ (04-21, zweryfikowany) |
 | ~~**High**~~ | ~~Signed AAB release build~~ | ✅ (04-21, `app-release.aab` 23 MB) |
-| **High** | **USER: Upload keystore backup do chmury (iCloud + Google Drive/Dropbox + pendrive)** | USER ACTION — krytyczne |
-| **High** | Play Store Phase 4 — Privacy Policy + Data Deletion + Permissions Declarations content | TODO |
-| **High** | Play Store Phase 5 — store assets (icon 512, feature graphic, screenshots, video 45-75s, listing copy) | TODO |
-| **High** | Play Store Phase 0 — rekrutacja 12-20 testerów do Closed Testing | USER ACTION |
+| ~~**High**~~ | ~~Play Store Phase 4 — Privacy Policy + Data Deletion + Permissions Declarations content~~ | ✅ (04-22) — PP hostowana na GitHub Pages |
+| ~~**High**~~ | ~~Play Store Phase 0 — rejestracja package name + upload AAB do Closed Testing~~ | ✅ (04-22) — In review w Play Console |
+| ~~**High**~~ | ~~Keystore backup lokalny~~ | ✅ (04-21) — Desktop Mac + iPhone Files |
+| **High** | **USER: Rekrutacja 12+ testerów do Closed Testing** (Google wymaga min. 12 opted-in przez 14 dni przed Production) | USER ACTION — bloker do Production |
+| **High** | **USER: Weryfikacja GitHub Pages URL** — czy `kris20032.github.io/OrderPilot-App/legal/privacy-policy.html` odpowiada (HTTP 200) | USER ACTION |
+| **High** | Screenshots od taty — 15-20 zdjęć belki nad ofertami Uber/Wolt/Glovo/Bolt | Czeka na tatę |
+| **High** | Store listing — feature graphic 1024×500 finalna wersja z belkami | TODO |
+| **High** | Store listing — pełny opis PL (max 4000 zn) + EN | TODO |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
-| **High** | Closed Testing na Play Store — 12-20+ kurierów, mix platform, 14 dni minimum | Po Phase 4 + 5 + rekrutacji |
+| **Medium** | Play Store Phase 5 — store assets finalne (screenshots wgrane, listing uzupełniony) | Po screenshotach od taty |
+| **Medium** | Profile social media + strategia promocji | Równolegle z Closed Testing |
 | **Medium** | Profile social media + strategia promocji (przed oficjalnym release) | Do rozpoczęcia równolegle z Closed Testing |
 | Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
 
