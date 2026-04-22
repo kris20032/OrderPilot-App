@@ -39,8 +39,8 @@
 | ~~**High**~~ | ~~Play Store Phase 0 — rejestracja package name + upload AAB do Closed Testing~~ | ✅ (04-22) — In review w Play Console |
 | ~~**High**~~ | ~~Keystore backup lokalny~~ | ✅ (04-21) — Desktop Mac + iPhone Files |
 | **High** | **USER: Rekrutacja 12+ testerów do Closed Testing** (Google wymaga min. 12 opted-in przez 14 dni przed Production) | USER ACTION — bloker do Production |
-| **High** | **USER: Weryfikacja GitHub Pages URL** — czy `kris20032.github.io/OrderPilot-App/legal/privacy-policy.html` odpowiada (HTTP 200) | USER ACTION |
-| **High** | Screenshots od taty — 15-20 zdjęć belki nad ofertami Uber/Wolt/Glovo/Bolt | Czeka na tatę |
+| ~~**High**~~ | ~~Weryfikacja GitHub Pages URL~~ | ✅ (04-22) — działa |
+| ~~**High**~~ | ~~Screenshots~~ | ✅ (04-22) — załączone w review |
 | **High** | Store listing — feature graphic 1024×500 finalna wersja z belkami | TODO |
 | **High** | Store listing — pełny opis PL (max 4000 zn) + EN | TODO |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
