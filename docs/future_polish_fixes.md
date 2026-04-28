@@ -8,7 +8,7 @@
 >
 > **Użycie:** przy pytaniach „co robimy?" / „co można poprawić?" → odwołaj się do tego pliku.
 >
-> Ostatnia aktualizacja: 2026-04-19
+> Ostatnia aktualizacja: 2026-04-28 (dodane #33/#34/#35 — Android 16 accessibility + auto-demo + telemetria, YT research v2)
 
 ---
 
@@ -206,3 +206,153 @@
   - `SetupActivity.requestBatteryOptimizationExemption()` — usunięty `ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`, wołamy od razu `ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS` przez `safeStartActivity` (z fallbackiem do `ACTION_SETTINGS`). `Toast` z nowym hintem.
   - Nowy string `toast_hint_battery_optimization` w 4 lokalach (PL/EN/UK/RU).
 - **Powiązane:** `docs/play-store/02_implementation_plan.md` Task 2.11; `docs/play-store/01_analysis_v2.md` Risk #7.
+
+---
+
+### 28. Język aplikacji — rosyjski/ukraiński nie zmienia UI (zgłoszone 2026-04-28 przez Dominika)
+- **Problem:** Po zmianie języka w ustawieniach aplikacji na rosyjski lub ukraiński UI aplikacji **nie zmienia języka** — pozostaje w domyślnym (PL/EN).
+- **Niesprawdzone:** Czy belka (overlay) zmienia język. Możliwe że strings dla overlay są poprawnie tłumaczone, a problem dotyczy tylko UI ustawień/głównego ekranu.
+- **Możliwe przyczyny do sprawdzenia:**
+  - `LocaleHelper` (ui/LocaleHelper.kt) — czy wspiera RU/UK locales tak samo jak PL/EN
+  - Brak resource folderów `values-ru/` i `values-uk/` (lub niepełne tłumaczenia → fallback do default)
+  - `AppLanguage` enum w domain — czy ma RU/UK warianty
+  - `attachBaseContext` w MainActivity / SettingsActivity — czy LocaleHelper.wrap jest aplikowany przy wszystkich activity
+- **Test:** zmienić na RU/UK → zrestartować apkę → sprawdzić czy strings z `values-ru/strings.xml` są używane.
+- **Priorytet:** Niski (apka działa funkcjonalnie po angielsku/polsku, większość kurierów-imigrantów rozumie EN). Naprawić po Production launch jeśli dużo testerów-imigrantów.
+- **Status:** Do zrobienia — nie blokuje Closed Testing ani Production.
+
+---
+
+### 29. Przycisk „Zapisz ustawienia" zakryty przez Samsung navigation bar (zgłoszone 2026-04-28 przez Dominika)
+- **Problem:** Na telefonie Samsung Dominika dolny przycisk „Zapisz ustawienia" (i prawdopodobnie inne dolne przyciski w setup wizard typu Continue) jest **częściowo zakryty** przez systemowy pasek nawigacji Samsung (gesture/3-button bar).
+- **Skutek:** User nie widzi że przycisk istnieje albo nie może go kliknąć (touch trafia w nav bar zamiast w przycisk).
+- **Możliwe przyczyny:**
+  - Brak `android:fitsSystemWindows="true"` lub `WindowInsets` handling w layoucie ustawień
+  - Layout root nie respektuje `systemBars()` insets — przycisk na dole bez padding bottom = systemBars insets
+  - Edge-to-edge nie jest poprawnie obsłużony (Android 15+ wymusza edge-to-edge dla apek z targetSdk 35+)
+- **Fix do zrobienia:**
+  - Dodać `WindowInsetsCompat` listener w SettingsActivity / SetupActivity który ustawia `paddingBottom` = `systemBars().bottom`
+  - Albo `android:fitsSystemWindows="true"` na root layoutu jeśli to wystarczy
+  - Sprawdzić target Sdk — jeśli 35+, edge-to-edge jest obowiązkowy
+- **Priorytet:** Średni — to jest realny UX bloker dla testerów na Samsungu. Trzeba naprawić zanim Production.
+- **Status:** Do zrobienia — może blokować onboarding na Samsungach.
+- **Reproducible on:** Samsung (Dominik), prawdopodobnie też inne urządzenia z dolnym pasem nawigacji.
+
+---
+
+### 30. Pre-permission screen przed systemowym dialogiem accessibility (onboarding UX)
+- **Inspiracja:** [Mobin — onboarding analysis 1000+ apps](https://www.youtube.com/watch?v=jqoFP9QapXI&t=480s) @ 8:00 — „A lot of apps show a custom screen before the notification pop-up. Apparently, it improves accept rates significantly."
+- **Problem:** Systemowy dialog Androida o uprawnieniach accessibility brzmi alarmująco („App can read your screen, perform actions, observe your typing"). Dla nietechnicznego usera (np. starszy kurier) wygląda jak malware → odmawia. To prawdopodobnie nasz #1 dropoff w onboardingu (do zweryfikowania na danych z Closed Testing).
+- **Pomysł:** Przed `Settings.ACTION_ACCESSIBILITY_SETTINGS` pokazać własny ekran-pomost który tłumaczy DLACZEGO i ZAPEWNIA o prywatności.
+- **Treść ekranu (draft):**
+  - Tytuł: „Następny ekran zapyta o uprawnienie systemowe"
+  - Body: „OrderPilot potrzebuje dostępu accessibility, żeby widzieć ofertę z Ubera/Wolta/Glovo/Bolta i policzyć zł/h. To jedyny sposób — nie ma API."
+  - Reassurance bullets: „🔒 Wszystko zostaje na Twoim telefonie. Zero internetu. Zero kont. Zero danych do nas."
+  - CTA: „Otwórz ustawienia systemu" → `Settings.ACTION_ACCESSIBILITY_SETTINGS`
+- **Wymagane zmiany:** Nowy fragment/screen w `SetupActivity` przed wywołaniem accessibility intent. Strings PL/EN/UK/RU.
+- **Korzyść dodatkowa:** Google Play przy `isAccessibilityTool=false` (decyzja w `play_store_strategy.md`) wymaga jasnego uzasadnienia w runtime — pre-prompt podwójnie się opłaca (lepszy accept rate + zgodność z polityką).
+- **Priorytet:** Średni — wartościowy ale nie blocker. Zweryfikować najpierw po feedbacku z Closed Testing czy faktycznie userzy odpadają na tym kroku.
+- **Status:** Pomysł — odłożony do feedbacku z Closed Testing.
+
+---
+
+### 31. Demo overlay bar w setupie (aha-moment przed permissions)
+- **Inspiracja:** [Mobin — onboarding analysis 1000+ apps](https://www.youtube.com/watch?v=jqoFP9QapXI&t=92s) @ 1:32 — „Alma goes one step further. It lets you try the core experience before you sign up. I rarely see apps with AI features who lets you try it out before signing up an account."
+- **Problem:** User w setupie nie wie co dostanie zanim odda dostęp. Decyduje na ślepo.
+- **Pomysł:** Pokazać **fake belkę z przykładową ofertą** w setupie, żeby user zobaczył wartość zanim przebrnie przez permissions.
+- **Realizacja:**
+  - Statyczny mock layout w setupie: poziomy „pasek" w stylu prawdziwego overlaya, np. `Uber • 18,50 zł • 4,2 km • 28 zł/h • GREEN`
+  - Krótki tekst: „Tak będzie wyglądać OrderPilot na Twoim ekranie nad apką kurierską — pokazujemy zł/h zanim klikniesz Akceptuj."
+  - Można dodać 2-3 warianty (Glovo z gotówką 💵, Wolt RED nieopłacalne) jako mini-karuzelę żeby pokazać różne stany.
+- **Wymagane zmiany:** Nowy ekran w SetupActivity (lub karta na pierwszym ekranie głównym). Reuse `OverlayViewFactory` z dummy `Offer` i `AnalysisResult` żeby spójne wizualnie z prawdziwą belką. Strings i18n.
+- **Priorytet:** Średni — silny psychological driver, ale wymaga design pracy żeby wyglądało ładnie.
+- **Status:** Pomysł — odłożony, do rozważenia po sprawdzeniu obecnego flow setupu.
+
+---
+
+### 32. Persistent setup checklist na MainActivity (zamiast guided tour)
+- **Inspiracja:** [Mobin — onboarding analysis 1000+ apps](https://www.youtube.com/watch?v=jqoFP9QapXI&t=455s) @ 7:35 — „when Mural replaced pop-ups and banners with a clear six-step checklist, it drove a 10% relative increase in one week retention. Checklist stick around even after the user dismisses the initial flow."
+- **Problem:** Setup ma kilka kroków (accessibility, overlay, battery optimization, wybór platform). Jeśli user zacznie i nie skończy → wraca do MainActivity i nie wie co jeszcze do zrobienia. Aktualnie polegamy na `isSetupComplete()` redirect do SetupActivity, ale to all-or-nothing.
+- **Pomysł:** Widoczny checklist na MainActivity dopóki któryś krok niedokończony.
+- **Realizacja:**
+  - Card / sekcja u góry MainActivity widoczna tylko gdy `!isSetupComplete()`:
+    ```
+    Konfiguracja OrderPilota
+    ✅ Accessibility włączone
+    ✅ Overlay nad innymi apkami
+    ⏳ Battery optimization — kliknij żeby otworzyć
+    ⏳ Wybierz platformy (Uber, Glovo, Wolt, Bolt)
+    ```
+  - Każdy nieukończony krok = klikalny → redirect do odpowiedniego intent / sekcji ustawień
+  - Po zakończeniu wszystkich kroków → karta znika
+- **Wymagane zmiany:**
+  - Nowy view (CardView lub LinearLayout) w `activity_main.xml`
+  - Logika w MainActivity: sprawdzanie statusu każdego kroku (już istnieje rozproszona w SetupActivity → wyciągnąć do `SetupChecklist` helpera w `ui/`)
+  - Strings i18n
+- **Korzyść:** User który dropnie setup w połowie ma drogę powrotną. Nie musimy go zmuszać do całego SetupActivity flow.
+- **Priorytet:** Niski — current redirect do SetupActivity działa. To jest „nice to have" a nie blocker.
+- **Status:** Pomysł — odłożony, niski priorytet.
+
+---
+
+### 33. ⚠️ Android 16 — `accessibilityDataSensitive` flag może zepsuć pipeline Glovo/Bolt
+- **Inspiracja:** [Android Developers — Accessibility Service Abuse](https://www.youtube.com/watch?v=GAv5-OAjle4&t=97s) @ 1:37 — „The accessibility data sensitive flag allows you to explicitly mark a view or composable as containing sensitive data" + @ 1:53 — „genuine accessibility apps can continue to provide their service by setting the `isAccessibilityTool` flagged to true in their manifest" + @ 2:11 — „Google Play Protect will also take action when it detects that a non-accessibility app has falsely declared that it is an accessibility tool."
+- **Problem:** Android 16 wprowadza nową flagę `accessibilityDataSensitive` którą **inne apki** (Glovo, Bolt, Uber, Wolt) mogą ustawić na widokach z wrażliwymi danymi (cena, dystans, dane klienta). Apki z `isAccessibilityTool=false` w manifeście **nie mogą czytać** widoków oznaczonych tą flagą. Mamy `isAccessibilityTool=false` (decyzja w `play_store_strategy.md` — Alternative Use track na Play Store).
+- **Skutek dla pipeline:**
+  - **Glovo/Bolt (accessibility tree read)** — jeśli któraś z apek włączy flagę na popupie oferty → `OfferParser` przestaje widzieć tekst → **pipeline kompletnie martwy** na Androidzie 16+.
+  - **Uber/Wolt (OCR przez `takeScreenshot()`)** — prawdopodobnie przetrwa, bo `takeScreenshot()` czyta display buffer (pixele), nie view tree. Ale to **nie jest zweryfikowane**, możliwe że Google rozszerzy ochronę.
+- **Co zrobić (monitoring task):**
+  1. Po wyjściu Android 16 stable (~Q3 2026) zainstalować i przetestować każdą z 4 apek kurierskich na świeżym buildzie.
+  2. Sprawdzić w logach czy `OfferParser`/`AccessibilityTextCollector` nadal odbierają tekst z popupów Glovo/Bolt.
+  3. Sprawdzić czy `takeScreenshot()` nadal działa dla Uber/Wolt (czy nie zwraca pustego/zaczernionego obrazu).
+- **Decyzja architektoniczna jeśli flag zostanie włączony:**
+  - **Opcja A:** Przełączyć `isAccessibilityTool=true` → przejść Play Store accessibility review (`play_store_strategy.md` → revisit).
+  - **Opcja B:** Migrować Glovo/Bolt na pipeline OCR (jak Uber/Wolt). Większy koszt CPU/baterii, ale niezależne od flagi.
+  - **Opcja C:** Hybryda — A dla pipeline który zostanie zablokowany, B jako fallback.
+- **Priorytet:** Wysoki (potencjalny architectural blocker), ale **nie pilny** — Android 16 jeszcze nie stable, zero apek kurierskich na razie nie używa flagi (na 2026-04-28).
+- **Status:** Monitoring — sprawdzić ponownie po wyjściu Android 16 stable.
+
+---
+
+### 34. Auto-trigger demo overlay raz po setupie (rozszerzenie #31)
+- **Inspiracja:** [Android Developers — Improve User Onboarding for Google Play](https://www.youtube.com/watch?v=fK5OLEP0DdE&t=38s) @ 0:38 — „80% of people installing top performing apps make this decision \[to keep using or churn\] within the first 10 minutes of use."
+- **Problem:** Realny kurier po dokończeniu setupu odpala apkę kurierską i czeka 30+ minut na pierwsze prawdziwe zlecenie. W tych 30 minutach **nie ma żadnego sygnału** że OrderPilot działa. 80% userów decyduje czy zostaje w pierwszych 10 minutach → mamy duży risk dropu zanim zobaczą wartość.
+- **Pomysł:** Po pierwszym successful setup (`isSetupComplete() == true` + flag `hasShownDemo == false` w SharedPrefs) **automatycznie odpalić** demo overlay z #31 raz przez 5-8s, z disclaimerem „To jest demo — Twoje zlecenia będą wyglądać tak samo."
+- **Różnica vs #31:** #31 to statyczny mock w SetupActivity (user widzi i klika dalej). #34 to **prawdziwy overlay** wyświetlony przez `OverlayManager.show()` — user widzi mechanikę pojawiania się belki, nie tylko obrazek.
+- **Wymagane zmiany:**
+  - Flag w `AppSettings`: `hasShownPostSetupDemo: Boolean = false`
+  - W `MainActivity.onResume()` (lub na końcu SetupActivity flow): jeśli `isSetupComplete() && !hasShownPostSetupDemo` → wywołać `OverlayManager.showDemo(Platform.UBER, dummyOffer)` + ustawić flag na `true`
+  - Dummy `Offer` + `AnalysisResult` (np. 18,50 zł / 4,2 km / 28 zł/h / GREEN)
+  - Toast/banner przed overlayem: „Tak będzie wyglądać OrderPilot. Pokazujemy demo raz."
+  - Auto-hide po 5-8s (dłużej niż domyślne 30s, bo to demo a nie prawdziwa decyzja)
+- **Edge case:** Co jeśli user akurat ma uruchomioną apkę kurierską i przyjdzie prawdziwe zlecenie? Demo nie powinno blokować prawdziwego pipeline. Rozwiązanie: demo używa osobnego slotu w `SystemOverlayManager` lub jest skipped jeśli pipeline w trakcie pracy.
+- **Priorytet:** Średni — wzmacnia #31, razem dają silniejszy aha-moment.
+- **Status:** Pomysł — implementować razem z #31 (lub jako follow-up).
+
+---
+
+### 35. Telemetria opt-in (PostHog/podobne) — decyzja architektoniczna
+- **Inspiracja:** [Chris Raroque — Things I ALWAYS Do Before Launching](https://www.youtube.com/watch?v=MnF-zJhyUtE&t=88s) @ 1:28 — „in a few months, you're going to deeply wish that you installed it earlier... It takes like max 30 minutes and you lose nothing by doing it" + @ 1:47 — „the main reason to set up analytics is you want to see why users are churning very early so you can make product decisions."
+- **Problem:** Mamy 2/12 opted-in testerów do Closed Testing, idziemy do Production. **Nie mamy żadnej telemetrii** — nie wiemy:
+  - Czy OCR pipeline w ogóle wykrywa oferty (false negative — apka działa ale nic nie pokazuje)
+  - Czy parser zwraca sensowne wyniki (false positive — pokazuje belkę z błędnymi liczbami)
+  - Time-to-first-offer (kluczowy retention metric — 80% decyzji w 10 min, patrz #34)
+  - Crash rate w pipeline / które urządzenia/OEM są problematyczne
+  - Session length, daily active users, retention curve
+- **Konflikt z `play_store_strategy.md`:** Aktualna decyzja = **zero network** (część positioning na Play Store: „wszystko lokalnie, prywatność, brak chmury"). Telemetria łamie tę zasadę.
+- **Możliwe podejścia:**
+  - **A) Status quo** — żadnej telemetrii, lecimy ślepo, debugujemy przez ręczne raporty od testerów. Najprostsze, najbezpieczniejsze pod kątem Play policy, najgorsze pod kątem product development.
+  - **B) Opt-in telemetria z explicit consent w setupie** — osobny ekran w SetupActivity „Pomóż nam ulepszyć OrderPilot — dane anonimowe, możesz wyłączyć" → toggle w `AppSettings`. Tylko jeśli user zgodzi się — wysyłamy events do PostHog/podobnego (self-hosted lub free tier).
+  - **C) Tylko crash reporting (Sentry/Firebase Crashlytics)** — kompromis. Nie tracking użycia, tylko crashe + ANR. Mniej kontrowersyjne pod kątem prywatności.
+- **Co tracking jeśli B/C:**
+  - `setup_completed` (które kroki, jakie OEM, jakie platformy wybrane)
+  - `pipeline_first_offer_detected` (time od `setup_completed`)
+  - `pipeline_offer_parsed` (per platform + parser version)
+  - `pipeline_error` (typ + stack)
+  - `overlay_dismissed_by_user` vs `overlay_auto_hidden`
+- **Wymagane decyzje:**
+  - Czy łamiemy „zero network"? Jeśli tak — jak to opisać w opisie sklepu i privacy policy żeby nie wyglądało hipokrycko.
+  - Self-hosted PostHog vs free tier vs Sentry-only?
+  - Backend / koszty / RODO compliance (gdzie hostujemy serwer EU?)
+- **Priorytet:** Wysoki strategicznie (bez tego trudno iterować po Production), ale wymaga przemyślenia konfliktu z brand/positioning. **NIE robimy w Closed Testing** — najpierw decyzja architektoniczna z userem.
+- **Status:** Decyzja do podjęcia — nie implementować dopóki nie ustalone podejście (A/B/C).
