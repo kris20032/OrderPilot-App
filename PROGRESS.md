@@ -1,7 +1,7 @@
 # OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-04-22
-**Obecny etap:** **Closed Testing in review** — AAB przesłany do Play Console (2026-04-22). Czeka na: review Google + rekrutacja 12+ testerów opted-in (min. 14 dni) → Production.
+**Ostatnia aktualizacja:** 2026-04-30
+**Obecny etap:** **Closed Testing — staged recruitment** — 11/12 opted-in po cleanup, PrimeTestLab Enterprise ($19.99, 25 testerów + Approval Guarantee) zamówiony, ticket do managera wysłany. Clock startuje ~1-2 maja po staged rollout paid + brat + znajomy taty. Day 14 ≈ 15-16 maja.
 **Aktywne branche:** `play-store-prep` (bieżący — zawiera ikonę A1, splash, PP, Disclosure, signingConfigs), `feature/production-app` (synced), `main` (synced)
 
 ---
@@ -10,12 +10,16 @@
 
 | Priorytet | Zadanie | Status |
 |-----------|---------|--------|
-| **High** | **USER: Rekrutacja 12+ testerów** do Closed Testing (opted-in przez 14 dni = bloker do Production) | USER ACTION |
+| **High** | **Rekrutacja testerów Closed Testing** — 11/12 opted-in (po cleanup zombie 04-30), buffer cel: 14-16 z ratio engagement ≥85% | W TOKU |
+| **High** | **PrimeTestLab ticket** — czeka na odpowiedź managera (pool 120 vs 25, staged rollout, instructions delivery, geo distribution, refund process) | WYSŁANE 04-30 |
+| **High** | **Znajomy taty (non-courier)** — dodać jutro do listy testerów (Tata zapyta) | TODO 05-01 |
+| **High** | **3+ AAB updates podczas 14-day clock** — fix Andrij news portals false-positive (v1.0.2), language fallback RU/UA + Samsung navbar (v1.0.3), final polish (v1.0.4) | Planowane 02-12 maja |
+| **High** | **Application form prep** — material w `docs/closed-testing-evidence.md` (cytaty Andrij+Tata+Dominik+Lucky, statystyki, AAB update mapping) | W TOKU |
 | **High** | Store listing — feature graphic 1024×500 finalna wersja | TODO |
 | **High** | Store listing — pełny opis PL + EN (max 4000 zn) | TODO |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
 | **Medium** | Merge `play-store-prep` → `feature/production-app` → `main` po zatwierdzeniu Production | Po Production |
-| **Medium** | Profile social media + strategia promocji | Równolegle z Closed Testing |
+| **Medium** | Profile social media + strategia promocji | Po Production (decyzja 04-29: nie ekspozycja przed launch) |
 | **Low** | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
 
 ---
@@ -46,8 +50,14 @@ Wszystkie implementacje, fixy, parsery, drag handle, język RU, audyty niezawodn
 - ✅ Dev Account + package name zarejestrowane (04-21/22)
 - ✅ Privacy Policy na GitHub Pages (04-22)
 - ✅ Release przesłany do review (04-22)
-- ⏳ Rekrutacja 12+ testerów
-- ⏳ 14 dni Closed Testing
+- ✅ Closed Testing zatwierdzone przez Google (przed 04-28)
+- ✅ Pierwsi real testerzy active: Tata (Xiaomi), Andrij (UA multi-platform), Dominik
+- ✅ Bug ammunition zebrane (Andrij: false-positive na portalach, Dominik: RU/UA lang + Samsung navbar)
+- ✅ Cleanup zombies (04-30) — Pavlyshy wywalony, lista odśwież, 11/12 opted-in
+- ✅ PrimeTestLab Enterprise zamówiony (04-30) — 25 testers + Approval Guarantee
+- 🟡 **Czeka:** odpowiedź managera PrimeTestLab (ticket 04-30)
+- 🟡 **Plan:** clock startuje 1-2 maja → Day 14 ≈ 15-16 maja → submit Production → review 3-7 dni → Production live ~20-23 maja
+- ⏳ 3+ AAB updates podczas 14-day okna
 - ⏳ Apply for Production
 
 ### Faza 3: Production + promocja
@@ -61,6 +71,10 @@ Wszystkie implementacje, fixy, parsery, drag handle, język RU, audyty niezawodn
 
 | Data | Zmiana |
 |------|--------|
+| 04-30 | **Closed Testing operations day** — cleanup zombie (Pavlyshy wywalony), counter 11/12 opted-in, PrimeTestLab Enterprise $19.99 zamówiony (25 testers + Approval Guarantee), pool CSV 120 emaili pobrany, ticket do managera wysłany (pool vs package, staged rollout, instructions, geo, refund process). Tracker `test-data/closed-testing/testers_tracker.xlsx` + RECOMMENDATIONS.md utworzone. Strategia: bundle paid+brat+znajomy taty + odpowiedzi POCZEKAJ → clock auto-startuje przy 12+ |
+| 04-29 | **Andrij real engagement** — UA real kurier zgłosił bug (false-positive overlay na portalach informacyjnych) + statystyki dnia (5h57m online, 9 zleceń) + general feedback. Bug do `future_polish_fixes.md`. Kandydat #1 na fix w v1.0.2 (pierwszy z 3+ wymaganych AAB updates). `docs/closed-testing-evidence.md` utworzony jako Application Form ammunition |
+| 04-29 | **Dominik bugi** — UI language fallback RU/UA nie działa + Samsung nav bar zakrywa „Zapisz ustawienia" w Settings. Oba w `future_polish_fixes.md`, planowane v1.0.3 |
+| 04-29 | **Recruitment events** — wizyty w Forum Gdańsk (Lucky, Ivan Black, Kuba, Andrew, Ivan UA, Artur, Gonzalo, Pavlyshy=zombie). Tata zaoferował znajomego non-couriera jako dodatkowy tester. Decision: skip stary telefon brata (same household IP risk > value) |
 | 04-22 | **Closed Testing in review** — package `com.orderpilot.app` zarejestrowany, AAB + screenshots przesłane do Play Console |
 | 04-22 | **GitHub Pages** — `kris20032.github.io/OrderPilot-App/legal/` działa (PP PL+EN, Data Deletion) |
 | 04-21 | **Keystore** — `orderpilot-release.jks` (SHA256 `AC:2D:E9:...:0D:96`, ważny do 2053), backup Desktop+iPhone |
