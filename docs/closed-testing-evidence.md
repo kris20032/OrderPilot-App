@@ -185,7 +185,7 @@
 | Wersja | Data publikacji | Główne zmiany | Bazujące na feedback od |
 |--------|-----------------|---------------|-------------------------|
 | 1.0.1 | _(initial Closed Testing release)_ | First Closed Testing build | — |
-| 1.0.2 | 2026-05-05 (Day 2) — kod gotowy, czeka na build+upload | **Fixed false-positive overlay on news portals** — multi-layer defense (foreground tracker, watch mode reset on app switch, hardened Uber overlay phantom detection on MIUI, positive offer markers in Uber/Bolt/Wolt parsers). | Andrij (UA real courier, 2026-04-29) |
+| 1.0.2 | 2026-05-06 (Day 3) — uploaded + sent for review | **Fixed false-positive overlay on news portals** — multi-layer defense (foreground tracker, watch mode reset on app switch, hardened Uber overlay phantom detection on MIUI, positive offer markers in Uber/Bolt/Wolt parsers). Status: in review (managed publishing off → auto-publish po approve). | Andrij (UA real courier, 2026-04-29) |
 | _(1.0.3)_ | _(planowane Day 7-8 ≈ 2026-05-10/11)_ | _(language fallback RU/UA + Samsung navbar overlap)_ | Dominik |
 | _(1.0.4)_ | _(planowane Day 11-12 ≈ 2026-05-14/15)_ | _(final polish before submit)_ | _(różni)_ |
 

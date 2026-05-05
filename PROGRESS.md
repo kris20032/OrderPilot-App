@@ -1,7 +1,7 @@
 # OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-05-05
-**Obecny etap:** **Closed Testing Day 2** (Day 0 = 2026-05-03, Day 14 = 2026-05-17). 12+ opted-in confirmed. v1.0.2 (Andrij news-portals fix) — kod gotowy 05-05, czeka na build+upload do Closed Testing track.
+**Ostatnia aktualizacja:** 2026-05-06
+**Obecny etap:** **Closed Testing Day 3** (Day 0 = 2026-05-03, Day 14 = 2026-05-17). 12+ opted-in confirmed. v1.0.2 (Andrij news-portals fix) — uploaded + sent for review 05-06, czeka na Google approve (~1-3h).
 **Aktywne branche:** `play-store-prep` (bieżący — zawiera ikonę A1, splash, PP, Disclosure, signingConfigs), `feature/production-app` (synced), `main` (synced)
 
 ---
