@@ -1,7 +1,7 @@
 # OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-04-30
-**Obecny etap:** **Closed Testing — staged recruitment** — 11/12 opted-in po cleanup, PrimeTestLab Enterprise ($19.99, 25 testerów + Approval Guarantee) zamówiony, ticket do managera wysłany. Clock startuje ~1-2 maja po staged rollout paid + brat + znajomy taty. Day 14 ≈ 15-16 maja.
+**Ostatnia aktualizacja:** 2026-05-05
+**Obecny etap:** **Closed Testing Day 2** (Day 0 = 2026-05-03, Day 14 = 2026-05-17). 12+ opted-in confirmed. v1.0.2 (Andrij news-portals fix) — kod gotowy 05-05, czeka na build+upload do Closed Testing track.
 **Aktywne branche:** `play-store-prep` (bieżący — zawiera ikonę A1, splash, PP, Disclosure, signingConfigs), `feature/production-app` (synced), `main` (synced)
 
 ---
@@ -13,7 +13,7 @@
 | **High** | **Rekrutacja testerów Closed Testing** — 11/12 opted-in (po cleanup zombie 04-30), buffer cel: 14-16 z ratio engagement ≥85% | W TOKU |
 | **High** | **PrimeTestLab ticket** — czeka na odpowiedź managera (pool 120 vs 25, staged rollout, instructions delivery, geo distribution, refund process) | WYSŁANE 04-30 |
 | **High** | **Znajomy taty (non-courier)** — dodać jutro do listy testerów (Tata zapyta) | TODO 05-01 |
-| **High** | **3+ AAB updates podczas 14-day clock** — fix Andrij news portals false-positive (v1.0.2), language fallback RU/UA + Samsung navbar (v1.0.3), final polish (v1.0.4) | Planowane 02-12 maja |
+| **High** | **3+ AAB updates podczas 14-day clock** — v1.0.2 ✅ kod gotowy 05-05 (czeka na build+upload), v1.0.3 (language fallback RU/UA + Samsung navbar) Day 7-8, v1.0.4 (final polish) Day 11-12 | W TOKU |
 | **High** | **Application form prep** — material w `docs/closed-testing-evidence.md` (cytaty Andrij+Tata+Dominik+Lucky, statystyki, AAB update mapping) | W TOKU |
 | **High** | Store listing — feature graphic 1024×500 finalna wersja | TODO |
 | **High** | Store listing — pełny opis PL + EN (max 4000 zn) | TODO |
@@ -71,6 +71,7 @@ Wszystkie implementacje, fixy, parsery, drag handle, język RU, audyty niezawodn
 
 | Data | Zmiana |
 |------|--------|
+| 05-05 | **v1.0.2 — Andrij news portals fix** (multi-layer defense). Layer 1: strict foreground tracker (`lastForegroundPackage` z `TYPE_WINDOW_STATE_CHANGED`) + cross-check z `rootInActiveWindow`, wpięty jako guard w `processViaScreenshot`/`processViaAccessibilityTree` + przed `pipeline.process()` we wszystkich 3 call sites. Layer 2: wzmocnione `hasUberOverlayWithContent()` — wymóg patternu oferty (kwota+czas ≤120 znaków) lub markeru Ubera, zamiast samej obecności tekstu (zamyka MIUI phantom-overlay). Layer 3: watch mode reset — cancel `uberWatchJob`/`boltWatchJob` przy `WINDOW_STATE_CHANGED` z packagem spoza `watchedPackages`, plus dodatkowy guard w Uber watch loop. Layer 4: positive markers (10-15 fraz multi-language: PL/EN/UA/RU) wymagane w `UberOcrParser`/`BoltFoodOcrParser`/`WoltOcrParser` — news portal nie zawiera „Łącznie"/„Odbiór za"/„Bolt"/„Akceptuj". `versionCode=3, versionName="1.0.2"`. `future_polish_fixes.md` #36 zamknięty, `closed-testing-evidence.md` sekcja 4+5 zaktualizowane (Application Form ammunition gotowa). Pliki: `OrderPilotAccessibilityService.kt`, `OcrOfferParser.kt`, `UberOcrParser.kt`, `BoltFoodOcrParser.kt`, `WoltOcrParser.kt` |
 | 04-30 | **Closed Testing operations day** — cleanup zombie (Pavlyshy wywalony), counter 11/12 opted-in, PrimeTestLab Enterprise $19.99 zamówiony (25 testers + Approval Guarantee), pool CSV 120 emaili pobrany, ticket do managera wysłany (pool vs package, staged rollout, instructions, geo, refund process). Tracker `test-data/closed-testing/testers_tracker.xlsx` + RECOMMENDATIONS.md utworzone. Strategia: bundle paid+brat+znajomy taty + odpowiedzi POCZEKAJ → clock auto-startuje przy 12+ |
 | 04-29 | **Andrij real engagement** — UA real kurier zgłosił bug (false-positive overlay na portalach informacyjnych) + statystyki dnia (5h57m online, 9 zleceń) + general feedback. Bug do `future_polish_fixes.md`. Kandydat #1 na fix w v1.0.2 (pierwszy z 3+ wymaganych AAB updates). `docs/closed-testing-evidence.md` utworzony jako Application Form ammunition |
 | 04-29 | **Dominik bugi** — UI language fallback RU/UA nie działa + Samsung nav bar zakrywa „Zapisz ustawienia" w Settings. Oba w `future_polish_fixes.md`, planowane v1.0.3 |

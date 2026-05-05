@@ -356,3 +356,26 @@
   - Backend / koszty / RODO compliance (gdzie hostujemy serwer EU?)
 - **Priorytet:** Wysoki strategicznie (bez tego trudno iterować po Production), ale wymaga przemyślenia konfliktu z brand/positioning. **NIE robimy w Closed Testing** — najpierw decyzja architektoniczna z userem.
 - **Status:** Decyzja do podjęcia — nie implementować dopóki nie ustalone podejście (A/B/C).
+
+---
+
+### 36. Belka false-positive na portalach informacyjnych (zgłoszone 2026-04-29 przez Andrija)
+- **Zgłaszający:** Andrij (UA real kurier, multi-platform, aktywny tester Closed Testing)
+- **Cytat dosłowny:** „Podobne rzeczy pokazuje także na różnych portalach informacyjnych"
+- **Kontekst:** Andrij używa apki podczas pracy (5h 57min online, 9 zleceń dnia 2026-04-29). Potwierdził że **przy zleceniach wszystko działa super** — problem dotyczy false positive: belka pojawia się na innych aplikacjach (portale newsowe typu Onet, WP, Interia, możliwe że też Facebook / Twitter / inne apki z UI elementami przypominającymi ofertę).
+- **Prawdopodobna przyczyna:**
+  - `ParserRegistry` matchuje parser po `supportedPackages` ✅ — więc parser sam się nie odpala
+  - **ALE** OCR pipeline może być triggerowany szerzej (na każdy screenshot z aktywnej apki?) — jeśli accessibility event z `pl.onet.app` / `pl.wp.app` triggerują screenshot + OCR, to zwracane teksty mogą fałszywie matchować pattern oferty (cyfry + km + min)
+  - Inna hipoteza: keep-alive overlay z innej platformy (Uber/Wolt) nie chowa się gdy user przechodzi do innej apki
+- **Co sprawdzić:**
+  - Lista `supportedPackages` w `ParserRegistry` — czy każdy parser jest ścisły?
+  - Czy `OrderPilotAccessibilityService` filtruje package names przed odpaleniem screenshot/OCR?
+  - Logi z urządzenia Andrija (jeśli da się wziąć) — który package triggeruje overlay
+- **Priorytet:** **WYSOKI** — pierwszy real bug zgłoszony przez aktywnego Closed Testing testera. Dobra ammunition do AAB update v1.0.X (jednego z 3+ wymaganych przez Google).
+- **Tracking:** Pełny kontekst + cytat w `docs/closed-testing-evidence.md` sekcja 2 (Andrij).
+- **Status:** ✅ **NAPRAWIONE w v1.0.2** (2026-05-05). Multi-layer defense:
+  - **Layer 1** — strict foreground tracker (`lastForegroundPackage` z `TYPE_WINDOW_STATE_CHANGED`) + cross-check z `rootInActiveWindow`, wpięty jako guard w `processViaScreenshot`, `processViaAccessibilityTree` oraz przed `pipeline.process()` we wszystkich 3 call sites. Real popup overlay Ubera (nad inną apką) przepuszczany przez wzmocnioną `hasUberOverlayWithContent()`.
+  - **Layer 2** — `hasUberOverlayWithContent()` wymaga teraz markerów oferty (kwota+czas w odległości ≤120 znaków LUB konkretne frazy Ubera typu „Łącznie"/„Akceptuj"), nie samej obecności tekstu. Zamyka phantom-overlay edge case na MIUI.
+  - **Layer 3** — watch mode reset: gdy `TYPE_WINDOW_STATE_CHANGED` z packagem spoza `watchedPackages`, cancel `uberWatchJob`/`boltWatchJob` + zerowanie `lastUberEventTime`/`lastBoltEventTime`. Plus dodatkowy guard wewnątrz Uber watch loop (skip tick gdy foreground != Uber).
+  - **Layer 4** — positive markers w `UberOcrParser`/`BoltFoodOcrParser`/`WoltOcrParser`. Każdy popup parser wymaga teraz co najmniej 1 z ~10-15 fraz typowych dla popupu (multi-language: PL/EN/UA/RU). News portal nie zawiera „Łącznie"/„Odbiór za"/„Bolt"/„Akceptuj" — odrzucany niezależnie od foreground/timing.
+  - Pliki: `OrderPilotAccessibilityService.kt`, `OcrOfferParser.kt`, `UberOcrParser.kt`, `BoltFoodOcrParser.kt`, `WoltOcrParser.kt`.

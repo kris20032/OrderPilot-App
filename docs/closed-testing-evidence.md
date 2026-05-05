@@ -21,36 +21,39 @@
 
 ## 1. Pula testerów
 
+> **🚨 STATUS 2026-05-03:** Console pokazuje **12+ testers opted-in** — drugi krok requirement zaliczony. Day 0 = 2026-05-03. Day 14 ≈ 2026-05-17. PrimeTestLab paid pool czeka na Google review track changes (4-24h), potem 4-12h staged opt-in.
+
 ### Aktywnie testują (engagement potwierdzony)
 
 | # | Imię | Email/Kontakt | Platforma kuriera | Opt-in date | Notatki |
 |---|------|---------------|---------------------|---------------|---------|
 | 1 | Tata (Krzysztof) | marcamper@... | Uber Eats (Xiaomi) | ~2026-03-16 | Real kurier, używa od marca, baza historycznego feedbacku |
 | 2 | Andrij | alcotresher@... | Bolt Food + inne | 2026-04-?? | Real kurier UA, multi-platform, aktywny feedback (5h57m / 9 zleceń 04-29) |
-| 3 | Dominik | dominanb19@... | TBD | 2026-04-?? | Rodzina, zgłosił bug RU/UA + Samsung nav bar |
-| 4 | Lucky | luckydhami781@... | Real kurier (EN) | 2026-04-30 | Zainstalował + włączył (Accessibility ON), odpisał na DM 04-30, czeka feedback |
+| 3 | Dominik (brat) | dominanb19@... | TBD | 2026-04-?? | Brat. Rodzina, zgłosił bug RU/UA + Samsung nav bar. Plan dodania jego drugiego starego telefonu odrzucony (risk same-IP > value) |
+| 4 | Lucky | luckydhami781@... | Real kurier (EN) | 2026-04-30 | Zainstalował + włączył (Accessibility ON), czeka pierwsza sesja pracy |
 | 5 | Ivan Black | shawaivan4@... | Real kurier (EN) | 2026-04-?? | Self-aware ("So for now I am a Zombie haha, I will use the app"), czeka aż pójdzie do pracy |
 | 6 | Wujek Krzysiek | sklep@scrappasja.pl | non-courier (rodzina) | 2026-04-?? | Rodzina, gwarantowany engagement |
 | 7 | Dziadek | kazimierzdamecki@... | non-courier (rodzina) | 2026-04-?? | Rodzina, przypominać osobiście |
 | 8 | Grzegorz | cr7fc5@... | non-courier (znajomy) | 2026-04-?? | Znajomy, przypominać raz na pare dni |
+| 9 | Kuba | jakummroz2004@... | TBD | 2026-05-03 | **Confirmed installed 05-03**, awaiting first feedback |
+| 10 | Vasyl (znajomy taty) | TBD (telefon) | TBD | 2026-05-03 (?) | To jest „znajomy taty" o którym wcześniej mowa — dostałem numer przez tatę. Zadzwoniłem 05-03, wysłany link, prawdopodobnie pobrał (Console delay). Verify w 24h. **Możliwe że to #12 który odpalił clock.** |
 
-### POCZEKAJ — TBD engagement (deadline 2-3 dni)
+### POCZEKAJ — czekamy na opt-in / feedback
 
 | # | Imię | Email | Kontakt | Notatki |
 |---|------|-------|---------|---------|
-| 9 | Andrew | andrew.onischuk@... | SMS | Z pierwszej rekrutacji MC. Przestraszył się, obiecał włączać raz na pare dni |
-| 10 | Kuba | jakummroz2004@... | WhatsApp | Czeka na feedback czy udało się zainstalować |
-| 11 | Ivan UA | khomichivan@... | Telegram | Country issue (Polska podobno OK), kraje teraz Select all |
-| 12 | Artur (?) | g72308013@... | Telegram | Białoruś w Google Play, kraje teraz Select all |
-| 13 | Gonzalo (developer EN) | gonzalogarcia01914@... | email | Miał wysłać tel, deadline +24h |
+| 11 | Andrew | andrew.onischuk@... | SMS | Z pierwszej rekrutacji MC. Przestraszył się, obiecał włączać raz na pare dni. Deadline weryfikacji: 05-05 |
+| 12 | Ivan UA | khomichivan@... | Telegram | Podał najpierw zły email, poprawiony 05-03. Kraje teraz Select all. Czekamy na feedback czy zainstalował |
+| 13 | Artur (?) | g72308013@... | Telegram | Pingowany 05-03 rano (Białoruś dodana). Cisza 24-48h → ostatni ping albo wywal |
+| 14 | Gonzalo (developer EN) | gonzalogarcia01914@... | email | Final ping 05-03 rano. Brak odpowiedzi do 05-04 → wywalić |
 
-### Do dodania (pending)
+### Do dodania (pending) — safety net dla utrzymania 12+ continuously
 
 | # | Imię | Email | Kategoria | Status |
 |---|------|-------|-----------|--------|
-| 14 | Brat | TBD (jego Gmail z nowego telefonu) | rodzina | Add gdy clock gotów (mobile data, nie home WiFi) |
-| 15 | Znajomy taty | TBD (jutro przez tatę) | znajomy non-courier | Tata pyta jutro, dodać po potwierdzeniu |
-| 16-22 | Paid (PrimeTestLab) | 5-7 z dostarczonego pool 120 | paid | Po odpowiedzi managera (ticket 04-30) |
+| 11-15 | PrimeTestLab paid pool | 120 emaili w `primetestlab-pool` | paid | Czekamy na Google approval Closed track changes (4-24h), potem 4-12h staged opt-in (5-7 wejdzie initially per manager) |
+
+> **Note:** Plan „dodać brata na drugim starym telefonie" odrzucony — brat już jest na liście jako Dominik (dominanb19@...), a drugie konto z tego samego IP = ryzyko Google flag > value. „Znajomy taty" to ten sam człowiek co Vasyl (wiersz #10 powyżej) — nie liczyć podwójnie.
 
 ### Usunięci z listy / zrezygnowali
 
@@ -64,6 +67,35 @@
 ---
 
 ## 2. Feedback od testerów (z cytatami)
+
+### 🟢 Andrij (UA real kurier) — 2026-05-04 ⭐ KEY EVIDENCE
+
+**Kontekst:** Po pingu Krzysztofa na WhatsAppie 18:01 z pytaniem o feedback i bug z portalami informacyjnymi, Andrij odpowiedział o 18:03 i wysłał o 18:06 **5+ screenshotów z OrderPilot overlay podczas realnego dnia pracy** (z poprzedniego tygodnia, dzisiaj miał dzień wolny).
+
+**Screeny pokazują realne zlecenia z apek Uber/Bolt z OrderPilot overlay:**
+- 19,18 PLN / 14 min / 5 km · 3,75 km dystans (McDonald's Morena, Gdańsk)
+- 13,73 PLN / 23 min · 3,73 km dystans (Smażą parzą, Gdańsk)
+- 31,22 PLN / 44 min · 9,43 km dystans (MAX Premium Burgers, Kowale)
+- 15,49 PLN / 14 min · 4,18 km dystans (McDonald's Morski Park Handlowy)
+- 19,70 PLN, godzina 16:18
+
+**Cytat (PL):**
+> „Pokażę wam dzisiejszy dzień wolny na przykładzie z zeszłego tygodnia."
+
+**Why this is GOLD for Application Form:**
+- Real courier (UA, multi-platform Uber + Bolt Food)
+- Real OrderPilot overlay numbers visible podczas realnych zleceń
+- Lokalizacje z prawdziwych restauracji w Gdańsku
+- Multiple orders w jednym dniu pracy = consistent usage pattern
+- Conversation timing = potwierdza engagement on demand (Andrij odpisał < 5 min od pingu)
+
+**Pliki screenów:** `test-data/closed-testing/screenshots/2026-05-04_andrij_real-work-orderpilot-{1..5}.png` _(do dodania — pobrać z WhatsApp)_
+
+**Plan użycia w Application Form:**
+- Sekcja „How are testers engaging" — cytat Andrija + 1-2 screeny
+- Sekcja „What feedback did you receive" — bug news portals (już mamy z 04-29) + ten 05-04 update
+
+---
 
 ### 🟢 Andrij (UA real kurier) — 2026-04-29
 
@@ -153,9 +185,9 @@
 | Wersja | Data publikacji | Główne zmiany | Bazujące na feedback od |
 |--------|-----------------|---------------|-------------------------|
 | 1.0.1 | _(initial Closed Testing release)_ | First Closed Testing build | — |
-| _(1.0.2)_ | _(planowane)_ | _(np. fix overlay news portals — Andrij)_ | Andrij |
-| _(1.0.3)_ | _(planowane)_ | _(kolejne fixy z `future_polish_fixes.md`)_ | _(różni)_ |
-| _(1.0.4)_ | _(planowane)_ | _(final polish before submit)_ | _(różni)_ |
+| 1.0.2 | 2026-05-05 (Day 2) — kod gotowy, czeka na build+upload | **Fixed false-positive overlay on news portals** — multi-layer defense (foreground tracker, watch mode reset on app switch, hardened Uber overlay phantom detection on MIUI, positive offer markers in Uber/Bolt/Wolt parsers). | Andrij (UA real courier, 2026-04-29) |
+| _(1.0.3)_ | _(planowane Day 7-8 ≈ 2026-05-10/11)_ | _(language fallback RU/UA + Samsung navbar overlap)_ | Dominik |
+| _(1.0.4)_ | _(planowane Day 11-12 ≈ 2026-05-14/15)_ | _(final polish before submit)_ | _(różni)_ |
 
 **Cel: minimum 3 updates w trakcie 14-dniowego okna Closed Testing**, każdy z konkretnymi release notes typu „Fixed [bug] reported by [tester]".
 
@@ -182,10 +214,10 @@
 - Dominik (2026-04-??): Samsung nav bar overlap on Settings save button → fix planned
 
 ### Q: What did you fix based on feedback?
-**Mapping (do wypełnienia po updates):**
-- v1.0.2 — Fixed [X] reported by [tester] on [date]
-- v1.0.3 — Fixed [Y] reported by [tester] on [date]
-- v1.0.4 — Fixed [Z] reported by [tester] on [date]
+**Mapping:**
+- **v1.0.2** (2026-05-05) — Fixed false-positive overlay appearing on news portals, reported by Andrij (UA real courier) on 2026-04-29. Implemented multi-layer defense: strict foreground tracker (cross-checked against system accessibility state), watch mode reset on app switch, hardened detection of legitimate Uber overlay popups vs MIUI phantom overlays, and positive offer-marker validation in Uber/Bolt/Wolt parsers (parser now requires at least one platform-specific offer phrase like "Łącznie"/"Odbiór za"/"Akceptuj" before showing overlay).
+- v1.0.3 — _(planowane Day 7-8)_ Fixed Y reported by Z on date
+- v1.0.4 — _(planowane Day 11-12)_ Fixed W reported by Z on date
 
 ---
 
@@ -208,22 +240,136 @@ Gdy Krzysztof wyśle screen / feedback od kolejnego testera:
 
 ## 7. Otwarte zadania / przypomnienia
 
-### Pre-clock (do zrobienia przed startem 14-day okna ~1-2 maja)
-- [ ] Dodać Andrija screen do `test-data/closed-testing/screenshots/2026-04-29_andrij_news-portals-bug.png`
-- [ ] Dodać bug Andrija do `future_polish_fixes.md` (false-positive na portalach informacyjnych)
-- [ ] Czekać na odpowiedź PrimeTestLab managera (ticket 04-30)
-- [ ] Tata pyta znajomego o tester (jutro 05-01)
-- [ ] Po managerze: bundle add — paid (5-7 z 120 pool) + brat + znajomy taty + odpowiedzi POCZEKAJ
+---
 
-### W trakcie 14-day okna
-- [ ] Codzienny snapshot Play Console Statistics (screen co kilka dni)
-- [ ] WA grupa daily ping co 2-3 dni (kto reaguje = engaged)
-- [ ] **Day 2-3:** Publish v1.0.2 — fix Andrij news portals false-positive
-- [ ] **Day 7-8:** Publish v1.0.3 — fix RU/UA UI lang + Samsung navbar (Dominik)
-- [ ] **Day 11-12:** Publish v1.0.4 — final polish
+### 🚨 STATUS DNIA — 2026-05-03 (Day 0) — CLOCK URUCHOMIONY
 
-### Milestones
-- [ ] **Day 7:** review tej tabeli, sprawdź czy materiał na Production form rośnie
-- [ ] **Day 14:** finalizacja materiału na Application Form (Section 5), submit Production
-- [ ] **Po submit:** review 3-7 dni, monitor email od Google
-- [ ] **Po Production approval:** merge `play-store-prep` → `feature/production-app` → `main`
+**Console potwierdza 12+ testers opted-in ✅** — drugi krok requirement zaliczony, 14-day clock wystartował.
+
+| Milestone | Data |
+|-----------|------|
+| **Day 0** | 2026-05-03 |
+| **Day 14** | 2026-05-17 (najwcześniej Apply for Production) |
+| **Submit Production target** | 2026-05-17 |
+| **Live target** (po Google review 3-7 dni) | ~2026-05-20 do 2026-05-24 |
+
+**Co zrobione 05-03:**
+- ✅ Pingi: Ivan UA (poprawiony email), Artur, Kuba, Gonzalo, Vasyl (cold call)
+- ✅ Kuba potwierdził install (05-03)
+- ✅ Vasyl wysłany link, prawdopodobnie pobrał (Console delay, verify w 24h)
+- ✅ Ticket #539 — manager Kefayatullah potwierdził: czeka na Google approval Closed track changes (4-24h), potem 4-12h staged opt-in z puli 120
+
+---
+
+#### 🔴 Krytyczne najbliższe 24h (do 05-04 wieczór)
+
+- [ ] **Save Day 0 screen** Console Dashboard (12 testers ✅) → `test-data/closed-testing/screenshots/2026-05-03_day0_dashboard-12-testers-checked.png`
+- [ ] **Verify Vasyl install** (= „znajomy taty") — sprawdzić czy Console pokazuje +1 (slight delay teraz)
+- [ ] **Verify Ivan UA install** (po poprawce maila)
+- [ ] **Pre-launch report check** — Console → Pre-launch report. Crashe? ANRs? Naprawić ASAP, nie czekać do Day 13
+- [ ] **PrimeTestLab pool** — gdy Google approval przyjdzie, fala opt-inów. Monitor.
+
+> **Brat (Dominik) już jest na liście** od dawna (dominanb19@...) — plan dodania jego drugiego starego telefonu odrzucony (risk same-IP > value). „Znajomy taty" = Vasyl, ten sam człowiek.
+
+#### 🟡 Przez najbliższe 14 dni (rozłożone)
+
+- [ ] Daily snapshot Console Statistics co 2 dni (DAU, Active devices, Installed audience)
+- [ ] Pingi do aktywnych kurierów (co 2-3 dni): Andrij, Tata, Dominik, Lucky, Ivan Black, Kuba (nowy)
+- [ ] WA group ping #1 (Day 3 ≈ 2026-05-06): „screen + 1 zdanie"
+- [ ] WA group ping #2 (Day 7 ≈ 2026-05-10)
+- [ ] WA group ping #3 (Day 11 ≈ 2026-05-14)
+- [ ] Kod v1.0.2 (Andrij news portals fix) — publish Day 2-3 (≈ 2026-05-05/06)
+- [ ] Kod v1.0.3 (Dominik RU/UA + Samsung navbar) — publish Day 7-8 (≈ 2026-05-10/11)
+- [ ] Kod v1.0.4 (final polish) — publish Day 11-12 (≈ 2026-05-14/15)
+
+#### 🟢 Nie ruszać (manager sam wróci)
+
+- ❌ Nie pingować PrimeTestLab managera — sam da znać gdy fala startuje
+- ❌ Nie ruszać 120 emaili z puli osobno — staged opt-in, interferencja = problem
+- ❌ Nie wgrywać AAB updates szybciej niż Day 2 — Google chce widzieć rozłożenie w czasie
+
+---
+
+### 📊 MATERIAL DO ZEBRANIA przez 14 dni (Application Form ammunition)
+
+**Obecne pokrycie: ~30%.** Większość pól w sekcji 5 to placeholdery. Bez tego materiału submit Production = wysokie ryzyko rejection.
+
+#### Bezwzględnie zebrać:
+
+- [ ] **Screeny Play Console Statistics** — daily lub co 2 dni → `test-data/closed-testing/screenshots/YYYY-MM-DD_play-console-statistics.png`
+  - Active devices, Installed audience, DAU per country
+  - Pokaż wzrost przez 14 dni
+
+- [ ] **Cytaty od kurierów którzy jeszcze nie odpisali**: Lucky, Ivan Black, Andrew, Kuba, Ivan UA
+  - Mamy tylko Andrija + Dominika — za mało dla Google
+  - Każdy cytat = data + imię + dosłowne słowa + kontekst
+
+- [ ] **Screeny WhatsApp grupy** — pokazują że komunikacja jest żywa
+  - Co 2-3 dni snapshot konwersacji
+  - Pokazuje że pingi są, reakcje są
+
+- [ ] **Pre-launch report wyniki** z Console
+  - Free dowód cross-device (~20 urządzeń automatycznie)
+  - Screeny + lista przetestowanych modeli
+
+- [ ] **Bug repro screeny/wideo**
+  - Andrij — news portals false-positive (najmocniej: video jak Andrij scrolluje news i belka się pojawia)
+  - Dominik — RU/UA UI nie tłumaczy + Samsung navbar overlap
+
+- [ ] **3× AAB release notes** z mappingiem „Fixed X reported by Y"
+  - v1.0.2 (Day 2-3): Andrij news portals fix
+  - v1.0.3 (Day 7-8): Dominik RU/UA + Samsung navbar
+  - v1.0.4 (Day 11-12): final polish
+
+#### Mocne uderzenia (jeśli się da zdobyć):
+
+- [ ] **Andrij screencast/wideo** używania apki podczas zlecenia
+  - Najmocniejszy proof: real courier + real work + real OrderPilot belka
+  - Zapytać go — może nagrać 30 sek ekranu
+
+- [ ] **Tata — long-term use proof**
+  - Screen z Play Console „installed since March 2026"
+  - Historyczny feedback już mamy (Wolt+Uber collision, Glovo, etc.)
+
+- [ ] **Country diversity screenshot**
+  - Console pokazuje per-country installs
+  - Cel: PL + UA + EN minimum — pokazuje że nie tylko lokalna apka
+
+#### Strategia praktyczna:
+
+**3 pingi w WA grupie podczas 14 dni** — Day 3, Day 7, Day 11.
+Każdy ping = prośba o:
+1. Screen z apki (cokolwiek — działa, nie działa, popup)
+2. 1 zdanie feedbacku (co dobrze / co źle)
+
+Tester poświęca 30 sek, ty masz cytaty + screen. Wzór wiadomości:
+
+> Cześć! Jak idzie z OrderPilotem? Mógłbyś wrzucić jeden screen + napisać jedno zdanie co działa albo co nie? Potrzebne do oficjalnego submit do Google. Dzięki!
+
+---
+
+### 📅 Milestones podczas 14-day okna (Day 0 = 2026-05-03)
+
+| Day | Data | Co | Notatki |
+|-----|------|-----|---------|
+| **Day 0** | 2026-05-03 | Clock start — 12+ opted-in confirmed | ✅ DONE |
+| **Day 2-3** | 2026-05-05/06 | Publish v1.0.2 (Andrij news portals) | Kod pisany 05-03/04 |
+| **Day 3** | 2026-05-06 | WA group ping #1 | Prośba o screen + 1 zdanie |
+| **Day 7** | 2026-05-10 | Review materiału — sekcja 5 rośnie? | Jeśli nie → eskalacja: video Andrija, bonus dla testerów |
+| **Day 7-8** | 2026-05-10/11 | Publish v1.0.3 (Dominik RU/UA + navbar) | Drugi update |
+| **Day 7** | 2026-05-10 | WA group ping #2 | j.w. |
+| **Day 11** | 2026-05-14 | WA group ping #3 — final | Ostatnia szansa na cytaty |
+| **Day 11-12** | 2026-05-14/15 | Publish v1.0.4 (final polish) | Trzeci update — wymóg Google |
+| **Day 14** | 2026-05-17 | Finalizacja Application Form (sekcja 5) | Wklejenie cytatów, screenów, mapowania |
+| **Day 14** | 2026-05-17 | **Submit Production** | Po wypełnieniu formularza |
+| **Po submit** | 05-17 → 05-24 | Google review: 3-7 dni | Monitor email |
+| **Po approval** | ~2026-05-20-24 | Merge `play-store-prep` → `main`, live | 🚀 |
+
+---
+
+### ⚠️ Anti-patterns — czego NIE robić
+
+- ❌ **Nie ruszać puli PrimeTestLab** osobnymi pingami — mogą zinterpretować jako interferencję. Ich opt-in jest staged 4-12h, czekać.
+- ❌ **Nie wgrywać AAB updates szybciej niż Day 2** — Google chce widzieć rozłożenie w czasie (3+ updates przez 14 dni, nie wszystkie naraz).
+- ❌ **Nie pisać "I've uploaded" gdy jeszcze nie wgrałeś** — w komunikacji z PrimeTestLab manager weryfikuje, mismatch = ticket eskalacja.
+- ❌ **Nie zostawiać sekcji 5 (Application Form) na Day 14** — wypełniaj inkrementalnie po każdym feedback. Day 14 = tylko polish + submit.
