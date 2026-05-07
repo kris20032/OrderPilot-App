@@ -276,7 +276,7 @@
 **Short answer (paste-ready do Application Form):**
 > Throughout the Closed Testing window we shipped 3 AAB updates, each addressing specific tester feedback:
 > - **v1.0.2** (May 6, 2026) — Fixed false-positive overlay appearing on news portals (e.g., Onet, WP), reported by Andrij (UA real courier) on April 29. Implemented multi-layer defense covering app foreground tracking, watch-mode reset on app switching, hardened MIUI phantom-overlay detection, and platform-specific positive marker validation in our parsers. The bar now only appears in courier app contexts.
-> - **v1.0.3** (planned May 10-11) — Fix language fallback for Russian/Ukrainian UI (selected language was resetting to Polish after save) + Samsung navigation bar overlapping the "Save settings" button on Settings screen. Reported by Dominik (Samsung) on April 28 and re-reported May 7 with screenshots after testing v1.0.2.
+> - **v1.0.3** (code shipped May 7, AAB upload planned May 8-9) — Fix language fallback for Russian/Ukrainian UI (selected language was resetting to Polish after save) + Samsung navigation bar overlapping the "Save settings" button on Settings screen. Reported by Dominik (Samsung) on April 28 and re-reported May 7 with screenshots after testing v1.0.2 (which proved the bugs persisted). Engineering response: migrated to AppCompatDelegate.setApplicationLocales (official Android 13+ per-app locale API) with one-time migration sync from existing SharedPrefs preferences; added WindowInsetsCompat handling in three Activity classes for edge-to-edge enforcement on targetSdk 35.
 > - **v1.0.4** (planned May 14-15) — Final polish based on Days 7-14 tester feedback.
 
 **Long version (jeśli Google poprosi o engineering detail):**
@@ -287,6 +287,12 @@
 > 4. Platform-specific positive markers — each popup parser (Uber/Bolt/Wolt) now requires at least one of 10–15 multilingual phrases (PL/EN/UK/RU) typical of an offer popup (e.g., "Łącznie", "Odbiór za", "Akceptuj", "Bolt"). News articles never contain these — additional defense independent of timing/foreground state.
 >
 > Verified by Andrij in his real workday (he had previously confirmed core functionality with "Tak przy zleceniach wszystko super").
+>
+> v1.0.3 addresses two Samsung-specific issues reported by tester Dominik:
+> 1. Language persistence migration — Replaced our custom `LocaleHelper.wrap` (which used `createConfigurationContext` with `Locale.setDefault`) with `AppCompatDelegate.setApplicationLocales` and a `locales_config.xml` declaration. The legacy approach worked for languages already supported in the device's system locale list (PL, EN on a Polish Samsung) but silently fell back to default when the user selected a non-system locale (UK, RU), so the SharedPrefs preference was saved correctly but the UI reverted to Polish on the next Settings open. The new API is the official Android 13+ per-app locale standard and works regardless of system locale support. We also added a one-time migration sync in `Application.onCreate` to seed `AppCompatDelegate` from existing SharedPrefs preferences — so users who already chose UK/RU in v1.0.2 get their language correctly restored on first launch of v1.0.3.
+> 2. Edge-to-edge insets — `targetSdk = 35` enforces edge-to-edge layout on Android 15+. Without `WindowInsetsCompat` handling, system bars overlap UI elements; on Dominik's Samsung this manifested as the 3-button navbar covering ~30% of the "Save settings" button. We added `ViewCompat.setOnApplyWindowInsetsListener` in `SettingsActivity`, `SetupActivity`, and `DisclosureActivity` to apply `systemBars()` insets as padding on the root layout. Buttons now stay above any 3-button or gesture navbar.
+>
+> Will verify with Dominik after his Samsung auto-updates to v1.0.3.
 
 ---
 
@@ -343,6 +349,77 @@
 
 ---
 
+### 🎯 Fix Card v1.0.3 (paste-ready do Production Application Form)
+
+**Use case:** drugi case study tester-driven fix — pokazuje że iteracja jest stała (nie tylko Andrij), różne urządzenia (Samsung), wielokrotne reportowanie tego samego buga przez tego samego testera (proof że słuchamy).
+
+```
+┌─ TESTER FEEDBACK → PRODUCTION FIX (v1.0.3) ─────────────────────────────┐
+│                                                                          │
+│ TESTER:    Dominik — Closed Testing tester, Samsung phone               │
+│ DATES:     April 28, 2026 (initial report)                              │
+│            May 7, 2026 (re-report with screenshots after testing v1.0.2)│
+│ CHANNEL:   WhatsApp 1:1                                                 │
+│                                                                          │
+│ FEEDBACK QUOTES (verbatim, Polish):                                     │
+│   "język angielski działa, język polski również ale jezeyk             │
+│    rosyjski/ukraiński nie działa"                                       │
+│   "natomiast jak wybieram ukraiński i zapisuje to zmienia się          │
+│    na język polski"                                                     │
+│   "jest to denerwujące przy codziennym użytkowaniu"                     │
+│   "jest tylko część przycisku dostępna do kliknięcia"                   │
+│                                                                          │
+│ TRANSLATIONS:                                                            │
+│   "English works, Polish also works, but Russian/Ukrainian don't work" │
+│   "I select Ukrainian and save, but it changes to Polish"               │
+│   "It's annoying in daily use"                                          │
+│   "Only part of the button is available to click"                       │
+│                                                                          │
+│ TWO INDEPENDENT BUGS reported in one feedback session:                  │
+│   1. Language fallback for UA/RU resets to PL after Save                │
+│   2. „Save settings" button partially obscured by Samsung navbar        │
+│                                                                          │
+│ EVIDENCE: 5+ screenshots from Dominik's Samsung device:                 │
+│   • Settings with Russian radio selected, UI still in Polish (control)  │
+│   • Settings in English (works — confirmation)                          │
+│   • Settings after attempting to save Ukrainian (Polish becomes         │
+│     selected again)                                                     │
+│   • Settings showing button overlap with Samsung 3-button navbar        │
+│                                                                          │
+│ ENGINEERING RESPONSE:                                                    │
+│ Two independent fixes in one release:                                   │
+│   1. Migrated from custom LocaleHelper.wrap (createConfigurationContext)│
+│      to AppCompatDelegate.setApplicationLocales — official Android 13+ │
+│      API. Added locales_config.xml + android:localeConfig to manifest. │
+│      One-time migration sync in Application.onCreate ensures users     │
+│      with v1.0.2 preferences (e.g. AppLanguage.UK in SharedPrefs but   │
+│      empty AppCompatDelegate state) get their language restored on     │
+│      first launch of v1.0.3.                                           │
+│   2. Added WindowInsetsCompat handling in SettingsActivity,            │
+│      SetupActivity, DisclosureActivity to respect systemBars insets    │
+│      (edge-to-edge enforcement on targetSdk 35 / Android 15+).         │
+│      Save / Continue buttons now stay above any 3-button or gesture    │
+│      navbar.                                                            │
+│                                                                          │
+│ TIMELINE:                                                                │
+│   Apr 28 — bugs first reported by Dominik                               │
+│   May 7  — bugs re-reported with screenshots after testing v1.0.2       │
+│            (verifies bugs persisted into v1.0.2)                        │
+│   May 7  — code written + tested locally on family device + committed   │
+│            (commit 1b8b3cd, 13 files, +142/-99 lines, push to GitHub)  │
+│   May 8/9 (Day 6/7) — AAB build + upload + sent for review (planned)   │
+│   May 8/9 — auto-publish after Google approval (planned)                │
+│                                                                          │
+│ VERIFICATION:                                                            │
+│ Will ping Dominik after his Samsung auto-updates to v1.0.3 to confirm:  │
+│   • UA/RU language selections now persist after save                    │
+│   • Save button is fully visible above the navbar                       │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## 6. Konwencja zapisywania nowych znalezisk
 
 Gdy Krzysztof wyśle screen / feedback od kolejnego testera:
@@ -364,7 +441,7 @@ Gdy Krzysztof wyśle screen / feedback od kolejnego testera:
 
 ---
 
-### 🚨 STATUS DNIA — 2026-05-06 (Day 3) — v1.0.2 IN REVIEW
+### 🚨 STATUS DNIA — 2026-05-07 (Day 5) — v1.0.3 KOD GOTOWY, AAB UPLOAD PENDING
 
 **Console potwierdza 12+ testers opted-in ✅** — drugi krok requirement zaliczony, 14-day clock running.
 
@@ -386,17 +463,38 @@ Gdy Krzysztof wyśle screen / feedback od kolejnego testera:
 - ✅ Andrij KEY EVIDENCE collected — 5 screenshots z realnego dnia pracy w Gdańsku z OrderPilot belką
 - ✅ v1.0.2 multi-layer fix code napisany (commit 15c131d, 9 plików, +465/-46 linii)
 
-**Co zrobione 05-06 (Day 3, dzisiaj):**
+**Co zrobione 05-06 (Day 3):**
 - ✅ AAB build w Android Studio (signed, v1.0.2 = versionCode 3)
 - ✅ Upload do Play Console Closed Testing track
-- ✅ Sent for review (managed publishing off → auto-publish po approve)
-- ⏳ Czekamy na Google approve (~1-3h)
-- 🟡 WA group ping #1 — TODO dziś
-- 🟡 Console Statistics snapshot — TODO dziś (`2026-05-06_play-console-statistics.png`)
+- ✅ Sent for review → **Released May 6 12:14 AM**
+- ✅ Auto-published po Google approve
+
+**Co zrobione 05-07 (Day 5, dzisiaj):**
+- ✅ Console snapshot: **50 active testers** (Day 5 ramp-up vs Day 0 12 opted-in) — paid pool wszedł
+- ✅ Dominik feedback #2 zebrany (WhatsApp 15:14–15:18) — UA/RU language reset + Samsung navbar
+- ✅ Pełna dokumentacja Dominik feedback zapisana — `test-data/closed-testing/screenshots/dominik feedback/feedback_2026-05-07.md` + `closed-testing-evidence.md` sekcja Dominika
+- ✅ v1.0.3 kod napisany i przetestowany na telefonie brata — działa
+  - Bug 1: migracja LocaleHelper.wrap → AppCompatDelegate.setApplicationLocales (Android 13+ official API) + locales_config.xml + one-time migration sync
+  - Bug 2: WindowInsetsCompat handling w Settings/Setup/Disclosure (edge-to-edge na targetSdk 35)
+  - UX: cleanup nazwy radio buttons („Polski (zł)" → „Polski", „English (PLN)" → „English")
+- ✅ Commit `1b8b3cd` na `play-store-prep`, push do GitHub
+- ⏸️ **AAB upload świadomie odłożony o 1-2 dni** (decyzja 05-07) — żeby zachować 3-dniowy odstęp przed v1.0.4 i dać czas testerom na ewentualny dodatkowy feedback do v1.0.2
 
 ---
 
-#### 🔴 Krytyczne najbliższe 24h (do 05-07 wieczór)
+#### 🔴 Krytyczne najbliższe 24-48h (do 05-09 wieczór = Day 7)
+
+**🚨 v1.0.3 AAB upload pending — Day 6 (05-08) lub Day 7 (05-09):**
+- [ ] **Sprawdzić** czy ktoś z 50 active testerów zgłosił coś nowego w międzyczasie (jeśli tak — szybki dodatek do v1.0.3 przed buildem)
+- [ ] **Build signed AAB** w Android Studio (Build → Generate Signed App Bundle/APK → release keystore z `keystore.properties`)
+- [ ] **Upload do Play Console** Closed Testing track
+- [ ] **Release notes EN:** "Fixed Russian/Ukrainian language not persisting after save. Fixed Save Settings button being partially hidden behind Samsung navigation bar. Reported by tester Dominik."
+- [ ] **Release notes PL:** „Naprawiono problem z zapisywaniem języka rosyjskiego/ukraińskiego — wybór nie utrzymywał się po zapisie. Naprawiono częściowe zasłanianie przycisku Zapisz ustawienia przez systemowy pasek nawigacji Samsung."
+- [ ] **Sent for review** (managed publishing off → auto-publish po Google approve, ~1-3h)
+- [ ] **Ping Dominika** po auto-update — „Wgrałem update z fixami które zgłaszałeś (UA/RU + nav bar). Apka sama się zaktualizuje. Daj znać czy teraz działa."
+- [ ] **Ping Andrija** — „Czy belka nadal pojawia się gdzieś poza apkami kurierskimi po update v1.0.2?" (verify v1.0.2 fix)
+
+#### 🔴 Wcześniejsze TODO przeniesione (do nadrobienia jeśli niezrobione)
 
 - [ ] **WA group ping #1 (Day 3)** — wzór: „Cześć! Jak idzie z OrderPilotem? Mógłbyś wrzucić jeden screen + napisać jedno zdanie co działa albo co nie? Potrzebne do oficjalnego submit do Google. Dzięki!"
 - [ ] **Andrij ping** (po Google approve) — „Wgrałem update z fixem belki na portalach. Apka sama się zaktualizuje. Daj znać czy belka nadal pojawia się gdzieś poza apkami kurierskimi."
@@ -416,8 +514,8 @@ Gdy Krzysztof wyśle screen / feedback od kolejnego testera:
 - [ ] WA group ping #1 (Day 3 ≈ 2026-05-06): „screen + 1 zdanie"
 - [ ] WA group ping #2 (Day 7 ≈ 2026-05-10)
 - [ ] WA group ping #3 (Day 11 ≈ 2026-05-14)
-- [x] ✅ **Kod v1.0.2 (Andrij news portals fix) — published Day 3 (2026-05-06)**: AAB sent for review, czeka na auto-publish
-- [ ] Kod v1.0.3 (Dominik RU/UA + Samsung navbar) — publish Day 7-8 (≈ 2026-05-10/11)
+- [x] ✅ **Kod v1.0.2 (Andrij news portals fix) — Released 2026-05-06 (Day 3)**: commit `15c131d`
+- [x] ✅ **Kod v1.0.3 (Dominik UA/RU + Samsung navbar) — napisany + przetestowany + spushowany 2026-05-07 (Day 5)**: commit `1b8b3cd`. AAB upload pending Day 6/7 (05-08 lub 05-09)
 - [ ] Kod v1.0.4 (final polish) — publish Day 11-12 (≈ 2026-05-14/15)
 
 #### 🟢 Nie ruszać (manager sam wróci)
@@ -491,11 +589,11 @@ Tester poświęca 30 sek, ty masz cytaty + screen. Wzór wiadomości:
 | Day | Data | Co | Notatki |
 |-----|------|-----|---------|
 | **Day 0** | 2026-05-03 | Clock start — 12+ opted-in confirmed | ✅ DONE |
-| **Day 2-3** | 2026-05-05/06 | Publish v1.0.2 (Andrij news portals) | ✅ DONE (uploaded 05-06, in review) |
-| **Day 3** | 2026-05-06 | WA group ping #1 | 🟡 TODO dziś |
+| **Day 2-3** | 2026-05-05/06 | Publish v1.0.2 (Andrij news portals) | ✅ DONE (Released 05-06 12:14 AM, commit `15c131d`) |
+| **Day 5** | 2026-05-07 | Dominik feedback #2 + v1.0.3 kod + push | ✅ DONE (commit `1b8b3cd`) |
+| **Day 6/7** | 2026-05-08/09 | **🚨 Upload v1.0.3 AAB do Play Console** | **PENDING** — kod gotowy, czeka na build + upload |
 | **Day 7** | 2026-05-10 | Review materiału — sekcja 5 rośnie? | Jeśli nie → eskalacja: video Andrija, bonus dla testerów |
-| **Day 7-8** | 2026-05-10/11 | Publish v1.0.3 (Dominik RU/UA + navbar) | Drugi update |
-| **Day 7** | 2026-05-10 | WA group ping #2 | j.w. |
+| **Day 7** | 2026-05-10 | WA group ping #2 | TODO |
 | **Day 11** | 2026-05-14 | WA group ping #3 — final | Ostatnia szansa na cytaty |
 | **Day 11-12** | 2026-05-14/15 | Publish v1.0.4 (final polish) | Trzeci update — wymóg Google |
 | **Day 14** | 2026-05-17 | Finalizacja Application Form (sekcja 5) | Wklejenie cytatów, screenów, mapowania |
