@@ -1,12 +1,15 @@
 package com.orderpilot.app.ui
 
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.orderpilot.app.R
@@ -21,15 +24,6 @@ import com.orderpilot.app.settings.PlatformSettings
 import com.orderpilot.app.settings.ThresholdConfig
 
 class SettingsActivity : AppCompatActivity() {
-
-    override fun attachBaseContext(newBase: Context) {
-        val lang = try {
-            ServiceLocator.settingsRepository.load().language
-        } catch (_: Exception) {
-            AppLanguage.PL
-        }
-        super.attachBaseContext(LocaleHelper.wrap(newBase, lang))
-    }
 
     private lateinit var binding: ActivitySettingsBinding
 
@@ -53,6 +47,8 @@ class SettingsActivity : AppCompatActivity() {
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        applySystemBarsInsets()
+
         binding.toolbar.setNavigationOnClickListener { finish() }
 
         setupTabs()
@@ -60,6 +56,20 @@ class SettingsActivity : AppCompatActivity() {
         setupSliders()
         binding.btnSave.setOnClickListener { saveSettings() }
         binding.tvPpLink.setOnClickListener { openPrivacyPolicy() }
+    }
+
+    /**
+     * Edge-to-edge handling (targetSdk 35 / Android 15+ enforced). Bez tego Samsung 3-button
+     * navbar zasłania dolny przycisk „Zapisz ustawienia" (zgłoszone przez Dominika 2026-05-07).
+     * Padding root LinearLayoutu = systemBars insets, żeby toolbar nie szedł pod statusbar
+     * a btnSave nie chował się pod navbar.
+     */
+    private fun applySystemBarsInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            insets
+        }
     }
 
     private fun openPrivacyPolicy() {
@@ -280,13 +290,15 @@ class SettingsActivity : AppCompatActivity() {
         val languageChanged = current.language != language
         ServiceLocator.settingsRepository.save(updated)
         if (languageChanged) {
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-            startActivity(intent)
-            finish()
-        } else {
-            finish()
+            val tag = when (language) {
+                AppLanguage.PL -> "pl"
+                AppLanguage.UK -> "uk"
+                AppLanguage.EN -> "en"
+                AppLanguage.RU -> "ru"
+            }
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
         }
+        finish()
     }
 
     private fun formatThreshold(value: Double): String {

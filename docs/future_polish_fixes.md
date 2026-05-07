@@ -209,22 +209,26 @@
 
 ---
 
-### 28. Język aplikacji — rosyjski/ukraiński nie zmienia UI (zgłoszone 2026-04-28 przez Dominika)
+### 28. Język aplikacji — rosyjski/ukraiński nie zmienia UI (zgłoszone 2026-04-28, **re-reported 2026-05-07** przez Dominika)
 - **Problem:** Po zmianie języka w ustawieniach aplikacji na rosyjski lub ukraiński UI aplikacji **nie zmienia języka** — pozostaje w domyślnym (PL/EN).
+- **🆕 2026-05-07 update (po testach v1.0.2):** Dominik dostarczył screeny + cytaty: „klikam na język angielski, zapisuje i działa" / „natomiast jak wybieram ukraiński i zapisuje to zmienia się na język polski". Czyli wybór UA/RU **resetuje do PL po Save** (nie tylko UI nie tłumaczy się — sam zapis preferencji nie utrzymuje się).
 - **Niesprawdzone:** Czy belka (overlay) zmienia język. Możliwe że strings dla overlay są poprawnie tłumaczone, a problem dotyczy tylko UI ustawień/głównego ekranu.
 - **Możliwe przyczyny do sprawdzenia:**
   - `LocaleHelper` (ui/LocaleHelper.kt) — czy wspiera RU/UK locales tak samo jak PL/EN
+  - `SharedPrefsSettingsRepository` — czy `AppLanguage.UK` / `AppLanguage.RU` są poprawnie persistowane (może mapowanie enum→string fallbackuje do PL?)
   - Brak resource folderów `values-ru/` i `values-uk/` (lub niepełne tłumaczenia → fallback do default)
-  - `AppLanguage` enum w domain — czy ma RU/UK warianty
+  - `AppLanguage` enum w domain — czy ma RU/UK warianty (✅ kod ma `AppLanguage.UK` i `AppLanguage.RU`)
   - `attachBaseContext` w MainActivity / SettingsActivity — czy LocaleHelper.wrap jest aplikowany przy wszystkich activity
-- **Test:** zmienić na RU/UK → zrestartować apkę → sprawdzić czy strings z `values-ru/strings.xml` są używane.
-- **Priorytet:** Niski (apka działa funkcjonalnie po angielsku/polsku, większość kurierów-imigrantów rozumie EN). Naprawić po Production launch jeśli dużo testerów-imigrantów.
-- **Status:** Do zrobienia — nie blokuje Closed Testing ani Production.
+- **Test:** zmienić na RU/UK → kliknąć Save → reopen Settings → sprawdzić które radio jest zaznaczone (powinno być RU/UK, według Dominika wraca PL).
+- **Priorytet:** **Podniesiony do Średniego** — Dominik to drugi tester-driven fix po Andriju → mocny case study do Production Application Form. Naprawić w v1.0.3.
+- **Status:** Planowany fix w v1.0.3 (Day 7-8 ≈ 2026-05-10/11).
+- **Powiązane:** `test-data/closed-testing/screenshots/dominik feedback/feedback_2026-05-07.md` + `docs/closed-testing-evidence.md` sekcja Dominika.
 
 ---
 
-### 29. Przycisk „Zapisz ustawienia" zakryty przez Samsung navigation bar (zgłoszone 2026-04-28 przez Dominika)
+### 29. Przycisk „Zapisz ustawienia" zakryty przez Samsung navigation bar (zgłoszone 2026-04-28, **re-reported 2026-05-07** przez Dominika)
 - **Problem:** Na telefonie Samsung Dominika dolny przycisk „Zapisz ustawienia" (i prawdopodobnie inne dolne przyciski w setup wizard typu Continue) jest **częściowo zakryty** przez systemowy pasek nawigacji Samsung (gesture/3-button bar).
+- **🆕 2026-05-07 update (po testach v1.0.2):** Dominik podał cytat: „jest to denerwujące przy codziennym użytkowaniu" / „jest tylko część przycisku dostępna do kliknięcia" + screen pokazujący overlap. Bug jest stały, nie jednorazowy.
 - **Skutek:** User nie widzi że przycisk istnieje albo nie może go kliknąć (touch trafia w nav bar zamiast w przycisk).
 - **Możliwe przyczyny:**
   - Brak `android:fitsSystemWindows="true"` lub `WindowInsets` handling w layoucie ustawień
@@ -235,8 +239,9 @@
   - Albo `android:fitsSystemWindows="true"` na root layoutu jeśli to wystarczy
   - Sprawdzić target Sdk — jeśli 35+, edge-to-edge jest obowiązkowy
 - **Priorytet:** Średni — to jest realny UX bloker dla testerów na Samsungu. Trzeba naprawić zanim Production.
-- **Status:** Do zrobienia — może blokować onboarding na Samsungach.
+- **Status:** Planowany fix w v1.0.3 (Day 7-8 ≈ 2026-05-10/11).
 - **Reproducible on:** Samsung (Dominik), prawdopodobnie też inne urządzenia z dolnym pasem nawigacji.
+- **Powiązane:** `test-data/closed-testing/screenshots/dominik feedback/feedback_2026-05-07.md` + `docs/closed-testing-evidence.md` sekcja Dominika.
 
 ---
 

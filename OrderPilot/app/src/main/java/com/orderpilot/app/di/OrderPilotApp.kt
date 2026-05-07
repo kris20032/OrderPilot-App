@@ -4,6 +4,9 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Environment
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+import com.orderpilot.app.domain.AppLanguage
 import com.orderpilot.app.service.ServiceWatchdog
 import java.io.File
 import java.util.Date
@@ -17,6 +20,31 @@ class OrderPilotApp : Application() {
         ServiceWatchdog.createNotificationChannel(this)
         ServiceLocator.init(applicationContext)
         MonitoringController.initialize(applicationContext)
+        syncAppLocaleFromSettings()
+    }
+
+    /**
+     * Migracja v1.0.2 → v1.0.3: stary kod używał LocaleHelper.wrap przez attachBaseContext
+     * i nie wołał AppCompatDelegate.setApplicationLocales. Po update SharedPrefs trzyma
+     * np. AppLanguage.UK, ale system-managed locale jest pusty → UI fallbackuje do
+     * system locale zamiast wyboru usera. Sync ustawia AppCompatDelegate na wartość z prefs
+     * jeśli system jeszcze go nie zna.
+     */
+    private fun syncAppLocaleFromSettings() {
+        if (AppCompatDelegate.getApplicationLocales().isEmpty) {
+            val pref = try {
+                ServiceLocator.settingsRepository.load().language
+            } catch (_: Exception) {
+                AppLanguage.PL
+            }
+            val tag = when (pref) {
+                AppLanguage.PL -> "pl"
+                AppLanguage.UK -> "uk"
+                AppLanguage.EN -> "en"
+                AppLanguage.RU -> "ru"
+            }
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
+        }
     }
 
     private fun setupCrashLogger() {

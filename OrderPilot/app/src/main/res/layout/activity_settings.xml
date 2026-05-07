@@ -382,7 +382,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="48dp"
                             android:gravity="center_vertical"
-                            android:text="Polski (zł)"
+                            android:text="Polski"
                             android:textSize="15sp"
                             android:textColor="@color/on_surface" />
 
@@ -400,7 +400,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="48dp"
                             android:gravity="center_vertical"
-                            android:text="English (PLN)"
+                            android:text="English"
                             android:textSize="15sp"
                             android:textColor="@color/on_surface" />
 

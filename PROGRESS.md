@@ -1,7 +1,7 @@
 # OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-05-06
-**Obecny etap:** **Closed Testing Day 3** (Day 0 = 2026-05-03, Day 14 = 2026-05-17). 12+ opted-in confirmed. v1.0.2 (Andrij news-portals fix) — uploaded + sent for review 05-06, czeka na Google approve (~1-3h).
+**Ostatnia aktualizacja:** 2026-05-07
+**Obecny etap:** **Closed Testing Day 5** (Day 0 = 2026-05-03, Day 14 = 2026-05-17). 50 active testers w Console, 12+ opted-in confirmed. v1.0.2 (Andrij news-portals fix) — Released May 6 12:14 AM. v1.0.3 (Dominik UA/RU language + Samsung navbar) — kod napisany 05-07, czeka na lokalny build + AAB upload (target Day 7-8 = 05-10/11).
 **Aktywne branche:** `play-store-prep` (bieżący — zawiera ikonę A1, splash, PP, Disclosure, signingConfigs), `feature/production-app` (synced), `main` (synced)
 
 ---
@@ -13,7 +13,7 @@
 | **High** | **Rekrutacja testerów Closed Testing** — 11/12 opted-in (po cleanup zombie 04-30), buffer cel: 14-16 z ratio engagement ≥85% | W TOKU |
 | **High** | **PrimeTestLab ticket** — czeka na odpowiedź managera (pool 120 vs 25, staged rollout, instructions delivery, geo distribution, refund process) | WYSŁANE 04-30 |
 | **High** | **Znajomy taty (non-courier)** — dodać jutro do listy testerów (Tata zapyta) | TODO 05-01 |
-| **High** | **3+ AAB updates podczas 14-day clock** — v1.0.2 ✅ kod gotowy 05-05 (czeka na build+upload), v1.0.3 (language fallback RU/UA + Samsung navbar) Day 7-8, v1.0.4 (final polish) Day 11-12 | W TOKU |
+| **High** | **3+ AAB updates podczas 14-day clock** — v1.0.2 ✅ Released 05-06, v1.0.3 ✅ kod napisany 05-07 (czeka na lokalny build+upload Day 7-8), v1.0.4 (final polish) Day 11-12 | W TOKU |
 | **High** | **Application form prep** — material w `docs/closed-testing-evidence.md` (cytaty Andrij+Tata+Dominik+Lucky, statystyki, AAB update mapping) | W TOKU |
 | **High** | Store listing — feature graphic 1024×500 finalna wersja | TODO |
 | **High** | Store listing — pełny opis PL + EN (max 4000 zn) | TODO |

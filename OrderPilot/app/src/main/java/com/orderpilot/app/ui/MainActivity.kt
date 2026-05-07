@@ -1,7 +1,6 @@
 package com.orderpilot.app.ui
 
 import android.animation.ObjectAnimator
-import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
 import android.graphics.drawable.GradientDrawable
@@ -24,7 +23,6 @@ import com.orderpilot.app.databinding.ActivityMainBinding
 import com.orderpilot.app.di.AppLog
 import com.orderpilot.app.di.MonitoringController
 import com.orderpilot.app.di.ServiceLocator
-import com.orderpilot.app.domain.AppLanguage
 import com.orderpilot.app.service.OrderPilotAccessibilityService
 import java.io.File
 import java.text.SimpleDateFormat
@@ -32,15 +30,6 @@ import java.util.Date
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
-
-    override fun attachBaseContext(newBase: Context) {
-        val lang = try {
-            ServiceLocator.settingsRepository.load().language
-        } catch (_: Exception) {
-            AppLanguage.PL
-        }
-        super.attachBaseContext(LocaleHelper.wrap(newBase, lang))
-    }
 
     private lateinit var binding: ActivityMainBinding
     private var isRunning = false

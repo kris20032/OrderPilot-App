@@ -14,23 +14,14 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.orderpilot.app.R
 import com.orderpilot.app.databinding.ActivitySetupBinding
-import com.orderpilot.app.di.ServiceLocator
-import com.orderpilot.app.domain.AppLanguage
 import com.google.android.material.button.MaterialButton
 import java.util.Locale
 
 class SetupActivity : AppCompatActivity() {
-
-    override fun attachBaseContext(newBase: Context) {
-        val lang = try {
-            ServiceLocator.settingsRepository.load().language
-        } catch (_: Exception) {
-            AppLanguage.fromSystemLocale()
-        }
-        super.attachBaseContext(LocaleHelper.wrap(newBase, lang))
-    }
 
     private lateinit var binding: ActivitySetupBinding
 
@@ -38,6 +29,8 @@ class SetupActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySetupBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        applySystemBarsInsets()
 
         setupManufacturerCard()
 
@@ -59,6 +52,18 @@ class SetupActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateStatuses()
+    }
+
+    /**
+     * Edge-to-edge handling (targetSdk 35). Bez tego dolny przycisk „Kontynuuj" oraz toolbar
+     * mogą iść pod system bars na Samsungu i innych urządzeniach z gesture/3-button navbar.
+     */
+    private fun applySystemBarsInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            insets
+        }
     }
 
     // ─── Manufacturer detection & steps ───

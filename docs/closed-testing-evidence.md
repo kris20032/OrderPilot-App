@@ -126,20 +126,41 @@
 
 ---
 
-### 🟡 Dominik — 2026-04-?? (data opt-in do uzupełnienia)
+### 🟡 Dominik (Samsung) — 2026-04-28 (initial) + 2026-05-07 (re-report with screenshots) ⭐ KEY EVIDENCE #2
 
-**Kontekst:** Tester Dominik zgłosił 2 bugi w trakcie wstępnej weryfikacji.
+**Kontekst:** Brat Krzysztofa, tester Closed Testing, telefon Samsung (gesture/3-button nav bar). Zgłosił te same 2 bugi dwukrotnie — pierwszy raz 2026-04-28 (zapisane do `future_polish_fixes.md` #28/#29), drugi raz 2026-05-07 z dosłownymi cytatami i screenami po przetestowaniu v1.0.2. Drugie zgłoszenie = potwierdzenie że bugi nadal są w produkcie + ammunition do v1.0.3 Fix Card.
 
-**Bug 1: Język RU/UA nie zmienia się w UI aplikacji**
-- Po zmianie języka w ustawieniach na rosyjski/ukraiński, UI aplikacji nie tłumaczy się
-- Belka — niesprawdzone czy się tłumaczy
-- Status: zapisane do `future_polish_fixes.md`, naprawa odłożona
+**Pełna dokumentacja feedbacku 2026-05-07:** `test-data/closed-testing/screenshots/dominik feedback/feedback_2026-05-07.md`
 
-**Bug 2: Przycisk „Zapisz ustawienia" zakryty przez Samsung nav bar**
-- Dolny przycisk save w Settings jest częściowo niewidoczny przez systemowy pasek nawigacji
-- Status: zapisane do `future_polish_fixes.md`, naprawa odłożona
+#### Bug 1: Język UA/RU nie utrzymuje się po zapisie (resetuje do PL)
 
-**Plik screen:** `test-data/closed-testing/screenshots/2026-04-??_dominik_settings-navbar-overlap.png` _(do dodania jeśli mamy)_
+**Cytaty dosłowne (WhatsApp, 2026-05-07 15:14):**
+> „język angielski działa, język polski również ale jezeyk rosyjski/ukraiński nie działa"
+
+> „natomiast jak wybieram ukraiński i zapisuje to zmienia się na język polski"
+
+**Repro:** Settings → wybór Українська lub Русский → Save → po reopen Settings zaznaczone jest Polski (zł). Działa tylko PL i EN.
+
+**Screen evidence:** folder `test-data/closed-testing/screenshots/dominik feedback/` — radio z Русский zaznaczonym (UI nadal po polsku), radio z English (PLN) zaznaczonym (UI po angielsku, kontrola), radio po zapisie UA z powrotem na Polski (zł).
+
+**Status:** do naprawy w v1.0.3 (kod: `SettingsActivity.kt` + `LocaleHelper.kt`).
+
+#### Bug 2: Przycisk „Zapisz ustawienia" zakryty przez Samsung nav bar
+
+**Cytaty dosłowne (WhatsApp, 2026-05-07 15:17–15:18):**
+> „jeśli chodzi o pole "always on display" zasłania mi pole, w którym zapisuje ustawienia po zmianie. Jak widać na screenie jest tylko część przycisku dostępna do kliknięcia"
+
+> „jest to denerwujące przy codziennym użytkowaniu"
+
+**Repro:** Settings → przewinąć do dołu → Samsung 3-button nav bar zasłania ~30% dolnej części zielonego przycisku „Zapisz ustawienia". Touch w dolną część trafia w nav bar zamiast przycisku.
+
+> Dominik nazywa to „pole always on display" — myli z funkcją AOD. Faktycznie chodzi o **system navigation bar** Samsunga.
+
+**Screen evidence:** folder `dominik feedback/` — Settings z widocznym overlap nav bar / button.
+
+**Status:** do naprawy w v1.0.3 (windowInsets / `fitsSystemWindows` na layout Settings).
+
+**Powiązanie:** `future_polish_fixes.md` #28 (RU/UA), #29 (Samsung navbar).
 
 ---
 
@@ -186,7 +207,7 @@
 |--------|-------------|-----------------|---------------|-------------------------|
 | 1.0.0 | 1 | 2026-04-22 (initial Closed Testing release approved) | First Closed Testing build (signed AAB, 23 MB) | — |
 | 1.0.2 | 3 | 2026-05-06 (Day 3) — uploaded + sent for review (czeka na approve, ETA 1-3h) | **Fixed false-positive overlay on news portals** — multi-layer defense (foreground tracker, watch mode reset on app switch, hardened Uber overlay phantom detection on MIUI, positive offer markers in Uber/Bolt/Wolt parsers). | Andrij (UA real courier, 2026-04-29) |
-| _(1.0.3)_ | 4 (planowany) | _(planowane Day 7-8 ≈ 2026-05-10/11)_ | _(language fallback RU/UA + Samsung navbar overlap)_ | Dominik |
+| _(1.0.3)_ | 4 (planowany) | _(kod napisany 2026-05-07 Day 5; planowany lokalny build + upload Day 7-8 ≈ 2026-05-10/11)_ | **Fix language fallback RU/UA (selected language resets to PL after save)** — migracja na `AppCompatDelegate.setApplicationLocales()` + `locales_config.xml` (official Android 13+ API). + **Samsung nav bar overlapping „Save settings" button** — `WindowInsetsCompat` handling w SettingsActivity / SetupActivity / DisclosureActivity (edge-to-edge na targetSdk 35). Re-reported by Dominik 2026-05-07 with screenshots. | Dominik (Samsung) |
 | _(1.0.4)_ | 5 (planowany) | _(planowane Day 11-12 ≈ 2026-05-14/15)_ | _(final polish before submit)_ | _(różni)_ |
 
 **Cel: minimum 3 updates w trakcie 14-dniowego okna Closed Testing**, każdy z konkretnymi release notes typu „Fixed [bug] reported by [tester]".
@@ -247,15 +268,15 @@
 **Specific quotes ready to cite:**
 - Andrij (UA real courier, 2026-04-29): „Podobne rzeczy pokazuje także na różnych portalach informacyjnych" → bug: false-positive overlay on news portals
 - Andrij (UA real courier, 2026-04-29): „Tak przy zleceniach wszystko super" → confirms core pipeline works
-- Dominik (2026-04-??): UI language fallback (RU/UA) not switching → fix planned
-- Dominik (2026-04-??): Samsung nav bar overlap on Settings save button → fix planned
+- Dominik (Samsung, 2026-04-28 + re-reported 2026-05-07): „język angielski działa, język polski również ale jezeyk rosyjski/ukraiński nie działa" / „natomiast jak wybieram ukraiński i zapisuje to zmienia się na język polski" → bug: UI language fallback (RU/UA) resets to PL after save → fix planned in v1.0.3
+- Dominik (Samsung, 2026-04-28 + re-reported 2026-05-07): „jest to denerwujące przy codziennym użytkowaniu" / „jest tylko część przycisku dostępna do kliknięcia" → bug: Samsung nav bar overlaps Settings save button → fix planned in v1.0.3
 
 ### Q: What did you fix based on feedback?
 
 **Short answer (paste-ready do Application Form):**
 > Throughout the Closed Testing window we shipped 3 AAB updates, each addressing specific tester feedback:
 > - **v1.0.2** (May 6, 2026) — Fixed false-positive overlay appearing on news portals (e.g., Onet, WP), reported by Andrij (UA real courier) on April 29. Implemented multi-layer defense covering app foreground tracking, watch-mode reset on app switching, hardened MIUI phantom-overlay detection, and platform-specific positive marker validation in our parsers. The bar now only appears in courier app contexts.
-> - **v1.0.3** (planned May 10-11) — Fix language fallback for Russian/Ukrainian UI + Samsung navigation bar overlap on Settings save button. Reported by Dominik.
+> - **v1.0.3** (planned May 10-11) — Fix language fallback for Russian/Ukrainian UI (selected language was resetting to Polish after save) + Samsung navigation bar overlapping the "Save settings" button on Settings screen. Reported by Dominik (Samsung) on April 28 and re-reported May 7 with screenshots after testing v1.0.2.
 > - **v1.0.4** (planned May 14-15) — Final polish based on Days 7-14 tester feedback.
 
 **Long version (jeśli Google poprosi o engineering detail):**

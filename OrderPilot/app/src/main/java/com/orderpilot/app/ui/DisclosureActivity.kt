@@ -1,18 +1,18 @@
 package com.orderpilot.app.ui
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.orderpilot.app.R
 import com.orderpilot.app.databinding.ActivityDisclosureBinding
 import com.orderpilot.app.di.AppLog
 import com.orderpilot.app.di.OrderPilotApp
 import com.orderpilot.app.di.ServiceLocator
-import com.orderpilot.app.domain.AppLanguage
 
 /**
  * Prominent Disclosure Activity (KD4, M1/F2, Task 3.1).
@@ -30,21 +30,18 @@ import com.orderpilot.app.domain.AppLanguage
  */
 class DisclosureActivity : AppCompatActivity() {
 
-    override fun attachBaseContext(newBase: Context) {
-        val lang = try {
-            ServiceLocator.settingsRepository.load().language
-        } catch (_: Exception) {
-            AppLanguage.PL
-        }
-        super.attachBaseContext(LocaleHelper.wrap(newBase, lang))
-    }
-
     private lateinit var binding: ActivityDisclosureBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDisclosureBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            insets
+        }
 
         binding.btnDisclosureAccept.setOnClickListener { onAccept() }
         binding.btnDisclosureCancel.setOnClickListener { onCancel() }
