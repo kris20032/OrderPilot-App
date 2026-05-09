@@ -207,7 +207,7 @@
 |--------|-------------|-----------------|---------------|-------------------------|
 | 1.0.0 | 1 | 2026-04-22 (initial Closed Testing release approved) | First Closed Testing build (signed AAB, 23 MB) | — |
 | 1.0.2 | 3 | 2026-05-06 (Day 3) — uploaded + sent for review (czeka na approve, ETA 1-3h) | **Fixed false-positive overlay on news portals** — multi-layer defense (foreground tracker, watch mode reset on app switch, hardened Uber overlay phantom detection on MIUI, positive offer markers in Uber/Bolt/Wolt parsers). | Andrij (UA real courier, 2026-04-29) |
-| _(1.0.3)_ | 4 (planowany) | _(kod napisany 2026-05-07 Day 5; planowany lokalny build + upload Day 7-8 ≈ 2026-05-10/11)_ | **Fix language fallback RU/UA (selected language resets to PL after save)** — migracja na `AppCompatDelegate.setApplicationLocales()` + `locales_config.xml` (official Android 13+ API). + **Samsung nav bar overlapping „Save settings" button** — `WindowInsetsCompat` handling w SettingsActivity / SetupActivity / DisclosureActivity (edge-to-edge na targetSdk 35). Re-reported by Dominik 2026-05-07 with screenshots. | Dominik (Samsung) |
+| 1.0.3 | 4 | 2026-05-09 (Day 7) — sent for review, IN REVIEW (auto-publish po approve ~1-3h) | **Fix language fallback RU/UA (selected language resets to PL after save)** — migracja na `AppCompatDelegate.setApplicationLocales()` + `locales_config.xml` (official Android 13+ API). + **Samsung nav bar overlapping „Save settings" button** — `WindowInsetsCompat` handling w SettingsActivity / SetupActivity / DisclosureActivity (edge-to-edge na targetSdk 35). Re-reported by Dominik 2026-05-07 with screenshots. | Dominik (Samsung) |
 | _(1.0.4)_ | 5 (planowany) | _(planowane Day 11-12 ≈ 2026-05-14/15)_ | _(final polish before submit)_ | _(różni)_ |
 
 **Cel: minimum 3 updates w trakcie 14-dniowego okna Closed Testing**, każdy z konkretnymi release notes typu „Fixed [bug] reported by [tester]".
@@ -276,7 +276,7 @@
 **Short answer (paste-ready do Application Form):**
 > Throughout the Closed Testing window we shipped 3 AAB updates, each addressing specific tester feedback:
 > - **v1.0.2** (May 6, 2026) — Fixed false-positive overlay appearing on news portals (e.g., Onet, WP), reported by Andrij (UA real courier) on April 29. Implemented multi-layer defense covering app foreground tracking, watch-mode reset on app switching, hardened MIUI phantom-overlay detection, and platform-specific positive marker validation in our parsers. The bar now only appears in courier app contexts.
-> - **v1.0.3** (code shipped May 7, AAB upload planned May 8-9) — Fix language fallback for Russian/Ukrainian UI (selected language was resetting to Polish after save) + Samsung navigation bar overlapping the "Save settings" button on Settings screen. Reported by Dominik (Samsung) on April 28 and re-reported May 7 with screenshots after testing v1.0.2 (which proved the bugs persisted). Engineering response: migrated to AppCompatDelegate.setApplicationLocales (official Android 13+ per-app locale API) with one-time migration sync from existing SharedPrefs preferences; added WindowInsetsCompat handling in three Activity classes for edge-to-edge enforcement on targetSdk 35.
+> - **v1.0.3** (code shipped May 7, AAB sent for review May 9, in review at submission time) — Fix language fallback for Russian/Ukrainian UI (selected language was resetting to Polish after save) + Samsung navigation bar overlapping the "Save settings" button on Settings screen. Reported by Dominik (Samsung) on April 28 and re-reported May 7 with screenshots after testing v1.0.2 (which proved the bugs persisted). Engineering response: migrated to AppCompatDelegate.setApplicationLocales (official Android 13+ per-app locale API) with one-time migration sync from existing SharedPrefs preferences; added WindowInsetsCompat handling in three Activity classes for edge-to-edge enforcement on targetSdk 35.
 > - **v1.0.4** (planned May 14-15) — Final polish based on Days 7-14 tester feedback.
 
 **Long version (jeśli Google poprosi o engineering detail):**
@@ -407,8 +407,8 @@
 │            (verifies bugs persisted into v1.0.2)                        │
 │   May 7  — code written + tested locally on family device + committed   │
 │            (commit 1b8b3cd, 13 files, +142/-99 lines, push to GitHub)  │
-│   May 8/9 (Day 6/7) — AAB build + upload + sent for review (planned)   │
-│   May 8/9 — auto-publish after Google approval (planned)                │
+│   May 9 (Day 7) — AAB built + uploaded + sent for review (1.0.3, code 4)│
+│   May 9 — auto-publish expected after Google approval (~1-3h)           │
 │                                                                          │
 │ VERIFICATION:                                                            │
 │ Will ping Dominik after his Samsung auto-updates to v1.0.3 to confirm:  │
@@ -441,7 +441,7 @@ Gdy Krzysztof wyśle screen / feedback od kolejnego testera:
 
 ---
 
-### 🚨 STATUS DNIA — 2026-05-07 (Day 5) — v1.0.3 KOD GOTOWY, AAB UPLOAD PENDING
+### 🚨 STATUS DNIA — 2026-05-09 (Day 7) — v1.0.3 IN REVIEW
 
 **Console potwierdza 12+ testers opted-in ✅** — drugi krok requirement zaliczony, 14-day clock running.
 
@@ -469,7 +469,7 @@ Gdy Krzysztof wyśle screen / feedback od kolejnego testera:
 - ✅ Sent for review → **Released May 6 12:14 AM**
 - ✅ Auto-published po Google approve
 
-**Co zrobione 05-07 (Day 5, dzisiaj):**
+**Co zrobione 05-07 (Day 5):**
 - ✅ Console snapshot: **50 active testers** (Day 5 ramp-up vs Day 0 12 opted-in) — paid pool wszedł
 - ✅ Dominik feedback #2 zebrany (WhatsApp 15:14–15:18) — UA/RU language reset + Samsung navbar
 - ✅ Pełna dokumentacja Dominik feedback zapisana — `test-data/closed-testing/screenshots/dominik feedback/feedback_2026-05-07.md` + `closed-testing-evidence.md` sekcja Dominika
@@ -478,7 +478,20 @@ Gdy Krzysztof wyśle screen / feedback od kolejnego testera:
   - Bug 2: WindowInsetsCompat handling w Settings/Setup/Disclosure (edge-to-edge na targetSdk 35)
   - UX: cleanup nazwy radio buttons („Polski (zł)" → „Polski", „English (PLN)" → „English")
 - ✅ Commit `1b8b3cd` na `play-store-prep`, push do GitHub
-- ⏸️ **AAB upload świadomie odłożony o 1-2 dni** (decyzja 05-07) — żeby zachować 3-dniowy odstęp przed v1.0.4 i dać czas testerom na ewentualny dodatkowy feedback do v1.0.2
+- ⏸️ AAB upload świadomie odłożony o 1-2 dni (decyzja 05-07) — żeby zachować 3-dniowy odstęp przed v1.0.4
+
+**Co zrobione 05-08 (Day 6):**
+- 🟢 Czekamy / odpoczynek (zgodnie z planem)
+
+**Co zrobione 05-09 (Day 7, dzisiaj):**
+- ✅ Build signed AAB w Android Studio (release variant, keystore z `keystore.properties`)
+- ✅ Upload do Play Console Closed Testing track Alpha (versionCode 4, versionName 1.0.3)
+- ✅ Release notes EN + PL wgrane (en-US + pl-PL tags)
+- ✅ Sent for review — **status: IN REVIEW** (Publishing overview pokazuje „Your changes are now in review")
+- ✅ Managed publishing OFF → auto-publish po Google approve (~1-3h)
+- ✅ Device coverage check: 0 newly supported / 0 no longer supported → backward compatible z v1.0.2 ✅
+- ✅ 2 Warnings (deobfuscation file + native debug symbols) — te same co v1.0.2, bezpieczne, ignorowane
+- 🟡 **TODO po auto-publish (dziś wieczór lub jutro):** ping Dominika (verify UA/RU + navbar), ping Andrija (verify v1.0.2 still + verify v1.0.3 nothing regressed)
 
 ---
 
@@ -514,8 +527,8 @@ Gdy Krzysztof wyśle screen / feedback od kolejnego testera:
 - [ ] WA group ping #1 (Day 3 ≈ 2026-05-06): „screen + 1 zdanie"
 - [ ] WA group ping #2 (Day 7 ≈ 2026-05-10)
 - [ ] WA group ping #3 (Day 11 ≈ 2026-05-14)
-- [x] ✅ **Kod v1.0.2 (Andrij news portals fix) — Released 2026-05-06 (Day 3)**: commit `15c131d`
-- [x] ✅ **Kod v1.0.3 (Dominik UA/RU + Samsung navbar) — napisany + przetestowany + spushowany 2026-05-07 (Day 5)**: commit `1b8b3cd`. AAB upload pending Day 6/7 (05-08 lub 05-09)
+- [x] ✅ **v1.0.2 (Andrij news portals fix) — Released 2026-05-06 (Day 3)**: commit `15c131d`
+- [x] ✅ **v1.0.3 (Dominik UA/RU + Samsung navbar) — sent for review 2026-05-09 (Day 7)**: commit `1b8b3cd`, IN REVIEW
 - [ ] Kod v1.0.4 (final polish) — publish Day 11-12 (≈ 2026-05-14/15)
 
 #### 🟢 Nie ruszać (manager sam wróci)
@@ -591,7 +604,7 @@ Tester poświęca 30 sek, ty masz cytaty + screen. Wzór wiadomości:
 | **Day 0** | 2026-05-03 | Clock start — 12+ opted-in confirmed | ✅ DONE |
 | **Day 2-3** | 2026-05-05/06 | Publish v1.0.2 (Andrij news portals) | ✅ DONE (Released 05-06 12:14 AM, commit `15c131d`) |
 | **Day 5** | 2026-05-07 | Dominik feedback #2 + v1.0.3 kod + push | ✅ DONE (commit `1b8b3cd`) |
-| **Day 6/7** | 2026-05-08/09 | **🚨 Upload v1.0.3 AAB do Play Console** | **PENDING** — kod gotowy, czeka na build + upload |
+| **Day 7** | 2026-05-09 | Upload v1.0.3 AAB → sent for review | ✅ DONE (IN REVIEW, auto-publish po approve) |
 | **Day 7** | 2026-05-10 | Review materiału — sekcja 5 rośnie? | Jeśli nie → eskalacja: video Andrija, bonus dla testerów |
 | **Day 7** | 2026-05-10 | WA group ping #2 | TODO |
 | **Day 11** | 2026-05-14 | WA group ping #3 — final | Ostatnia szansa na cytaty |
