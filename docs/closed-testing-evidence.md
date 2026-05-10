@@ -182,9 +182,12 @@
 
 **Potwierdzenie przez Andrija (PL):**
 > „Nie zapisuje wyłącznie liczb niecałkowitych, ale liczby całkowite zapisuje bez problemu."
-(zebrany tego samego dnia ok. 12:00)
+(zebrany tego samego dnia ok. 12:00 — `test-data/closed-testing/screenshots/2026-05-10_wa-group-day7-2-andrij-confirms.jpg`)
 
-**Materiały:** wideo `2026-05-10_marcin_decimal-threshold-bug.mp4` (0:55) + screen WA grupy
+**Materiały:**
+- `test-data/closed-testing/screenshots/2026-05-10_wa-group-day7-1-marcin-decimal-bug.jpg` — WA group: bug report Marcina + screen "Active/Wykrywanie zleceń" od Marcina
+- `test-data/closed-testing/screenshots/marcin feedback/2026-05-10_marcin_decimal-threshold-bug.jpg` — zdjęcie ekranu apki
+- `test-data/closed-testing/screenshots/marcin feedback/2026-05-10_marcin_decimal-threshold-bug.mp4` — wideo reprodukcji (0:55)
 **Bug tracking:** `docs/future_polish_fixes.md` #37
 **Plan naprawy:** v1.0.4 (Day 11-12, ≈ 2026-05-14/15)
 **Status:** Zgłoszony 2026-05-10, zaplanowany do fixa w v1.0.4.
@@ -202,6 +205,7 @@
 - Ivan: "alryt / thanks" (13:57)
 
 **Wynik:** Rozwiązane przez re-toggle Accessibility. **Nie jest to bug kodu** — standardowe zachowanie Androida po update. Do ewentualnego adresowania w UX: lepszy onboarding/reminder po aktualizacji.
+**Materiały:** `test-data/closed-testing/screenshots/2026-05-10_wa-group-day7-3-ivan-resolved.jpg` — WA group: Ivan "alryt / thanks" po naprawie
 **Status:** Zamknięte 2026-05-10.
 
 ---
@@ -237,9 +241,12 @@
 | Data | Wiadomość / wydarzenie | Liczba reakcji |
 |------|---------------------------|-------------------|
 | 2026-04-29 | Andrij raport stats + bug | 1× detailed bug report, 1× konfirmacja działania |
-| | _(uzupełniać daily pings)_ | |
+| 2026-05-10 | WA group Day 7 — Ivan issue + Marcin decimal bug + Andrij confirmation | 3× wiadomości, 1× bug report szczegółowy, 1× potwierdzenie drugiego testera, 1× issue resolved |
 
-**Plik screen WA grupy:** `test-data/closed-testing/screenshots/YYYY-MM-DD_wa-group-snapshot.png`
+**Pliki screen WA grupy (Day 7):**
+- `test-data/closed-testing/screenshots/2026-05-10_wa-group-day7-1-marcin-decimal-bug.jpg`
+- `test-data/closed-testing/screenshots/2026-05-10_wa-group-day7-2-andrij-confirms.jpg`
+- `test-data/closed-testing/screenshots/2026-05-10_wa-group-day7-3-ivan-resolved.jpg`
 
 ---
 
