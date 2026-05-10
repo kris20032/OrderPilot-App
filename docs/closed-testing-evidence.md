@@ -732,7 +732,8 @@ Gdy Krzysztof wyśle screen / feedback od kolejnego testera:
 - [ ] WA group ping #3 (Day 11 ≈ 2026-05-14)
 - [x] ✅ **v1.0.2 (Andrij news portals fix) — Released 2026-05-06 (Day 3)**: commit `15c131d`
 - [x] ✅ **v1.0.3 (Dominik UA/RU + Samsung navbar) — sent for review 2026-05-09 (Day 7)**: commit `1b8b3cd`, IN REVIEW
-- [ ] Kod v1.0.4 (final polish) — publish Day 11-12 (≈ 2026-05-14/15)
+- [ ] **Kod v1.0.4 (decimal fix #37) — napisać Day 9 (≈ 2026-05-12)**
+- [ ] Build + upload v1.0.4 AAB — Day 11-12 (≈ 2026-05-14/15)
 
 #### 🟢 Nie ruszać (manager sam wróci)
 
@@ -810,8 +811,9 @@ Tester poświęca 30 sek, ty masz cytaty + screen. Wzór wiadomości:
 | **Day 7** | 2026-05-09 | Upload v1.0.3 AAB → sent for review | ✅ DONE (IN REVIEW, auto-publish po approve) |
 | **Day 7** | 2026-05-10 | Review materiału — sekcja 5 rośnie? | ✅ Marcin + Andrij decimal bug zebrany, Fix Card v1.0.4 placeholder gotowy |
 | **Day 8** | 2026-05-11 | WA group ping #2 | Przesunięty z Day 7 — testers aktywni dziś (naturalny kontakt), jutro brzmi normalnie |
+| **Day 9** | 2026-05-12 | **Kod v1.0.4 — fix decimal thresholds** | `future_polish_fixes.md` #37. Napisać + przetestować lokalnie, nie czekać do Day 11 |
 | **Day 11** | 2026-05-14 | WA group ping #3 — final | Ostatnia szansa na cytaty |
-| **Day 11-12** | 2026-05-14/15 | **Fix decimal thresholds (v1.0.4)** + Publish | `future_polish_fixes.md` #37; Marcin + Andrij = ammunition dla Application Form |
+| **Day 11-12** | 2026-05-14/15 | **Build + upload v1.0.4 AAB** | Kod gotowy od Day 9; tu tylko build signed AAB + upload do Console |
 | **Day 14** | 2026-05-17 | Finalizacja Application Form (sekcja 5) | Wklejenie cytatów, screenów, mapowania |
 | **Day 14** | 2026-05-17 | **Submit Production** | Po wypełnieniu formularza |
 | **Po submit** | 05-17 → 05-24 | Google review: 3-7 dni | Monitor email |
