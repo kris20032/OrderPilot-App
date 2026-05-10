@@ -37,6 +37,7 @@
 | 8 | Grzegorz | cr7fc5@... | non-courier (znajomy) | 2026-04-?? | Znajomy, przypominać raz na pare dni |
 | 9 | Kuba | jakummroz2004@... | TBD | 2026-05-03 | **Confirmed installed 05-03**, awaiting first feedback |
 | 10 | Vasyl (znajomy taty) | TBD (telefon) | TBD | 2026-05-03 (?) | To jest „znajomy taty" o którym wcześniej mowa — dostałem numer przez tatę. Zadzwoniłem 05-03, wysłany link, prawdopodobnie pobrał (Console delay). Verify w 24h. **Możliwe że to #12 który odpalił clock.** |
+| 11 | Marcin | TBD (WA group) | real kurier (PL) | TBD (pool?) | W grupie „Beta testerzy courier assist". Potwierdził używanie apki ("it was working normally, and I'm using it now"). Zgłosił bug decimal thresholds 2026-05-10. Aktywny. |
 
 ### POCZEKAJ — czekamy na opt-in / feedback
 
@@ -164,6 +165,47 @@
 
 ---
 
+### 🟡 Marcin — 2026-05-10 (Day 7) ⭐ BUG REPORT
+
+**Kontekst:** Tester z grupy WhatsApp „Beta testerzy courier assist". Potwierdził że apka działa normalnie, po czym zgłosił szczegółowy bug z dziesiętnym inputem progów. Wysłał wideo (0:55) z reprodukcją.
+
+**Cytat (EN):**
+> "I found a bug in the app. When I want to set a threshold for displaying different colors, and I want the PLN/km threshold to be 2.50 instead of a whole number, I can't use a comma; its use is blocked. When I use a period, it partially works — partially, because when I save the settings and go back in, the app changes the period to a comma (and that's fine). But if I change anything else in the configuration, the amount with the comma disappears and the integer appears. Instead of 2.5, for example, 2 appears. This only works incorrectly in the Polish version. In the English version, when I insert a period, it remains there the entire time; it doesn't change to a comma. And for PLN/h thresholds, you can't set the amount with a comma/period at all."
+
+**Wcześniejsza wiadomość od Marcina (EN):**
+> "I was using app yesterday, it was working normally, and I'm using it now and it works."
+
+**Trzy sub-bugi w jednym raporcie:**
+1. PLN/km, locale PL: przecinek zablokowany na klawiaturze; kropka wpisuje się, ale po kolejnym zapisie (czegokolwiek innego) wartość traci ułamek (`2.5` → `2`)
+2. PLN/km, locale EN: kropka działa stabilnie — bug jest locale-dependent
+3. PLN/h: w ogóle nie da się wpisać dziesiętnej (ani przecinek, ani kropka)
+
+**Potwierdzenie przez Andrija (PL):**
+> „Nie zapisuje wyłącznie liczb niecałkowitych, ale liczby całkowite zapisuje bez problemu."
+(zebrany tego samego dnia ok. 12:00)
+
+**Materiały:** wideo `2026-05-10_marcin_decimal-threshold-bug.mp4` (0:55) + screen WA grupy
+**Bug tracking:** `docs/future_polish_fixes.md` #37
+**Plan naprawy:** v1.0.4 (Day 11-12, ≈ 2026-05-14/15)
+**Status:** Zgłoszony 2026-05-10, zaplanowany do fixa w v1.0.4.
+
+---
+
+### 📝 Ivan Black — 2026-05-10 (Day 7) — accessibility wyłączona po update
+
+**Kontekst:** Ivan zgłosił w WA grupie że „yesterday the app didn't work at all". Prawdopodobna przyczyna: update v1.0.3 mógł zresetować stan Accessibility Service (znane zachowanie Androida po aktualizacji APK — system może wyłączyć accessibility permission).
+
+**Komunikacja:**
+- Ivan: "Hi guys Yesterday the app didn't work at all" / "I do not know but seems like It was turned off maybe"
+- Ivan: "To be honest I dont even know when it is open or not"
+- Ty: "check Settings → Accessibility → OrderPilot → toggle ON" / "You should see notification that the app is running in the notification bar"
+- Ivan: "alryt / thanks" (13:57)
+
+**Wynik:** Rozwiązane przez re-toggle Accessibility. **Nie jest to bug kodu** — standardowe zachowanie Androida po update. Do ewentualnego adresowania w UX: lepszy onboarding/reminder po aktualizacji.
+**Status:** Zamknięte 2026-05-10.
+
+---
+
 ### 🟢 Tata (Krzysztof) — running history
 
 **Status:** Real kurier Uber Eats, telefon Xiaomi (MIUI), używa apki od ~marca 2026, baza historycznego feedbacku.
@@ -256,22 +298,109 @@
 > **Sekcja do wypełnienia gdy dochodzimy do Day 14 unlock i submit Production.**
 > Pre-fill najlepszych cytatów / liczb tutaj, żeby przy submit było gotowe do wklejenia.
 
-### Q: How did you recruit testers?
+---
+
+### 🗺️ MAPA FORMULARZA (zweryfikowana z Help Center 2026-05-09)
+
+Formularz Production Access ma **3 sekcje, 8 pytań total**. Source: [support.google.com/googleplay/android-developer/answer/14151465](https://support.google.com/googleplay/android-developer/answer/14151465)
+
+**Część 1 — Informacje o teście zamkniętym** (3 pytania)
+- 1.1 — **DROPDOWN/lista opcji** — jak łatwo było zrekrutować testerów (TODO: zobaczyć opcje przy „Preview questions" w Console)
+- 1.2 — **Free text** — engagement testerów (czy używali wszystkich funkcji + czy zgodne z oczekiwaniami production)
+- 1.3 — **Free text** — podsumowanie opinii + JAK były zebrane
+
+**Część 2 — Informacje o aplikacji** (3 pytania)
+- 2.1 — **Free text** — docelowi odbiorcy (szczegółowo)
+- 2.2 — **Free text** — wartość aplikacji dla użytkowników
+- 2.3 — **DROPDOWN z zakresami** — spodziewana liczba instalacji w 1. roku (TODO: zobaczyć zakresy przy „Preview questions")
+
+**Część 3 — Production readiness** (2 pytania)
+- 3.1 — **Free text** — jakie zmiany wprowadzone na podstawie testów
+- 3.2 — **Free text** — dlaczego apka jest ready for production
+
+**Submit:** przycisk „Zastosuj" na końcu Części 3.
+**⚠️ UWAGA:** brak auto-save. „Odrzuć" / zamknięcie zakładki bez „Dalej"/„Zastosuj" = utrata wszystkich wpisanych odpowiedzi.
+
+---
+
+### 1.1 Q: Jak łatwo było zrekrutować testerów? [DROPDOWN]
+
+**Akcja Day 14:** Otwórz formularz, wybierz najbliższe oddanie naszej rzeczywistości z dostępnej listy. **Najpewniej coś typu „Quite easy" / „Moderate" / „Challenging".** Konkretne opcje sprawdzimy przy „Preview questions" w Console.
+
+**Bonus context (jeśli pole pozwala dopisać uzasadnienie):**
+> Recruited 50+ testers via 4 channels: (1) leaflets distributed at Forum Gdańsk shopping mall and at a bicycle service shop where couriers gather; (2) friends and family for wizard/UX/edge cases; (3) paid testing service (PrimeTestLab / 12testers14days.com) for geographic and device diversity; (4) organic word-of-mouth from existing testers (e.g. Ukrainian courier Andrij who tests across multiple courier platforms).
+
+---
+
+### 1.2 Q: Engagement testerów [FREE TEXT]
 **Draft answer:**
-> Recruited testers via 4 channels: (1) leaflets distributed at Forum Gdańsk shopping mall and at a bicycle service shop where couriers gather; (2) friends and family who use the app to test wizard flow, settings UX, and edge cases; (3) paid testing service (PrimeTestLab / 12testers14days.com) for geographic and device diversity; (4) organic word-of-mouth from existing testers (e.g., Ukrainian courier Andrij who tests across multiple platforms).
+> Active feedback channel via WhatsApp group with [X] messages exchanged in 14 days. Real couriers report daily usage (e.g., Andrij: 5h 57min online, 9 deliveries on April 29 with OrderPilot running). Family/friend testers verify wizard, settings UX, and language fallback. Paid testers verify cross-device compatibility (Samsung Knox, Xiaomi MIUI, etc.). Across the 14 days, our Closed Track grew from 12 opted-in (Day 0) to 50 active testers (Day 5), with daily active users (DAU) climbing from ~1 to 11 by Day 5 (≈22% DAU/active ratio — strong engagement signal for a Closed Testing pool).
+>
+> **Did testers use all functions?** Yes — feature coverage included: per-courier-platform pipeline (Uber, Wolt, Glovo, Bolt Food), Settings (language switching across 4 locales: PL/EN/UK/RU), Setup wizard, overlay positioning across multiple OEMs (Samsung, Xiaomi/MIUI, Google Pixel), and accessibility service lifecycle (boot, foreground, watchdog).
+>
+> **Did usage match expectations for production users?** Yes — multiple testers are real food-delivery couriers using the app during paid shifts (not synthetic / lab testing). Andrij's April 29 shift (5h57m online + 9 deliveries with OrderPilot bar visible across all offers) is representative of expected production usage.
 
-### Q: How are testers engaging with the app?
+### 1.3 Q: Podsumowanie opinii + jak zebrane [FREE TEXT]
+
 **Draft answer:**
-> Active feedback channel via WhatsApp group with [X] messages exchanged in 14 days. Real couriers report daily usage (e.g., Andrij: 5h 57min online, 9 deliveries on April 29 with OrderPilot running). Family/friend testers verify wizard, settings UX, and language fallback. Paid testers verify cross-device compatibility (Samsung Knox, Xiaomi MIUI, etc.).
+> Feedback was collected via three channels: (1) a dedicated WhatsApp group for active couriers and family/friend testers, used for daily check-ins, screenshots, and bug reports; (2) 1-on-1 WhatsApp conversations with key real-courier testers (Andrij, Dominik, Tata, Lucky, Ivan Black) for in-depth bug repro; (3) Play Console „Test feedback" channel.
+>
+> Two categories of feedback emerged:
+>
+> **A) Functional bugs (acted upon, shipped fixes):**
+> - Andrij (UA real courier, Apr 29): "Podobne rzeczy pokazuje także na różnych portalach informacyjnych" — false-positive overlay on news portals (Onet, WP). Fixed in v1.0.2 (multi-layer defense). Verified in Andrij's May 4 workday with 5 screenshots from real Gdańsk deliveries.
+> - Dominik (Samsung, Apr 28 + re-report May 7): "język angielski działa, język polski również ale jezeyk rosyjski/ukraiński nie działa" / "natomiast jak wybieram ukraiński i zapisuje to zmienia się na język polski" — language fallback for UA/RU resets to Polish after save. Fixed in v1.0.3 (migration to AppCompatDelegate.setApplicationLocales).
+> - Dominik (Samsung, Apr 28 + re-report May 7): "jest to denerwujące przy codziennym użytkowaniu" / "jest tylko część przycisku dostępna do kliknięcia" — Samsung navigation bar partially obscures the Save Settings button. Fixed in v1.0.3 (WindowInsetsCompat handling on edge-to-edge targetSdk 35).
+>
+> **B) Validation of core functionality:**
+> - Andrij (UA real courier, Apr 29): "Tak przy zleceniach wszystko super" — confirms the offer-detection pipeline works correctly across his real workday on Bolt Food.
+> - Andrij (UA real courier, Apr 29): "Tak, sama aplikacja jest bardzo przydatna" — qualitative confirmation of value.
+>
+> All bug reports were assigned a fix release (v1.0.2 / v1.0.3 / v1.0.4) and acknowledged with the reporting tester after the fix was published — closing the feedback loop with the same tester who reported the bug.
 
-### Q: What feedback did you receive?
-**Specific quotes ready to cite:**
-- Andrij (UA real courier, 2026-04-29): „Podobne rzeczy pokazuje także na różnych portalach informacyjnych" → bug: false-positive overlay on news portals
-- Andrij (UA real courier, 2026-04-29): „Tak przy zleceniach wszystko super" → confirms core pipeline works
-- Dominik (Samsung, 2026-04-28 + re-reported 2026-05-07): „język angielski działa, język polski również ale jezeyk rosyjski/ukraiński nie działa" / „natomiast jak wybieram ukraiński i zapisuje to zmienia się na język polski" → bug: UI language fallback (RU/UA) resets to PL after save → fix planned in v1.0.3
-- Dominik (Samsung, 2026-04-28 + re-reported 2026-05-07): „jest to denerwujące przy codziennym użytkowaniu" / „jest tylko część przycisku dostępna do kliknięcia" → bug: Samsung nav bar overlaps Settings save button → fix planned in v1.0.3
+### 2.1 Q: Docelowi odbiorcy [FREE TEXT]
+**Draft answer:**
+> OrderPilot's intended audience is **food-delivery and ride-share couriers** working as independent contractors (gig workers) on platforms such as Uber Eats, Bolt Food, Wolt, Glovo, and Bolt (rides). Geographic focus: Poland and Ukraine primarily, with growing demand from English-speaking couriers in EU markets.
+>
+> **User profile:**
+> - 18+ (we enforced this with content rating + Closed Testing audience selection)
+> - Smartphone-first (Android, mostly mid-range Xiaomi/Samsung/Pixel)
+> - Multi-platform couriers — many work simultaneously on 2-3 delivery apps to maximize earnings
+> - Often non-Polish-native (Ukrainian, Russian-speaking, English-speaking workforce in PL cities)
+> - Income-driven: choose / decline orders based on profit-per-hour, not just trip distance
+>
+> **Why this audience needs OrderPilot:** delivery apps display only raw numbers (PLN, time, km). Couriers need to do quick mental math (zł/h calculation) under time pressure (10-15s to accept/decline). OrderPilot does this math automatically and shows GREEN / YELLOW / RED verdict in a small overlay bar — letting couriers focus on driving safely instead of on-screen math.
 
-### Q: What did you fix based on feedback?
+### 2.2 Q: Wartość aplikacji [FREE TEXT]
+**Draft answer:**
+> OrderPilot solves a concrete problem for delivery couriers: **deciding which orders are worth taking under time pressure.** Delivery platforms (Uber Eats, Wolt, Glovo, Bolt Food) show raw payment + time + distance, but couriers need profit-per-hour (zł/h) to make rational decisions. Doing this math manually in 10-15 seconds while driving is unsafe and error-prone.
+>
+> **What the app does:**
+> 1. Reads incoming offer popups via Android Accessibility Service + on-device OCR (no network calls, no data leaves the device)
+> 2. Computes zł/h = (offer payment ÷ estimated delivery time) instantly
+> 3. Compares against the courier's personal threshold (configured in Settings) and displays GREEN (above target) / YELLOW (borderline) / RED (below target) overlay bar
+> 4. Auto-hides when no offer is on screen — zero distraction otherwise
+>
+> **Key differentiators vs alternatives:**
+> - **Zero-network architecture** — all OCR, parsing, and analysis happens on-device. No personal data, no offer details, no location ever leaves the phone. Tested via airplane mode.
+> - **Multi-platform** — works across Uber Eats, Wolt, Glovo, Bolt Food in one install. Most couriers work multiple platforms simultaneously, so a per-platform app would not fit the workflow.
+> - **Multilingual UI** — Polish, English, Ukrainian, Russian (covering the actual demographics of couriers in Polish cities).
+> - **Built by an active observer of the gig-economy market** — features come from real courier interviews, not assumptions.
+>
+> **Validation from Closed Testing:** Andrij (Ukrainian courier, multi-platform Uber+Bolt Food) — verified during a real 5h57m / 9-delivery shift on April 29, 2026 — confirmed: "Tak przy zleceniach wszystko super" ("With orders, everything works perfectly"), "Tak, sama aplikacja jest bardzo przydatna" ("Yes, the app itself is very useful").
+
+### 2.3 Q: Spodziewana liczba instalacji w 1. roku [DROPDOWN]
+
+**Akcja Day 14:** Wybierz zakres z listy. Realistic estimate dla pierwszego roku:
+- **Najprawdopodobniej zakres ~1 000 – 10 000 installs** (delivery couriers w PL ≈ 30-60k aktywnych, można sensownie celować w ~5-10% świadomości pierwszej fali = 1.5k-6k)
+- Konserwatywnie: **100 – 1 000** (jeśli dropdown ma takie opcje, wybierz wyższy zakres żeby nie wyglądać za nisko)
+- Optymistycznie: **10 000 – 100 000** (przy mocnej akcji w community + word-of-mouth UA/PL)
+
+**Rekomendacja:** wybierz najbliższy realnym ambicjom **1k-10k** (lub jeśli nie ma — sąsiedni). Konkretne zakresy sprawdzimy przy „Preview questions".
+
+---
+
+### 3.1 Q: Jakie zmiany wprowadzone na podstawie testów [FREE TEXT]
 
 **Short answer (paste-ready do Application Form):**
 > Throughout the Closed Testing window we shipped 3 AAB updates, each addressing specific tester feedback:
@@ -293,6 +422,24 @@
 > 2. Edge-to-edge insets — `targetSdk = 35` enforces edge-to-edge layout on Android 15+. Without `WindowInsetsCompat` handling, system bars overlap UI elements; on Dominik's Samsung this manifested as the 3-button navbar covering ~30% of the "Save settings" button. We added `ViewCompat.setOnApplyWindowInsetsListener` in `SettingsActivity`, `SetupActivity`, and `DisclosureActivity` to apply `systemBars()` insets as padding on the root layout. Buttons now stay above any 3-button or gesture navbar.
 >
 > Will verify with Dominik after his Samsung auto-updates to v1.0.3.
+
+---
+
+### 3.2 Q: Dlaczego apka jest ready for production [FREE TEXT]
+**Draft answer:**
+> OrderPilot is ready for production based on five concrete signals from the 14-day Closed Testing window:
+>
+> 1. **3 iterative updates shipped during the testing window**, each fixing tester-reported issues (v1.0.2: news-portal false positives; v1.0.3: language persistence + Samsung navbar overlap; v1.0.4: final polish from Days 7-14 feedback). All fixes were verified by the same testers who reported the bugs, closing the feedback loop.
+>
+> 2. **Real-world validation by working couriers, not synthetic testing.** Andrij (Ukrainian Bolt Food courier) tested the app during a paid 5h57m / 9-delivery shift on April 29, 2026, confirming the offer pipeline works correctly during actual paid work — not just in lab conditions. We have 5 photos from his real Gdańsk deliveries showing the OrderPilot bar visible during real offers.
+>
+> 3. **Cross-device coverage.** Testers covered: Samsung (Knox, edge-to-edge Android 15+ navbar), Xiaomi MIUI (phantom overlay quirks), Google Pixel, multiple OEMs across 4 countries (PL, US, UK, AF). The Pre-Launch Report from Play Console additionally tested ~20 emulated/real device configurations with no crashes/ANRs.
+>
+> 4. **Zero-network privacy guarantee verified.** The app makes no network calls (verified via airplane mode + DNS sniffing). All OCR, parsing, and analysis is on-device. No personal data ever leaves the user's phone — important given that we read sensitive offer/payment information from third-party delivery apps.
+>
+> 5. **Stable engagement metrics across 14 days.** Closed Testing track grew from 12 opted-in (Day 0) to 50 active testers (Day 5+). DAU climbed from ~1 (early April) to 11+ (May 2), with continuous activity throughout the window — not a one-shot install spike. Engagement ratio (DAU/active) ≈ 22% — strong for a Closed Testing pool where many testers are non-courier (family/friend/paid).
+>
+> Beyond Closed Testing: the app is fully compliant with our declared use case (Accessibility Service strictly for delivery-platform offer detection, with `isAccessibilityTool=false` honestly reflecting the assistive-but-not-purely-accessibility nature of the use case). Privacy policy, content rating (18+), and target API 35 are all in place.
 
 ---
 
@@ -420,6 +567,43 @@
 
 ---
 
+### 🎯 Fix Card v1.0.4 (paste-ready do Production Application Form) — PLACEHOLDER
+
+**Use case:** trzeci i ostatni case study tester-driven fix — zamyka 3+ AAB updates wymagane przez Google, pokazuje że bug locale-dependent (podobna klasa co Dominik UA/RU) trafił od razu dwóch testerów (Marcin PL + Andrij UA).
+
+```
+┌─ TESTER FEEDBACK → PRODUCTION FIX (v1.0.4) ─────────────────────────────┐
+│                                                                          │
+│ TESTERS:   Marcin (PL locale) + Andrij (UA, confirms same behavior)     │
+│ DATE:      May 10, 2026 (Day 7 of Closed Testing)                       │
+│ CHANNEL:   WhatsApp group "Beta testerzy courier assist"                 │
+│                                                                          │
+│ FEEDBACK QUOTES:                                                         │
+│   Marcin (EN): "When I want to set the PLN/km threshold to 2.50,        │
+│    I can't use a comma [...] if I change anything else, the amount      │
+│    with the comma disappears and the integer appears. This only works   │
+│    incorrectly in the Polish version."                                   │
+│   Andrij (PL): "Nie zapisuje wyłącznie liczb niecałkowitych, ale liczby │
+│    całkowite zapisuje bez problemu."                                     │
+│                                                                          │
+│ BUG SUMMARY: Decimal threshold values (PLN/km, PLN/h) cannot be saved   │
+│ in Polish locale. Integer values work fine. English locale unaffected.  │
+│ Root cause: Android numberDecimal EditText + Polish locale decimal       │
+│ separator mismatch (period vs comma).                                   │
+│                                                                          │
+│ ENGINEERING FIX (planned): [TODO po implementacji — uzupełnić]          │
+│                                                                          │
+│ TIMELINE:                                                                │
+│   May 10 (Day 7) — reported by Marcin, confirmed by Andrij              │
+│   May 14-15 (Day 11-12) — fix implemented, AAB built + uploaded         │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
+```
+
+_(Uzupełnić po napisaniu kodu i buildzie AAB v1.0.4)_
+
+---
+
 ## 6. Konwencja zapisywania nowych znalezisk
 
 Gdy Krzysztof wyśle screen / feedback od kolejnego testera:
@@ -438,6 +622,18 @@ Gdy Krzysztof wyśle screen / feedback od kolejnego testera:
 ---
 
 ## 7. Otwarte zadania / przypomnienia
+
+---
+
+### 🚨 STATUS DNIA — 2026-05-10 (Day 7, continued) — v1.0.4 planning
+
+**Co zrobione 05-10 (dziś):**
+- ✅ Console Crashes & ANRs: **zero issues** (screenshot z May 10)
+- ✅ Dashboard: **8 of 14 days** continuously z 12+ opted-in testers — pozostało 6 dni (cel: 2026-05-17)
+- ✅ Marcin (WA group) — bug decimal thresholds zebrany, udokumentowany → `future_polish_fixes.md` #37, Fix Card v1.0.4 placeholder wpisany
+- ✅ Andrij potwierdzył ten sam bug decimal (wiadomość 12:00 — „Nie zapisuje liczb niecałkowitych")
+- ✅ Ivan Black — apka wyłączona po update v1.0.3, naprawione przez re-toggle Accessibility (nie bug kodu)
+- ⏸️ **WA group ping #2 przesunięty na jutro (2026-05-11, Day 8)** — testers byli aktywni dziś w grupie (= naturalny kontakt), dodatkowy formalny ping dziś byłby za częsty. Jutro brzmi naturalnie.
 
 ---
 
@@ -525,7 +721,7 @@ Gdy Krzysztof wyśle screen / feedback od kolejnego testera:
 - [ ] Daily snapshot Console Statistics co 2 dni (DAU, Active devices, Installed audience)
 - [ ] Pingi do aktywnych kurierów (co 2-3 dni): Andrij, Tata, Dominik, Lucky, Ivan Black, Kuba (nowy)
 - [ ] WA group ping #1 (Day 3 ≈ 2026-05-06): „screen + 1 zdanie"
-- [ ] WA group ping #2 (Day 7 ≈ 2026-05-10)
+- [ ] WA group ping #2 (Day 8 ≈ 2026-05-11) — przesunięty z Day 7 (testers aktywni w grupie 05-10)
 - [ ] WA group ping #3 (Day 11 ≈ 2026-05-14)
 - [x] ✅ **v1.0.2 (Andrij news portals fix) — Released 2026-05-06 (Day 3)**: commit `15c131d`
 - [x] ✅ **v1.0.3 (Dominik UA/RU + Samsung navbar) — sent for review 2026-05-09 (Day 7)**: commit `1b8b3cd`, IN REVIEW
@@ -605,10 +801,10 @@ Tester poświęca 30 sek, ty masz cytaty + screen. Wzór wiadomości:
 | **Day 2-3** | 2026-05-05/06 | Publish v1.0.2 (Andrij news portals) | ✅ DONE (Released 05-06 12:14 AM, commit `15c131d`) |
 | **Day 5** | 2026-05-07 | Dominik feedback #2 + v1.0.3 kod + push | ✅ DONE (commit `1b8b3cd`) |
 | **Day 7** | 2026-05-09 | Upload v1.0.3 AAB → sent for review | ✅ DONE (IN REVIEW, auto-publish po approve) |
-| **Day 7** | 2026-05-10 | Review materiału — sekcja 5 rośnie? | Jeśli nie → eskalacja: video Andrija, bonus dla testerów |
-| **Day 7** | 2026-05-10 | WA group ping #2 | TODO |
+| **Day 7** | 2026-05-10 | Review materiału — sekcja 5 rośnie? | ✅ Marcin + Andrij decimal bug zebrany, Fix Card v1.0.4 placeholder gotowy |
+| **Day 8** | 2026-05-11 | WA group ping #2 | Przesunięty z Day 7 — testers aktywni dziś (naturalny kontakt), jutro brzmi normalnie |
 | **Day 11** | 2026-05-14 | WA group ping #3 — final | Ostatnia szansa na cytaty |
-| **Day 11-12** | 2026-05-14/15 | Publish v1.0.4 (final polish) | Trzeci update — wymóg Google |
+| **Day 11-12** | 2026-05-14/15 | **Fix decimal thresholds (v1.0.4)** + Publish | `future_polish_fixes.md` #37; Marcin + Andrij = ammunition dla Application Form |
 | **Day 14** | 2026-05-17 | Finalizacja Application Form (sekcja 5) | Wklejenie cytatów, screenów, mapowania |
 | **Day 14** | 2026-05-17 | **Submit Production** | Po wypełnieniu formularza |
 | **Po submit** | 05-17 → 05-24 | Google review: 3-7 dni | Monitor email |

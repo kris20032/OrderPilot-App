@@ -384,3 +384,27 @@
   - **Layer 3** — watch mode reset: gdy `TYPE_WINDOW_STATE_CHANGED` z packagem spoza `watchedPackages`, cancel `uberWatchJob`/`boltWatchJob` + zerowanie `lastUberEventTime`/`lastBoltEventTime`. Plus dodatkowy guard wewnątrz Uber watch loop (skip tick gdy foreground != Uber).
   - **Layer 4** — positive markers w `UberOcrParser`/`BoltFoodOcrParser`/`WoltOcrParser`. Każdy popup parser wymaga teraz co najmniej 1 z ~10-15 fraz typowych dla popupu (multi-language: PL/EN/UA/RU). News portal nie zawiera „Łącznie"/„Odbiór za"/„Bolt"/„Akceptuj" — odrzucany niezależnie od foreground/timing.
   - Pliki: `OrderPilotAccessibilityService.kt`, `OcrOfferParser.kt`, `UberOcrParser.kt`, `BoltFoodOcrParser.kt`, `WoltOcrParser.kt`.
+
+---
+
+### 37. Progi PLN/km i PLN/h — wprowadzanie wartości dziesiętnych (zgłoszone 2026-05-10 przez Marcina)
+- **Zgłaszający:** Marcin (Closed Testing tester, WhatsApp grupa „Beta testerzy courier assist")
+- **Kontekst:** ekran ustawień progów kolorów belki (GREEN/YELLOW/RED dla PLN/km i PLN/h)
+- **Bug 1 — PLN/km, locale PL:**
+  - Klawiatura blokuje przecinek (`,`)
+  - Kropka (`.`) wpisuje się i po pierwszym zapisie wartość pokazuje się jako przecinek (OK)
+  - **ALE** gdy user zmieni cokolwiek innego w ustawieniach i ponownie zapisze (bez dotykania pola z dziesiętną), wartość traci ułamek: `2.5` → `2`. Powtarzalne.
+- **Bug 2 — PLN/km, locale EN:** kropka działa stabilnie (nie zamienia się na przecinek, nie znika po re-save). Czyli **bug 1 jest locale-dependent** (PL).
+- **Bug 3 — PLN/h:** w ogóle nie da się wprowadzić wartości dziesiętnej (ani przecinek, ani kropka). Tylko liczba całkowita.
+- **Prawdopodobna przyczyna:**
+  - `inputType="numberDecimal"` akceptuje tylko `.` niezależnie od locale → przecinek zablokowany przez klawiaturę
+  - Parsing/format używa `NumberFormat.getInstance(locale)` które w PL oczekuje `,` → przy re-render po zapisie liczba `2.5` parsuje jako `2` (kropka jest separatorem grupującym w PL, nie dziesiętnym)
+  - PLN/h vs PLN/km może mieć inny inputType / inny TextWatcher → stąd całkowity blok dziesiętnych dla PLN/h
+- **Co sprawdzić / fix proposal:**
+  - Settings input fields dla progów → ustawić `inputType="numberDecimal"` dla obu (PLN/km **i** PLN/h)
+  - Custom DigitsKeyListener akceptujący `,` i `.` (lub force `.` w UI niezależnie od locale, normalizacja przy zapisie)
+  - Parser wartości: `text.replace(",", ".").toDoubleOrNull()` przed zapisem do prefs
+  - Format przy odczycie: użyć `String.format(Locale.US, "%.2f", value)` lub jawnie kontrolować locale wyświetlania
+- **Materiały:** `test-data/closed-testing/screenshots/marcin feedback/2026-05-10_marcin_decimal-threshold-bug.jpg` + video `2026-05-10_marcin_decimal-threshold-bug.mp4` (0:55, reprodukcja na żywo)
+- **Priorytet:** **WYSOKI** — kandydat #1 do v1.0.4 (final polish, target Day 11-12 Closed Testing ≈ 2026-05-14/15). Reprodukowalny, locale-zależny (klasa bugów po Dominiku UA/RU), dobra ammunition do Application Form jako kolejny iteracyjny fix w 14-day window.
+- **Status:** Zgłoszony 2026-05-10, do fixa w v1.0.4.
