@@ -1,6 +1,6 @@
 # Production Submit — Final Checklist (Day 14, target 2026-05-17)
 
-**Status na 2026-05-12 (Day 9):** v1.0.3 LIVE w Closed Testing, v1.0.4 kod gotowy (build/upload Day 11-12), Application Form material 90% gotowy.
+**Status na 2026-05-12 (Day 9, po sesji Play Console verification):** v1.0.3 LIVE w Closed Testing, v1.0.4 kod gotowy (build/upload Day 11-12), Application Form material 90% gotowy. **Default store listing zweryfikowany pole-po-polu i Save kliknięte — zmiany pending w Publishing overview do Day 14 (one-shot submit razem z v1.0.4 AAB).** C2/C4/C8/C9 + F1/F2/F4 ✅ zamknięte.
 
 Ten plik to **single source of truth** dla Day 14 submitu — przejdź po kolei, zaznacz każde pole.
 
@@ -64,24 +64,23 @@ Ten plik to **single source of truth** dla Day 14 submitu — przejdź po kolei,
 | # | Pole | Limit | Status | Source |
 |---|------|-------|--------|--------|
 | C1 | App name | 30 chars | ✅ DONE | "OrderPilot" |
-| C2 | Short description PL | 80 chars | ⚠️ **WERYFIKACJA Day 13** w Console | Proposal: "Stawka zł/h dla zleceń z Uber, Wolt, Glovo, Bolt — analiza on-device." |
-| C3 | Short description EN | 80 chars | ⚠️ **WERYFIKACJA Day 13** w Console | Proposal: "PLN/h overlay for Uber, Wolt, Glovo, Bolt offers — fully on-device." |
-| C4 | Long description PL | 1500-3000 chars | ⚠️ **WERYFIKACJA Day 13** w Console | Patrz `02_implementation_plan.md` Task 5.6 + non-affiliation + financial disclaimers |
-| C5 | Long description EN | 1500-3000 chars | ⚠️ **WERYFIKACJA Day 13** w Console | jak wyżej |
+| C2 | Short description PL | 80 chars | ✅ DONE (zweryfikowane 05-12) | "Wylicza zł/h dla zleceń Uber, Wolt, Glovo, Bolt — pokazuje czy warto jechać" (75/80) |
+| C3 | Short description EN | 80 chars | ⏭️ SKIP do v1.1 (decyzja 05-12) | Brak EN translation w Console — świadomy skip, Google auto-translate wystarczy dla v1.0, redukuje rejection surface |
+| C4 | Long description PL | 1500-3000 chars | ✅ DONE (zweryfikowane 05-12) | 1564/4000. Non-affiliation ✅, financial disclaimer ✅, „NIE posiada uprawnienia Internet" ✅, email kontaktowy ✅, sekcja Accessibility Service rationale ✅ |
+| C5 | Long description EN | 1500-3000 chars | ⏭️ SKIP do v1.1 (decyzja 05-12) | jak C3 |
 | C6 | App icon 512×512 | PNG | ✅ DONE | `store-assets/app_icon_512.png` |
-| C7 | Feature graphic 1024×500 | PNG/JPG | ✅ DONE | `store-assets/feature_graphic_1024x500.png` |
-| C8 | Phone screenshots — min 2, max 8 | per locale | ⚠️ **WERYFIKACJA Day 13** w Console | `store-assets/screenshots play conosle/example1-9` (9 plików) — sprawdzić czy uploadowane do Console |
-| C9 | Video preview (YouTube) | URL | ⚠️ **WERYFIKACJA Day 13** | `youtube.com/shorts/riSLy3qiySA` (90-sec setup) — sprawdzić czy zalinkowany |
+| C7 | Feature graphic 1024×500 | PNG/JPG | ✅ DONE (1/1 widoczne w Console 05-12) | `store-assets/feature_graphic_1024x500.png` (OrderPilot dark + 42 zł/h GREEN + 14 zł/h RED) |
+| C8 | Phone screenshots — min 2, max 8 | per locale | ✅ DONE (8 widoczne w Console 05-12) | + 7-inch tablet 8/8, 10-inch tablet 1/8 (min wymóg spełniony) |
+| C9 | Video preview (YouTube) | URL | ✅ DONE (zapisane 05-12) | `https://www.youtube.com/watch?v=riSLy3qiySA`. **⚠️ GOTCHA: Play Console NIE akceptuje Shorts URLs** — trzeba konwertować `/shorts/<id>` → `/watch?v=<id>` (ID identyczne) |
 | C10 | App category | wybór | ✅ DONE | Productivity |
 | C11 | Contact details — email | required | ✅ DONE | `krzychu.brzezi@gmail.com` |
 | C12 | Tablet screenshots | optional | 🟢 N/A (skipping for v1) | - |
 
-### C — Akcja Day 13
+### C — Status 2026-05-12 (ZAMKNIĘTE)
 
-1. **Play Console → Store presence → Main store listing → Polish (pl-PL)**: zweryfikować że short + long description widoczne. Jeśli puste, paste z `02_implementation_plan.md` Task 5.5/5.6.
-2. **Play Console → Store presence → Main store listing → English (en-US)**: jak wyżej.
-3. **Screenshots** (oba locale): minimum 2, idealnie 4-6. Wybrać najlepsze z `store-assets/screenshots play conosle/`.
-4. **Save** każdą zmianę.
+Sekcja C wykonana w sesji Day 9 (Play Console verification). Zmiany zapisane przez **Save** (nie „Save as draft") → pending w **Publishing overview** ze statusem „Ready to send for review". **Nie klikamy „Send for review" do Day 14** — strategia jednego pakietu (store listing + v1.0.4 AAB razem, mniej okazji do Google rejection).
+
+EN translation pominięta świadomie: brak EN entry w Manage translations (tylko Polish). Powody decyzji: (1) Google nie wymaga EN dla v1.0 Production, (2) +5 nowych pól = nowa powierzchnia rejection, (3) Google auto-translate wystarczy dla 177 countries w Closed Testing pool, (4) EN translation = praca v1.1 post-Production.
 
 ---
 
@@ -140,10 +139,10 @@ Oba problemy zgłosił tester Marcin podczas testów zamkniętych.
 
 | # | Sprawdzenie | Jak |
 |---|-------------|-----|
-| F1 | Privacy Policy URL działa w przeglądarce incognito | Open `https://kris20032.github.io/OrderPilot-App/legal/privacy-policy.html` w incognito |
-| F2 | Data Deletion URL działa w incognito | jak wyżej z `data-deletion.html` |
-| F3 | EN i PL Privacy Policy są spójne | porównanie wizualne |
-| F4 | YouTube video preview działa publicznie (unlisted OK) | `youtube.com/shorts/riSLy3qiySA` |
+| F1 | Privacy Policy URL działa w przeglądarce incognito | ✅ DONE 05-12 — strona top-tier: PL/EN toggle, TL;DR "zero data", RODO art. 15-22, UODO complaint link, last updated 2026-04-21 |
+| F2 | Data Deletion URL działa w incognito | ✅ DONE 05-12 — `data-deletion.html` bilingual (PL/EN), Opcja 1 odinstaluj + Opcja 2 Clear data. Data safety w Console = "doesn't collect" → URL field nie wymagany przez Google, ale strona istnieje jako bonus |
+| F3 | EN i PL Privacy Policy są spójne | ✅ DONE 05-12 — toggle „English version" linked z PL, tytuł "Privacy Policy", TL;DR "collects zero data", spójność z PL content |
+| F4 | YouTube video preview działa publicznie (unlisted OK) | ✅ DONE 05-12 — `https://www.youtube.com/watch?v=riSLy3qiySA` 3/3 checklist incognito (loads, no ads, no age gate) |
 | F5 | Zero NEW negative feedback od testerów Day 13 wieczór | WhatsApp grupa, Console feedback |
 | F6 | Zero NEW crashes/ANRs w Console od ostatniej weryfikacji | Console → Quality → Vitals |
 | F7 | v1.0.4 AAB LIVE w Closed Testing track | Console → Test and release → Closed testing → status "Available" |

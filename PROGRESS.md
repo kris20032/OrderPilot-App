@@ -1,7 +1,7 @@
 # OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-05-12
-**Obecny etap:** **Closed Testing Day 9** (Day 0 = 2026-05-03, Day 14 = 2026-05-17). v1.0.3 LIVE w Closed Testing (Full rollout, 32.50% install base, 177 countries). Dominik confirmed 05-11 23:50: oba fixy v1.0.3 działają. Day 8 (05-11) WA group ping #2 wysłany do większości testerów. v1.0.4 kod IN PROGRESS — branch `fix/v1.0.4-thresholds` z dwoma fixami (#37 decimal input + #38 combined color thresholds AND-semantics), build/upload target Day 11-12 (05-14/15).
+**Ostatnia aktualizacja:** 2026-05-12 (Day 9 — Play Console verification session)
+**Obecny etap:** **Closed Testing Day 9** (Day 0 = 2026-05-03, Day 14 = 2026-05-17). v1.0.3 LIVE w Closed Testing. **Default store listing zweryfikowany pole-po-polu 05-12 i zapisany — pending w Publishing overview do Day 14 submitu razem z v1.0.4 AAB.** Wszystkie wymagane pola Production submit (C2-C9 + F1/F2/F4) zamknięte. v1.0.4 kod gotowy (branch `fix/v1.0.4-thresholds`), build/upload Day 11-12 (05-14/15).
 **Aktywne branche:** `fix/v1.0.4-thresholds` (bieżący — v1.0.4 kod), `play-store-prep` (parent), `feature/production-app` (synced), `main` (synced)
 
 ---
@@ -15,8 +15,8 @@
 | **High** | **Znajomy taty (non-courier)** — dodać jutro do listy testerów (Tata zapyta) | TODO 05-01 |
 | **High** | **3+ AAB updates podczas 14-day clock** — v1.0.2 ✅ Released 05-06, v1.0.3 ✅ LIVE od 05-09 (Dominik confirmed 05-11), v1.0.4 kod gotowy 05-12 (#37 decimal + #38 combined thresholds), build/upload Day 11-12 | W TOKU |
 | **High** | **Application form prep** — material w `docs/closed-testing-evidence.md` (cytaty Andrij+Tata+Dominik+Lucky, statystyki, AAB update mapping) | W TOKU |
-| **High** | Store listing — feature graphic 1024×500 finalna wersja | TODO |
-| **High** | Store listing — pełny opis PL + EN (max 4000 zn) | TODO |
+| **High** | ~~Store listing — feature graphic 1024×500 finalna wersja~~ | ✅ DONE (zweryfikowane w Console 05-12) |
+| **High** | ~~Store listing — pełny opis PL + EN (max 4000 zn)~~ | ✅ DONE PL (75/80 short, 1564/4000 long, non-affiliation + financial disclaimer). EN skip do v1.1 (świadoma decyzja 05-12) |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
 | **Medium** | Merge `play-store-prep` → `feature/production-app` → `main` po zatwierdzeniu Production | Po Production |
 | **Medium** | Profile social media + strategia promocji | Po Production (decyzja 04-29: nie ekspozycja przed launch) |
@@ -71,6 +71,7 @@ Wszystkie implementacje, fixy, parsery, drag handle, język RU, audyty niezawodn
 
 | Data | Zmiana |
 |------|--------|
+| 05-12 | **Play Console verification Day 9** — Default store listing zweryfikowany pole-po-polu i Save (czeka w Publishing overview do Day 14). Wpisany Video URL `youtube.com/watch?v=riSLy3qiySA` (Play Console NIE akceptuje Shorts URLs → konwersja z `/shorts/<id>` → `/watch?v=<id>`). Privacy Policy + Data Deletion URLs zweryfikowane w incognito. Status checklisty: C2 ✅, C4 ✅ (non-affiliation + financial disclaimer obecne), C8 ✅ (8 screens), C9 ✅, F1 ✅, F2 ✅ (Data safety = "doesn't collect" → URL field nie wymagany), F4 ✅. EN translation świadomie pominięta dla v1.0 (skip do v1.1 post-Production, redukcja rejection surface). NIE klikamy „Send for review" do Day 14 — strategia jednego pakietu (store listing + v1.0.4 AAB razem). `PRODUCTION_SUBMIT_CHECKLIST.md` zaktualizowany |
 | 05-05 | **v1.0.2 — Andrij news portals fix** (multi-layer defense). Layer 1: strict foreground tracker (`lastForegroundPackage` z `TYPE_WINDOW_STATE_CHANGED`) + cross-check z `rootInActiveWindow`, wpięty jako guard w `processViaScreenshot`/`processViaAccessibilityTree` + przed `pipeline.process()` we wszystkich 3 call sites. Layer 2: wzmocnione `hasUberOverlayWithContent()` — wymóg patternu oferty (kwota+czas ≤120 znaków) lub markeru Ubera, zamiast samej obecności tekstu (zamyka MIUI phantom-overlay). Layer 3: watch mode reset — cancel `uberWatchJob`/`boltWatchJob` przy `WINDOW_STATE_CHANGED` z packagem spoza `watchedPackages`, plus dodatkowy guard w Uber watch loop. Layer 4: positive markers (10-15 fraz multi-language: PL/EN/UA/RU) wymagane w `UberOcrParser`/`BoltFoodOcrParser`/`WoltOcrParser` — news portal nie zawiera „Łącznie"/„Odbiór za"/„Bolt"/„Akceptuj". `versionCode=3, versionName="1.0.2"`. `future_polish_fixes.md` #36 zamknięty, `closed-testing-evidence.md` sekcja 4+5 zaktualizowane (Application Form ammunition gotowa). Pliki: `OrderPilotAccessibilityService.kt`, `OcrOfferParser.kt`, `UberOcrParser.kt`, `BoltFoodOcrParser.kt`, `WoltOcrParser.kt` |
 | 04-30 | **Closed Testing operations day** — cleanup zombie (Pavlyshy wywalony), counter 11/12 opted-in, PrimeTestLab Enterprise $19.99 zamówiony (25 testers + Approval Guarantee), pool CSV 120 emaili pobrany, ticket do managera wysłany (pool vs package, staged rollout, instructions, geo, refund process). Tracker `test-data/closed-testing/testers_tracker.xlsx` + RECOMMENDATIONS.md utworzone. Strategia: bundle paid+brat+znajomy taty + odpowiedzi POCZEKAJ → clock auto-startuje przy 12+ |
 | 04-29 | **Andrij real engagement** — UA real kurier zgłosił bug (false-positive overlay na portalach informacyjnych) + statystyki dnia (5h57m online, 9 zleceń) + general feedback. Bug do `future_polish_fixes.md`. Kandydat #1 na fix w v1.0.2 (pierwszy z 3+ wymaganych AAB updates). `docs/closed-testing-evidence.md` utworzony jako Application Form ammunition |
