@@ -26,7 +26,7 @@ Ten plik to **single source of truth** dla Day 14 submitu — przejdź po kolei,
 |---|------|--------|---------|
 | B1 | Privacy Policy URL | ✅ DONE | `https://kris20032.github.io/OrderPilot-App/legal/privacy-policy.html` |
 | B2 | Data Deletion URL | ✅ DONE | `https://kris20032.github.io/OrderPilot-App/legal/data-deletion.html` |
-| B3 | App access (Reviewer instructions) | ⚠️ **WERYFIKACJA Day 13** | "All functionality available without restrictions" + Instructions for reviewer (patrz wzór niżej) |
+| B3 | App access | ✅ DONE (zweryfikowane 2026-05-12) | "All functionality in my app is available without any access restrictions" zaznaczone. **Brak instructions for reviewer celowo** — OrderPilot nie ma loginu/paywalla/geo-restrykcji. Kontekst use-case dla reviewera jest w Permissions Declarations (Accessibility ~300 słów) + YouTube video preview. Sekcja B3 wzór niżej został wycofany jako niepotrzebny dla naszego case. |
 | B4 | Ads — declaration | ✅ DONE | NO ads (`AD_ID` removed in manifest) |
 | B5 | Content rating questionnaire | ✅ DONE | PEGI 3 / IARC 3+ (Productivity, no violence/gambling/UGC/location) |
 | B6 | Target audience and content | ✅ DONE | 18+ (gig economy workers, Families Policy: NO) |
@@ -41,24 +41,19 @@ Ten plik to **single source of truth** dla Day 14 submitu — przejdź po kolei,
 | B15 | FOREGROUND_SERVICE_SPECIAL_USE declaration | ✅ DONE | `permissions_declarations.md` sekcja 3 |
 | B16 | FOREGROUND_SERVICE_MEDIA_PROJECTION declaration | ✅ DONE | `permissions_declarations.md` sekcja 7 |
 
-### B3 — Wzór "Instructions for reviewer" (paste-ready)
+### B3 — Decyzja 2026-05-12 (zweryfikowane w Console)
 
-```
-This app requires an active courier account on Uber Driver, Wolt Courier,
-Glovo Courier, or Bolt Food to demonstrate offer-detection functionality.
-Reviewers without such accounts will see only the onboarding (Prominent
-Disclosure), Setup wizard, Settings, and the AccessibilityService permission
-flow — these are all reachable without a courier account and demonstrate
-the privacy disclosure, permission rationale, and configuration UI.
+**Status:** „All functionality in my app is available without any access restrictions" zaznaczone w Console (od 2026-04-21). **Nie zmieniamy.**
 
-For full offer-detection demonstration on a real device with an active
-courier account, please refer to the video demo linked in the Permissions
-Declarations form.
+**Dlaczego nie wpisujemy „Instructions for reviewer":**
+- Google policy „access restrictions" = login, paywall, geo-blokada, membership. OrderPilot nie ma żadnej z tych barier.
+- Brak konta Uber/Wolt/Glovo/Bolt **nie jest** access restriction do OrderPilot — to external app context, nie barrier do enter our app.
+- Reviewer dostanie pełen dostęp: Prominent Disclosure, Setup wizard, Settings, AccessibilityService permission flow — wszystko reachable bez courier account.
 
-Closed Testing feedback (14 days, 50 active testers, 5 real couriers from
-4 countries) is documented in our Production Application questionnaire
-responses.
-```
+**Reviewer kontekst use-case dostaje gdzie indziej:**
+- Permissions Declarations → Accessibility Service section (~300 słów o courier use case) w `permissions_declarations.md` sekcja 1
+- YouTube video preview (`youtube.com/shorts/riSLy3qiySA`) — demonstruje pełen flow
+- Long description w Store listing — opisuje docelowych użytkowników
 
 ---
 
