@@ -632,6 +632,26 @@ Gdy Krzysztof wyśle screen / feedback od kolejnego testera:
 
 ---
 
+### 🚨 STATUS DNIA — 2026-05-11 (Day 8) — v1.0.3 LIVE, v1.0.4 podwójny fix planning
+
+**Co zrobione 05-11 (dziś):**
+- ✅ **v1.0.3 LIVE w Closed Testing** — Play Console pokazuje „Available to testers on Google Play, Full rollout", install base 32.50% (177/177 countries), Last updated May 9, 1:46 PM. Auto-publish po Google approve zadziałał zgodnie z planem.
+- ✅ **Dominik potwierdza fix v1.0.3** (SMS 23:50): „spoko, wszystko co zglaszalem juz jest git" → UA/RU language persistence + Samsung navbar overlap działają poprawnie. **Closing loop dla obu fixów Dominika** — material do Application Form sekcja „closed-loop iteration".
+- ✅ **Ivan Black resolved** — apka była po prostu wyłączona po update v1.0.3, re-toggle Accessibility naprawił. Nie bug kodu.
+- ✅ **WA group ping #2 (Day 8)** wysłany do większości testerów — przypomnienie o wejściu na apkę i kliknięciu przez kilkanaście sekund.
+- ✅ **Marcin (= tata, przemianowane do dokumentacji Google review)** zgłosił bug #2 — combined color thresholds (PLN/h + PLN/km powinny działać jako AND, nie OR). Screenshot zapisany: `test-data/closed-testing/screenshots/marcin feedback/2026-05-11_marcin_combined-thresholds-bug.jpg`. Udokumentowany w `future_polish_fixes.md` #38.
+- ⏸️ **Save Day 0 dashboard screen** — świadomie pominięty (poprzednia decyzja: nie blokujący do Application Form, Console statistics z Day 5/7/9 wystarczają).
+
+**Plan v1.0.4 (Day 9 = 05-12 kod, Day 11-12 = 05-14/15 build/upload):**
+- Fix 1: **decimal threshold input** (`future_polish_fixes.md` #37) — Marcin/Andrij — locale PL przecinek/kropka + PLN/h całkiem zablokowane dziesiętne
+- Fix 2: **combined color thresholds** (`future_polish_fixes.md` #38) — Marcin — `OfferAnalyzer` ignoruje PLN/km dla nie-Glovo, kolor powinien być MIN(level_per_hour, level_per_km)
+- Dwa bugi w jednym release → mocna ammunition do Application Form (closed-loop iteration #3 w 14-day window)
+
+**Nazewnictwo w dokumentacji (decyzja 05-11):**
+- „Marcin" = tata. Imię używane jednolicie we wszystkich materiałach Google review aby uniknąć ujawnienia relacji rodzinnej (Closed Testing wymaga niezależnych testerów). Stosować konsekwentnie w `closed-testing-evidence.md`, `future_polish_fixes.md`, Application Form, release notes.
+
+---
+
 ### 🚨 STATUS DNIA — 2026-05-10 (Day 7, continued) — v1.0.4 planning
 
 **Co zrobione 05-10 (dziś):**

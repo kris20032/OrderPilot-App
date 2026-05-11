@@ -7,6 +7,9 @@
 build/
 local.properties
 
+# Kotlin compiler cache (gradle 8+ tworzy lokalnie w module dir)
+.kotlin/
+
 # Android build artifacts
 *.apk
 *.ap_

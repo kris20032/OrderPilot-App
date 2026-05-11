@@ -408,3 +408,21 @@
 - **Materiały:** `test-data/closed-testing/screenshots/marcin feedback/2026-05-10_marcin_decimal-threshold-bug.jpg` + video `2026-05-10_marcin_decimal-threshold-bug.mp4` (0:55, reprodukcja na żywo)
 - **Priorytet:** **WYSOKI** — kandydat #1 do v1.0.4 (final polish, target Day 11-12 Closed Testing ≈ 2026-05-14/15). Reprodukowalny, locale-zależny (klasa bugów po Dominiku UA/RU), dobra ammunition do Application Form jako kolejny iteracyjny fix w 14-day window.
 - **Status:** Zgłoszony 2026-05-10, do fixa w v1.0.4.
+
+### 38. Progi koloru PLN/h i PLN/km powinny działać jako AND (zgłoszone 2026-05-11 przez Marcina)
+- **Zgłaszający:** Marcin (Closed Testing tester, WhatsApp grupa „Beta testerzy courier assist", 6:12 PM)
+- **Kontekst:** ekran ustawień progów (Settings → Color thresholds) ma cztery pola: `Green from PLN/h`, `Yellow from PLN/h`, `Green from PLN/km`, `Yellow from PLN/km`. User naturalnie zakłada, że oba progi działają **łącznie**.
+- **Bug — aktualne zachowanie:**
+  - Repro przykład Marcina: oferta 25.61 zł / 45 min / 20.0 km = **34 PLN/h** + **1.3 PLN/km**
+  - Ustawienia: Green/Yellow PLN/h = 40/34, Green/Yellow PLN/km = 3/2
+  - Belka pokazuje **żółty/pomarańczowy** (bo 34 PLN/h = próg yellow)
+  - Marcin oczekuje **RED**, bo PLN/km (1.3) jest **poniżej** progu yellow (2)
+- **Przyczyna (kod):** `OfferAnalyzer.kt:26-30` — w głównej gałęzi (`estimatedMinutes > 0`) kolor liczony **wyłącznie** z PLN/h. Progi PLN/km z `ThresholdConfig` używane tylko w fallbacku dla Glovo (gdy brak czasu). Komentarz w `AppSettings.kt:13` to potwierdza: `// dla Glovo (brak czasu)`. UX pokazuje pola jako globalne, kod traktuje je per-platforma → mismatch oczekiwań.
+- **Fix proposal:**
+  - W głównej gałęzi `OfferAnalyzer.analyze()` policzyć osobno `levelFromHour` i `levelFromKm`
+  - Finalny `level = min(levelFromHour, levelFromKm)` (gorszy wygrywa, AND-semantics) — czyli zamiana GREEN→YELLOW→RED na ordinal i `min`
+  - **Edge — brak dystansu** (`distanceKm == null` lub `0`): pominąć `levelFromKm`, decyduje tylko `levelFromHour` (nie psujemy ofert z samym czasem; ~10 linijek zmian)
+  - Glovo (`estimatedMinutes <= 0`) bez zmian — tam i tak decyduje tylko PLN/km
+- **Materiały:** `test-data/closed-testing/screenshots/marcin feedback/2026-05-11_marcin_combined-thresholds-bug.jpg`
+- **Priorytet:** **WYSOKI** — kandydat #2 do v1.0.4 razem z #37. Mały kod (~10 linijek + test jednostkowy), reprodukowalny, dwa bugi w jednym release = closed-loop iteration #3 w 14-day window.
+- **Status:** Zgłoszony 2026-05-11, do fixa w v1.0.4.

@@ -1,8 +1,8 @@
 # OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-05-09
-**Obecny etap:** **Closed Testing Day 7** (Day 0 = 2026-05-03, Day 14 = 2026-05-17). 50 active testers w Console, 12 opted-in for 7 days continuously confirmed. v1.0.2 (Andrij news-portals fix) — Released May 6 12:14 AM. v1.0.3 (Dominik UA/RU language + Samsung navbar) — sent for review 05-09, **IN REVIEW** (auto-publish po Google approve ~1-3h).
-**Aktywne branche:** `play-store-prep` (bieżący — zawiera ikonę A1, splash, PP, Disclosure, signingConfigs), `feature/production-app` (synced), `main` (synced)
+**Ostatnia aktualizacja:** 2026-05-12
+**Obecny etap:** **Closed Testing Day 9** (Day 0 = 2026-05-03, Day 14 = 2026-05-17). v1.0.3 LIVE w Closed Testing (Full rollout, 32.50% install base, 177 countries). Dominik confirmed 05-11 23:50: oba fixy v1.0.3 działają. Day 8 (05-11) WA group ping #2 wysłany do większości testerów. v1.0.4 kod IN PROGRESS — branch `fix/v1.0.4-thresholds` z dwoma fixami (#37 decimal input + #38 combined color thresholds AND-semantics), build/upload target Day 11-12 (05-14/15).
+**Aktywne branche:** `fix/v1.0.4-thresholds` (bieżący — v1.0.4 kod), `play-store-prep` (parent), `feature/production-app` (synced), `main` (synced)
 
 ---
 
@@ -13,7 +13,7 @@
 | **High** | **Rekrutacja testerów Closed Testing** — 11/12 opted-in (po cleanup zombie 04-30), buffer cel: 14-16 z ratio engagement ≥85% | W TOKU |
 | **High** | **PrimeTestLab ticket** — czeka na odpowiedź managera (pool 120 vs 25, staged rollout, instructions delivery, geo distribution, refund process) | WYSŁANE 04-30 |
 | **High** | **Znajomy taty (non-courier)** — dodać jutro do listy testerów (Tata zapyta) | TODO 05-01 |
-| **High** | **3+ AAB updates podczas 14-day clock** — v1.0.2 ✅ Released 05-06, v1.0.3 ✅ sent for review 05-09 (IN REVIEW), v1.0.4 (final polish) Day 11-12 | W TOKU |
+| **High** | **3+ AAB updates podczas 14-day clock** — v1.0.2 ✅ Released 05-06, v1.0.3 ✅ LIVE od 05-09 (Dominik confirmed 05-11), v1.0.4 kod gotowy 05-12 (#37 decimal + #38 combined thresholds), build/upload Day 11-12 | W TOKU |
 | **High** | **Application form prep** — material w `docs/closed-testing-evidence.md` (cytaty Andrij+Tata+Dominik+Lucky, statystyki, AAB update mapping) | W TOKU |
 | **High** | Store listing — feature graphic 1024×500 finalna wersja | TODO |
 | **High** | Store listing — pełny opis PL + EN (max 4000 zn) | TODO |
