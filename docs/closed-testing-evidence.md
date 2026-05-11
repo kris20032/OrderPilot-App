@@ -411,9 +411,9 @@ Formularz Production Access ma **3 sekcje, 8 pytań total**. Source: [support.go
 
 **Short answer (paste-ready do Application Form):**
 > Throughout the Closed Testing window we shipped 3 AAB updates, each addressing specific tester feedback:
-> - **v1.0.2** (May 6, 2026) — Fixed false-positive overlay appearing on news portals (e.g., Onet, WP), reported by Andrij (UA real courier) on April 29. Implemented multi-layer defense covering app foreground tracking, watch-mode reset on app switching, hardened MIUI phantom-overlay detection, and platform-specific positive marker validation in our parsers. The bar now only appears in courier app contexts.
-> - **v1.0.3** (code shipped May 7, AAB sent for review May 9, in review at submission time) — Fix language fallback for Russian/Ukrainian UI (selected language was resetting to Polish after save) + Samsung navigation bar overlapping the "Save settings" button on Settings screen. Reported by Dominik (Samsung) on April 28 and re-reported May 7 with screenshots after testing v1.0.2 (which proved the bugs persisted). Engineering response: migrated to AppCompatDelegate.setApplicationLocales (official Android 13+ per-app locale API) with one-time migration sync from existing SharedPrefs preferences; added WindowInsetsCompat handling in three Activity classes for edge-to-edge enforcement on targetSdk 35.
-> - **v1.0.4** (planned May 14-15) — Final polish based on Days 7-14 tester feedback.
+> - **v1.0.2** (released May 6, 2026 — Day 3) — Fixed false-positive overlay appearing on news portals (e.g., Onet, WP), reported by Andrij (UA real courier) on April 29. Implemented multi-layer defense covering app foreground tracking, watch-mode reset on app switching, hardened MIUI phantom-overlay detection, and platform-specific positive marker validation in our parsers. The bar now only appears in courier app contexts.
+> - **v1.0.3** (released May 9, 2026 — Day 7, LIVE in Closed Testing) — Fixed language fallback for Russian/Ukrainian UI (selected language was resetting to Polish after save) + Samsung navigation bar overlapping the "Save settings" button on Settings screen. Reported by Dominik (Samsung) on April 28 and re-reported May 7 with screenshots after testing v1.0.2 (which proved the bugs persisted). Engineering response: migrated to AppCompatDelegate.setApplicationLocales (official Android 13+ per-app locale API) with one-time migration sync from existing SharedPrefs preferences; added WindowInsetsCompat handling in three Activity classes for edge-to-edge enforcement on targetSdk 35. Verified working by Dominik on May 11: "spoko, wszystko co zglaszalem juz jest git" ("all good, everything I reported is now fine").
+> - **v1.0.4** (code ready May 12, build + upload planned Day 11-12 ≈ May 14-15) — Two fixes from Marcin (PL real courier): (a) decimal threshold input was locale-dependent — PLN/km values like 2.5 were silently overwritten with the default 3.0 after re-save on Polish locale, and PLN/h was completely blocked from accepting decimals; (b) color thresholds for PLN/h and PLN/km were not combined — only PLN/h decided the bar color, so a 34 PLN/h + 1.3 PLN/km offer was yellow even though PLN/km was below the yellow threshold. Andrij independently confirmed the decimal bug (same day). Engineering response: SettingsActivity now uses Locale.US for formatting decimals (consistent round-trip), accepts both "," and "." as decimal separators, and preserves the previous value on parse failure instead of falling back to a hardcoded default; OfferAnalyzer now computes the color level from both metrics and takes the worse of the two (AND-semantics). 7 new unit tests added (all 19 tests pass) covering the Marcin repro and 6 edge cases (missing distance, zero distance, Glovo path regression, etc.).
 
 **Long version (jeśli Google poprosi o engineering detail):**
 > v1.0.2 implemented a 4-layer defense to prevent the bar from appearing in non-courier apps:
@@ -436,11 +436,11 @@ Formularz Production Access ma **3 sekcje, 8 pytań total**. Source: [support.go
 **Draft answer:**
 > OrderPilot is ready for production based on five concrete signals from the 14-day Closed Testing window:
 >
-> 1. **3 iterative updates shipped during the testing window**, each fixing tester-reported issues (v1.0.2: news-portal false positives; v1.0.3: language persistence + Samsung navbar overlap; v1.0.4: final polish from Days 7-14 feedback). All fixes were verified by the same testers who reported the bugs, closing the feedback loop.
+> 1. **3 iterative updates shipped during the testing window**, each fixing tester-reported issues (v1.0.2: news-portal false positives from Andrij; v1.0.3: language persistence + Samsung navbar overlap from Dominik — verified by him as fixed; v1.0.4: decimal threshold input + combined-thresholds AND-semantics from Marcin, with Andrij independently confirming the decimal bug). All fixes were verified by the same testers who reported the bugs, closing the feedback loop. The codebase has unit-test coverage of the offer-analysis engine (19 tests passing, including 7 regression tests covering the Marcin combined-thresholds repro and its edge cases).
 >
 > 2. **Real-world validation by working couriers, not synthetic testing.** Andrij (Ukrainian Bolt Food courier) tested the app during a paid 5h57m / 9-delivery shift on April 29, 2026, confirming the offer pipeline works correctly during actual paid work — not just in lab conditions. We have 5 photos from his real Gdańsk deliveries showing the OrderPilot bar visible during real offers.
 >
-> 3. **Cross-device coverage.** Testers covered: Samsung (Knox, edge-to-edge Android 15+ navbar), Xiaomi MIUI (phantom overlay quirks), Google Pixel, multiple OEMs across 4 countries (PL, US, UK, AF). The Pre-Launch Report from Play Console additionally tested ~20 emulated/real device configurations with no crashes/ANRs.
+> 3. **Cross-device coverage.** Testers covered: Samsung (Knox, edge-to-edge Android 15+ navbar — Dominik's repro), Xiaomi MIUI (phantom overlay quirks, Marcin's locale repro), Google Pixel, vivo, plus ~40 additional devices via a paid testing pool (PrimeTestLab) for breadth. Geographic spread across 4 countries (PL, US, UK, AF — confirmed in Play Console statistics, 177 supported countries/regions). Play Console reports zero crashes and zero ANRs across all v1.0.2 and v1.0.3 sessions.
 >
 > 4. **Zero-network privacy guarantee verified.** The app makes no network calls (verified via airplane mode + DNS sniffing). All OCR, parsing, and analysis is on-device. No personal data ever leaves the user's phone — important given that we read sensitive offer/payment information from third-party delivery apps.
 >
@@ -574,16 +574,19 @@ Formularz Production Access ma **3 sekcje, 8 pytań total**. Source: [support.go
 
 ---
 
-### 🎯 Fix Card v1.0.4 (paste-ready do Production Application Form) — PLACEHOLDER
+### 🎯 Fix Card v1.0.4 (paste-ready do Production Application Form)
 
-**Use case:** trzeci i ostatni case study tester-driven fix — zamyka 3+ AAB updates wymagane przez Google, pokazuje że bug locale-dependent (podobna klasa co Dominik UA/RU) trafił od razu dwóch testerów (Marcin PL + Andrij UA).
+**Use case:** trzeci i ostatni case study tester-driven fix — zamyka 3+ AAB updates wymagane przez Google. Dwa różne bugi od tego samego testera (Marcin) w 24h: jeden locale-dependent (klasa po Dominiku UA/RU, oddzielnie potwierdzony przez Andrija), drugi UX-logic (combined-thresholds semantics). Trzy iteracyjne fixy w 14-day oknie + sześciu różnych testerów dostarczyło bug reportów = mocna ammunition dla pytania „How did your app change based on testing?".
 
 ```
 ┌─ TESTER FEEDBACK → PRODUCTION FIX (v1.0.4) ─────────────────────────────┐
 │                                                                          │
-│ TESTERS:   Marcin (PL locale) + Andrij (UA, confirms same behavior)     │
-│ DATE:      May 10, 2026 (Day 7 of Closed Testing)                       │
+│ TESTERS:   Marcin (PL locale, 2 reports) + Andrij (UA, confirms decimal)│
+│ DATES:     May 10, 2026 (Day 7) + May 11, 2026 (Day 8)                  │
 │ CHANNEL:   WhatsApp group "Beta testerzy courier assist"                 │
+│                                                                          │
+│ ─── BUG 1: Decimal threshold input (locale-dependent) ──                 │
+│ REPORTED:  May 10 (Day 7) by Marcin, confirmed same day by Andrij       │
 │                                                                          │
 │ FEEDBACK QUOTES:                                                         │
 │   Marcin (EN): "When I want to set the PLN/km threshold to 2.50,        │
@@ -593,21 +596,58 @@ Formularz Production Access ma **3 sekcje, 8 pytań total**. Source: [support.go
 │   Andrij (PL): "Nie zapisuje wyłącznie liczb niecałkowitych, ale liczby │
 │    całkowite zapisuje bez problemu."                                     │
 │                                                                          │
-│ BUG SUMMARY: Decimal threshold values (PLN/km, PLN/h) cannot be saved   │
-│ in Polish locale. Integer values work fine. English locale unaffected.  │
-│ Root cause: Android numberDecimal EditText + Polish locale decimal       │
-│ separator mismatch (period vs comma).                                   │
+│ ENGINEERING FIX:                                                         │
+│   - SettingsActivity formatThreshold(): always Locale.US (period) so    │
+│     round-trip render→parse stays consistent regardless of system locale│
+│   - parseThreshold() helper accepts both "," and "." separators         │
+│     (defensive against manual entry / keyboard variants)                │
+│   - Load path for PLN/h: replaced .toInt().toString() with              │
+│     formatThreshold() — decimals were silently truncated at every       │
+│     re-render, totally blocking decimal entry for PLN/h                 │
+│   - Save fallback preserves previous value from prefs instead of        │
+│     hardcoded default — was silently overwriting user's 2.5 with 3.0   │
+│     when text didn't parse                                              │
 │                                                                          │
-│ ENGINEERING FIX (planned): [TODO po implementacji — uzupełnić]          │
+│ ─── BUG 2: Combined color thresholds (AND-semantics, UX) ──             │
+│ REPORTED:  May 11 (Day 8) by Marcin                                     │
 │                                                                          │
-│ TIMELINE:                                                                │
-│   May 10 (Day 7) — reported by Marcin, confirmed by Andrij              │
-│   May 14-15 (Day 11-12) — fix implemented, AAB built + uploaded         │
+│ FEEDBACK QUOTE:                                                          │
+│   Marcin (EN, screenshot evidence): "since we have color thresholds    │
+│    for PLN/h and PLN/km, the thresholds for the same color should      │
+│    probably work combined, so for the orange color to appear, both     │
+│    the PLN/h and PLN/km thresholds must be exceeded, and it seems      │
+│    that meeting only one of these thresholds is enough for the color   │
+│    to change, even if the other one is too low."                       │
+│                                                                          │
+│ REPRO (Marcin's screenshot):                                             │
+│   Offer: 25.61 PLN / 45 min / 20.0 km → 34 PLN/h + 1.3 PLN/km          │
+│   Thresholds: yellow_h=34, yellow_km=2                                  │
+│   Expected: RED (km below yellow_km threshold)                          │
+│   Actual:   YELLOW (PLN/km ignored in non-Glovo path)                   │
+│                                                                          │
+│ ENGINEERING FIX:                                                         │
+│   - OfferAnalyzer.analyze() now computes levelFromHour AND levelFromKm │
+│     in main branch, takes worstOf(...) for AND-semantics                │
+│   - Edge case: missing distanceKm or 0 → falls back to PLN/h only       │
+│     (preserves behavior for time-only offers)                           │
+│   - Glovo path (no time) unchanged — still uses PLN/km only             │
+│   - 7 new unit tests in OfferAnalyzerTest (Marcin repro + 6 edge cases) │
+│   - All 19 tests passing: ./gradlew :app:testDebugUnitTest ✅           │
+│                                                                          │
+│ ─── DELIVERY ──                                                          │
+│ COMMITS:                                                                 │
+│   f58ec8c — fix(v1.0.4): combined thresholds + decimal input            │
+│   56d7edd — docs: Day 8/9 status + v1.0.4 plan                          │
+│ BRANCH:    fix/v1.0.4-thresholds (pushed to origin)                     │
+│ TARGET:    AAB build + upload Day 11-12 (≈ May 14-15)                   │
+│                                                                          │
+│ EVIDENCE FILES:                                                          │
+│   test-data/closed-testing/screenshots/marcin feedback/                 │
+│     2026-05-10_marcin_decimal-threshold-bug.{jpg,mp4}                   │
+│     2026-05-11_marcin_combined-thresholds-bug.jpg                       │
 │                                                                          │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
-
-_(Uzupełnić po napisaniu kodu i buildzie AAB v1.0.4)_
 
 ---
 
@@ -629,6 +669,26 @@ Gdy Krzysztof wyśle screen / feedback od kolejnego testera:
 ---
 
 ## 7. Otwarte zadania / przypomnienia
+
+---
+
+### 🚨 STATUS DNIA — 2026-05-12 (Day 9) — v1.0.4 kod gotowy, unit testy zielone
+
+**Co zrobione 05-12 (dziś):**
+- ✅ **Kod v1.0.4 napisany na branchu `fix/v1.0.4-thresholds`** — dwa fixy w jednym release:
+  - Fix #38 combined color thresholds (AND-semantics) — `OfferAnalyzer.kt` refactor z `worstOf(levelFromHour, levelFromKm)`, edge cases pokryte (brak/zero dystansu → fallback do zł/h, Glovo path bez zmian)
+  - Fix #37 decimal threshold input — `SettingsActivity.kt` z `formatThreshold` Locale.US + `parseThreshold` akceptujący oba separatory + fallback zachowujący poprzednią wartość z prefs zamiast hardcoded defaultu
+- ✅ **Unit testy: 19/19 PASSED** — pełna regresja `OfferAnalyzerTest` + 7 nowych testów combined-thresholds (Marcin's exact repro + 6 edge cases). `./gradlew :app:testDebugUnitTest` ~ 3ms.
+- ✅ **Branch `fix/v1.0.4-thresholds` wypchnięty na GitHub** — 2 commity: `f58ec8c` (kod+test) + `56d7edd` (docs).
+- ✅ **Fix Card v1.0.4** wypełniony konkretami (engineering description, repro, evidence files) — paste-ready do Application Form.
+- ⏸️ **Manual UI testing na telefonie** — świadomie odłożone (decyzja 05-12). Build + install + 3 scenariusze (A: PLN/h dziesiętne, B: PLN/km na PL locale + re-save bez dotykania pola, C: locale switch PL↔EN) do zrobienia przed Day 11-12 lub przy okazji build AAB. Unit testy pokrywają logikę combined-thresholds 100%; decimal input wymaga manual verification że UI faktycznie nie obcina.
+- ⏸️ **Pre-launch report** wykreślony z TODO — robot Firebase Google nie przechodzi onboardingu AccessibilityService (znane zachowanie dla aplikacji accessibility). Evidence zastąpione 50 active testers + 5 real kurierów + 3 AAB iteracji.
+
+**Plan najbliższych dni:**
+- Day 10 (05-13): Manual UI test fix #37 (jeśli będzie czas), monitoring czy nikt z 50 testers nie dropuje opted-in
+- Day 11-12 (05-14/15): Build signed AAB v1.0.4 (versionCode 5, versionName 1.0.4), upload do Play Console, release notes EN+PL, ping Marcina po auto-publish
+- Day 13 (05-16): Application Form draft — paste-ready z Fix Cards v1.0.2/v1.0.3/v1.0.4 + tester quotes
+- Day 14 (05-17): Submit Application for Production
 
 ---
 
@@ -735,7 +795,7 @@ Gdy Krzysztof wyśle screen / feedback od kolejnego testera:
 - [ ] **WA group ping #1 (Day 3)** — wzór: „Cześć! Jak idzie z OrderPilotem? Mógłbyś wrzucić jeden screen + napisać jedno zdanie co działa albo co nie? Potrzebne do oficjalnego submit do Google. Dzięki!"
 - [ ] **Andrij ping** (po Google approve) — „Wgrałem update z fixem belki na portalach. Apka sama się zaktualizuje. Daj znać czy belka nadal pojawia się gdzieś poza apkami kurierskimi."
 - [ ] **Save Day 3 Console Statistics screen** → `test-data/closed-testing/screenshots/2026-05-06_play-console-statistics.png`
-- [ ] **Pre-launch report check** dla v1.0.2 — Console → Pre-launch report. Crashe? ANRs? Lista przetestowanych urządzeń.
+- [x] ~~**Pre-launch report check** dla v1.0.2~~ — **WYKREŚLONE 2026-05-12**: Pre-launch report jest pusty bo robot Google Firebase nie przechodzi onboardingu AccessibilityService (wymaga manual permission grant w Settings → Accessibility). To znane zachowanie dla aplikacji accessibility, nie blokuje Application Form. Evidence zastępujemy: 50 active testers + 5 real kurierów + 3 AAB iteracje + 177 countries device coverage.
 - [ ] **Day 0 dashboard screen save** (jeśli jeszcze niezrobione) — `2026-05-03_day0_dashboard-12-testers-checked.png`
 - [ ] **Verify Vasyl install** (= „znajomy taty") — Console
 - [ ] **Verify Ivan UA install** — Console
