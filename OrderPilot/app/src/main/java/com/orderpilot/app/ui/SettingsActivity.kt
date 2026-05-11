@@ -22,6 +22,7 @@ import com.orderpilot.app.domain.Platform
 import com.orderpilot.app.settings.DisplayConfig
 import com.orderpilot.app.settings.PlatformSettings
 import com.orderpilot.app.settings.ThresholdConfig
+import java.util.Locale
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -114,8 +115,8 @@ class SettingsActivity : AppCompatActivity() {
         // Global (tab 0)
         val gt = settings.globalThresholds
         tabData[0] = TabValues(
-            greenHour = gt.greenMinZlPerHour.toInt().toString(),
-            yellowHour = gt.yellowMinZlPerHour.toInt().toString(),
+            greenHour = formatThreshold(gt.greenMinZlPerHour),
+            yellowHour = formatThreshold(gt.yellowMinZlPerHour),
             greenKm = formatThreshold(gt.greenMinZlPerKm),
             yellowKm = formatThreshold(gt.yellowMinZlPerKm),
             displayTime = settings.display.displayTimeSeconds.toFloat().coerceIn(5f, 60f)
@@ -127,8 +128,8 @@ class SettingsActivity : AppCompatActivity() {
             val override = settings.platformOverrides[platform]
             val t = override?.thresholds
             tabData[i] = TabValues(
-                greenHour = t?.greenMinZlPerHour?.toInt()?.toString() ?: "",
-                yellowHour = t?.yellowMinZlPerHour?.toInt()?.toString() ?: "",
+                greenHour = t?.greenMinZlPerHour?.let { formatThreshold(it) } ?: "",
+                yellowHour = t?.yellowMinZlPerHour?.let { formatThreshold(it) } ?: "",
                 greenKm = t?.greenMinZlPerKm?.let { formatThreshold(it) } ?: "",
                 yellowKm = t?.yellowMinZlPerKm?.let { formatThreshold(it) } ?: "",
                 displayTime = (override?.displayTimeSeconds ?: settings.display.displayTimeSeconds).toFloat().coerceIn(5f, 60f)
@@ -212,15 +213,20 @@ class SettingsActivity : AppCompatActivity() {
         // Zapisz aktualny tab do pamięci
         saveCurrentTabToMemory()
 
+        val current = ServiceLocator.settingsRepository.load()
+
         // Walidacja Global (tab 0) — wymagane
-        val globalGreenH = tabData[0].greenHour.toDoubleOrNull()
-        val globalYellowH = tabData[0].yellowHour.toDoubleOrNull()
+        val globalGreenH = parseThreshold(tabData[0].greenHour)
+        val globalYellowH = parseThreshold(tabData[0].yellowHour)
         if (globalGreenH == null || globalYellowH == null || globalYellowH >= globalGreenH) {
             Snackbar.make(binding.root, R.string.settings_validation_error, Snackbar.LENGTH_LONG).show()
             return
         }
-        val globalGreenKm = tabData[0].greenKm.toDoubleOrNull() ?: 4.0
-        val globalYellowKm = tabData[0].yellowKm.toDoubleOrNull() ?: 3.0
+        // Jeśli pole non-empty ale invalid (np. zostawione w lokalizowanym formacie),
+        // zachowaj poprzednią wartość zamiast cichego fallback do hardcoded defaultu —
+        // chroni przed utratą wartości Marcina po re-save bez dotykania pola.
+        val globalGreenKm = parseThreshold(tabData[0].greenKm) ?: current.globalThresholds.greenMinZlPerKm
+        val globalYellowKm = parseThreshold(tabData[0].yellowKm) ?: current.globalThresholds.yellowMinZlPerKm
 
         val globalThresholds = ThresholdConfig(
             greenMinZlPerHour = globalGreenH,
@@ -246,15 +252,14 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         // Per-platform overrides
-        val current = ServiceLocator.settingsRepository.load()
         val overrides = mutableMapOf<Platform, PlatformSettings>()
         for (i in 1..4) {
             val platform = tabPlatforms[i]!!
             val data = tabData[i]
-            val greenH = data.greenHour.toDoubleOrNull()
-            val yellowH = data.yellowHour.toDoubleOrNull()
-            val greenKm = data.greenKm.toDoubleOrNull()
-            val yellowKm = data.yellowKm.toDoubleOrNull()
+            val greenH = parseThreshold(data.greenHour)
+            val yellowH = parseThreshold(data.yellowHour)
+            val greenKm = parseThreshold(data.greenKm)
+            val yellowKm = parseThreshold(data.yellowKm)
 
             val thresholds = if (greenH != null || yellowH != null || greenKm != null || yellowKm != null) {
                 ThresholdConfig(
@@ -301,8 +306,23 @@ class SettingsActivity : AppCompatActivity() {
         finish()
     }
 
+    /**
+     * Formatowanie wartości progu do EditText. Zawsze Locale.US (kropka), niezależnie od
+     * systemowego locale — żeby parser w save zawsze zrozumiał wartość pole-po-polu
+     * round-trip, nawet jeśli user nie dotyka pola. Inaczej PL device renderował "2,5"
+     * a `toDoubleOrNull()` zwracał null → cichy fallback gubił wartość Marcina (fix #37).
+     */
     private fun formatThreshold(value: Double): String {
         return if (value == value.toLong().toDouble()) value.toInt().toString()
-        else String.format("%.1f", value)
+        else String.format(Locale.US, "%.2f", value).trimEnd('0').trimEnd('.')
     }
+
+    /**
+     * Parsowanie wartości progu z EditText. Akceptuje oba separatory dziesiętne (`,` i `.`)
+     * — defensywne na wypadek gdyby user wkleił wartość lub klawiatura systemowa wstawiła
+     * przecinek (PL locale + numberDecimal). Zwraca null dla pustego/niepoprawnego stringu;
+     * caller decyduje co zrobić (validation error vs zachowaj poprzednią wartość).
+     */
+    private fun parseThreshold(text: String?): Double? =
+        text?.trim()?.takeIf { it.isNotEmpty() }?.replace(',', '.')?.toDoubleOrNull()
 }
