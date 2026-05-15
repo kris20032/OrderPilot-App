@@ -406,8 +406,8 @@
   - Parser wartości: `text.replace(",", ".").toDoubleOrNull()` przed zapisem do prefs
   - Format przy odczycie: użyć `String.format(Locale.US, "%.2f", value)` lub jawnie kontrolować locale wyświetlania
 - **Materiały:** `test-data/closed-testing/screenshots/marcin feedback/2026-05-10_marcin_decimal-threshold-bug.jpg` + video `2026-05-10_marcin_decimal-threshold-bug.mp4` (0:55, reprodukcja na żywo)
-- **Priorytet:** **WYSOKI** — kandydat #1 do v1.0.4 (final polish, target Day 11-12 Closed Testing ≈ 2026-05-14/15). Reprodukowalny, locale-zależny (klasa bugów po Dominiku UA/RU), dobra ammunition do Application Form jako kolejny iteracyjny fix w 14-day window.
-- **Status:** Zgłoszony 2026-05-10, do fixa w v1.0.4.
+- **Priorytet:** ~~WYSOKI~~ → ZAMKNIĘTE.
+- **Status:** ✅ **NAPRAWIONE w v1.0.4** (commit `f58ec8c`, 2026-05-12). `SettingsActivity.kt` + `OfferAnalyzer.kt` — locale-aware decimal input (normalizacja `,`→`.`) + combined threshold logic (AND-semantics). Build wgrany 2026-05-13, **opublikowany przez Google 2026-05-13** (Play Console: „App update published"). Dobra ammunition do Application Form (3. iteracyjny AAB update w Closed Testing window).
 
 ### 38. Progi koloru PLN/h i PLN/km powinny działać jako AND (zgłoszone 2026-05-11 przez Marcina)
 - **Zgłaszający:** Marcin (Closed Testing tester, WhatsApp grupa „Beta testerzy courier assist", 6:12 PM)
@@ -424,5 +424,27 @@
   - **Edge — brak dystansu** (`distanceKm == null` lub `0`): pominąć `levelFromKm`, decyduje tylko `levelFromHour` (nie psujemy ofert z samym czasem; ~10 linijek zmian)
   - Glovo (`estimatedMinutes <= 0`) bez zmian — tam i tak decyduje tylko PLN/km
 - **Materiały:** `test-data/closed-testing/screenshots/marcin feedback/2026-05-11_marcin_combined-thresholds-bug.jpg`
-- **Priorytet:** **WYSOKI** — kandydat #2 do v1.0.4 razem z #37. Mały kod (~10 linijek + test jednostkowy), reprodukowalny, dwa bugi w jednym release = closed-loop iteration #3 w 14-day window.
-- **Status:** Zgłoszony 2026-05-11, do fixa w v1.0.4.
+- **Priorytet:** ~~WYSOKI~~ → ZAMKNIĘTE.
+- **Status:** ✅ **NAPRAWIONE w v1.0.4** (commit `f58ec8c`, 2026-05-12). `OfferAnalyzer.analyze()` refactor: `worstOf(levelFromHour, levelFromKm)` w głównej gałęzi, edge cases pokryte (brak/zero dystansu → fallback do PLN/h, Glovo path bez zmian). 7 nowych unit testów (Marcin repro + 6 edge cases) — wszystkie 19/19 testów PASSED. Build wgrany 2026-05-13, **opublikowany przez Google 2026-05-13 11:20 AM** (Play Console: „App update published"). Drugi z dwóch fixów Marcina w v1.0.4.
+
+### 39. Belka Ubera nie pojawia się gdy popup nad inną apką (zgłoszone 2026-05-13 przez Marcina)
+- **Zgłaszający:** Marcin (Closed Testing tester, WhatsApp grupa „Beta testerzy courier assist", rano 2026-05-13)
+- **Kontekst:** Marcin często trzyma Wolt na pierwszym planie czekając na oferty Uber Driver w tle. Popup oferty Uber wyświetla się jako system overlay nad foreground app (Wolt / home screen) — belka OrderPilot powinna pojawić się niezależnie od tego która apka jest foreground.
+- **Bug — aktualne zachowanie (v1.0.2-v1.0.4):**
+  - Popup Uber widoczny na ekranie ale belka OrderPilot nie pojawia się
+  - Belka pojawia się TYLKO gdy user jest w pełni w Uber Driver foreground
+  - Regresja od v1.0.2 (multi-layer defense Layer 2 `hasUberOverlayWithContent` introduced dla fixu Andrij news portals)
+- **Przyczyna (z accessibility logu Marcin 2026-05-13, 1999 linii):**
+  - `Window[2]: type=3, pkg=com.ubercab.driver, text len=0` — Uber Driver to React Native, popup window nie eksponuje tekstu przez accessibility tree na Samsungu (i większości urządzeń)
+  - v1.0.2 Layer 2 wymagał że overlay window EKSPONUJE widoczny tekst (`hasUberOverlayWithContent`) → na Samsungu `text len=0` → check fail
+  - `isForegroundOfPackage("com.ubercab.driver")` zwracał false → fallback do trackera → tracker=launcher/Wolt → false → pipeline aborted przez foreground guard ("foreground mismatch after throttle — aborting pipeline")
+- **Fix:**
+  - `OrderPilotAccessibilityService.kt:isForegroundOfPackage` — zamiana `hasUberOverlayWithContent` na `hasUberOverlayWindow` (samo istnienie overlay window wystarczy; powrót do pre-v1.0.2 logiki dla popup-over-other-app path)
+  - `OrderPilotAccessibilityService.kt:635` (watch mode) — ta sama zamiana dla symmetry, inaczej safety-net loop dead-end na RN Uber Driver
+- **Safety dla regresji Andrija news portals:**
+  - Layer 4 (`UberOcrParser.positiveOfferMarkers`) NIEZMIENIONE — wymaga "Łącznie"/"Total"/"Akceptuj"/"Доставка"/"Загалом"/"Принять" w tekście OCR (multi-language PL/EN/UK/RU)
+  - Portal newsowy / social / inne apki nie zawierają tych markerów → parser zwraca null niezależnie od foreground/timing
+  - Layer 3 (watch mode reset on app switch) + Layer 1 (foreground tracker dla Wolt/Glovo/Bolt) bez zmian
+- **Materiały:** `test-data/closed-testing/logs/2026-05-13_marcin_uber-popup-over-other-app_accessibility-log.txt` (1999 linii)
+- **Priorytet:** ~~KRYTYCZNY~~ → ZAMKNIĘTE.
+- **Status:** ✅ **NAPRAWIONE w v1.0.5** (commit `e17860c` na branchu `fix/v1.0.5-uber-popup-background`, 2026-05-13 19:41). Same-day hotfix — 9h od bug report rano do LIVE wieczorem. versionCode 5→6, versionName 1.0.4→1.0.5. **LIVE w Closed Testing od 2026-05-13 20:39** (Play Console: „1.0.5 - Uber popup fix", Google auto-approved within minutes). Czwarty iteracyjny AAB update w 14-day Closed Testing window (4/3 minimum DONE). Lesson learned: belt-and-suspenders Layer 2 hardening v1.0.2 założył że Uber popup zawsze eksponuje tekst → assumption violated by RN Uber Driver na większości urządzeń → 7-day regression. Zob. `feedback_avoid_belt_suspenders.md` w memory.

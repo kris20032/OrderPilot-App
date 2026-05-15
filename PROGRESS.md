@@ -1,8 +1,8 @@
 # OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-05-13 (Day 10 — v1.0.4 build + upload)
-**Obecny etap:** **Closed Testing Day 10** (Day 0 = 2026-05-03, Day 14 = 2026-05-17). v1.0.3 LIVE (10/14 days continuous opted-in 12 testerów per Play Console dashboard). **v1.0.4 build + upload done 05-13** — AAB 24 MB wygenerowany (6m 9s build po wcześniejszym `./gradlew clean` fix dla MD5 hash timeout), uploaded do Closed Testing track jako release "1.0.4 - threshold fixes", quick checks running, czeka na "Send for review". Day 11 zaoszczędzony (build/upload zrobione dzień wcześniej niż plan). Wszystkie wymagane pola Production submit zamknięte, Default store listing pending w Publishing overview do Day 14 one-shot submitu razem z v1.0.4 AAB.
-**Aktywne branche:** `fix/v1.0.4-thresholds` (bieżący — v1.0.4 kod), `play-store-prep` (parent), `feature/production-app` (synced), `main` (synced)
+**Ostatnia aktualizacja:** 2026-05-15 (Day 13 — wszystkie 4 AAB LIVE, 2 dni do Day 14 submit)
+**Obecny etap:** **Closed Testing Day 13** (Day 0 = 2026-05-03, Day 14 = 2026-05-17 sobota). Wszystkie 4 AAB updates LIVE w Closed Testing — v1.0.2 (05-06) → v1.0.3 (05-09) → v1.0.4 (05-13 11:20 AM) → **v1.0.5 (05-13 20:39 same-day hotfix, Marcin Uber popup-over-other-app regression od v1.0.2)**. 53 active testers, Dashboard pokazuje 13/14 days continuously z 12+ opted-in. Application Form draft GOTOWY (4 Fix Cards paste-ready w `docs/closed-testing-evidence.md` sekcja 5). Default store listing zweryfikowany (C2/C4/C8/C9 + F1/F2/F4 + D1-D4 ✅). **Submit Production: Day 14 = 2026-05-17.**
+**Aktywne branche:** `fix/v1.0.5-uber-popup-background` (bieżący — v1.0.5 LIVE), `play-store-prep` (parent), `feature/production-app` (synced), `main` (synced)
 
 ---
 
@@ -13,8 +13,8 @@
 | **High** | **Rekrutacja testerów Closed Testing** — 11/12 opted-in (po cleanup zombie 04-30), buffer cel: 14-16 z ratio engagement ≥85% | W TOKU |
 | **High** | **PrimeTestLab ticket** — czeka na odpowiedź managera (pool 120 vs 25, staged rollout, instructions delivery, geo distribution, refund process) | WYSŁANE 04-30 |
 | **High** | **Znajomy taty (non-courier)** — dodać jutro do listy testerów (Tata zapyta) | TODO 05-01 |
-| **High** | **3+ AAB updates podczas 14-day clock** — v1.0.2 ✅ Released 05-06, v1.0.3 ✅ LIVE od 05-09 (Dominik confirmed 05-11), v1.0.4 uploaded 05-13 (Day 10 — #37 decimal + #38 combined thresholds), czeka na Send for review po quick checks | 3/3 ✅ uploaded |
-| **High** | **Application form prep** — material w `docs/closed-testing-evidence.md` (cytaty Andrij+Tata+Dominik+Lucky, statystyki, AAB update mapping) | W TOKU |
+| **High** | **3+ AAB updates podczas 14-day clock** — v1.0.2 ✅ LIVE 05-06, v1.0.3 ✅ LIVE 05-09 (Dominik confirmed 05-11), v1.0.4 ✅ LIVE 05-13 11:20 AM (#37 decimal + #38 combined thresholds, Marcin), v1.0.5 ✅ LIVE 05-13 20:39 (same-day hotfix Marcin Uber popup-over-other-app, regresja v1.0.2 Layer 2) | ✅ 4/3 DONE |
+| **High** | **Application form prep** — 4 Fix Cards paste-ready w `docs/closed-testing-evidence.md` sekcja 5 (Q1.1-Q3.2 + cytaty Andrij/Dominik/Marcin + audit trail) | ✅ DRAFT GOTOWY 05-15, finalizacja Day 14 |
 | **High** | ~~Store listing — feature graphic 1024×500 finalna wersja~~ | ✅ DONE (zweryfikowane w Console 05-12) |
 | **High** | ~~Store listing — pełny opis PL + EN (max 4000 zn)~~ | ✅ DONE PL (75/80 short, 1564/4000 long, non-affiliation + financial disclaimer). EN skip do v1.1 (świadoma decyzja 05-12) |
 | **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |

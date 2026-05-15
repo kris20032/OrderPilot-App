@@ -1,6 +1,6 @@
 # Production Submit — Final Checklist (Day 14, target 2026-05-17)
 
-**Status na 2026-05-12 (Day 9, po sesji Play Console verification):** v1.0.3 LIVE w Closed Testing, v1.0.4 kod gotowy (build/upload Day 11-12), Application Form material 90% gotowy. **Default store listing zweryfikowany pole-po-polu i Save kliknięte — zmiany pending w Publishing overview do Day 14 (one-shot submit razem z v1.0.4 AAB).** C2/C4/C8/C9 + F1/F2/F4 ✅ zamknięte.
+**Status na 2026-05-15 (Day 13):** **4/3 AAB updates LIVE w Closed Testing** (v1.0.2 → v1.0.3 → v1.0.4 → v1.0.5 same-day hotfix Marcin Uber popup 05-13 20:39). 53 active testers, Dashboard pokazuje 13/14 days continuously. Application Form draft GOTOWY (4 Fix Cards paste-ready w `closed-testing-evidence.md` sekcja 5). **Default store listing zweryfikowany pole-po-polu i Save kliknięte — zmiany pending w Publishing overview do Day 14 (one-shot submit razem z v1.0.5 AAB).** C2/C4/C8/C9 + F1/F2/F4 ✅ zamknięte.
 
 Ten plik to **single source of truth** dla Day 14 submitu — przejdź po kolei, zaznacz każde pole.
 
@@ -10,9 +10,9 @@ Ten plik to **single source of truth** dla Day 14 submitu — przejdź po kolei,
 
 | # | Wymóg | Status | Evidence |
 |---|-------|--------|----------|
-| A1 | Closed Testing track active 14+ dni | 🟡 W TOKU (Day 9, Day 14 = 2026-05-17) | Console: Test and release → Closed testing → Alpha track |
-| A2 | Min 12 opted-in testerów continuously przez 14 dni | ✅ DONE (50 active, 12+ continuously confirmed) | `2026-05-09_play-console-statistics-installed-audience.png` |
-| A3 | 3+ AAB updates podczas 14-day okna | 🟡 2/3 DONE (v1.0.2 ✅, v1.0.3 ✅, v1.0.4 pending Day 11-12) | `closed-testing-evidence.md` sekcja 4 |
+| A1 | Closed Testing track active 14+ dni | 🟡 W TOKU (Day 13, Day 14 = 2026-05-17) — Dashboard "12 testers opted in for 13 days continuously" | Console: Test and release → Closed testing → Alpha track |
+| A2 | Min 12 opted-in testerów continuously przez 14 dni | ✅ DONE (53 active, 12+ continuously confirmed) | `2026-05-09_play-console-statistics-installed-audience.png` |
+| A3 | 3+ AAB updates podczas 14-day okna | ✅ DONE 4/3 (v1.0.2 ✅ 05-06, v1.0.3 ✅ 05-09, v1.0.4 ✅ 05-13 11:20, **v1.0.5 ✅ 05-13 20:39 LIVE**) | `closed-testing-evidence.md` sekcja 4 |
 | A4 | Zero blocking crashes / ANRs | ✅ DONE (Console pokazuje zero) | Console: Quality → Android vitals |
 | A5 | Real tester feedback collected (≥3 different testers) | ✅ DONE (Andrij, Dominik, Marcin, Lucky, Ivan Black + 5 others) | `closed-testing-evidence.md` sekcja 2 |
 
@@ -88,12 +88,18 @@ EN translation pominięta świadomie: brak EN entry w Manage translations (tylko
 
 | # | Krok | Kiedy | Notatki |
 |---|------|-------|---------|
-| D1 | Build signed AAB v1.0.4 | Day 11-12 (05-14/15) | versionCode 5, versionName "1.0.4", keystore z `keystore.properties` |
-| D2 | Upload AAB do Closed Testing (still) | Day 11-12 | Wciąż Closed track, NIE Production yet — to nadal część 14-day window |
-| D3 | Release notes v1.0.4 EN+PL | Day 11-12 | Patrz wzór niżej |
-| D4 | Send for review (Closed Testing) | Day 11-12 | Managed publishing OFF → auto-publish po Google approve (~1-3h) |
-| D5 | **Apply for Production** | **Day 14 (2026-05-17)** | Play Console → Production track → New release → kopiuj z latest Closed AAB |
-| D6 | Wypełnić Production Application questionnaire | Day 14 | Paste z `closed-testing-evidence.md` sekcja 5 (Q1.1-Q3.2 + Fix Cards) |
+| D1 | Build signed AAB v1.0.4 | ✅ DONE 05-13 | versionCode 5, versionName "1.0.4" |
+| D2 | Upload AAB v1.0.4 do Closed Testing | ✅ DONE 05-13 | Wgrany jako "1.0.4 - threshold fixes" |
+| D3 | Release notes v1.0.4 EN+PL | ✅ DONE 05-13 | Paste z PRODUCTION_SUBMIT_CHECKLIST.md D3 |
+| D4 | Send for review + auto-publish (Closed Testing) | ✅ DONE 05-13 11:20 AM | Play Console: „App update published, May 13" |
+| D1.5 | Build signed AAB v1.0.5 (hotfix Marcin Uber popup) | ✅ DONE 05-13 wieczorem | versionCode 6, versionName "1.0.5", branch `fix/v1.0.5-uber-popup-background` (commit `e17860c`) |
+| D2.5 | Upload AAB v1.0.5 do Closed Testing | ✅ DONE 05-13 | Replaced v1.0.4 jako live build w Closed track |
+| D3.5 | Release notes v1.0.5 EN+PL | ✅ DONE 05-13 | Paste w sekcji D3.5 poniżej |
+| D4.5 | Send for review + auto-publish | ✅ DONE 05-13 20:39 | Google auto-approved within minutes — „1.0.5 - Uber popup fix" Available to selected testers |
+| D4.6 | SMS do Marcin: potwierdź że belka działa nad home screenem | ⏳ Day 13–14 | Krzysztof ping 05-15. Zapisać quote do `closed-testing-evidence.md` |
+| D4.7 | SMS do Andrij: regression check (czy nie ma fałszywych belek na portalach informacyjnych) | ⏳ Day 13–14 | Layer 4 chroni — sprawdzamy że nadal działa |
+| D5 | **Apply for Production z v1.0.5** | **Day 14 (2026-05-17, sobota)** | Play Console → Production track → New release → kopiuj z v1.0.5 Closed AAB (versionCode 6) |
+| D6 | Wypełnić Production Application questionnaire | Day 14 | Paste z `closed-testing-evidence.md` sekcja 5 (Q1.1-Q3.2 + Fix Cards v1.0.2/v1.0.3/v1.0.4/**v1.0.5**) |
 | D7 | Submit Application | Day 14 | Czeka ~3-7 dni na Google decision |
 
 ### D3 — Release notes v1.0.4 (paste-ready)
@@ -114,6 +120,25 @@ Naprawiono progi kolorów: progi PLN/h i PLN/km działają teraz łącznie
 wartości dziesiętne w ustawieniach progów — wartości typu 32,5 lub 2,5 są
 teraz poprawnie zachowywane po zapisie, niezależnie od języka telefonu.
 Oba problemy zgłosił tester Marcin podczas testów zamkniętych.
+```
+
+### D3.5 — Release notes v1.0.5 (paste-ready)
+
+**EN (max 500 chars):**
+```
+Fixed Uber offer bar not appearing when the offer popup floats over other
+apps (e.g. home screen). The bar now appears regardless of which app is in
+the foreground. Issue was reported by tester Marcin during Closed Testing
+on May 13 and verified through device logs.
+```
+
+**PL (max 500 chars):**
+```
+Naprawiono belkę Ubera, która nie pojawiała się gdy popup oferty
+wyświetlał się nad inną aplikacją (np. ekranem głównym). Belka pojawia się
+teraz niezależnie od tego, która aplikacja jest na pierwszym planie.
+Problem zgłosił tester Marcin podczas testów zamkniętych 13 maja i został
+zweryfikowany na logach z urządzenia.
 ```
 
 ---
@@ -145,7 +170,7 @@ Oba problemy zgłosił tester Marcin podczas testów zamkniętych.
 | F4 | YouTube video preview działa publicznie (unlisted OK) | ✅ DONE 05-12 — `https://www.youtube.com/watch?v=riSLy3qiySA` 3/3 checklist incognito (loads, no ads, no age gate) |
 | F5 | Zero NEW negative feedback od testerów Day 13 wieczór | WhatsApp grupa, Console feedback |
 | F6 | Zero NEW crashes/ANRs w Console od ostatniej weryfikacji | Console → Quality → Vitals |
-| F7 | v1.0.4 AAB LIVE w Closed Testing track | Console → Test and release → Closed testing → status "Available" |
+| F7 | v1.0.5 AAB LIVE w Closed Testing track | ✅ DONE 05-13 20:39 — „1.0.5 - Uber popup fix" Available to selected testers, 1 version code, Released on May 13 8:39 PM |
 
 ---
 
@@ -153,7 +178,7 @@ Oba problemy zgłosił tester Marcin podczas testów zamkniętych.
 
 - ❌ NIE submit przed Day 14 (Google flaguje insufficient testing duration even if 13d 23h)
 - ❌ NIE cytować PrimeTestLab "40 extra installs" jako engagement evidence w Application Form (to install farma — Google się może skapnąć)
-- ❌ NIE wgrywać AAB v1.0.5 podczas Production review (zostaw stabilne v1.0.4 LIVE)
+- ❌ NIE wgrywać AAB v1.0.6 podczas Production review (zostaw stabilne v1.0.5 LIVE)
 - ❌ NIE odpowiadać generycznie ("good engagement", "tested thoroughly") na pytania 1.2/1.3 — Google to traktuje jako #1 rejection trigger
 - ❌ NIE zostawiać Privacy Policy URL bez przeprowadzenia weryfikacji Day 14 morning (URLs gasły testerom przy update v1.0.2)
 - ❌ NIE rotować testerów (dodawać nowych zamiast utrzymać continuously opted-in) — Google liczy "consecutive 14 days"
@@ -165,11 +190,11 @@ Oba problemy zgłosił tester Marcin podczas testów zamkniętych.
 - **Marcin = tata** — przemianowane do dokumentacji Google review aby nie ujawniać relacji rodzinnej. Wszystkie materiały do Console używają "Marcin". Decyzja 2026-05-11.
 - **Dominik = brat** — używamy imienia "Dominik" w docs ale relacja brat-brat nie jest ujawniana.
 - **Vasyl = znajomy taty** — independent tester, OK do cytowania.
-- **Pre-launch report** wykreślony jako evidence — robot Firebase Google nie przechodzi onboardingu AccessibilityService (znane zachowanie). Evidence zastąpione: 50 active testers + 5 real kurierów + 3 AAB iteracje.
+- **Pre-launch report** wykreślony jako evidence — robot Firebase Google nie przechodzi onboardingu AccessibilityService (znane zachowanie). Evidence zastąpione: 53 active testers + 5 real kurierów + 4 AAB iteracje.
 - **PrimeTestLab pool** — używany tylko do liczników w Console (active testers count). NIE cytować w Application Form jako engagement evidence — to fake installs.
 
 ---
 
 **Data utworzenia:** 2026-05-12 (Day 9)
-**Ostatnia rewizja:** 2026-05-12
+**Ostatnia rewizja:** 2026-05-15 (Day 13) — v1.0.5 LIVE confirmation, status sync 4/3 AAB DONE
 **Owner:** Krzysztof Brzezinski (`krzychu.brzezi@gmail.com`)
