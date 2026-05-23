@@ -335,15 +335,20 @@ class OrderPilotAccessibilityService : AccessibilityService() {
      *
      * Wyjątek dla Ubera: popup oferty Ubera renderowany jest jako overlay nad inną apką
      * (popup OVER WhatsApp / launcher / cokolwiek), więc Uber nie musi być foreground —
-     * wystarczy że ma overlay window Z TREŚCIĄ OFERTY (sprawdzane przez wzmocnione
-     * hasUberOverlayWithContent w Layer 2).
+     * wystarczy że istnieje overlay window Ubera (type != APPLICATION). Wcześniej
+     * wymagaliśmy też że tekst overlay zawiera markery oferty (hasUberOverlayWithContent),
+     * ale Uber Driver (React Native) na większości urządzeń NIE eksponuje tekstu popupu
+     * przez accessibility tree (`Window Uber text: len=0` w logach Marcin/Samsung 2026-05-13).
+     * Layer 4 (positive markers w UberOcrParser — "Łącznie"/"Akceptuj"/"Доставка") sam
+     * odfiltruje portal newsowy/social/inne false-positive po OCR, więc warstwa tekstowa
+     * w `hasUberOverlayWithContent` była zbędna a powodowała regresję od v1.0.2.
      *
      * Tracker (lastForegroundPackage) jest ground truth gdy nie jest stale (< 5s temu).
      * rootInActiveWindow użyte jako sanity check — jeśli oba się zgadzają = trust.
      */
     private fun isForegroundOfPackage(pkg: String): Boolean {
-        // Uber popup overlay edge case
-        if (pkg == "com.ubercab.driver" && hasUberOverlayWithContent()) return true
+        // Uber popup overlay edge case — overlay window wystarczy, OCR+parser markery decydują
+        if (pkg == "com.ubercab.driver" && hasUberOverlayWindow()) return true
 
         val tracker = lastForegroundPackage
         val live = try {
@@ -632,11 +637,15 @@ class OrderPilotAccessibilityService : AccessibilityService() {
                 if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] != null) continue
                 // Jeśli Uber nie jest foreground i nie ma overlay okna — nie ma co screenshotować.
                 // Gdy Uber jest foreground, popup jest wewnątrz okna apki (nie overlay) — screenshotuj.
-                if (!isUberForeground() && !hasUberOverlayWithContent()) {
-                    AppLog.d(AppLog.TAG_SERVICE, "Uber watch: no overlay content and not foreground — skipping screenshot")
+                // Wcześniej (v1.0.2-1.0.4) wymagaliśmy hasUberOverlayWithContent (tekstu w overlay)
+                // ale RN popup nie eksponuje tekstu przez accessibility → watch dead-end na Samsungu.
+                // Layer 4 (parser positive markers) odsiewa false-positive po OCR.
+                if (!isUberForeground() && !hasUberOverlayWindow()) {
+                    AppLog.d(AppLog.TAG_SERVICE, "Uber watch: no overlay window and not foreground — skipping screenshot")
                     continue
                 }
                 // Rival courier na ekranie + overlay Ubera pusty = phantom → nie screenshotuj rivala
+                // (text-based content check tu zostaje — rivala wyróżniamy konkretnym foregroundem)
                 if (isRivalCourierInForeground() && !hasUberOverlayWithContent()) {
                     AppLog.d(AppLog.TAG_SERVICE, "Uber watch: rival courier foreground + phantom overlay — skipping screenshot")
                     continue
