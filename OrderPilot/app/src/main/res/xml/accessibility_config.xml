@@ -6,4 +6,5 @@
     android:canRetrieveWindowContent="true"
     android:canTakeScreenshot="true"
     android:notificationTimeout="300"
+    android:packageNames="com.ubercab.driver,com.ubercab.eats,com.wolt.courierapp,com.glovo.courier,com.logistics.rider.glovo,com.bolt.deliverycourier,com.bolt.courier,com.bolt.food.courier"
     android:description="@string/accessibility_service_description" />

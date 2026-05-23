@@ -135,6 +135,9 @@ object OverlayViewFactory {
      *   ₴  → год/км/хв (ukraińskie, rynek UA)
      *   ₽  → ч/км/мин (rosyjskie, rynek RU)
      * Fallback (nieznana waluta) → łacińskie jednostki.
+     *
+     * Symbol waluty: domyślnie z oferty (zł, ₴, ₽, ...). Wyjątek: gdy UI apki jest w EN,
+     * „zł" zamieniamy na „PLN" (ISO code) — bardziej czytelne dla anglojęzycznych userów.
      */
     private fun labels(language: AppLanguage, currency: String): Labels {
         val hourSuffix: String
@@ -154,10 +157,13 @@ object OverlayViewFactory {
             }
         }
 
+        // Override: przy lokalu EN apki pokazuj PLN zamiast zł (ISO code, czytelniejszy dla EN).
+        val displayCurrency = if (language == AppLanguage.EN && currency == "zł") "PLN" else currency
+
         return Labels(
-            currencyPerHour = "$currency/$hourSuffix",
-            currencyPerKm = "$currency/$kmUnit",
-            currency = currency,
+            currencyPerHour = "$displayCurrency/$hourSuffix",
+            currencyPerKm = "$displayCurrency/$kmUnit",
+            currency = displayCurrency,
             minutes = minUnit,
             km = kmUnit
         )

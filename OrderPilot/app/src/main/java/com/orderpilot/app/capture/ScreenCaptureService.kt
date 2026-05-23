@@ -120,7 +120,15 @@ class ScreenCaptureService : Service() {
 
     fun isReady(): Boolean = imageReader != null && !isProjectionLost
 
-    suspend fun capture(): Bitmap? = withContext(Dispatchers.IO) {
+    suspend fun capture(packageName: String): Bitmap? = withContext(Dispatchers.IO) {
+        // Defensive guard (V6): odmawiamy capture dla pakietów poza listą watched.
+        // PipelineOrchestrator jest jedynym callerem i już filtruje, ale MediaProjection
+        // token sam w sobie nie ma filtra per-pakiet — defensywa na wypadek regresji.
+        val allowed = ServiceLocator.parserRegistry.getAllWatchedPackages()
+        if (packageName !in allowed) {
+            AppLog.w(AppLog.TAG_CAPTURE, "Refusing capture — package not in allowed list")
+            return@withContext null
+        }
         if (isProjectionLost) {
             AppLog.w(AppLog.TAG_CAPTURE, "Projection lost, cannot capture")
             return@withContext null

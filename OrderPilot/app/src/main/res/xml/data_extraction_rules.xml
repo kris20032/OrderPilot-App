@@ -1,19 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample data extraction rules file; uncomment and customize as necessary.
-   See https://developer.android.com/about/versions/12/backup-restore#xml-changes
-   for details.
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Android 12+ (API 31+) backup/transfer rules.
+    Odpowiednik backup_rules.xml dla nowszego systemu; te same kategorie
+    danych (user preferences ✓, disclosure consent ✗).
+
+    KD5 Play Store: disclosureAcceptedVersion nie może być restored między
+    urządzeniami — user musi ponownie zaakceptować Prominent Disclosure.
 -->
 <data-extraction-rules>
+    <!-- Tylko ustawienia użytkownika są backupowane. order_pilot_disclosure.xml
+         jest automatycznie wykluczone bo nie ma go w include (KD5). -->
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <include domain="sharedpref" path="order_pilot_settings.xml"/>
     </cloud-backup>
-    <!--
     <device-transfer>
-        <include .../>
-        <exclude .../>
+        <include domain="sharedpref" path="order_pilot_settings.xml"/>
     </device-transfer>
-    -->
 </data-extraction-rules>

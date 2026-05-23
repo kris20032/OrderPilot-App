@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">OrderPilot</string>
-    <string name="accessibility_service_description">OrderPilot анализирует предложения доставки и показывает оверлей прибыльности.</string>
+    <string name="accessibility_service_description">OrderPilot считывает содержимое экрана исключительно из курьерских приложений Uber Driver, Wolt Courier, Glovo Courier и Bolt Food, чтобы обнаружить новые заказы и показать на оверлее рассчитанную почасовую ставку (zł/час). Данные с экрана обрабатываются только на Вашем устройстве, никуда не отправляются и не сохраняются постоянно. Вы можете отключить сервис в любой момент в системных настройках.</string>
     <string name="btn_start">Старт</string>
     <string name="btn_stop">Стоп</string>
     <string name="status_running">Активен</string>
     <string name="status_stopped">Неактивен</string>
-    <string name="status_subtitle_running">Мониторинг Uber</string>
+    <string name="status_subtitle_running">Обнаружение заказов</string>
     <string name="status_subtitle_stopped">Остановлен</string>
     <string name="accessibility_hint">Включите OrderPilot в:\nНастройки → Специальные возможности → Установленные приложения</string>
     <string name="accessibility_rebind_hint">Выключите и включите OrderPilot заново в:\nСпециальные возможности → Установленные приложения → OrderPilot</string>
@@ -67,6 +67,7 @@
     <!-- Toast hints (wizard) -->
     <string name="toast_hint_overlay">Найдите «OrderPilot» и включите переключатель</string>
     <string name="toast_hint_accessibility">Откройте «Установленные приложения» → найдите OrderPilot → включите</string>
+    <string name="toast_hint_battery_optimization">Найдите «OrderPilot» в списке и выберите «Не оптимизировать»</string>
     <string name="toast_hint_samsung_battery">Нажмите «Батарея» → выберите «Без ограничений»</string>
     <string name="toast_hint_samsung_sleeping">Откройте «Ограничения фонового использования» и удалите OrderPilot из списков</string>
     <string name="toast_hint_xiaomi_autostart">Найдите «OrderPilot» и включите переключатель</string>
@@ -107,16 +108,31 @@
     <string name="toast_logs_error">Ошибка сохранения логов</string>
     <string name="settings_validation_error">Зелёный порог должен быть выше жёлтого</string>
 
-    <string name="toast_notification_denied">Уведомления отключены — вы не увидите статус мониторинга в строке состояния</string>
+    <string name="toast_notification_denied">Уведомления отключены — вы не увидите статус обнаружения в строке состояния</string>
 
     <!-- Foreground service notification -->
-    <string name="notif_monitoring_title">Мониторинг заказов активен</string>
+    <string name="notif_monitoring_title">Обнаружение заказов активно</string>
     <string name="notif_monitoring_text">OrderPilot отслеживает новые заказы</string>
 
     <!-- Watchdog recovery notification -->
-    <string name="notif_watchdog_title">Мониторинг остановлен</string>
+    <string name="notif_watchdog_title">Обнаружение заказов остановлено</string>
     <string name="notif_watchdog_text">Нажмите, чтобы восстановить работу</string>
 
     <!-- Notification permission hint -->
-    <string name="hint_notifications_disabled">Уведомления отключены — мониторинг работает, но вы не увидите статус или оповещения о проблемах</string>
+    <string name="hint_notifications_disabled">Уведомления отключены — обнаружение работает, но вы не увидите статус или оповещения о проблемах</string>
+
+    <!-- Prominent Disclosure (KD4, Task 3.4) -->
+    <string name="disclosure_title">OrderPilot нуждается в доступе к экрану</string>
+    <string name="disclosure_subtitle">Прежде чем включить службу доступности, прочитайте, для чего она будет использоваться.</string>
+    <string name="disclosure_body">OrderPilot — это инструмент для курьеров. Для работы нужны два разрешения: «Служба доступности» и «Показ поверх других приложений».\n\n<b>Какие приложения OrderPilot читает:</b>\nтолько Uber Driver, Uber Eats Courier, Wolt Courier, Glovo Courier и Bolt Food. Никакие другие приложения не наблюдаются.\n\n<b>Что именно считывается с экрана:</b>\n• сумма заказа (PLN)\n• примерное время доставки (мин)\n• расстояние (км)\n• признак наличного заказа\n\n<b>Для чего используются эти данные:</b>\nдля расчёта почасовой ставки (PLN/час) и отображения цветной полосы поверх приложения курьера, чтобы вы могли быстро решить, стоит ли принимать заказ.\n\n<b>Что НЕ делается:</b>\n• данные не отправляются ни на какой сервер\n• данные не сохраняются на диск (хранятся в памяти максимум ~30 секунд)\n• данные не передаются третьим сторонам\n• данные не используются для рекламы или профилирования\n\n<b>Системные разрешения:</b>\nЕсли вы сейчас согласитесь, вы пройдёте через короткий мастер, который попросит включить несколько системных настроек. Всё делается вручную — OrderPilot ничего не включает за вас.\n\n<b>Вы можете отключить службу в любой момент</b> в Настройках системы → Доступность → Установленные приложения → OrderPilot. Удаление приложения стирает все локальные данные.\n\nПолный текст политики конфиденциальности доступен по ссылке ниже.</string>
+    <string name="disclosure_button_accept">Понятно</string>
+    <string name="disclosure_button_cancel">Отмена</string>
+    <string name="disclosure_pp_link">Политика конфиденциальности</string>
+    <string name="toast_pp_error">Не удалось открыть политику конфиденциальности</string>
+
+    <!-- About section (Settings) -->
+    <string name="settings_about_header">О приложении</string>
+    <string name="settings_pp_link">Политика конфиденциальности</string>
+    <string name="about_non_affiliation">OrderPilot — независимый инструмент и не связан, не поддерживается и не спонсируется компаниями Uber, Wolt, Glovo или Bolt. Все названия и товарные знаки принадлежат их владельцам.</string>
+    <string name="about_financial_disclaimer">Отображаемые ставки (PLN/ч, PLN/км) — это ориентировочные расчёты на основе данных с экрана предложения. Они не являются финансовой консультацией или гарантией фактического заработка.</string>
 </resources>

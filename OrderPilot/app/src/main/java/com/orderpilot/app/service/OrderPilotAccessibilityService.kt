@@ -49,6 +49,14 @@ class OrderPilotAccessibilityService : AccessibilityService() {
     @Volatile private var consecutiveScreenshotFailures = 0
     private var screenshotAlertShown = false
 
+    // Layer 1: Foreground tracker — aktualizowany przy KAŻDYM TYPE_WINDOW_STATE_CHANGED
+    // (niezależnie czy package jest w watchedPackages). Trzymamy ostatni package,
+    // żeby pipeline mógł zweryfikować że apka której parser ma być użyty
+    // nadal jest foreground w momencie capture (po throttle/retry/watch delay).
+    // Nie polegamy wyłącznie na rootInActiveWindow bo na MIUI bywa stale po app switch.
+    @Volatile private var lastForegroundPackage: String? = null
+    @Volatile private var lastForegroundChangeTs = 0L
+
     override fun onServiceConnected() {
         pipeline = ServiceLocator.pipelineOrchestrator
         isConnected = true
@@ -71,6 +79,33 @@ class OrderPilotAccessibilityService : AccessibilityService() {
         }
 
         val pkg = event.packageName?.toString() ?: return
+
+        // Layer 1: Foreground tracker — aktualizujemy PRZED watchedPackages filter.
+        // TYPE_WINDOW_STATE_CHANGED z dowolnej apki jest sygnałem zmiany foregroundu.
+        // Pomija systemowe overlay (input method, status bar) — tylko package z prawdziwą activity.
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            val isSystemUi = pkg == "com.android.systemui" ||
+                pkg.startsWith("com.google.android.inputmethod") ||
+                pkg.contains(".inputmethod") ||
+                pkg == "android"
+            if (!isSystemUi) {
+                lastForegroundPackage = pkg
+                lastForegroundChangeTs = System.currentTimeMillis()
+                // Layer 3: Watch mode reset — gdy user przeszedł do apki spoza watchedPackages,
+                // przerywamy aktywne watch jobs żeby nie strzelały screenshotów do innej apki
+                // przez kolejne 60s. Zamyka okno false-positive z 60s do <2.5s (do następnego ticka).
+                if (pkg !in watchedPackages) {
+                    if (uberWatchJob?.isActive == true || boltWatchJob?.isActive == true) {
+                        AppLog.d(AppLog.TAG_SERVICE, "Foreground switched to non-courier app ($pkg) — cancelling watch jobs")
+                        uberWatchJob?.cancel()
+                        boltWatchJob?.cancel()
+                        lastUberEventTime = 0L
+                        lastBoltEventTime = 0L
+                    }
+                }
+            }
+        }
+
         if (pkg !in watchedPackages) return
         AppLog.d(AppLog.TAG_SERVICE, "RAW event: pkg=$pkg type=${event.eventType}")
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED &&
@@ -136,6 +171,13 @@ class OrderPilotAccessibilityService : AccessibilityService() {
             // Diagnostyka: loguj okna Ubera gdy user jest w apce (throttle 10s)
             if (pkg == "com.ubercab.driver") {
                 logUberWindowDiagnostics()
+            }
+
+            // Layer 1: foreground guard przed MediaProjection path.
+            // processViaScreenshot ma własny guard wewnątrz; tu chronimy alternatywną ścieżkę.
+            if (!isForegroundOfPackage(pkg)) {
+                AppLog.d(AppLog.TAG_SERVICE, "$pkg: foreground mismatch after throttle — aborting pipeline")
+                return@onEvent
             }
 
             if (isMediaProjectionAvailable()) {
@@ -211,6 +253,13 @@ class OrderPilotAccessibilityService : AccessibilityService() {
         throttler.onEvent(scope) {
             if (!MonitoringController.isActive()) return@onEvent
             logUberWindowDiagnostics()
+            // Layer 1: foreground guard przed MediaProjection path.
+            // Uber popup overlay nad inną apką jest legalny — isForegroundOfPackage
+            // przepuści go gdy hasUberOverlayWithContent() (Layer 2) potwierdzi prawdziwą treść.
+            if (!isForegroundOfPackage("com.ubercab.driver")) {
+                AppLog.d(AppLog.TAG_SERVICE, "WINDOWS_CHANGED: foreground mismatch — aborting pipeline")
+                return@onEvent
+            }
             if (isMediaProjectionAvailable()) {
                 pipeline.process("com.ubercab.driver")
             } else {
@@ -277,7 +326,46 @@ class OrderPilotAccessibilityService : AccessibilityService() {
         val activePackage = try {
             rootInActiveWindow?.packageName?.toString()
         } catch (e: Exception) { null }
-        return activePackage != null && activePackage != pkg && activePackage in courierPackages
+        return activePackage != null && activePackage != pkg && activePackage in watchedPackages
+    }
+
+    /**
+     * Layer 1: Strict foreground guard — kombinacja trackera (z TYPE_WINDOW_STATE_CHANGED)
+     * i live'owego rootInActiveWindow. Zwraca true jeśli AKTUALNY foreground to pkg.
+     *
+     * Wyjątek dla Ubera: popup oferty Ubera renderowany jest jako overlay nad inną apką
+     * (popup OVER WhatsApp / launcher / cokolwiek), więc Uber nie musi być foreground —
+     * wystarczy że istnieje overlay window Ubera (type != APPLICATION). Wcześniej
+     * wymagaliśmy też że tekst overlay zawiera markery oferty (hasUberOverlayWithContent),
+     * ale Uber Driver (React Native) na większości urządzeń NIE eksponuje tekstu popupu
+     * przez accessibility tree (`Window Uber text: len=0` w logach Marcin/Samsung 2026-05-13).
+     * Layer 4 (positive markers w UberOcrParser — "Łącznie"/"Akceptuj"/"Доставка") sam
+     * odfiltruje portal newsowy/social/inne false-positive po OCR, więc warstwa tekstowa
+     * w `hasUberOverlayWithContent` była zbędna a powodowała regresję od v1.0.2.
+     *
+     * Tracker (lastForegroundPackage) jest ground truth gdy nie jest stale (< 5s temu).
+     * rootInActiveWindow użyte jako sanity check — jeśli oba się zgadzają = trust.
+     */
+    private fun isForegroundOfPackage(pkg: String): Boolean {
+        // Uber popup overlay edge case — overlay window wystarczy, OCR+parser markery decydują
+        if (pkg == "com.ubercab.driver" && hasUberOverlayWindow()) return true
+
+        val tracker = lastForegroundPackage
+        val live = try {
+            rootInActiveWindow?.packageName?.toString()
+        } catch (e: Exception) { null }
+
+        // Najmocniejsze potwierdzenie: oba źródła zgodne
+        if (tracker == pkg && live == pkg) return true
+
+        // Świeży tracker (< 5s) sam wystarczy gdy live'a nie ma (race / null)
+        val trackerAgeMs = System.currentTimeMillis() - lastForegroundChangeTs
+        if (tracker == pkg && trackerAgeMs < 5_000L && live == null) return true
+
+        // Live tylko (np. tracker nie złapał WINDOW_STATE_CHANGED) — akceptujemy
+        if (live == pkg) return true
+
+        return false
     }
 
     private fun hasUberOverlayWindow(): Boolean {
@@ -294,8 +382,14 @@ class OrderPilotAccessibilityService : AccessibilityService() {
     }
 
     /**
-     * Sprawdza czy overlay okno Ubera ma jakąkolwiek treść tekstową.
-     * Phantom overlay (Xiaomi) = type=3 ale pusty. Prawdziwy popup = ma tekst.
+     * Layer 2: Wzmocniony detektor real-popup vs phantom overlay.
+     * Phantom overlay (Xiaomi) = type=3 z pustym lub niezwiązanym tekstem (mapy, toast, accessibility labels).
+     * Prawdziwy popup = ma jednocześnie kwotę (zł/€/UAH) ORAZ jednostkę czasu (min/хв)
+     * w bliskiej odległości znaków (typowy rozkład popupu oferty).
+     * Alternatywnie: zawiera markery typowe dla popupu Ubera (Łącznie/Total/Akceptuj/Accept).
+     *
+     * Ten guard zapobiega fałszywym screenshotom triggerowanym przez phantom overlay
+     * Xiaomi gdy user jest na innej apce (np. portal newsowy).
      */
     private fun hasUberOverlayWithContent(): Boolean {
         return try {
@@ -305,7 +399,8 @@ class OrderPilotAccessibilityService : AccessibilityService() {
                     val pkg = root?.packageName?.toString()
                     if (pkg != "com.ubercab.driver" || w.type == AccessibilityWindowInfo.TYPE_APPLICATION) return@any false
                     val text = root?.let { AccessibilityTextCollector.collectText(it) } ?: ""
-                    text.isNotBlank()
+                    if (text.isBlank() || text.length < 8) return@any false
+                    overlayTextLooksLikeOffer(text)
                 } finally {
                     root?.recycle()
                 }
@@ -316,6 +411,28 @@ class OrderPilotAccessibilityService : AccessibilityService() {
     }
 
     /**
+     * Layer 2 helper: czy tekst overlay wygląda na popup oferty Ubera.
+     * Akceptuje (1) kwotę walutową w pobliżu jednostki czasu lub (2) konkretny marker Ubera.
+     */
+    private fun overlayTextLooksLikeOffer(text: String): Boolean {
+        // (1) Marker UI Ubera typowy dla popupu oferty (PL/EN/UA/RU)
+        val uberOfferMarkers = listOf(
+            "Łącznie", "Lacznie", "Akceptuj", "Accept",
+            "Total", "Загалом", "Прийняти",
+            "Итого", "Принять", "Доставка"
+        )
+        if (uberOfferMarkers.any { text.contains(it, ignoreCase = true) }) return true
+
+        // (2) Wzorzec popupu: kwota waluty w pobliżu (≤120 znaków) jednostki czasu
+        val moneyRegex = Regex("""\d+[.,]?\d*\s*(?:zł|PLN|€|EUR|UAH|грн|₴)""", RegexOption.IGNORE_CASE)
+        val timeRegex = Regex("""\d+\s*(?:min|хв|мин)""", RegexOption.IGNORE_CASE)
+        val moneyMatch = moneyRegex.find(text) ?: return false
+        val timeMatch = timeRegex.find(text) ?: return false
+        val distance = kotlin.math.abs(moneyMatch.range.first - timeMatch.range.first)
+        return distance <= 120
+    }
+
+    /**
      * Sprawdza czy foreground to inna apka kurierska (nie Uber).
      * Używane w watch mode i retries, żeby nie screenshotować popupu rivala.
      */
@@ -323,7 +440,7 @@ class OrderPilotAccessibilityService : AccessibilityService() {
         val activePackage = try {
             rootInActiveWindow?.packageName?.toString()
         } catch (e: Exception) { null }
-        return activePackage != null && activePackage != "com.ubercab.driver" && activePackage in courierPackages
+        return activePackage != null && activePackage != "com.ubercab.driver" && activePackage in watchedPackages
     }
 
     /**
@@ -350,9 +467,26 @@ class OrderPilotAccessibilityService : AccessibilityService() {
 
     private suspend fun processViaAccessibilityTree(packageName: String) {
         try {
+            // Layer 1: foreground guard — odrzuć jeśli foreground zmienił się podczas throttle/watch.
+            // Dla tree pipeline (Glovo/Bolt) to krytyczne, bo rootInActiveWindow zwraca okno
+            // AKTUALNEJ apki, nie tej która wygenerowała event. Bez guardu BoltFoodOcrParser
+            // może czytać tekst Onetu/WP gdy user przełączył apkę po evencie.
+            if (!isForegroundOfPackage(packageName)) {
+                AppLog.d(AppLog.TAG_SERVICE, "Tree: aborting $packageName — foreground mismatch (foreground=$lastForegroundPackage)")
+                return
+            }
+
             val root = rootInActiveWindow ?: run {
                 AppLog.w(AppLog.TAG_SERVICE, "Tree: rootInActiveWindow null, falling back to screenshot")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) processViaScreenshot(packageName)
+                return
+            }
+            // Drugi guard: rootInActiveWindow może zwrócić okno innej apki niż packageName
+            // (race między event a accessibility query). Sprawdzamy package na samym root.
+            val rootPkg = try { root.packageName?.toString() } catch (_: Exception) { null }
+            if (rootPkg != null && rootPkg != packageName) {
+                AppLog.d(AppLog.TAG_SERVICE, "Tree: aborting $packageName — rootInActiveWindow has $rootPkg")
+                root.recycle()
                 return
             }
             val text: String
@@ -361,7 +495,7 @@ class OrderPilotAccessibilityService : AccessibilityService() {
             } finally {
                 root.recycle()
             }
-            AppLog.d(AppLog.TAG_SERVICE, "Tree text ($packageName): ${text.take(200)}")
+            AppLog.d(AppLog.TAG_SERVICE, "Tree text ($packageName): len=${text.length}")
 
             val lines = text.lines().filter { it.isNotBlank() }
             val parser = ServiceLocator.parserRegistry.getParser(packageName) ?: return
@@ -403,6 +537,16 @@ class OrderPilotAccessibilityService : AccessibilityService() {
 
     @RequiresApi(Build.VERSION_CODES.R)
     private suspend fun processViaScreenshot(packageName: String, retryIndex: Int = 0) {
+        // Layer 1: foreground guard — odrzuć jeśli foreground zmienił się podczas
+        // throttle (100ms) / retry loop (do 2.5s) / watch mode (60s).
+        // takeScreenshot() robi zrzut CAŁEGO ekranu — bez tego guard'u parser dla packageName
+        // dostanie tekst z apki na której user jest TERAZ (np. portal newsowy → false-positive).
+        // Wyjątek (w isForegroundOfPackage): Uber popup overlay nad inną apką jest legalny,
+        // pod warunkiem że overlay zawiera prawdziwą treść oferty (Layer 2).
+        if (!isForegroundOfPackage(packageName)) {
+            AppLog.d(AppLog.TAG_SERVICE, "Screenshot: aborting $packageName (retry=$retryIndex) — foreground mismatch (foreground=$lastForegroundPackage)")
+            return
+        }
         var bitmap: Bitmap? = null
         var croppedBitmap: Bitmap? = null
         try {
@@ -432,7 +576,7 @@ class OrderPilotAccessibilityService : AccessibilityService() {
             croppedBitmap = Bitmap.createBitmap(bitmap, 0, startY, bitmap.width, bitmap.height - startY)
 
             val lines = ServiceLocator.ocrEngine.recognize(croppedBitmap)
-            AppLog.d(AppLog.TAG_SERVICE, "Screenshot OCR: ${lines.size} lines → ${lines.take(3)} (retry=$retryIndex)")
+            AppLog.d(AppLog.TAG_SERVICE, "Screenshot OCR: ${lines.size} lines (retry=$retryIndex)")
 
             val parser = ServiceLocator.parserRegistry.getParser(packageName) ?: return
             val offer = parser.parse(lines)
@@ -493,13 +637,25 @@ class OrderPilotAccessibilityService : AccessibilityService() {
                 if (ServiceLocator.overlayManager.getActiveOffers()[Platform.UBER] != null) continue
                 // Jeśli Uber nie jest foreground i nie ma overlay okna — nie ma co screenshotować.
                 // Gdy Uber jest foreground, popup jest wewnątrz okna apki (nie overlay) — screenshotuj.
-                if (!isUberForeground() && !hasUberOverlayWithContent()) {
-                    AppLog.d(AppLog.TAG_SERVICE, "Uber watch: no overlay content and not foreground — skipping screenshot")
+                // Wcześniej (v1.0.2-1.0.4) wymagaliśmy hasUberOverlayWithContent (tekstu w overlay)
+                // ale RN popup nie eksponuje tekstu przez accessibility → watch dead-end na Samsungu.
+                // Layer 4 (parser positive markers) odsiewa false-positive po OCR.
+                if (!isUberForeground() && !hasUberOverlayWindow()) {
+                    AppLog.d(AppLog.TAG_SERVICE, "Uber watch: no overlay window and not foreground — skipping screenshot")
                     continue
                 }
                 // Rival courier na ekranie + overlay Ubera pusty = phantom → nie screenshotuj rivala
+                // (text-based content check tu zostaje — rivala wyróżniamy konkretnym foregroundem)
                 if (isRivalCourierInForeground() && !hasUberOverlayWithContent()) {
                     AppLog.d(AppLog.TAG_SERVICE, "Uber watch: rival courier foreground + phantom overlay — skipping screenshot")
+                    continue
+                }
+                // Layer 1: foreground guard — bez tego watch mode mógłby strzelać przez 60s
+                // do innej apki (jeśli user przeszedł na portal newsowy a Uber ma phantom overlay).
+                // Layer 2 (wzmocniony hasUberOverlayWithContent) i Layer 3 (cancel watch on app switch)
+                // już dużo łapią; ten guard to dodatkowa warstwa zanim screenshot poleci.
+                if (!isForegroundOfPackage("com.ubercab.driver")) {
+                    AppLog.d(AppLog.TAG_SERVICE, "Uber watch: foreground mismatch — skipping tick")
                     continue
                 }
                 // Jeśli MediaProjection aktywna — użyj pipeline zamiast screenshot
@@ -569,8 +725,7 @@ class OrderPilotAccessibilityService : AccessibilityService() {
                     AppLog.d(AppLog.TAG_SERVICE, "  Window[$i]: type=${w.type}, layer=${w.layer}, pkg=$pkg")
                     if (root != null && pkg == "com.ubercab.driver") {
                         val text = AccessibilityTextCollector.collectText(root)
-                        val preview = text.take(300).replace("\n", " | ")
-                        AppLog.d(AppLog.TAG_SERVICE, "  Window[$i] Uber text: $preview")
+                        AppLog.d(AppLog.TAG_SERVICE, "  Window[$i] Uber text: len=${text.length}")
                     }
                 } finally {
                     root?.recycle()
@@ -654,13 +809,5 @@ class OrderPilotAccessibilityService : AccessibilityService() {
         private const val WOLT_MAX_RETRIES = 2          // Wolt natywne UI: szybki rendering
         private const val CROP_TOP_RATIO = 0.4f         // crop dolne 60% screenshota
         private const val SCREENSHOT_FAILURE_ALERT_THRESHOLD = 10  // alert po 10 porażkach z rzędu
-
-        /** Paczki kurierskie — blokujemy screenshot tylko gdy foreground to INNA z tych apek */
-        private val courierPackages = setOf(
-            "com.ubercab.driver",
-            "com.wolt.courierapp",
-            "com.logistics.rider.glovo",
-            "com.bolt.deliverycourier"
-        )
     }
 }

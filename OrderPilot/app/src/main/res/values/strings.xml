@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">OrderPilot</string>
-    <string name="accessibility_service_description">OrderPilot analyzes delivery offers and shows profitability overlay.</string>
+    <string name="accessibility_service_description">OrderPilot odczytuje zawartość ekranu wyłącznie z aplikacji kurierskich Uber Driver, Wolt Courier, Glovo Courier i Bolt Food, aby wykryć nowe zlecenia i wyświetlić na nakładce wyliczoną stawkę godzinową (zł/h). Dane z ekranu są przetwarzane wyłącznie na Twoim urządzeniu, nigdzie nie są wysyłane ani trwale zapisywane. Możesz wyłączyć usługę w dowolnym momencie w ustawieniach systemowych.</string>
     <string name="btn_start">Start</string>
     <string name="btn_stop">Stop</string>
     <string name="status_running">Active</string>
     <string name="status_stopped">Inactive</string>
-    <string name="status_subtitle_running">Monitorowanie Uber</string>
+    <string name="status_subtitle_running">Wykrywanie zleceń</string>
     <string name="status_subtitle_stopped">Zatrzymane</string>
     <string name="accessibility_hint">Włącz OrderPilot w:\nUstawienia → Dostępność → Zainstalowane aplikacje</string>
     <string name="accessibility_rebind_hint">Wyłącz i włącz ponownie OrderPilot w:\nDostępność → Zainstalowane aplikacje → OrderPilot</string>
@@ -67,6 +67,7 @@
     <!-- Toast hints (wizard) -->
     <string name="toast_hint_overlay">Znajdź „OrderPilot" i włącz przełącznik</string>
     <string name="toast_hint_accessibility">Wejdź w „Zainstalowane aplikacje" → znajdź OrderPilot → włącz</string>
+    <string name="toast_hint_battery_optimization">Znajdź „OrderPilot" na liście i wybierz „Bez ograniczeń"</string>
     <string name="toast_hint_samsung_battery">Kliknij „Bateria" → wybierz „Bez ograniczeń"</string>
     <string name="toast_hint_samsung_sleeping">Otwórz „Limity użycia w tle" i usuń OrderPilot z list</string>
     <string name="toast_hint_xiaomi_autostart">Znajdź „OrderPilot" i włącz przełącznik</string>
@@ -108,16 +109,31 @@
     <string name="toast_logs_error">Błąd zapisu logów</string>
     <string name="settings_validation_error">Próg zielony musi być wyższy niż żółty</string>
 
-    <string name="toast_notification_denied">Powiadomienia wyłączone — nie zobaczysz statusu monitoringu w pasku</string>
+    <string name="toast_notification_denied">Powiadomienia wyłączone — nie zobaczysz statusu wykrywania w pasku</string>
 
     <!-- Foreground service notification -->
-    <string name="notif_monitoring_title">Monitoring zamówień aktywny</string>
+    <string name="notif_monitoring_title">Wykrywanie zleceń aktywne</string>
     <string name="notif_monitoring_text">OrderPilot nasłuchuje nowych zleceń</string>
 
     <!-- Watchdog recovery notification -->
-    <string name="notif_watchdog_title">Monitoring zatrzymany</string>
+    <string name="notif_watchdog_title">Wykrywanie zleceń zatrzymane</string>
     <string name="notif_watchdog_text">Kliknij, aby przywrócić działanie</string>
 
     <!-- Notification permission hint -->
-    <string name="hint_notifications_disabled">Powiadomienia wyłączone — monitoring działa, ale nie zobaczysz statusu ani alertów o problemach</string>
+    <string name="hint_notifications_disabled">Powiadomienia wyłączone — wykrywanie działa, ale nie zobaczysz statusu ani alertów o problemach</string>
+
+    <!-- Prominent Disclosure (KD4, Task 3.4) -->
+    <string name="disclosure_title">OrderPilot potrzebuje dostępu do ekranu</string>
+    <string name="disclosure_subtitle">Zanim włączysz usługę dostępności, przeczytaj do czego będzie używana.</string>
+    <string name="disclosure_body">OrderPilot to narzędzie dla kurierów. Do działania potrzebuje dwóch uprawnień: „Usługa dostępności" oraz „Wyświetlanie nad innymi aplikacjami".\n\n<b>Jakie aplikacje OrderPilot czyta:</b>\nwyłącznie Uber Driver, Uber Eats Courier, Wolt Courier, Glovo Courier i Bolt Food. Żadne inne aplikacje nie są obserwowane.\n\n<b>Co dokładnie odczytuje z ekranu:</b>\n• kwotę oferty (zł)\n• szacowany czas dostawy (min)\n• dystans (km)\n• informację, czy zlecenie jest gotówkowe\n\n<b>Do czego używa tych danych:</b>\ndo obliczenia stawki godzinowej (zł/h) i wyświetlenia kolorowej belki nad ekranem aplikacji kurierskiej, żebyś mógł szybko zdecydować, czy opłaca Ci się przyjąć zlecenie.\n\n<b>Co NIE jest robione:</b>\n• dane nie są wysyłane do żadnego serwera\n• nie są zapisywane na dysku (zostają w pamięci maksymalnie ~30 sekund)\n• nie są udostępniane osobom trzecim\n• nie są wykorzystywane do reklam ani profilowania\n\n<b>Uprawnienia systemowe:</b>\nJeśli teraz zaakceptujesz, przejdziesz przez krótki kreator, który poprosi o włączenie kilku ustawień systemowych. Wszystko dzieje się ręcznie — OrderPilot nic nie włączy za Ciebie.\n\n<b>Możesz wyłączyć usługę w dowolnym momencie</b> w Ustawieniach systemu → Dostępność → Zainstalowane aplikacje → OrderPilot. Odinstalowanie aplikacji usuwa wszystkie lokalne dane.\n\nPełna treść polityki prywatności dostępna pod linkiem poniżej.</string>
+    <string name="disclosure_button_accept">Rozumiem</string>
+    <string name="disclosure_button_cancel">Anuluj</string>
+    <string name="disclosure_pp_link">Polityka prywatności</string>
+    <string name="toast_pp_error">Nie udało się otworzyć polityki prywatności</string>
+
+    <!-- About section (Settings) -->
+    <string name="settings_about_header">O aplikacji</string>
+    <string name="settings_pp_link">Polityka prywatności</string>
+    <string name="about_non_affiliation">OrderPilot to niezależne narzędzie i nie jest powiązany, wspierany ani sponsorowany przez Uber, Wolt, Glovo ani Bolt. Wszystkie nazwy i znaki towarowe należą do ich właścicieli.</string>
+    <string name="about_financial_disclaimer">Wyświetlane stawki (zł/h, zł/km) to orientacyjne wyliczenia na podstawie danych z ekranu oferty. Nie stanowią porady finansowej ani gwarancji rzeczywistych zarobków.</string>
 </resources>

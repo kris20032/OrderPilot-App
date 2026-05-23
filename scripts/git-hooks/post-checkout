@@ -1,0 +1,30 @@
+#!/bin/bash
+# Auto-aktualizacja CLAUDE.md „AKTYWNY BRANCH" po git checkout <branch>.
+# Args: $1=prev_head, $2=new_head, $3=flag (1=branch checkout, 0=file checkout)
+#
+# Instalacja: uruchom `scripts/install-hooks.sh` z roota repo. Hook musi być
+# w `.git/hooks/post-checkout` (git nie wersjonuje .git/hooks/, dlatego trzymamy
+# źródło w scripts/git-hooks/ i kopiujemy przy setupie).
+
+# Tylko przy pełnym checkout brancha (nie przy `git checkout -- file`)
+[ "$3" != "1" ] && exit 0
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+CLAUDE_MD="$REPO_ROOT/CLAUDE.md"
+
+[ ! -f "$CLAUDE_MD" ] && exit 0
+
+BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+# Pomiń detached HEAD
+[ "$BRANCH" = "HEAD" ] && exit 0
+
+TODAY="$(date +%Y-%m-%d)"
+
+# Podmień dwie pierwsze linie wpisu AKTYWNY BRANCH.
+# BSD sed (macOS) wymaga -i '' oraz literalnego backslash-n w zamienniku.
+sed -i '' -E \
+  -e "s|^\*\*Obecny branch roboczy: \`[^\`]*\`\*\*$|**Obecny branch roboczy: \`${BRANCH}\`**|" \
+  -e "s|^\*\*Ostatnia aktualizacja tego wpisu: [0-9-]+\*\*$|**Ostatnia aktualizacja tego wpisu: ${TODAY}**|" \
+  "$CLAUDE_MD"
+
+exit 0

@@ -37,13 +37,44 @@ class BoltFoodOcrParser : OcrOfferParser {
         "Заберите через", "Забрать через", "Ожидаемый заработок", "Приблизительный заработок"
     )
 
+    // Layer 4: Positive markers — co najmniej jeden MUSI być w tekście. Bolt Food popup
+    // ma typowo brand "Bolt", przyciski "Akceptuj"/"Decline" oraz nazwę restauracji.
+    // Markery dobrane szeroko (multi-language) żeby nie blokować real offers.
+    // Słabsze niż Uber/Wolt bo Bolt Food popup ma mniej charakterystyczny format,
+    // ale w połączeniu z foreground guardem (Layer 1) i watch resetem (Layer 3)
+    // daje wystarczające pokrycie.
+    private val positiveOfferMarkers = listOf(
+        // Brand
+        "Bolt", "BOLT", "Бoлт", "Болт",
+        // Akcja na popupie
+        "Akceptuj", "Accept", "Прийняти", "Принять",
+        "Odrzuć", "Decline", "Reject", "Відхилити", "Отклонить",
+        // Restoran/Restaurant — Bolt Food zawsze pokazuje nazwę z kontekstem
+        "Restoran", "Restaurant", "Restauracja", "Ресторан",
+        // Post-akceptacji confirm screens (overlay zostaje)
+        "Potwierdź odbiór", "Confirm pickup",
+        "Підтвердити отримання", "Подтвердить получение", "Подтвердите получение",
+        "Show map", "Pokaż mapę", "Показати карту", "Показать карту",
+        // Idle/working state często widoczny pod popupem
+        "Looking for orders", "Szukam zamówień", "Ищу заказы",
+        "Go offline", "Выйти из сети"
+    )
+
     override fun parse(ocrLines: List<String>): Offer? {
         val text = ocrLines.joinToString(" ")
-        AppLog.d(AppLog.TAG_PARSER, "Bolt OCR: $text")
+        AppLog.d(AppLog.TAG_PARSER, "Bolt OCR: lines=${ocrLines.size} textLen=${text.length}")
 
         // Guard: odrzuć tekst z UI innej platformy kurierskiej
         rivalPlatformMarkers.firstOrNull { text.contains(it, ignoreCase = true) }?.let { marker ->
             AppLog.d(AppLog.TAG_PARSER, "Bolt: skipping — rival platform text detected ('$marker')")
+            return null
+        }
+
+        // Layer 4: Positive marker check — wymóg co najmniej jednego markera popupu Bolt Food.
+        // Chroni przed sytuacją gdy screenshot z apki news / social / innej apki przeszedł
+        // foreground guard (Layer 1) ale tekst i tak by się sparsował przez luźny amount regex.
+        if (!OcrOfferParser.hasAnyPositiveMarker(text, positiveOfferMarkers)) {
+            AppLog.d(AppLog.TAG_PARSER, "Bolt: skipping — no positive offer marker found | textLen=${text.length}")
             return null
         }
 
@@ -62,7 +93,7 @@ class BoltFoodOcrParser : OcrOfferParser {
         AppLog.d(AppLog.TAG_PARSER, "Bolt: amounts found = $amounts")
 
         val amount = amounts.maxOrNull() ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Bolt: no amount found | text=${text.take(200)}")
+            AppLog.w(AppLog.TAG_PARSER, "Bolt: no amount found | textLen=${text.length}")
             return null
         }
 
@@ -72,7 +103,7 @@ class BoltFoodOcrParser : OcrOfferParser {
             .toList()
         val hours = hourRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: 0
         val minutes = (allMinutes.maxOrNull() ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Bolt: no time found | text=${text.take(200)}")
+            AppLog.w(AppLog.TAG_PARSER, "Bolt: no time found | textLen=${text.length}")
             return null
         }) + hours * 60
 

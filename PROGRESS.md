@@ -1,8 +1,8 @@
 # OrderPilot — Status Postępu
 
-**Ostatnia aktualizacja:** 2026-04-13
-**Obecny etap:** Drag handle + fixy startup flow (watchdog grace period, accessibility rebind) — branch `feature/drag-handle`, przetestowane na Samsungu z FakeUberApp.
-**Aktywne branche:** `feature/drag-handle` (bieżący), `fix/phantom-overlay-guard` (base), `feature/production-app` (stable), `main` (zsynchronizowany)
+**Ostatnia aktualizacja:** 2026-05-23 — **🚀 PRODUCTION LIVE!** Apka `OrderPilot` v1.0.5 dostępna w Google Play w 177 krajach — potwierdzone przez Krzysztofa 2026-05-23 (pobrać można na dowolne urządzenie z Androidem). Pełen cykl od POC do LIVE: 2026-02-24 → 2026-05-23 (~3 miesiące).
+**Obecny etap:** **Post-launch ops + promocja + v1.1 planning.** Production track v1.0.5 (versionCode 6) LIVE od ~2026-05-21/22, IARC rating LIVE od 2026-05-20. PrimeTestLab zakończył 20-day testing cycle (14 standard + 6 bonus, May 03 - May 21 2026). Facebook page `OrderPilot` utworzona ale brak postów / 0 followers. Kolejne kroki: (1) merge git `fix/v1.0.5-uber-popup-background` → `play-store-prep` → `feature/production-app` → `main`, (2) sesja porządkowa memory (licznik 10/10 + LIVE bump), (3) plan promocji (FB posty + grupy kurierów PL/UA + Reddit + TikTok), (4) monitoring crashy/ANRs w Console, (5) plan v1.1 (EN store listing, telemetria opt-in decision, nowe języki). Daily monitoring: Console Statistics (instalacje per kraj) + Crashes&ANRs + Reviews.
+**Aktywne branche:** `fix/v1.0.5-uber-popup-background` (bieżący — v1.0.5 LIVE w Production), `play-store-prep` (parent), `feature/production-app` (do merge), `main` (do merge)
 
 ---
 
@@ -10,17 +10,15 @@
 
 | Priorytet | Zadanie | Status |
 |-----------|---------|--------|
-| ~~**High**~~ | ~~Build + test `fix/state-refactor` u taty~~ | ✅ 2 dni bez błędów (04-09/10) |
-| ~~**High**~~ | ~~Merge `fix/state-refactor` → `feature/production-app` → `main`~~ | ✅ Zmergowany (04-10) |
-| ~~**High**~~ | ~~Fix phantom overlay Xiaomi — false positive belka w Google Maps~~ | ✅ 2 zmiany (04-10), czeka na test produkcyjny |
-| ~~**High**~~ | ~~Skip MediaProjection na API 30+ — uproszczony start~~ | ✅ Zaimplementowane (04-10), build OK |
-| ~~**High**~~ | ~~Język rosyjski (UI + parsery + rival markers)~~ | ✅ Zaimplementowany (04-11), czeka na build |
-| ~~**High**~~ | ~~Audyt niezawodności + 4 HIGH fixy (boot/watchdog/delay/notif)~~ | ✅ Zaimplementowane (04-11), czeka na test |
-| ~~**High**~~ | ~~Drag handle — przesuwanie belki góra/dół~~ | ✅ Zaimplementowane + przetestowane (04-13) |
-| ~~**High**~~ | ~~Fixy startup flow (watchdog/health-check/accessibility rebind)~~ | ✅ 3 fixy (04-13) |
-| **High** | Weryfikacja Glovo na Xiaomi — tata nie zalogowany | Czeka na test |
-| **High** | Budowanie APK release do dystrybucji beta | Następny krok |
-| Medium | Crash na starszym telefonie (brat) — SettingsActivity | Nie odtworzony po reinstalacji (03-25), monitorowane |
+| **High** | **Merge git** — `fix/v1.0.5-uber-popup-background` → `play-store-prep` → `feature/production-app` → `main` (FF gdzie możliwe, non-FF merge commits dla play-store-prep/main) | TODO post-LIVE |
+| **High** | **Sesja porządkowa memory** — licznik 10/10 TRIGGERED, plus LIVE milestone bump; archiwizacja Closed Testing-specific memory (`closed_testing_strategy.md`, fragmenty MEMORY.md) | TODO |
+| **High** | **Plan promocji v1.0** — FB posty na profilu OrderPilot (już utworzony, 0 followers), grupy kurierów PL/UA na Facebooku, Reddit r/UberDrivers + r/uberEats, TikTok demo (decyzja 04-29: nie ekspozycja PRE-launch wykonana, można odpalać) | TODO |
+| **High** | **Monitoring Console** — codziennie: Statistics (instalacje per kraj/dzień), Crashes & ANRs (zero baseline), Ratings & Reviews (pierwsza recenzja), Vitals (bad behaviors) | DAILY |
+| **Medium** | **Plan v1.1** — EN store listing (skip z v1.0 świadoma), decyzja telemetria opt-in vs zero-network (`future_polish_fixes.md` #35), Android 16 watch-out (#33), nowe języki | TODO Q3 2026 |
+| **Medium** | **Reply do real testerów** — podziękowanie + invite do Production track Marcin/Andrij/Dominik (zostają w Closed albo migrują do Production) | TODO |
+| **Low** | Weryfikacja Glovo na Xiaomi — tata teraz na Samsungu (memory poprawione 05-13), pierwotny test-case nieaktualny | Domknięte de facto |
+| **Low** | [Uber persistent overlay Xiaomi](.) — Uber trzyma pusty overlay type=3 na Xiaomi (na Samsungu OK), polishing | Monitor real-world |
+| **Low** | Crash na starszym telefonie (brat) — SettingsActivity, nie odtworzony po reinstalacji (03-25) | Monitor real-world |
 
 ---
 
@@ -28,185 +26,112 @@
 
 | Branch | Cel | Status |
 |--------|-----|--------|
-| `feature/drag-handle` | Drag handle + startup fixy | **BIEŻĄCY** — przetestowane na Samsungu |
-| `fix/phantom-overlay-guard` | Fix false positive — phantom overlay Xiaomi | Base dla drag-handle |
-| `feature/production-app` | Główny branch produkcyjny (stable) | Base branch |
-| `main` | Stabilna baza — zsynchronizowany z production | Aktualny |
-| ~~`fix/state-refactor`~~ | ~~MonitoringController refactor + defensive fixy~~ | ✅ Zmergowany (04-10) |
+| `fix/v1.0.5-uber-popup-background` | Hotfix Uber popup-over-other-app (Marcin 05-13), LIVE w Production | **BIEŻĄCY** (do merge) |
+| `play-store-prep` | Play Store release — wszystkie Batche + Phase 4 + signed AAB (parent) | Do merge |
+| `feature/production-app` | Główny branch produkcyjny (stable) | Synced z main (04-16), do merge |
+| `main` | Stabilna baza | Synced (04-16), do merge |
+| `polishing` | Splash screen (04-19, nie mergowany do main osobno) | Czeka na Production merge |
+| `feature/app-icon-refresh` | Ikona A1 (zawarta w play-store-prep) | Czeka na Production merge |
 
-> Workflow: nowy branch → testuj → merge do `feature/production-app`
+**Zachowane nie-merged (nieaktywne):** `feature/fake-uber-driver` (testing tool), `feature/glovo-parser`, `fix/parser-false-positives-bolt-watch`, `claude/hardcore-darwin` (docs audyt)
+
+> Merge flow post-LIVE: `fix/v1.0.5-uber-popup-background` → `play-store-prep` → `feature/production-app` → `main`
 
 ---
 
 ## Co dalej — Roadmap
 
-### Faza 1: Stabilizacja — ZAKOŃCZONA (03-27)
-1. ~~Testy produkcyjne u taty~~ ✅ Zaliczone (03-27, Xiaomi)
-2. ~~Bolt Food — retest~~ ✅ 4/4 zlecenia (03-26)
-3. ~~Setup wizard per producent~~ ✅ Gotowe (03-25)
-4. ~~Merge `feature/xiaomi-testing` → `feature/production-app`~~ ✅ (03-27)
+### Faza 1–1.6 — ZAKOŃCZONA (03-04 — 04-16)
+Wszystkie implementacje, fixy, parsery, drag handle, język RU, audyty niezawodności.
 
-### Faza 1.5: Fixy z dalszych testów — ZAKOŃCZONA (04-10)
-5. ~~Universal extractAmount()~~ ✅ (03-29)
-6. ~~Uber adaptive polling~~ → spaced retries + watch mode ✅ (03-30)
-7. ~~Samsung missed events~~ → TYPE_WINDOWS_CHANGED + false trigger filter ✅ (03-31)
-8. ~~Audyt kodu v1+v2~~ → 15 fixów (memory leaki, crash guards, thread safety, porządki) ✅ (03-31)
-9. ~~State refactor + defensive fixy + timeouty~~ ✅ (04-08/10)
-10. ~~Merge `fix/state-refactor` → `feature/production-app` → `main`~~ ✅ (04-10)
+### Faza 2: Play Store Closed Testing — ZAKOŃCZONA (04-22 — 05-16)
+- ✅ Signed AAB zbudowany (04-21), Dev Account + package zarejestrowane (04-22)
+- ✅ Privacy Policy na GitHub Pages (04-22), Closed Testing approved (przed 04-28)
+- ✅ Real testerzy + bug ammunition zebrane: Andrij (UA, news portals false-positive → v1.0.2), Dominik (RU/UA lang + Samsung navbar → v1.0.3 confirmed 05-11), Marcin (decimal + thresholds → v1.0.4, Uber popup-over-other-app → v1.0.5 confirmed 05-16)
+- ✅ Cleanup zombies (04-30), PrimeTestLab Enterprise zamówiony (~40 farmowych installów)
+- ✅ 4 AAB updates podczas 14-day okna (v1.0.2/3/4/5)
+- ✅ 14-day clock COMPLETED (Day 0 = 2026-05-03, Day 14 = 2026-05-16), 53 active testers
 
-### Faza 1.6: Ulepszenia przed beta (teraz)
-11. ~~Skip MediaProjection na API 30+~~ ✅ (04-10) — takeScreenshot() jedyna ścieżka, brak dialogu, brak foreground service
-12. ~~Język rosyjski~~ ✅ (04-11) — AppLanguage.RU, values-ru/strings.xml, rival markers RU we wszystkich parserach, filtr gotówkowy RU w Glovo, overlay units ч/км/мин
-13. ~~Audyt niezawodności + HIGH fixy~~ ✅ (04-11) — BootReceiver, watchdog race guard, health-check 2500ms, notification permission UI hint
-14. ~~6 fixów z testów produkcyjnych~~ ✅ (04-12) — overlay units per waluta (nie per język UI), OCR digit normalization relaxed, guard statisticsScreen, setup battery button, overlay × kółko, wizard toast "Zainstalowane aplikacje"
-15. ~~Oznaczenie gotówki na belce~~ ✅ (04-12) — `isCash` w Offer, detekcja Glovo (per-amount + fallback), generyczne markery Wolt/Bolt, 💵 emoji na belce
-16. ~~Drag handle (przesuwanie belki)~~ ✅ (04-13) — drag handle po lewej, vertical-only, persystowana pozycja Y, touchSlop, close button w prawym górnym rogu
-17. ~~Fixy startup flow~~ ✅ (04-13) — watchdog grace period 30s, health-check grace period 30s, accessibility enabled-ale-nie-bound detection z re-toggle toast
+### Faza 3: Production + promocja — W TOKU (05-16 — present)
+- ✅ Application for Production SUBMITTED 2026-05-16 11:03 AM
+- ✅ Application APPROVED 2026-05-17 17:32 (1-day turnaround)
+- ✅ Production release v1.0.5 created 2026-05-18 22:48 (versionCode 6, 177 krajów, release notes PL+EN)
+- ✅ IARC Live Rating Notice received 2026-05-20 (Global Rating ID `6ef6cf91-410e-8191-8de0-3f365b7a6a7e`)
+- ✅ **PRODUCTION LIVE w Google Play (potwierdzone przez Krzysztofa 2026-05-23)** — apka dostępna globalnie, można pobrać na dowolny Android
+- ✅ PrimeTestLab 20-day testing cycle COMPLETED 2026-05-21 (14 standard + 6 bonus)
+- ⏳ Merge git do main
+- ⏳ Sesja porządkowa memory
+- ⏳ Promocja launch: FB posty (page utworzona), grupy kurierów, Reddit, TikTok
+- ⏳ Daily monitoring: Console Crashes/Reviews/Vitals
 
-### Faza 2: Przygotowanie do beta testów
-8. Budowanie APK release (signed) do dystrybucji
-9. Glovo — weryfikacja na Xiaomi (tata nie był zalogowany)
-
-### Faza 3: Beta testy u zewnętrznych kurierów
-10. Znaleźć 3-5 kurierów na mieście (mix platform + modeli telefonów)
-11. Instalacja apki + konfiguracja na miejscu
-12. Zbieranie feedbacku przez WhatsApp/Telegram
+### Faza 4: v1.1 — TODO (Q3 2026)
+- EN store listing (skip z v1.0 świadoma)
+- Decyzja telemetria opt-in vs zero-network (`future_polish_fixes.md` #35)
+- Android 16 watch-out (#33: `accessibilityDataSensitive`)
+- Nowe języki / regiony
 
 ---
 
-## Ostatnie zmiany
+## Ostatnie zmiany (od 04-19)
 
 | Data | Zmiana |
 |------|--------|
-| 04-13 | **Drag handle** — przesuwanie belki góra/dół (vertical-only, persystowana pozycja Y, touchSlop). Close button przeniesiony do prawego górnego rogu z zaokrągleniem 14dp. |
-| 04-13 | **Fixy startup flow** — (1) Watchdog grace period 30s po start() (zabijał monitoring 170ms po starcie), (2) Health-check w onResume() grace period 30s (ten sam problem), (3) Accessibility enabled-ale-nie-bound po reinstalacji — toast z instrukcją re-toggle zamiast przechodzenia dalej bez działającego serwisu. |
-| 04-12 | **Oznaczenie gotówki na belce** — `isCash: Boolean` w Offer, detekcja: Glovo (per-amount prefix + containsCashMarkers fallback), Wolt/Bolt (generyczne markery PL/EN/UK/RU). 💵 emoji na końcu belki. isSameAsPrevious uwzględnia isCash. Testy: 4 w GlovoOcrParserTest + 10 w OcrOfferParserTest. |
-| 04-12 | **6 fixów z testów produkcyjnych** — (1) Overlay units zależą od waluty zlecenia nie języka UI (zł→h/km/min zawsze), (2) OCR digit normalization relaxed (Z→7, O→0, L→1 fix PLN1Z.28), (3) Guard statisticsScreenMarkers w UberOcrParser, (4) Setup: przycisk "Zezwól na działanie w tle" + ukrywanie po zaliczeniu, (5) Overlay × jako kółko w odcieniu belki, (6) Wizard toast z krokiem "Zainstalowane aplikacje". |
-| 04-11 | **Audyt niezawodności** — 7 problemów zidentyfikowanych (4 HIGH, 3 MEDIUM). 4 HIGH fixy: BootReceiver (wznowienie po reboot), watchdog race guard (initialize() w doWork()), health-check delay 500→2500ms (false stop po Doze), notification permission UI hint (persistent banner gdy denied). |
-| 04-11 | **Język rosyjski** — AppLanguage.RU, values-ru/strings.xml (109 stringów), rival markers RU we wszystkich 4 parserach (synonimy per concept), filtr gotówkowy RU w GlovoOcrParser (prefix "наличн"), overlay units ч/км/мин. Punkt #10 (usunięcie MediaProjection) zamknięty jako nieaktualny. Punkt #17 (wskaźnik akceptacji) dodany do future_polish_fixes. |
-| 04-10 | **Skip MediaProjection na API 30+** — na Android 11+ apka pomija dialog MediaProjection i foreground service. Screenshoty przez AccessibilityService.takeScreenshot(). Consecutive failure counter (alert po 10 porażkach) jako safety net. future_polish_fixes: punkt 9 resolved, punkt 7 z uwagą o ryzyku. |
-| 04-10 | **Fix phantom overlay Xiaomi** — watch mode guard: `hasUberOverlayWindow()` → `hasUberOverlayWithContent()` (linia 481). Phantom overlay Xiaomi (type=3, pusty) nie przepuszcza już periodic screenshot bez realnego popupu. Bonus: fallback amount regex `\d+` → `\d{1,2}` po separatorze — blokuje GPS coords jako false kwoty. |
-| 04-10 | **Merge `fix/state-refactor` → `feature/production-app` → `main`** — 2 dni testów produkcyjnych (tata) bez błędów. Defensive fixy: OCR timeout 5s, pipeline timeout 10s, health-check AccessibilityService w MainActivity (toast gdy OEM kill), odrzucanie ambiguous 3-cyfrowych kwot w parserze. |
-| 04-09 | **Fix retry loop — isActive() guard** — audyt concurrency i STOP logiki. Dodano `if (!MonitoringController.isActive()) break` w obu retry pętlach (throttler callback + WINDOWS_CHANGED). Po STOP retries przerywają się natychmiast zamiast robić zbędne screenshoty przez 2.4s. |
-| 04-09 | **Audyt crash & lifecycle** — 3 subagenty + ręczna weryfikacja. Większość "critical" to false positives. 3 defensive fixy: WakeLock timeout 4h, MonitoringController.start() po potwierdzeniu MediaProjection, CopyOnWriteArrayList w listeners. App bezpieczna do release (crash-wise). |
-| 04-08 | **3 bugi taty + fix logowania** — OcrOfferParser, UberOcrParser, PipelineOrchestrator, MainActivity, AppLog |
-| 04-08 | **State refactor (MonitoringController)** — zastąpienie `@Volatile isUserStopped` jednym persystowanym source of truth. `MonitoringController` object z `start()/stop()/isActive()`. 3-warstwowa gwarancja Stop. `onTaskRemoved()` NIE zmienia stanu. Waluta dynamiczna z `Offer.currency`. |
-| 04-04 | **Rename CourierAssist → OrderPilot** — package `com.orderpilot.app`, klasy (OrderPilotApp, OrderPilotAccessibilityService), moduł `OrderPilot/`, SharedPrefs key, log tagi CA_→OP_, strings.xml (3 locale), themes.xml, docs, memory files. Zero pozostałości. |
-| 04-03 | **Parser false positives** — usunięty regex `z` z CUR, fix backtracking AMOUNT_FALLBACK_REGEX, guard historyScreenMarkers w UberOcrParser, normalizeOcrDigits() przed parsowaniem czasu |
-| 04-03 | **Bolt watch mode** — tree-based periodic read co 2.5s (Bolt nie generuje accessibility eventów przy popupie oferty) |
-| 03-31 | Audyt kodu v2: synchronized w ScreenCaptureService, @Volatile na uberWatchJob, PopupCropper bounds check, OfferDuplicateChecker (wspólna logika), named constants (RETRY_DELAY_MS itp.) |
-| 03-31 | Audyt kodu v1: 5x try-finally (bitmap/node recycle), pipeline.isInitialized guard, image.planes guard, Glovo distance cap 20→50km, @Volatile na EventThrottler |
-| 03-31 | Samsung fix: TYPE_WINDOWS_CHANGED (event systemowy) + overlay detection po typie okna + false trigger filter (CONTENT_CHANGED bez overlay = skip) + watch mode 60s |
-| 03-30 | Uber: spaced retries (delay 600ms, 4 retries pokrywające 0-2400ms) — fix errorCode=3 od back-to-back. Watch mode: periodic screenshot co 2.5s gdy Uber aktywny (safety net na opóźnione eventy). Wolt: 2 spaced retries (proaktywna ochrona). Flaga isRetrying zapobiega kolizji watch mode + retries. |
-| 03-30 | Diagnostyka Samsung: getWindows() logging + OCR normalizacja l/I/|→1 obok cyfr |
-| 03-29 | Uber: adaptive back-to-back polling (7 prób w ~2.9s zamiast 1 retry po 3s) — ZASTĄPIONE przez spaced retries 03-30 |
-| 03-29 | Diagnostyka: debug screenshoty do Downloads + logi retry z retryIndex, screenOn, bitmap size, cropY |
-| 03-29 | Universal extractAmount() w OcrOfferParser — 3-krokowy fallback (LICZBA+WALUTA, WALUTA+LICZBA, luźna liczba), obsługa PLN/zł/грн/₴ |
-| 03-26 | Fix: WoltOcrParser — usunięto guard fraz Uber-specyficznych (blokował 100% ofert Wolta po polsku) |
-| 03-26 | Fix: isUserStopped — reset po MIUI kill (monitoring wznawia się poprawnie) |
-| 03-26 | Fix: GlovoOcrParser — guard przed przechwyceniem eventów Ubera |
-| 03-26 | Fix: Uber retry — 3s opóźnienie po nieudanym screenshocie |
-| 03-25 | Setup wizard v2: karty per producent (Samsung/Xiaomi/Huawei/Oppo/OnePlus), toast hints (skrócone — "Znajdź OrderPilot i włącz przełącznik"), domyślny język z system locale |
-| 03-25 | Test na Xiaomi z FakeUberApp: belka działa, wizard Xiaomi OK, task-removed OK, toast hints OK (pushowano na GitHub) |
-| 03-25 | Fix: MIUI fałszywie zatrzymywał monitoring po Home — zamiana ActivityLifecycleCallbacks na onTaskRemoved() w serwisach |
-| 03-25 | Fix: OCR ukraiński — Latin lookalikes (rpH/XB) we wszystkich parserach, distance regex poluzowany, logowanie linii OCR |
-| 03-25 | Hardening: thread-safe overlay slots (synchronized), OCR recycled-bitmap guard, optymalizacja screenshotów (eliminacja podwójnej alokacji) |
-| 03-24 | Fix: WoltOcrParser odrzuca frazy Uber ("Spodziewany zarobek", "Szacowany", "Dostawa od") — zapobiega parsowaniu overlaya Ubera jako zlecenia Wolt |
-| 03-24 | Fix: cross-platform duplicate check łapie duplikaty od pierwszego parsowania (usunięto guard clause) |
-| 03-24 | Fix: Uber eventy exempt z foreground check — popup overlay widoczny nad każdą apką |
-| 03-24 | Fix: foreground check tylko dla rival platform — nie blokuje Uber overlaya nad launcherem |
-| 03-24 | Fix: foreground check przed screenshotem — Wolt w tle nie parsuje popupu Ubera jako swojego zlecenia |
-| 03-24 | Fix: wyrzucenie apki z "ostatnich" zatrzymuje monitoring i chowa belki (ActivityLifecycleCallbacks) |
-| 03-22 | Refactor: per-platform lastResult (ConcurrentHashMap) w serwisie i PipelineOrchestrator + cross-platform duplicate check w obu ścieżkach |
-| 03-22 | Fix: Multi-overlay — cross-platform duplicate check z tolerancją (±1 min, ±0.5 km), dynamiczna wysokość slotów, stabilna pozycja przy update (bez slot swap) |
-| 03-22 | Fix: Bolt Food — dodano prawdziwy pakiet `com.bolt.deliverycourier` do supportedPackages |
-| 03-21 | Hardening: ConcurrentHashMap w OverlayAutoHider, cont.isActive w OcrEngine, maxDepth w TextCollector, crash logger do Downloads |
-| 03-21 | Fix: Glovo parser filtruje "ZAPŁAĆ X zł" na ekranie oferty z gotówką + warianty wielojęzyczne (PL/UK/EN) |
-| 03-20 | Fix: Glovo parser filtruje kwoty "zapłać gotówką partnerowi" + guard "Potwierdź odbiór" |
-| 03-17 | Multi-overlay: max 2 belki naraz, etykiety platform, osobne timery, przycisk × per belka |
-| 03-17 | Domyślne ustawienia: 30s belka, wszystkie metryki widoczne |
-| 03-17 | Docs: pełna aktualizacja dokumentacji (sesja spójności) |
-| 03-16/17 | Fix: Glovo partial offer, gotówka (ODBIERZ), sumowanie WSZYSTKICH dystansów |
-| 03-16 | Fix: Uber odrzuca ekran statystyk (> 180 min) |
-| 03-15 | BoltFoodOcrParser — gotowy, czeka na test |
-| 03-14/15 | GlovoOcrParser v2 + sanitizeAmount + ring buffer logów + ustawienia per platforma |
+| 05-23 | **🚀 PRODUCTION LIVE w Google Play** — Krzysztof potwierdził że OrderPilot v1.0.5 jest dostępny w Sklepie Play i można go pobrać na dowolne urządzenie z Androidem. Production track approved przez Google AAB review między 2026-05-20 (po IARC notice) a 2026-05-23. PrimeTestLab równolegle zakończył 20-day testing cycle 2026-05-21 (14 standard + 6 bonus, sygnał „App Fully Verified"). Facebook page `OrderPilot` utworzona (0 followers, brak postów — gotowa do promocji). Zamknięty pełen flow Closed Testing → Production access → Production release → LIVE w 3 miesiące od POC (02-24 → 05-23). Następny etap: merge git → sesja porządkowa → promocja → monitoring → plan v1.1 |
+| 05-20 | **IARC Live Rating Notice** — email od IARC Content Ratings (`noreply@globalratings.com`) potwierdza że rating wiekowy OrderPilota jest LIVE na Google Play. Global Rating ID: `6ef6cf91-410e-8191-8de0-3f365b7a6a7e` (zachowany do przyszłych storefrontów — Amazon, Galaxy Store). NIE oznacza że apka LIVE — to tylko rating widoczny publicznie. Prawdopodobnie regeneracja przy okazji Production submit (177 krajów vs Closed Testing PL-only). Sygnał że pipeline review Google się rusza |
+| 05-16 | **Day 14 — Application for Production SUBMITTED 11:03 AM** — Google Play Console „Apply for production access" wypełniony i wysłany. 8 odpowiedzi (3 sekcje: Closed test / About app / Production readiness), wszystkie pod 300/300 limit. Q3.1 wzmocnione „confirmed" attribution dla v1.0.3 (Dominik 05-11), v1.0.4 + v1.0.5 (Marcin 05-16 10:42 WhatsApp „It works ok now, thanks 😂") = 3/4 closed-loop fixes. Q2.3 install range: 0-10K (konserwatywnie realistic). Q1.2 recruitment ease: „Neither difficult or easy". Całość ~30 min od otwarcia formularza do submit. Console mówi „usually 7 days or less" — email decyzji na konto owner. NIE wgrywać v1.0.6 / nie rotować testerów podczas review. Po approve: D5 Production track release create + upload v1.0.5 AAB + paste release notes z `PRODUCTION_SUBMIT_CHECKLIST.md` D3.5 |
+| 05-13 | **Day 10 — v1.0.4 build + upload (one day ahead of plan)** — AAB 24 MB wygenerowany (`OrderPilot/app/release/app-release.aab`, build 6m 9s). Pierwszy build padł po 27 min na `Failed to create MD5 hash for file` w `app/build/intermediates/` (przyczyna: Desktop jest synchronizowany z iCloud Drive + iCloud storage FULL → blokowanie plików). Fix: `./gradlew clean` (58s, z JAVA_HOME ustawionym na Android Studio JBR) → drugi build SUCCESS. AAB uploaded do Closed Testing → Alpha jako "1.0.4 - threshold fixes", release notes PL paste z `PRODUCTION_SUBMIT_CHECKLIST.md` D3, walidacja Console: version `5 (1.0.4)`, Target SDK 35, API 26+, 2 non-blocking warnings (R8 mapping + native debug symbols — same co v1.0.2/v1.0.3). Save → Publishing overview, quick checks ~14 min, czeka na Send for review |
+| 05-13 | **Day 10 — v1.0.4 version bump** (`versionCode 4→5`, `versionName "1.0.3"→"1.0.4"` w `OrderPilot/app/build.gradle.kts`, commit `8e4686e`). Kod (commit `f58ec8c`) gotowy od Day 9. Play Console dashboard potwierdza 12 testerów opted-in 10/14 days continuous |
+| 05-12 | **Play Console verification Day 9** — Default store listing zweryfikowany pole-po-polu i Save (czeka w Publishing overview do Day 14). Wpisany Video URL `youtube.com/watch?v=riSLy3qiySA` (Play Console NIE akceptuje Shorts URLs → konwersja z `/shorts/<id>` → `/watch?v=<id>`). Privacy Policy + Data Deletion URLs zweryfikowane w incognito. Status checklisty: C2 ✅, C4 ✅ (non-affiliation + financial disclaimer obecne), C8 ✅ (8 screens), C9 ✅, F1 ✅, F2 ✅ (Data safety = "doesn't collect" → URL field nie wymagany), F4 ✅. EN translation świadomie pominięta dla v1.0 (skip do v1.1 post-Production, redukcja rejection surface). NIE klikamy „Send for review" do Day 14 — strategia jednego pakietu (store listing + v1.0.4 AAB razem). `PRODUCTION_SUBMIT_CHECKLIST.md` zaktualizowany |
+| 05-05 | **v1.0.2 — Andrij news portals fix** (multi-layer defense). Layer 1: strict foreground tracker (`lastForegroundPackage` z `TYPE_WINDOW_STATE_CHANGED`) + cross-check z `rootInActiveWindow`, wpięty jako guard w `processViaScreenshot`/`processViaAccessibilityTree` + przed `pipeline.process()` we wszystkich 3 call sites. Layer 2: wzmocnione `hasUberOverlayWithContent()` — wymóg patternu oferty (kwota+czas ≤120 znaków) lub markeru Ubera, zamiast samej obecności tekstu (zamyka MIUI phantom-overlay). Layer 3: watch mode reset — cancel `uberWatchJob`/`boltWatchJob` przy `WINDOW_STATE_CHANGED` z packagem spoza `watchedPackages`, plus dodatkowy guard w Uber watch loop. Layer 4: positive markers (10-15 fraz multi-language: PL/EN/UA/RU) wymagane w `UberOcrParser`/`BoltFoodOcrParser`/`WoltOcrParser` — news portal nie zawiera „Łącznie"/„Odbiór za"/„Bolt"/„Akceptuj". `versionCode=3, versionName="1.0.2"`. `future_polish_fixes.md` #36 zamknięty, `closed-testing-evidence.md` sekcja 4+5 zaktualizowane (Application Form ammunition gotowa). Pliki: `OrderPilotAccessibilityService.kt`, `OcrOfferParser.kt`, `UberOcrParser.kt`, `BoltFoodOcrParser.kt`, `WoltOcrParser.kt` |
+| 04-30 | **Closed Testing operations day** — cleanup zombie (Pavlyshy wywalony), counter 11/12 opted-in, PrimeTestLab Enterprise $19.99 zamówiony (25 testers + Approval Guarantee), pool CSV 120 emaili pobrany, ticket do managera wysłany (pool vs package, staged rollout, instructions, geo, refund process). Tracker `test-data/closed-testing/testers_tracker.xlsx` + RECOMMENDATIONS.md utworzone. Strategia: bundle paid+brat+znajomy taty + odpowiedzi POCZEKAJ → clock auto-startuje przy 12+ |
+| 04-29 | **Andrij real engagement** — UA real kurier zgłosił bug (false-positive overlay na portalach informacyjnych) + statystyki dnia (5h57m online, 9 zleceń) + general feedback. Bug do `future_polish_fixes.md`. Kandydat #1 na fix w v1.0.2 (pierwszy z 3+ wymaganych AAB updates). `docs/closed-testing-evidence.md` utworzony jako Application Form ammunition |
+| 04-29 | **Dominik bugi** — UI language fallback RU/UA nie działa + Samsung nav bar zakrywa „Zapisz ustawienia" w Settings. Oba w `future_polish_fixes.md`, planowane v1.0.3 |
+| 04-29 | **Recruitment events** — wizyty w Forum Gdańsk (Lucky, Ivan Black, Kuba, Andrew, Ivan UA, Artur, Gonzalo, Pavlyshy=zombie). Tata zaoferował znajomego non-couriera jako dodatkowy tester. Decision: skip stary telefon brata (same household IP risk > value) |
+| 04-22 | **Closed Testing in review** — package `com.orderpilot.app` zarejestrowany, AAB + screenshots przesłane do Play Console |
+| 04-22 | **GitHub Pages** — `kris20032.github.io/OrderPilot-App/legal/` działa (PP PL+EN, Data Deletion) |
+| 04-21 | **Keystore** — `orderpilot-release.jks` (SHA256 `AC:2D:E9:...:0D:96`, ważny do 2053), backup Desktop+iPhone |
+| 04-21 | **Signed AAB** — `app-release.aab` 23 MB, build SUCCESS |
+| 04-21 | **Batch 4** — `signingConfigs` w `build.gradle.kts`, `keystore.properties.template` |
+| 04-20 | **Phase 4 (PP)** — Privacy Policy + Data Deletion HTML, Data Safety form, Permissions Declarations, GitHub Pages setup |
+| 04-20 | **Path A** — PP link w Settings, About + disclaimers, wording „monitoring"→„wykrywanie zleceń" |
+| 04-20 | **Batch 3** — DisclosureActivity (KD4 Prominent Disclosure), DisclosureRepository, consent flag, flow gate w MainActivity |
+| 04-20 | **Batch 2** — audyty: allowBackup, ScreenCapture guard, Logcat ring buffer, SaveLogs |
+| 04-19 | **Batch 1** — manifest/config/strings play-store quick wins (exported flags, query intents, backup rules) |
+| 04-19 | **Ikona A1 + Splash** — Arrow-Up Reticle (orange #F07830, navy #0D1B2A), Android 12+ SplashScreen API, adaptive icon |
 
 ---
 
-## Wyniki testów
+## Keystore — dane techniczne
 
-### Glovo (2026-03-15 — 2026-03-17)
-| Zlecenie | Wynik | Uwagi |
-|----------|-------|-------|
-| 18,15 zł / Starbucks | ✅ | Max kwota (18,15 > 4,71), dystans 1,26+0,78=2,0 km |
-| 7,50 zł / Pasibus | ✅ | Oba dystanse od razu (tree widzi spoza ekranu) |
-| 18,29 zł / Pizzeria 105 | ✅ | Po fix partial offer — parser czekał na pełne dane |
-| 25,38 zł / TARGOWA+Kebab (3 dyst.) | ⚠️→✅ | Wziął gotówkę 39 zł. Naprawione (filtr ODBIERZ). |
-| 12,54 zł / Biedronka (gotówka) | ❌→✅ | Wziął 65,41 zł klienta. Naprawione (filtr ODBIERZ). |
-| 31,50 zł / Kebab Lamh (zapłać gotówką) | ❌→✅ | Naprawione (filtr gotówkowy + guard). |
-| 11,32 zł / Apteczka Zdrowia (ZAPŁAĆ gotówką) | ❌→✅ | Naprawione (filtr "ZAPŁAĆ" + warianty PL/UK/EN). |
-
-### Uber (2026-03-16 — 2026-03-22)
-| Problem | Wynik |
-|---------|-------|
-| Ekran statystyk (324 zł / 2575 min) | ✅ Naprawione — filtr > 180 min |
-| Regresja po zmianach | ✅ Działa |
-| Belka 2 metryki zamiast 5 | ⏳ Czekamy na logi |
-
-### Wolt (2026-03-13)
-- Zweryfikowany na telefonie (13 zł / 26 min / 2.7 km → 30 zł/h → RED) ✅
-
-### Multi-overlay (2026-03-22)
-| Problem | Wynik |
-|---------|-------|
-| Cross-contamination (Wolt bar dostał dane Uber) | ❌→✅ Fix: cross-platform duplicate check z tolerancją |
-| Belki nachodzą na siebie | ❌→✅ Fix: dynamiczna wysokość (view.height po layout) |
-| Slot swap (Uber z góry na dół) | ❌→✅ Fix: position = existingIndex zamiast 0 |
-
-### Bolt Food (2026-03-22)
-- Zlecenie przyszło, belka nie zadziałała — pakiet `com.bolt.deliverycourier` nie był w supportedPackages. Naprawione. Czeka na retest.
-
-### Xiaomi — testy produkcyjne (2026-03-26/27)
-| Problem | Wynik |
-|---------|-------|
-| Bolt Food 4/4 zlecenia | ✅ Działa |
-| Wolt 0/4 (guard Uber-specyficzny blokował po polsku) | ❌→✅ Naprawione (03-26), retested (03-27) |
-| Uber — belka nie pojawiła się (GlovoOcrParser przechwycił eventy) | ❌→✅ Naprawione (03-26), retested (03-27) |
-| isUserStopped martwy po MIUI kill (monitoring nie wznawia się) | ❌→✅ Naprawione (03-26), retested (03-27) |
-| Glovo — nie testowane (tata nie zalogowany) | ⏳ Czeka na test |
+- Plik: `OrderPilot/keystore/orderpilot-release.jks` (poza git — `.gitignore`)
+- Alias: `orderpilot` | Algo: RSA 2048 / SHA384withRSA | Ważny do: 2053-09-05
+- SHA256: `AC:2D:E9:20:42:F0:59:BA:10:84:E0:63:2E:C8:EF:21:9F:E7:54:7C:69:A1:CC:3B:16:57:50:55:C8:13:0D:96`
+- Backup: Desktop Mac + iPhone Files
 
 ---
 
 <details>
-<summary>Archiwum — ukończone etapy</summary>
+<summary>Archiwum — ukończone zadania (do 04-19)</summary>
 
 ## Faza POC — ZAKOŃCZONA (2026-02-24 — 2026-02-27)
-
-- Android Studio + JDK 17 zainstalowane
-- FakeUberDriver: aplikacja testowa symulująca popup Uber
-- **POC MediaProjection + OCR: belka pojawia się na telefonie przy popupie FakeUberDriver**
+- Android Studio + JDK 17, FakeUberDriver, POC belka na telefonie
 
 ## EPIC 1–14 — UKOŃCZONE (2026-03-04 — 2026-03-05)
+Fundament → Domain → Settings → Engine → Parser → Capture → OCR → Overlay → Pipeline → Service → UI → Billing → Testy E2E.
 
-Fundament → Domain → Settings → Engine → Parser → Capture → OCR → Overlay → Pipeline → Service → UI → Billing → Testy E2E. Pełny plan: `docs/PLAN.md`.
+## Faza 1: Stabilizacja — ZAKOŃCZONA (03-04 — 03-27)
+Testy produkcyjne u taty, Bolt 4/4, Wolt fix, Glovo fixy, multi-overlay, setup wizard per producent.
 
-## Bugfixy po testach na telefonie (2026-03-06 — 2026-03-08)
+## Faza 1.5: Fixy z testów — ZAKOŃCZONA (03-29 — 04-10)
+Universal extractAmount(), spaced retries Uber, Samsung TYPE_WINDOWS_CHANGED, audyt kodu v1+v2, state refactor MonitoringController, merge do main.
 
-| Zadanie | Efekt |
-|---------|-------|
-| Fix wygaszanie ekranu | WakeLock + `isProjectionLost` flaga + powiadomienie |
-| Optymalizacja latencji | firstShotDelay 100ms, cooldown 3s. Wynik ~1.3s (bottleneck: ML Kit OCR ~700ms) |
-| KAN-14 odświeżanie belki | Usunięto guard `isShowing()` |
-| Bug START + accessibility | `pendingStart` flaga na race condition onResume/onActivityResult |
-| KAN-12 dark mode | `forceDarkAllowed="false"` + jawny `setTextColor(WHITE)` |
-| KAN-11 dialog MediaProjection | Toast wyjaśniający przed dialogiem |
-| KAN-13+15 suwaki | `overlayOpacity` i `displayTimeSeconds` w DisplayConfig |
+## Faza 1.6: Ulepszenia przed beta — ZAKOŃCZONA (04-10 — 04-16)
+Skip MediaProjection API 30+, język rosyjski (values-ru, parsery RU, overlay ч/км/мин), audyt niezawodności (BootReceiver, watchdog race guard, health-check 2500ms), 6 fixów z testów (units per waluta, OCR relaxed, gotówka 💵, drag handle, startup flow grace period 30s), merge do main (04-16), hook auto-branch CLAUDE.md.
 
-## Dual-mode accessibility fallback (2026-03-10)
-## takeScreenshot fallback (2026-03-11)
-## WoltOcrParser — zweryfikowany (2026-03-13)
-## GlovoOcrParser + fixy (2026-03-14/17)
-## BoltFoodOcrParser — gotowy (2026-03-15)
-## Multi-overlay — 2 belki naraz (2026-03-17)
+## Polishing — ZAKOŃCZONA (04-16 — 04-19)
+#24 × center-vertical, #25 PLN przy EN, #26 Ikona A1 Arrow-Up Reticle, Splash screen Android 12+.
+
+## Play Store prep — ZAKOŃCZONA (04-19 — 04-22)
+Gap analysis, plan implementacyjny, Batch 1-4, Path A (PP link+disclaimers+wording), Phase 4 (PP hosting), keystore, signed AAB, Closed Testing release.
 
 </details>

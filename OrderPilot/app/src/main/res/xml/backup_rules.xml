@@ -1,13 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample backup rules file; uncomment and customize as necessary.
-   See https://developer.android.com/guide/topics/data/autobackup
-   for details.
-   Note: This file is ignored for devices older than API 31
-   See https://developer.android.com/about/versions/12/backup-restore
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Auto-backup rules (Android 6+, API 23+).
+
+    Włączamy kopię preferencji użytkownika (progi kolorów, język, motyw,
+    pozycja belki itd.) — użytkownik po przywróceniu telefonu odzyskuje
+    swoje ustawienia. Uprawnienia systemowe (accessibility, overlay,
+    battery) nie są backupowane przez Android — użytkownik i tak przechodzi
+    wizard ponownie, więc flaga monitoring_state w tym samym pliku jest
+    nieszkodliwa (bez grantów wizard i tak startuje od zera).
+
+    WYKLUCZENIA:
+    - order_pilot_disclosure.xml: KD5 Play Store wymaga świeżej zgody disclosure
+      po przywróceniu na nowym urządzeniu. Plik zarezerwowany na Phase 3.
 -->
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <!-- Tylko ustawienia użytkownika są backupowane. order_pilot_disclosure.xml
+         jest automatycznie wykluczone bo nie ma go w include (KD5). -->
+    <include domain="sharedpref" path="order_pilot_settings.xml"/>
 </full-backup-content>

@@ -7,6 +7,9 @@
 build/
 local.properties
 
+# Kotlin compiler cache (gradle 8+ tworzy lokalnie w module dir)
+.kotlin/
+
 # Android build artifacts
 *.apk
 *.ap_
@@ -24,3 +27,10 @@ LukaszBranch/
 
 # Dane testowe (logi, screenshoty — tylko lokalnie)
 test-data/
+
+# Mockupy wizualne belki (dev assets — nie commitować, iterujemy lokalnie)
+mockup_*.html
+
+# Release signing — NIGDY nie commitować keystore ani haseł
+keystore/
+keystore.properties

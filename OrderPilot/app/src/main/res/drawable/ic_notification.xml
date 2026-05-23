@@ -1,11 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Notification small icon — simplified A1 glyph @ 24dp
+    Ring + arrow only (BEZ tickków — sub-pixel @ 24dp, patrz 02_qa_fixes.md sekcja 3)
+    Proporcje natywne dla 24dp (grubsze linie niż master), nie downscale z 1024.
+    Donut = outer r=9 + inner r=7 (evenOdd) dla spójnego tintowania.
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24"
     android:tint="?attr/colorControlNormal">
-    <!-- Simple delivery/navigation icon -->
+
+    <!-- Ring (donut outer r=9, inner r=7) -->
     <path
-        android:fillColor="@android:color/white"
-        android:pathData="M12,2L4.5,20.29l0.71,0.71L12,18l6.79,3 0.71,-0.71z"/>
+        android:fillColor="#FFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M3,12 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0 Z M5,12 a7,7 0 1,0 14,0 a7,7 0 1,0 -14,0 Z" />
+
+    <!-- Arrow head (tip y=2, base y=8, 1dp breakthrough nad ring outer) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,2 L15,8 L9,8 Z" />
+
+    <!-- Shaft (x=11 y=8 w=2 h=7) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M11,8 h2 v7 h-2 Z" />
+
 </vector>

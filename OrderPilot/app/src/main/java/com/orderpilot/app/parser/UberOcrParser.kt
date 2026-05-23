@@ -62,6 +62,29 @@ class UberOcrParser : OcrOfferParser {
         "Расстояние", "Ваш заработок", "Заработок", "Доход", "Стоимость поездки"
     )
 
+    // Layer 4: Positive markers — co najmniej jeden MUSI być w tekście, inaczej parser
+    // odrzuca. Te frazy ZAWSZE są na popupie oferty Ubera (format "Łącznie X min (Y km)"
+    // + przycisk "Akceptuj"/"Accept"), a NIGDY na portalach newsowych / social mediach.
+    // Multi-language coverage żeby nie blokować real offers w UA/RU/EN UI.
+    private val positiveOfferMarkers = listOf(
+        // Format popupu "Łącznie X min" — zawsze obecny
+        "Łącznie", "Lacznie",  // PL (OCR czasem gubi ł)
+        "Total",                 // EN
+        "Загалом",               // UK
+        "Итого", "Всего",        // RU
+        // Dostawa/Delivery z kropką separatorem typowy dla Ubera
+        "Dostawa ·", "Dostawa.", "Dostawa,",
+        "Delivery ·", "Delivery.",
+        "Доставка ·", "Доставка.",
+        // Przyciski popupu (mogą być w cropie)
+        "Akceptuj", "Accept",
+        "Прийняти", "Принять",
+        // Status online (popup często z banner'em "Jesteś online")
+        "Jesteś w trybie online", "You're online", "Ви онлайн", "Вы онлайн",
+        // Brand
+        "Uber", "UBER"
+    )
+
     override fun parse(ocrLines: List<String>): Offer? {
         val text = OcrOfferParser.normalizeOcrDigits(ocrLines.joinToString(" "))
 
@@ -83,9 +106,17 @@ class UberOcrParser : OcrOfferParser {
             return null
         }
 
+        // Layer 4: Positive marker check — wymóg co najmniej jednego markera popupu Ubera.
+        // Chroni przed sytuacją gdy screenshot z apki news / social / innej apki przeszedł
+        // foreground guard (Layer 1) ale tekst i tak by się sparsował przez luźny amount regex.
+        if (!OcrOfferParser.hasAnyPositiveMarker(text, positiveOfferMarkers)) {
+            AppLog.d(AppLog.TAG_PARSER, "Uber: skipping — no positive offer marker found | textLen=${text.length}")
+            return null
+        }
+
         // Kwota — wspólna logika z fallbackiem
         val (rawAmount, parsedAmount) = OcrOfferParser.extractAmount(text) ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Uber: no amount found | text=${text.take(200)}")
+            AppLog.w(AppLog.TAG_PARSER, "Uber: no amount found | textLen=${text.length}")
             return null
         }
         val amount = OcrOfferParser.sanitizeAmount(rawAmount, parsedAmount) ?: run {
@@ -94,13 +125,13 @@ class UberOcrParser : OcrOfferParser {
         }
 
         val mins = timeRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Uber: no time found | text=${text.take(200)}")
+            AppLog.w(AppLog.TAG_PARSER, "Uber: no time found | textLen=${text.length}")
             return null
         }
         val hourMatch = hourRegex.find(text)
         val hours = hourMatch?.groupValues?.get(1)?.toIntOrNull() ?: 0
         if (hours > 0) {
-            AppLog.d(AppLog.TAG_PARSER, "Uber: hour match '${hourMatch?.value}' → ${hours}h ${mins}min")
+            AppLog.d(AppLog.TAG_PARSER, "Uber: hour match → ${hours}h ${mins}min")
         }
         val minutes = hours * 60 + mins
 
