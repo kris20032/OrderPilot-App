@@ -98,9 +98,12 @@ EN translation pominięta świadomie: brak EN entry w Manage translations (tylko
 | D4.5 | Send for review + auto-publish | ✅ DONE 05-13 20:39 | Google auto-approved within minutes — „1.0.5 - Uber popup fix" Available to selected testers |
 | D4.6 | SMS do Marcin: potwierdź że belka działa nad home screenem | ⏳ Day 13–14 | Krzysztof ping 05-15. Zapisać quote do `closed-testing-evidence.md` |
 | D4.7 | SMS do Andrij: regression check (czy nie ma fałszywych belek na portalach informacyjnych) | ⏳ Day 13–14 | Layer 4 chroni — sprawdzamy że nadal działa |
-| D5 | **Apply for Production z v1.0.5** | **Day 14 (2026-05-17, sobota)** | Play Console → Production track → New release → kopiuj z v1.0.5 Closed AAB (versionCode 6) |
-| D6 | Wypełnić Production Application questionnaire | Day 14 | Paste z `closed-testing-evidence.md` sekcja 5 (Q1.1-Q3.2 + Fix Cards v1.0.2/v1.0.3/v1.0.4/**v1.0.5**) |
-| D7 | Submit Application | Day 14 | Czeka ~3-7 dni na Google decision |
+| D5 | **Apply for Production access (Application Form)** | ✅ DONE 2026-05-16 11:03 AM | Submitted 8 odpowiedzi (Q1.1-Q3.2). **Approved by Google 2026-05-17 17:32** (1-day turnaround) |
+| D6 | Wypełnić Production Application questionnaire | ✅ DONE 2026-05-16 | Wszystkie odpowiedzi pod 300/300 limit, 3/4 fixes „confirmed" w Q3.1 |
+| D7 | Submit Application | ✅ DONE 2026-05-16 11:03 AM | Email approval 05-17 17:32: „Congratulations! Your app has been granted Google Play production access" |
+| D8 | **Create Production release w Play Console** | ✅ DONE 2026-05-18 22:48 | versionCode 6, v1.0.5, 177 krajów (all regions globally), release notes PL+EN skopiowane z Closed Testing v1.0.5. 3 zmiany wysłane do sprawdzenia: (1) wdrożenie 6 (1.0.5), (2) dodaj 176 krajów, (3) dodaj resztę świata |
+| D9 | AAB review (drugi review, sam build) | ✅ DONE między 2026-05-20 a 2026-05-23 | IARC Live Rating Notice 05-20 (rating wiekowy LIVE, Global Rating ID `6ef6cf91-410e-8191-8de0-3f365b7a6a7e`), auto-publish po approve |
+| D10 | **PRODUCTION LIVE w Google Play** | ✅ DONE 2026-05-23 (potwierdzone przez Krzysztofa) | OrderPilot v1.0.5 dostępna globalnie w 177 krajach, do pobrania na każdy Android. PrimeTestLab 20-day testing cycle completed 05-21 (14 standard + 6 bonus). Pełny cykl POC → LIVE: 2026-02-24 → 2026-05-23 (3 miesiące) |
 
 ### D3 — Release notes v1.0.4 (paste-ready)
 
@@ -196,5 +199,5 @@ zweryfikowany na logach z urządzenia.
 ---
 
 **Data utworzenia:** 2026-05-12 (Day 9)
-**Ostatnia rewizja:** 2026-05-15 (Day 13) — v1.0.5 LIVE confirmation, status sync 4/3 AAB DONE
+**Ostatnia rewizja:** 2026-05-23 — **🚀 PRODUCTION LIVE w Google Play.** Wszystkie kroki D1-D10 ✅ DONE. OrderPilot v1.0.5 dostępna globalnie w 177 krajach.
 **Owner:** Krzysztof Brzezinski (`krzychu.brzezi@gmail.com`)
