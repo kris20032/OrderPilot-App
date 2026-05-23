@@ -106,10 +106,10 @@ class ServiceWatchdog(context: Context, params: WorkerParameters) : Worker(conte
         fun createNotificationChannel(context: Context) {
             val channel = NotificationChannel(
                 WATCHDOG_CHANNEL_ID,
-                "Monitoring zatrzymany",
+                "Wykrywanie zleceń zatrzymane",
                 NotificationManager.IMPORTANCE_HIGH // heads-up
             ).apply {
-                description = "Powiadomienia gdy monitoring zamowien zostanie nieoczekiwanie zatrzymany"
+                description = "Powiadomienia gdy wykrywanie zleceń zostanie nieoczekiwanie zatrzymane"
             }
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             nm.createNotificationChannel(channel)

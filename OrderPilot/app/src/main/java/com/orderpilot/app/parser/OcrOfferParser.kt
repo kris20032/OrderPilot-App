@@ -162,6 +162,21 @@ interface OcrOfferParser {
             CASH_MARKERS.any { text.contains(it, ignoreCase = true) }
 
         /**
+         * Layer 4: Defense-in-depth helper. Sprawdza czy tekst zawiera co najmniej jeden
+         * z platform-specific positive markers (frazy które ZAWSZE są na popupie oferty,
+         * a NIGDY na portalach newsowych / social mediach / innych apkach).
+         *
+         * Używane jako warunek koniec pre-parse validacji w Uber/Bolt/Wolt parser.
+         * Bez tego parser może sparsować losowy tekst news jako ofertę — kwoty + jednostki
+         * czasu są wszędzie, ale konkretne frazy popupu kurierskiego — tylko na popupie.
+         *
+         * Markery są szerokie (10-15 fraz per platforma w 4 językach: PL/EN/UA/RU)
+         * żeby nie generować false-negatives na real offers.
+         */
+        fun hasAnyPositiveMarker(text: String, markers: List<String>): Boolean =
+            markers.any { text.contains(it, ignoreCase = true) }
+
+        /**
          * Koryguje kwotę gdy OCR zgubił separator dziesiętny.
          * @param rawMatch dopasowany ciąg znaków z regex (np. "1720", "17,20")
          * @param parsed sparsowana wartość (np. 1720.0, 17.20)

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Polityka Prywatności — OrderPilot</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #666;
+    --accent: #0a5cff;
+    --border: #e5e5e5;
+    --code-bg: #f4f4f6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121212;
+      --fg: #e8e8e8;
+      --muted: #a0a0a0;
+      --accent: #5a9dff;
+      --border: #2a2a2a;
+      --code-bg: #1e1e1e;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.65;
+    font-size: 16px;
+  }
+  header { border-bottom: 1px solid var(--border); margin-bottom: 2rem; padding-bottom: 1rem; }
+  nav.lang { font-size: 0.9em; color: var(--muted); margin-bottom: 0.5rem; }
+  nav.lang a { color: var(--accent); text-decoration: none; margin-left: 0.5rem; }
+  nav.lang a:hover { text-decoration: underline; }
+  h1 { font-size: 1.8rem; margin: 0.5rem 0 0.25rem; }
+  .subtitle { color: var(--muted); font-size: 0.95em; margin: 0; }
+  h2 { font-size: 1.3rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+  h3 { font-size: 1.05rem; margin-top: 1.75rem; }
+  .tldr {
+    background: var(--code-bg);
+    border-left: 4px solid var(--accent);
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    border-radius: 4px;
+  }
+  .tldr strong { font-size: 1.05em; }
+  code {
+    background: var(--code-bg);
+    padding: 0.1em 0.4em;
+    border-radius: 3px;
+    font-size: 0.9em;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+  a { color: var(--accent); }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+  footer { margin-top: 3rem; color: var(--muted); font-size: 0.85em; text-align: center; }
+  ul, ol { padding-left: 1.25rem; }
+  li { margin-bottom: 0.4rem; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.95em; }
+  th, td { border: 1px solid var(--border); padding: 0.5rem 0.75rem; text-align: left; vertical-align: top; }
+  th { background: var(--code-bg); }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="lang">Język: <strong>Polski</strong> · <a href="privacy-policy-en.html">English</a></nav>
+  <h1>Polityka Prywatności</h1>
+  <p class="subtitle">OrderPilot — aplikacja wspierająca kurierów (Uber, Wolt, Glovo, Bolt Food)</p>
+</header>
+
+<div class="tldr">
+  <strong>TL;DR: OrderPilot nie zbiera żadnych Twoich danych. Nic. Zero.</strong><br>
+  Aplikacja nie posiada nawet uprawnienia do Internetu — technicznie nie może wysłać czegokolwiek.
+</div>
+
+<h2>Co to właściwie znaczy?</h2>
+
+<h3>Nie ma serwera</h3>
+<p>Aplikacja działa w 100% na Twoim telefonie. Brak backendu, chmury, API, konta użytkownika. Gdy odinstalujesz OrderPilot, wszystko co dotyczy aplikacji przestaje istnieć.</p>
+
+<h3>Nie ma połączenia z Internetem</h3>
+<p>System Android wymaga od każdej aplikacji uprawnienia <code>android.permission.INTERNET</code>, aby mogła komunikować się z siecią. OrderPilot tego uprawnienia <strong>nie posiada</strong>. Nie jest to tylko deklaracja — to techniczne zabezpieczenie systemowe.</p>
+<p>Jak to zweryfikować:</p>
+<ul>
+  <li>Settings → Apps → OrderPilot → Permissions — w liście nie występuje „Internet".</li>
+  <li>Za pomocą <code>adb shell dumpsys package com.orderpilot.app | grep INTERNET</code> — zwraca puste.</li>
+</ul>
+
+<h3>Nie ma trackingu</h3>
+<p>Nie używamy Google Analytics, Firebase, Crashlytics, Facebook SDK, ani żadnego innego trackera. Identyfikator reklamowy <code>AD_ID</code> został <em>explicite</em> usunięty w pliku manifestu aplikacji.</p>
+
+<h3>Nie ma kont</h3>
+<p>Brak logowania, rejestracji, hasła, adresu email. Aplikacja nie wie, że istniejesz i nigdy się nie dowie.</p>
+
+<h2>A co z danymi, które aplikacja widzi?</h2>
+
+<p>OrderPilot używa dwóch mechanizmów, aby wykryć oferty kurierskie:</p>
+
+<h3>1. Usługa dostępności (AccessibilityService)</h3>
+<p>System Android pozwala aplikacjom odczytywać tekst wyświetlany na ekranie innych aplikacji — mechanizm pierwotnie stworzony dla osób niewidomych (czytniki ekranu). OrderPilot używa go, aby zobaczyć tekst oferty wyświetlanej przez Uber, Wolt, Glovo lub Bolt Food.</p>
+<ul>
+  <li><strong>Co aplikacja widzi:</strong> tekst oferty kurierskiej (np. „2.3 km, 8.20 zł, Gdańsk, 12 min").</li>
+  <li><strong>Czego aplikacja NIE widzi:</strong> nie przegląda historii przeglądarki, wiadomości, kontaktów ani zawartości innych aplikacji. Usługa aktywuje się wyłącznie na ekranach czterech wymienionych aplikacji kurierskich — poza nimi jest nieaktywna (filtr po <code>packageNames</code> w konfiguracji usługi).</li>
+  <li><strong>Co robi z odczytanym tekstem:</strong> analizuje (oblicza zł/h), wyświetla kolorową belkę nad ofertą, następnie zapomina.</li>
+</ul>
+
+<h3>2. OCR — rozpoznawanie tekstu ze zrzutu ekranu</h3>
+<p>Gdy Uber albo Wolt nie udostępniają tekstu oferty przez Accessibility (bo korzystają z React Native, który nie buduje pełnego drzewa dostępności), OrderPilot wykonuje zrzut ekranu i rozpoznaje tekst lokalnie przy użyciu biblioteki Google ML Kit Text Recognition.</p>
+<ul>
+  <li><strong>Co aplikacja widzi:</strong> zawartość wizualna ekranu w momencie wystąpienia oferty.</li>
+  <li><strong>Co dalej robi:</strong> przycina dolne 30–60% ekranu (gdzie pokazywana jest oferta), wyciąga tekst, następnie zapomina zrzut.</li>
+  <li><strong>Czego NIE robi:</strong> zrzut ekranu nigdy nie opuszcza Twojego telefonu. Nie jest zapisywany, nie jest wysyłany, nie jest cachowany w pamięci trwałej.</li>
+</ul>
+<p>ML Kit Text Recognition, którego używamy, realizuje przetwarzanie on-device (lokalnie na urządzeniu) zgodnie z dokumentacją Google. Nawet gdyby biblioteka próbowała wysłać dane, bez uprawnienia Internet nie jest to technicznie możliwe.</p>
+
+<h2>A logi diagnostyczne?</h2>
+<p>OrderPilot posiada wbudowany rotujący bufor logów diagnostycznych — ostatnie ok. 200 linii tekstowych opisujących co aplikacja robiła (wykryto ofertę X, parser zwrócił Y, itp.). Logi:</p>
+<ul>
+  <li>Są przechowywane wyłącznie na Twoim telefonie, w prywatnej pamięci aplikacji (inne aplikacje nie mają do nich dostępu).</li>
+  <li>Zostają usunięte gdy odinstalujesz aplikację.</li>
+  <li>Możesz je w dowolnej chwili wyeksportować (przycisk „Zapisz logi" w ustawieniach) — wówczas plik trafia do Twojej pamięci publicznej (katalog Pobrane) i to Ty decydujesz, co z nim zrobić (wysłać developerowi, usunąć).</li>
+</ul>
+<p>Logi mogą zawierać kwoty ofert oraz dystanse, które widziałeś. Nie zawierają danych osobowych, kontaktów, adresów klientów ani innych informacji pozwalających na identyfikację osób trzecich.</p>
+
+<h2>A moje ustawienia w aplikacji?</h2>
+<p>Ustawienia (progi kolorów opłacalności, język UI, pozycja belki overlay, preferencje użytkownika) są zapisywane w pamięci wewnętrznej Twojego telefonu za pomocą standardowego mechanizmu Android <code>SharedPreferences</code>. Są dostępne wyłącznie dla OrderPilot.</p>
+<p>Plik zawierający zgodę na politykę Prominent Disclosure (<code>order_pilot_disclosure.xml</code>) jest <strong>wykluczony</strong> z Android Auto Backup — oznacza to, że po przywróceniu telefonu z chmury użytkownik zostanie ponownie poproszony o akceptację informacji o wykorzystaniu usługi dostępności. Inne ustawienia mogą zostać przywrócone, jeśli masz włączone Android Auto Backup — to standardowy mechanizm Google, niezależny od aplikacji.</p>
+
+<h2>Google Play Services</h2>
+<p>Aplikacja nie wywołuje bezpośrednio Google Play Services. Jednak sam Google Play (sklep) może zbierać informacje, gdy pobierasz i instalujesz aplikację — to zachowanie poza kontrolą aplikacji, regulowane <a href="https://policies.google.com/privacy" rel="noopener">Polityką Prywatności Google</a>.</p>
+
+<h2>Zmiany w polityce</h2>
+<p>W przypadku aktualizacji niniejszej polityki, wersja i data poniżej zostaną zaktualizowane. Istotne zmiany (np. jeśli kiedykolwiek zaczęlibyśmy zbierać jakiekolwiek dane) zostaną ogłoszone w opisie aktualizacji aplikacji na Google Play Store oraz w samej aplikacji.</p>
+
+<h2>Kontakt</h2>
+<p>Masz pytanie? Znalazłeś coś niepokojącego? Chcesz o czymś porozmawiać?</p>
+<p><strong>Email:</strong> <a href="mailto:krzychu.brzezi@gmail.com">krzychu.brzezi@gmail.com</a></p>
+<p>Odpowiadam osobiście — jestem jednoosobowym developerem, nie dużą firmą. Odpowiedź może zająć kilka dni.</p>
+
+<hr>
+
+<h2>Sekcja prawna (RODO / GDPR)</h2>
+
+<h3>Administrator danych</h3>
+<p>Krzysztof Brzezinski, osoba fizyczna (niezarejestrowana działalność gospodarcza), kontakt: <a href="mailto:krzychu.brzezi@gmail.com">krzychu.brzezi@gmail.com</a>.</p>
+
+<h3>Podstawa prawna przetwarzania</h3>
+<p>Ponieważ OrderPilot nie przetwarza żadnych danych osobowych poza urządzeniem użytkownika i nie przekazuje ich żadnemu podmiotowi trzeciemu, nie powstaje podstawa prawna przetwarzania w rozumieniu art. 6 RODO. Wszystkie operacje realizowane są lokalnie, pod wyłączną kontrolą użytkownika, który jest zarazem jedynym odbiorcą wyników analizy.</p>
+
+<h3>Cele przetwarzania</h3>
+<p>Lokalna analiza ofert kurierskich w czasie rzeczywistym, w celu wsparcia użytkownika w ocenie opłacalności (kalkulacja stawki zł/h) zlecenia. Aplikacja nie świadczy usługi doradztwa finansowego — wyniki mają wyłącznie charakter kalkulacyjny i poglądowy.</p>
+
+<h3>Kategorie danych</h3>
+<table>
+  <tr><th>Kategoria</th><th>Opis</th></tr>
+  <tr><td>Dane widoczne dla aplikacji</td><td>Tekst oferty kurierskiej (kwota, dystans, czas, miasto) odczytany z ekranu aplikacji kurierskich Uber / Wolt / Glovo / Bolt Food.</td></tr>
+  <tr><td>Dane zapisywane lokalnie</td><td>Ustawienia użytkownika (progi, język, preferencje UI), rotujący bufor logów diagnostycznych.</td></tr>
+  <tr><td>Dane przekazywane na zewnątrz</td><td>Brak.</td></tr>
+</table>
+
+<h3>Odbiorcy danych</h3>
+<p>Brak. Dane nie opuszczają urządzenia użytkownika.</p>
+
+<h3>Czas przechowywania</h3>
+<ul>
+  <li>Logi diagnostyczne: rotujący bufor ok. 200 linii — starsze wpisy są automatycznie nadpisywane.</li>
+  <li>Ustawienia użytkownika: do momentu odinstalowania aplikacji lub ręcznego wyczyszczenia (Settings → Apps → OrderPilot → Storage → Clear data).</li>
+</ul>
+
+<h3>Prawa użytkownika (RODO art. 15–22)</h3>
+<p>Ponieważ nie zbieramy danych osobowych w rozumieniu RODO, większość praw z art. 15–22 nie ma bezpośredniego zastosowania — nie istnieją dane, które moglibyśmy udostępnić, sprostować czy usunąć w naszych systemach (nie mamy żadnych systemów). Jeśli mimo to chcesz skorzystać z któregokolwiek z praw, napisz na powyższy adres email — odpowiem w terminie 30 dni.</p>
+
+<h3>Przekazywanie danych poza EOG</h3>
+<p>Nie przekazujemy żadnych danych, również poza Europejski Obszar Gospodarczy.</p>
+
+<h3>Dzieci</h3>
+<p>Aplikacja jest przeznaczona dla kurierów zawodowych, w praktyce osób pełnoletnich. Nie zbieramy świadomie żadnych danych od osób poniżej 16 roku życia (ani powyżej — nie zbieramy niczego od nikogo).</p>
+
+<h3>Skarga do organu nadzorczego</h3>
+<p>Jeśli uważasz, że Twoje prawa wynikające z RODO są naruszane, masz prawo złożyć skargę do Prezesa Urzędu Ochrony Danych Osobowych (UODO): <a href="https://uodo.gov.pl" rel="noopener">https://uodo.gov.pl</a>.</p>
+
+<footer>
+  <p>Wersja polityki: 1.0 · Ostatnia aktualizacja: 21 kwietnia 2026</p>
+  <p><a href="data-deletion.html">Żądanie usunięcia danych</a> · <a href="privacy-policy-en.html">English version</a></p>
+</footer>
+
+</body>
+</html>

@@ -2,10 +2,10 @@
 
 ## 🚨 AKTYWNY BRANCH (source of truth)
 
-**Obecny branch roboczy: `feature/drag-handle`**
-**Ostatnia aktualizacja tego wpisu: 2026-04-16**
+**Obecny branch roboczy: `fix/v1.0.5-uber-popup-background`**
+**Ostatnia aktualizacja tego wpisu: 2026-05-13**
 
-> ℹ️ Te dwie linijki są **auto-aktualizowane** przez hook `.git/hooks/post-checkout` przy każdym `git checkout <branch>`. Nie edytuj ich ręcznie — po prostu przełącz branch i wpis się zmieni. Jeśli hook nie działa, sprawdź `.git/hooks/post-checkout` (powinien być wykonywalny).
+> ℹ️ Te dwie linijki są **auto-aktualizowane** przez hook `.git/hooks/post-checkout` przy każdym `git checkout <branch>`. Nie edytuj ich ręcznie — po prostu przełącz branch i wpis się zmieni. Jeśli hook nie działa (np. po świeżym klonie repo), uruchom `./scripts/install-hooks.sh` żeby go zainstalować — źródło hooka jest w `scripts/git-hooks/post-checkout`, bo katalog `.git/hooks/` nie jest wersjonowany przez git.
 
 Jeśli zaczynasz sesję i aktywny branch tu wymieniony **nie zgadza się** z tym na czym jesteś → **STOP, nie pracuj, zapytaj użytkownika**. Nie próbuj „naprawiać" przez switch — może być powód dla którego jesteś gdzie indziej (np. worktree `claude/*` z auto-halucynacji systemu).
 

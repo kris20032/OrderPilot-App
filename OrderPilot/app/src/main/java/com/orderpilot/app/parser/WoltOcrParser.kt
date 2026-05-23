@@ -37,14 +37,39 @@ class WoltOcrParser : OcrOfferParser {
         "Decline", "Show map", "Looking for orders", "Go offline"
     )
 
+    // Layer 4: Positive markers — co najmniej jeden MUSI być w tekście. Te frazy
+    // typowe dla popupu oferty Wolta ("Odbiór za X min", "Spodziewany zarobek")
+    // i NIGDY nie pojawiają się na portalach newsowych / social mediach.
+    private val positiveOfferMarkers = listOf(
+        // Format popupu "Odbiór za X" / "Pickup in X" — zawsze obecny
+        "Odbiór za", "Odbior za",
+        "Pickup in",
+        "Забери через", "Заберите через", "Забрать через",
+        // Spodziewany zarobek — sekcja przy kwocie
+        "Spodziewany zarobek", "Expected earnings", "Estimated earnings",
+        "Очікуваний заробіток", "Ожидаемый заработок", "Приблизительный заработок",
+        // Dostawa od/Delivery from
+        "Dostawa od", "Delivery from", "Доставка від", "Доставка от",
+        // Brand
+        "Wolt", "WOLT"
+    )
+
     override fun parse(ocrLines: List<String>): Offer? {
         val text = ocrLines.joinToString(" ")
 
-        AppLog.d(AppLog.TAG_PARSER, "Wolt OCR: $text")
+        AppLog.d(AppLog.TAG_PARSER, "Wolt OCR: lines=${ocrLines.size} textLen=${text.length}")
 
         // Guard: odrzuć tekst z UI innej platformy kurierskiej
         rivalPlatformMarkers.firstOrNull { text.contains(it, ignoreCase = true) }?.let { marker ->
             AppLog.d(AppLog.TAG_PARSER, "Wolt: skipping — rival platform text detected ('$marker')")
+            return null
+        }
+
+        // Layer 4: Positive marker check — wymóg co najmniej jednego markera popupu Wolta.
+        // Chroni przed sytuacją gdy screenshot z apki news / social / innej apki przeszedł
+        // foreground guard (Layer 1) ale tekst i tak by się sparsował przez luźny amount regex.
+        if (!OcrOfferParser.hasAnyPositiveMarker(text, positiveOfferMarkers)) {
+            AppLog.d(AppLog.TAG_PARSER, "Wolt: skipping — no positive offer marker found | textLen=${text.length}")
             return null
         }
 
@@ -54,7 +79,7 @@ class WoltOcrParser : OcrOfferParser {
 
         // Kwota — wspólna logika z fallbackiem
         val (rawAmount, parsedAmount) = OcrOfferParser.extractAmount(text) ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Wolt: no amount found | text=${text.take(200)}")
+            AppLog.w(AppLog.TAG_PARSER, "Wolt: no amount found | textLen=${text.length}")
             return null
         }
         val amount = OcrOfferParser.sanitizeAmount(rawAmount, parsedAmount) ?: run {
@@ -71,7 +96,7 @@ class WoltOcrParser : OcrOfferParser {
             )
             if (max > 0) max else null
         } ?: timeSingleRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: run {
-            AppLog.w(AppLog.TAG_PARSER, "Wolt: no time found | text=${text.take(200)}")
+            AppLog.w(AppLog.TAG_PARSER, "Wolt: no time found | textLen=${text.length}")
             return null
         }
         val minutes = hours * 60 + mins

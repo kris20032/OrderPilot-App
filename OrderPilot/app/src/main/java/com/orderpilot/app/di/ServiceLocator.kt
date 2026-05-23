@@ -15,12 +15,14 @@ import com.orderpilot.app.parser.GlovoOcrParser
 import com.orderpilot.app.parser.UberOcrParser
 import com.orderpilot.app.parser.WoltOcrParser
 import com.orderpilot.app.pipeline.PipelineOrchestrator
+import com.orderpilot.app.settings.DisclosureRepository
 import com.orderpilot.app.settings.SettingsRepository
 import com.orderpilot.app.settings.SharedPrefsSettingsRepository
 
 object ServiceLocator {
 
     lateinit var settingsRepository: SettingsRepository
+    lateinit var disclosureRepository: DisclosureRepository
     lateinit var offerAnalyzer: OfferAnalyzer
     lateinit var offerFilter: OfferFilter
     lateinit var parserRegistry: ParserRegistry
@@ -32,6 +34,7 @@ object ServiceLocator {
 
     fun init(context: Context) {
         settingsRepository = SharedPrefsSettingsRepository(context)
+        disclosureRepository = DisclosureRepository(context)
         offerAnalyzer = OfferAnalyzer()
         offerFilter = OfferFilter()
         parserRegistry = ParserRegistry(listOf(UberOcrParser(), WoltOcrParser(), GlovoOcrParser(), BoltFoodOcrParser()))

@@ -58,7 +58,7 @@ class PipelineOrchestrator(
             return
         }
 
-        val screenshot = capture.capture() ?: run {
+        val screenshot = capture.capture(packageName) ?: run {
             AppLog.w(AppLog.TAG_PIPELINE, "Screenshot null")
             return
         }

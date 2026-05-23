@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — OrderPilot</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #666;
+    --accent: #0a5cff;
+    --border: #e5e5e5;
+    --code-bg: #f4f4f6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121212;
+      --fg: #e8e8e8;
+      --muted: #a0a0a0;
+      --accent: #5a9dff;
+      --border: #2a2a2a;
+      --code-bg: #1e1e1e;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.65;
+    font-size: 16px;
+  }
+  header { border-bottom: 1px solid var(--border); margin-bottom: 2rem; padding-bottom: 1rem; }
+  nav.lang { font-size: 0.9em; color: var(--muted); margin-bottom: 0.5rem; }
+  nav.lang a { color: var(--accent); text-decoration: none; margin-left: 0.5rem; }
+  nav.lang a:hover { text-decoration: underline; }
+  h1 { font-size: 1.8rem; margin: 0.5rem 0 0.25rem; }
+  .subtitle { color: var(--muted); font-size: 0.95em; margin: 0; }
+  h2 { font-size: 1.3rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+  h3 { font-size: 1.05rem; margin-top: 1.75rem; }
+  .tldr {
+    background: var(--code-bg);
+    border-left: 4px solid var(--accent);
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    border-radius: 4px;
+  }
+  .tldr strong { font-size: 1.05em; }
+  code {
+    background: var(--code-bg);
+    padding: 0.1em 0.4em;
+    border-radius: 3px;
+    font-size: 0.9em;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+  a { color: var(--accent); }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+  footer { margin-top: 3rem; color: var(--muted); font-size: 0.85em; text-align: center; }
+  ul, ol { padding-left: 1.25rem; }
+  li { margin-bottom: 0.4rem; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.95em; }
+  th, td { border: 1px solid var(--border); padding: 0.5rem 0.75rem; text-align: left; vertical-align: top; }
+  th { background: var(--code-bg); }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="lang">Language: <a href="privacy-policy.html">Polski</a> · <strong>English</strong></nav>
+  <h1>Privacy Policy</h1>
+  <p class="subtitle">OrderPilot — a productivity app for couriers (Uber, Wolt, Glovo, Bolt Food)</p>
+</header>
+
+<div class="tldr">
+  <strong>TL;DR: OrderPilot collects zero data about you. None. Zilch.</strong><br>
+  The app does not even have Internet permission — it is technically incapable of sending anything anywhere.
+</div>
+
+<h2>What does this actually mean?</h2>
+
+<h3>No server</h3>
+<p>The app runs 100% on your phone. There is no backend, no cloud, no API, no user account. When you uninstall OrderPilot, everything related to the app ceases to exist.</p>
+
+<h3>No Internet connection</h3>
+<p>Android requires every app to declare the <code>android.permission.INTERNET</code> permission in order to communicate with the network. OrderPilot <strong>does not declare</strong> this permission. This is not just a statement — it is a system-level technical enforcement.</p>
+<p>How to verify:</p>
+<ul>
+  <li>Settings → Apps → OrderPilot → Permissions — you will not find „Internet" in the list.</li>
+  <li>Via <code>adb shell dumpsys package com.orderpilot.app | grep INTERNET</code> — returns empty.</li>
+</ul>
+
+<h3>No tracking</h3>
+<p>We do not use Google Analytics, Firebase, Crashlytics, Facebook SDK, or any other tracker. The advertising identifier (<code>AD_ID</code>) has been <em>explicitly removed</em> in the app manifest.</p>
+
+<h3>No accounts</h3>
+<p>No login, no registration, no password, no email. The app does not know you exist and never will.</p>
+
+<h2>What about the data the app sees?</h2>
+
+<p>OrderPilot uses two mechanisms to detect courier offers:</p>
+
+<h3>1. Accessibility Service</h3>
+<p>Android allows apps to read text displayed on screen by other apps — a mechanism originally designed for blind users (screen readers). OrderPilot uses it to see the offer text displayed by Uber, Wolt, Glovo, or Bolt Food.</p>
+<ul>
+  <li><strong>What the app sees:</strong> courier offer text (e.g., „2.3 km, $8.20, Gdansk, 12 min").</li>
+  <li><strong>What the app does NOT see:</strong> it does not browse your history, messages, contacts, or the contents of any other apps. The service activates only on the screens of the four listed courier apps — elsewhere it remains inactive (filter by <code>packageNames</code> in the service configuration).</li>
+  <li><strong>What it does with the text:</strong> analyzes it (calculates hourly rate), displays a colored bar above the offer, then forgets it.</li>
+</ul>
+
+<h3>2. OCR — text recognition from screen captures</h3>
+<p>When Uber or Wolt do not expose the offer text via Accessibility (because they use React Native, which does not build a complete accessibility tree), OrderPilot takes a screenshot and recognizes text locally using Google ML Kit Text Recognition.</p>
+<ul>
+  <li><strong>What the app sees:</strong> visual contents of the screen at the moment of the offer.</li>
+  <li><strong>What it does next:</strong> crops the bottom 30–60% of the screen (where the offer is shown), extracts text, then discards the screenshot.</li>
+  <li><strong>What it does NOT do:</strong> the screenshot never leaves your phone. It is not saved, not transmitted, not cached in persistent storage.</li>
+</ul>
+<p>ML Kit Text Recognition, which we use, performs processing on-device (locally) per Google's documentation. Even if the library were to try to transmit data, without Internet permission it is technically not possible.</p>
+
+<h2>What about diagnostic logs?</h2>
+<p>OrderPilot has a built-in rotating diagnostic log buffer — the last ~200 text lines describing what the app was doing (offer X detected, parser returned Y, etc.). The logs:</p>
+<ul>
+  <li>Are stored exclusively on your phone, in the app's private storage (no other apps can access them).</li>
+  <li>Are discarded when you uninstall the app.</li>
+  <li>Can be exported at any time (the „Save logs" button in settings) — the file then lands in your public storage (Downloads folder) and you decide what to do with it (send to the developer, delete it).</li>
+</ul>
+<p>Logs may contain offer amounts and distances you saw. They do not contain personal data, contacts, client addresses, or any information that would allow the identification of third parties.</p>
+
+<h2>What about my app settings?</h2>
+<p>Settings (profitability color thresholds, UI language, overlay position, user preferences) are stored in your phone's internal memory using the standard Android <code>SharedPreferences</code> mechanism. They are accessible only to OrderPilot.</p>
+<p>The file containing consent to the Prominent Disclosure policy (<code>order_pilot_disclosure.xml</code>) is <strong>excluded</strong> from Android Auto Backup — meaning that after restoring a phone from the cloud, the user will be asked again to accept the information about accessibility service usage. Other settings may be restored if you have Android Auto Backup enabled — this is a standard Google mechanism, independent of the app.</p>
+
+<h2>Google Play Services</h2>
+<p>The app does not directly call Google Play Services. However, Google Play (the store itself) may collect information when you download and install the app — this is beyond the app's control and is governed by the <a href="https://policies.google.com/privacy" rel="noopener">Google Privacy Policy</a>.</p>
+
+<h2>Changes to this policy</h2>
+<p>In the event of updates to this policy, the version and date below will be updated. Significant changes (e.g., if we ever started collecting any data) will be announced in the Google Play Store release notes and in the app itself.</p>
+
+<h2>Contact</h2>
+<p>Got a question? Found something concerning? Want to talk?</p>
+<p><strong>Email:</strong> <a href="mailto:krzychu.brzezi@gmail.com">krzychu.brzezi@gmail.com</a></p>
+<p>I reply personally — I am a solo developer, not a large company. A reply may take a few days.</p>
+
+<hr>
+
+<h2>Legal section (GDPR)</h2>
+
+<h3>Data controller</h3>
+<p>Krzysztof Brzezinski, natural person (not a registered business), contact: <a href="mailto:krzychu.brzezi@gmail.com">krzychu.brzezi@gmail.com</a>.</p>
+
+<h3>Legal basis for processing</h3>
+<p>Because OrderPilot does not process any personal data beyond the user's device and does not transmit it to any third party, no legal basis for processing arises under Article 6 GDPR. All operations are performed locally, under the exclusive control of the user, who is also the sole recipient of the analysis results.</p>
+
+<h3>Purposes of processing</h3>
+<p>Local real-time analysis of courier offers, to support the user in assessing the profitability (hourly rate calculation) of a delivery job. The app does not provide financial advice — the results are strictly computational and informational.</p>
+
+<h3>Data categories</h3>
+<table>
+  <tr><th>Category</th><th>Description</th></tr>
+  <tr><td>Data visible to the app</td><td>Courier offer text (amount, distance, time, city) read from the screens of Uber / Wolt / Glovo / Bolt Food courier apps.</td></tr>
+  <tr><td>Data stored locally</td><td>User settings (thresholds, language, UI preferences), rotating diagnostic log buffer.</td></tr>
+  <tr><td>Data transmitted externally</td><td>None.</td></tr>
+</table>
+
+<h3>Data recipients</h3>
+<p>None. Data does not leave the user's device.</p>
+
+<h3>Retention period</h3>
+<ul>
+  <li>Diagnostic logs: rotating buffer of ~200 lines — older entries are overwritten automatically.</li>
+  <li>User settings: until the app is uninstalled or manually cleared (Settings → Apps → OrderPilot → Storage → Clear data).</li>
+</ul>
+
+<h3>User rights (GDPR Articles 15–22)</h3>
+<p>Because we do not collect personal data in the GDPR sense, most Article 15–22 rights do not directly apply — there is no data we could share, rectify, or delete in our systems (we have no systems). If you nevertheless wish to exercise any of these rights, write to the above email — I will respond within 30 days.</p>
+
+<h3>Transfer of data outside the EEA</h3>
+<p>We do not transmit any data, including outside the European Economic Area.</p>
+
+<h3>Children</h3>
+<p>The app is intended for professional couriers, in practice adults. We do not knowingly collect any data from persons under 16 years of age (or above — we do not collect anything from anyone).</p>
+
+<h3>Complaint to supervisory authority</h3>
+<p>If you believe your GDPR rights are being violated, you have the right to file a complaint with the President of the Personal Data Protection Office (UODO) in Poland: <a href="https://uodo.gov.pl" rel="noopener">https://uodo.gov.pl</a>. Residents of other EU countries may contact their local data protection authority.</p>
+
+<footer>
+  <p>Policy version: 1.0 · Last updated: 21 April 2026</p>
+  <p><a href="data-deletion.html">Data Deletion Request</a> · <a href="privacy-policy.html">Wersja polska</a></p>
+</footer>
+
+</body>
+</html>

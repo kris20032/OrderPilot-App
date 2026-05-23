@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">OrderPilot</string>
-    <string name="accessibility_service_description">OrderPilot analyzes delivery offers and shows profitability overlay.</string>
+    <string name="accessibility_service_description">OrderPilot reads on-screen content only from the courier apps Uber Driver, Wolt Courier, Glovo Courier and Bolt Food in order to detect new offers and display the calculated hourly rate (PLN/h) on an overlay. Screen data is processed exclusively on your device, is never transmitted off-device and is never persistently stored. You can disable the service at any time in system settings.</string>
     <string name="btn_start">Start</string>
     <string name="btn_stop">Stop</string>
     <string name="status_running">Active</string>
     <string name="status_stopped">Inactive</string>
-    <string name="status_subtitle_running">Monitoring Uber</string>
+    <string name="status_subtitle_running">Offer detection</string>
     <string name="status_subtitle_stopped">Stopped</string>
     <string name="accessibility_hint">Enable OrderPilot in:\nSettings → Accessibility → Installed apps</string>
     <string name="accessibility_rebind_hint">Turn OrderPilot OFF and ON again in:\nAccessibility → Installed apps → OrderPilot</string>
@@ -67,6 +67,7 @@
     <!-- Toast hints (wizard) -->
     <string name="toast_hint_overlay">Find "OrderPilot" and enable the toggle</string>
     <string name="toast_hint_accessibility">Tap "Installed apps" → find OrderPilot → enable</string>
+    <string name="toast_hint_battery_optimization">Find "OrderPilot" in the list and select "Don\'t optimize"</string>
     <string name="toast_hint_samsung_battery">Tap "Battery" → select "Unrestricted"</string>
     <string name="toast_hint_samsung_sleeping">Open "Background usage limits" and remove OrderPilot from the lists</string>
     <string name="toast_hint_xiaomi_autostart">Find "OrderPilot" and enable the toggle</string>
@@ -107,16 +108,31 @@
     <string name="toast_logs_error">Error saving logs</string>
     <string name="settings_validation_error">Green threshold must be higher than yellow</string>
 
-    <string name="toast_notification_denied">Notifications disabled — you won\'t see monitoring status in the status bar</string>
+    <string name="toast_notification_denied">Notifications disabled — you won\'t see detection status in the status bar</string>
 
     <!-- Foreground service notification -->
-    <string name="notif_monitoring_title">Order monitoring active</string>
+    <string name="notif_monitoring_title">Offer detection active</string>
     <string name="notif_monitoring_text">OrderPilot is listening for new orders</string>
 
     <!-- Watchdog recovery notification -->
-    <string name="notif_watchdog_title">Monitoring stopped</string>
-    <string name="notif_watchdog_text">Tap to restore monitoring</string>
+    <string name="notif_watchdog_title">Offer detection stopped</string>
+    <string name="notif_watchdog_text">Tap to restore detection</string>
 
     <!-- Notification permission hint -->
-    <string name="hint_notifications_disabled">Notifications disabled — monitoring works, but you won\'t see status or problem alerts</string>
+    <string name="hint_notifications_disabled">Notifications disabled — detection works, but you won\'t see status or problem alerts</string>
+
+    <!-- Prominent Disclosure (KD4, Task 3.4) -->
+    <string name="disclosure_title">OrderPilot needs screen access</string>
+    <string name="disclosure_subtitle">Before enabling the accessibility service, please read what it will be used for.</string>
+    <string name="disclosure_body">OrderPilot is a tool for couriers. It needs two permissions to operate: the Accessibility Service and permission to display over other apps.\n\n<b>Which apps OrderPilot reads:</b>\nexclusively Uber Driver, Uber Eats Courier, Wolt Courier, Glovo Courier and Bolt Food. No other apps are observed.\n\n<b>What exactly is read from the screen:</b>\n• offer amount (PLN)\n• estimated delivery time (min)\n• distance (km)\n• whether the offer is a cash order\n\n<b>What this data is used for:</b>\nto compute an hourly rate (PLN/h) and display a colored bar on top of the courier app so you can quickly decide whether an offer is worth accepting.\n\n<b>What is NOT done:</b>\n• data is not sent to any server\n• data is not stored on disk (held in memory for at most ~30 seconds)\n• data is not shared with third parties\n• data is not used for advertising or profiling\n\n<b>System permissions:</b>\nIf you accept now, you will go through a short wizard that will ask you to enable a few system settings. Everything is granted manually — OrderPilot never turns anything on for you.\n\n<b>You can disable the service at any time</b> in System Settings → Accessibility → Installed apps → OrderPilot. Uninstalling the app removes all local data.\n\nThe full privacy policy is available via the link below.</string>
+    <string name="disclosure_button_accept">I understand</string>
+    <string name="disclosure_button_cancel">Cancel</string>
+    <string name="disclosure_pp_link">Privacy policy</string>
+    <string name="toast_pp_error">Could not open the privacy policy</string>
+
+    <!-- About section (Settings) -->
+    <string name="settings_about_header">About</string>
+    <string name="settings_pp_link">Privacy policy</string>
+    <string name="about_non_affiliation">OrderPilot is an independent tool and is not affiliated with, endorsed by, or sponsored by Uber, Wolt, Glovo or Bolt. All trademarks belong to their respective owners.</string>
+    <string name="about_financial_disclaimer">Displayed rates (PLN/h, PLN/km) are indicative estimates based on data read from the offer screen. They are not financial advice or a guarantee of actual earnings.</string>
 </resources>
