@@ -1,5 +1,10 @@
 # OrderPilot
 
+[![Google Play](https://img.shields.io/badge/Google%20Play-LIVE%20v1.0.5-brightgreen?logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=com.orderpilot.app)
+[![Release](https://img.shields.io/github/v/release/kris20032/OrderPilot-App)](https://github.com/kris20032/OrderPilot-App/releases/latest)
+
+> **🚀 v1.0.5 LIVE w Google Play od 2026-05-23** — apka dostępna globalnie w 177 krajach. Zobacz [v1.0.5 release notes](https://github.com/kris20032/OrderPilot-App/releases/tag/v1.0.5).
+
 Aplikacja Android dla kurierów (Glovo, UberEats, Wolt, Bolt Food) — ocenia opłacalność zlecenia w czasie rzeczywistym przez nakładkę (overlay): zielony/żółty/czerwony + PLN/h.
 
 Działa przez AccessibilityService — zero ryzyka bana, bez API.
