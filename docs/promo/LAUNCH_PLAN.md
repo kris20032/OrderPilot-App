@@ -72,9 +72,15 @@ Wpisanie „**order pilot**" (z spacją) w Google Play **nie wyświetla apki**. 
 
 **Status:** 🔴 TODO — **przed Etapem 3 (outreach do grup)**. Postu #1 na profil można wrzucić wcześniej (kierowane traffic z linka, nie z search).
 
-#### Issue #2 — Grafiki FB w niskiej jakości + brak showcase belki 🟡 BLOCKING (visual quality)
+#### Issue #2 — Grafiki Play Store + FB w niskiej jakości / brak feature graphic 🔴 BLOCKING (visual quality)
 
-**Problem (zgłoszone 2026-05-23 przez Krzysztofa):**
+> ⭐ **Gotowy do wykonania (Play Store część):** zobacz [`play_store_graphics_fix.md`](play_store_graphics_fix.md) — pełna diagnostyka stanu, layout feature graphic, brief Canva, prompty dla Claude w panelu (reorder screenshotów + upload feature graphic).
+
+**Problem Play Store (zdiagnozowane 2026-05-23 przez Claude Code via curl):**
+- **Brak feature graphic** — Google podstawia placeholder 48×48 z chmurką. Wpływ: brak bannera w Sklepie, dyskwalifikacja z „Editorial featured", brak grafiki dla ad campaigns.
+- **Screenshoty w złej kolejności** — pierwsza widoczna pozycja to ekran „Active · Stop" (najsłabszy). Hero shot (mapa + 2 belki) jest na pozycji 4. Trzeba reorder.
+
+**Problem FB (zgłoszone 2026-05-23 przez Krzysztofa):**
 Aktualna cover graphic na FB profilu OrderPilot ma:
 - Niską rozdzielczość / pixelizację (nie wygląda profesjonalnie)
 - Pokazuje **abstrakcyjny** screenshot belki (42 zł/h / 14 zł/h) na czarnym tle, nie **realny use case** (belka NAD aplikacją kuriera Uber/Wolt/Glovo)
