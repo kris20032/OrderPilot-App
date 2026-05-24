@@ -43,6 +43,8 @@
 
 #### Issue #1 — Play Store SEO (apka nieznajdowalna w Sklepie) 🔴 BLOCKING
 
+> ⭐ **Gotowy do wykonania:** zobacz [`play_store_seo_fix.md`](play_store_seo_fix.md) — full SEO copy (Short + Full description) + prompt dla Claude w panelu Chrome do automatycznej edycji w Console.
+
 **Problem (zgłoszone 2026-05-23 przez Krzysztofa):**
 Wpisanie „**order pilot**" (z spacją) w Google Play **nie wyświetla apki**. Tylko „orderpilot" (razem) działa. Większość użytkowników intuicyjnie wpisze ze spacją (jak każdą dwuwyrazową nazwę). Strata 50-80% organic search traffic.
 
