@@ -222,10 +222,10 @@ Po tym jak Google zaakceptuje zmiany (email „Your store listing update is live
 |------|--------|------|
 | Tekst SEO copy gotowy | ✅ DONE | 2026-05-23 |
 | Prompt dla Claude in Chrome gotowy | ✅ DONE | 2026-05-23 |
-| User uruchomił prompt w panelu Claude | ⏳ TODO | — |
-| Edycje zapisane w Console | ⏳ TODO | — |
-| Zmiany wysłane do Google review | ⏳ TODO | — |
-| Google approve (24-48h) | ⏳ TODO | — |
-| Weryfikacja „order pilot" search | ⏳ TODO | — |
+| User uruchomił prompt w panelu Claude | ✅ DONE | 2026-05-23 |
+| Edycje zapisane w Console (Short 67/80, Full 2137/4000) | ✅ DONE | 2026-05-23 |
+| Zmiany w „Zmiany w trakcie sprawdzania" (under review) | ✅ DONE | 2026-05-25 |
+| Google approve (24-48h od submit) | ⏳ TODO | ~2026-05-26/27 |
+| Weryfikacja „order pilot" search z innego telefonu | ⏳ TODO | po approve |
 
 Po wykonaniu — zaktualizuj status w [`LAUNCH_PLAN.md`](LAUNCH_PLAN.md) Etap 1.5 Issue #1 → ✅ DONE.

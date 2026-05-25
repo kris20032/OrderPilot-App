@@ -152,6 +152,8 @@ C. **Dodatkowe screenshoty do postów** (1080×1080 dla Insta-compatible, 1200×
 |------|-------------|-------|
 | 2026-05-23 | Plan + drafty + lista grup gotowe | docs/promo/ utworzone |
 | 2026-05-23 | Dodano Etap 1.5 (BLOCKING ISSUES): Play Store SEO + Grafiki FB | Issues #1 + #2 zapisane, do wykonania przed Etapem 3 |
+| 2026-05-23 | Issue #1 SEO: Claude w panelu Chrome wkleił Short (67/80) + Full (2137/4000) w Console | Edycje zapisane jako draft |
+| 2026-05-25 | Issue #1 SEO: zmiany w „Zmiany w trakcie sprawdzania" (Google auto-submitted) | ⏳ Czeka na Google approve 24-48h (~05-26/27), potem test „order pilot" search |
 |  |  |  |
 
 ---
