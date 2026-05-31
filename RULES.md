@@ -2,16 +2,13 @@
 
 ## 1. Jak wracać do projektu po restarcie
 
-**Trigger phrases** - jak mnie przypomnieć o projekcie:
+**Trigger phrases** — jak mi przypomnieć o projekcie:
 - "wróćmy do pracy nad aplikacją dla kurierów"
 - "projekt OrderPilot"
 - "aplikacja dla kurierów"
 - "Glovo/UberEats/Wolt app"
 
-**Co robię po usłyszeniu trigger phrase:**
-1. Czytam `PROGRESS.md` - sprawdzam obecny etap
-2. Czytam `docs/PLAN.md` - sprawdzam co jest do zrobienia
-3. Informuję Cię: "Jesteśmy na TASK X.X.X: [nazwa]. Ostatnia aktualizacja: [data]. Kontynuujemy?"
+**Co robię po usłyszeniu:** wykonuję **SEKWENCJĘ STARTOWĄ z `CLAUDE.md`** (gdzie jestem → branch → `todo.md` + ogon `PROGRESS.md` → kontrola higieny → weryfikacja plików z zadania). Nie powielam tu kroków — `CLAUDE.md` jest jedynym źródłem sekwencji startowej. Po wczytaniu informuję: „Stan: [aktualny etap z `todo.md`]. Kontynuujemy?"
 
 ---
 
@@ -36,44 +33,29 @@
 
 ---
 
-## 3. Aktualizacja PROGRESS.md — ZASADA OBOWIĄZKOWA
+## 3. Pliki pamięci — gdzie co trafia
 
-**PROGRESS.md musi zawsze odzwierciedlać rzeczywisty stan projektu na GitHubie.**
-Każda osoba (lub AI) która wejdzie do repo powinna wiedzieć dokładnie co zostało zrobione, co jest w toku i co zostało do zrobienia — bez pytania nikogo.
-
-**Kiedy AI aktualizuje PROGRESS.md:**
-- Po każdym merge'u lub commicie który kończy logiczny krok pracy
-- Gdy pojawia się nowy bug / zadanie (dodaj do sekcji "Otwarte zadania")
-- Gdy zadanie zostaje ukończone (przenieś do sekcji "Ukończone")
-- NIE co każdy commit z kodu — tylko przy sensownych kamieniach milowych
-
-**Co zawsze aktualizuję:**
-- Data ostatniej aktualizacji (nagłówek)
-- Obecny etap / aktywna praca
-- Status aktywnych branchy
-- Lista otwartych zadań (Jira, bugfixy, nowe funkcje) z priorytetem
-- Lista ukończonych zadań z datą
-
-**Zasada dla bugfixów i zadań spoza planu epiców:**
-- Bugfixy i zadania z Jiry trafiają do osobnych sekcji w PROGRESS.md (nie do tabeli epiców)
-- Każdy fix ma wpis: co, kiedy, na jakim branchu, jaki efekt
-
-**Cel:** Nowa osoba otwiera PROGRESS.md i w 2 minuty wie co się dzieje. AI nie musi pytać użytkownika o stan projektu.
+> Pełny model ról plików i progi higieny są w `CLAUDE.md` → „Model plików pamięci". **Nie powielamy ich tutaj**
+> (jedna informacja = jedno miejsce). Ten plik trzyma wyłącznie szczegóły referencyjne, których nie ma w `CLAUDE.md`
+> (git workflow, build/test, keystore, struktura repo).
 
 ---
 
-## 3b. Sesja porządkowa — ZASADA OBOWIĄZKOWA DLA AI
+## 3b. Sesja porządkowa — przegląd spójności
 
-**Co to jest:** Przegląd spójności całego projektu. AI robi to samodzielnie i informuje użytkownika że to robi.
+**Co to jest:** Przegląd spójności całego projektu (nie kodu — patrz niżej). AI robi to i informuje użytkownika.
 
-**Kiedy:** Po każdych 5 zakończonych zadaniach (bugfix / feature / Jira task). AI liczy ukończone zadania i sam inicjuje sesję — użytkownik nie musi o tym pamiętać.
+**Trigger (realny, nie „licznik"):** AI nie ma trwałego licznika zadań między sesjami — **nie udawaj, że liczysz**. Sesję porządkową odpalasz, gdy:
+- **hook `pre-commit` ostrzega** o przekroczeniu progu higieny (`CLAUDE.md` 120 / `todo.md` 80 / `PROGRESS.md` 150), **lub**
+- na starcie sesji widzisz, że `todo.md` / `PROGRESS.md` / `DECISIONS.md` się rozjeżdżają, **lub**
+- użytkownik o to prosi.
 
 **Co AI sprawdza i ewentualnie poprawia:**
-1. `PROGRESS.md` — czy lista zadań, branche i statusy są spójne z rzeczywistością
-2. `RULES.md` — czy zasady są nadal aktualne, czy coś wymaga korekty
-3. Branche na GitHubie — czy są przestarzałe branch'e do odnotowania
-4. Otwarte zadania — czy kolejność priorytetów jest nadal sensowna
-5. Historia commitów — czy ostatnie wpisy są zrozumiałe dla nowej osoby
+1. **Higiena rozmiaru:** `bash scripts/memory-check.sh` (progi 120/80/150). Przekroczone → posprzątaj (archiwizacja `PROGRESS.md` → `PROGRESS_ARCHIVE.md`, czyszczenie zamkniętych zadań z `todo.md`).
+2. `todo.md` — czy stan, otwarte zadania, branche i priorytety są spójne z rzeczywistością; czy nie ma zamkniętych zadań, które powinny zejść do `PROGRESS.md`.
+3. `PROGRESS.md` / `DECISIONS.md` — czy log i decyzje nie rozjeżdżają się z `todo.md` (np. coś oznaczone DONE w logu, a wciąż TODO w todo).
+4. `docs/future_polish_fixes.md` — czy `todo.md` nie zaczął kopiować wpisów zamiast linkować #N.
+5. Branche — czy są przestarzałe do odnotowania w `todo.md` „Aktywne branche".
 
 **Czego AI NIE robi w sesji porządkowej:**
 - Nie czyta każdego pliku kodu
@@ -81,7 +63,7 @@ Każda osoba (lub AI) która wejdzie do repo powinna wiedzieć dokładnie co zos
 - Nie sprawdza czy kod się kompiluje
 
 **Jak AI informuje użytkownika:**
-> "Mamy 3 ukończone zadania od ostatniej sesji porządkowej. Robię przegląd projektu — zaraz raport."
+> "Hook zgłosił przekroczenie progu / widzę rozjazd w `todo.md`. Robię przegląd projektu — zaraz raport."
 Po sprawdzeniu: krótki raport co poprawiono (lub "wszystko OK, nic do zmiany").
 
 **Commit po sesji:** Jeśli były zmiany — jeden commit z opisem `docs: sesja porządkowa`.
@@ -283,13 +265,7 @@ git push
 
 ## Lokalizacja projektu
 
-**Folder:** `/Users/krzysztof/Desktop/OrderPilot/`
-
-**Kluczowe pliki:**
-- `docs/PLAN.md` - plan etapów implementacji
-- `docs/ARCHITECTURE.md` - architektura modułowa
-- `PROGRESS.md` - tracking statusu (ZAWSZE czytam po restarcie)
-- `RULES.md` - ten plik (ZAWSZE czytam po restarcie)
+**Folder:** `/Users/krzysztof/Desktop/OrderPilot/`. Pełna mapa plików pamięci → `CLAUDE.md` („Model plików pamięci"), nie powielamy jej tu.
 
 ---
 
@@ -351,15 +327,25 @@ app/src/main/res/
 
 ---
 
-## Workflow po restarcie Claude Code
+## 10. Release / keystore
 
-1. User pisze trigger phrase (np. "wróćmy do aplikacji dla kurierów")
-2. Czytam `PROGRESS.md` + `RULES.md` + `docs/ARCHITECTURE.md`
-3. Informuję: "Jesteśmy na TASK X.X.X, ostatnia aktualizacja [data]. Kontynuujemy?"
-4. User potwierdza
-5. Sprawdzam jaki model jest potrzebny, informuję o zmianie jeśli trzeba
-6. Zaczynam pracę
+**Sygnowanie release AAB/APK.** Dane techniczne (przeniesione z `PROGRESS.md` 2026-05-31):
+
+- **Keystore:** `OrderPilot/keystore/orderpilot-release.jks` — **gitignored**, NIGDY nie commituj do repo.
+- **Alias:** `orderpilot`
+- **Klucz:** RSA 2048, `SHA384withRSA`, ważny do **2053-09-05**.
+- **SHA-256:** `AC:2D:E9:20:42:F0:59:BA:10:84:E0:63:2E:C8:EF:21:9F:E7:54:7C:69:A1:CC:3B:16:57:50:55:C8:13:0D:96`
+- **Backup:** Desktop Mac + iPhone (Files).
+- **Konfiguracja:** `signingConfigs` w `build.gradle.kts`, hasła w `keystore.properties` (gitignored; szablon `keystore.properties.template`).
+
+> ⚠️ Utrata keystore = brak możliwości aktualizacji apki w Google Play (wymuszony nowy package). Pilnuj backupu.
 
 ---
 
-**Ostatnia aktualizacja:** 2026-03-22
+## Workflow po restarcie Claude Code
+
+Sekwencja startowa jest w `CLAUDE.md` („SEKWENCJA STARTOWA") — nie powielamy jej tu. Skrót: wczytaj `todo.md` + ogon `PROGRESS.md`, sprawdź higienę, zweryfikuj branch, poinformuj o stanie i (jeśli trzeba) rekomendowanym modelu (§2), zacznij pracę.
+
+---
+
+**Ostatnia aktualizacja:** 2026-05-31

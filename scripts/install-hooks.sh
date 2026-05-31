@@ -10,6 +10,7 @@
 #
 # Hooki instalowane:
 #   post-checkout — auto-aktualizacja „AKTYWNY BRANCH" w CLAUDE.md przy checkoutach
+#   pre-commit    — raport higieny pamięci (memory-check.sh) przy każdym commicie (ostrzega, nie blokuje)
 
 set -e
 

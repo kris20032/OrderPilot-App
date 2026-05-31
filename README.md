@@ -12,10 +12,9 @@ Działa przez AccessibilityService — zero ryzyka bana, bez API.
 ## Zanim zaczniesz
 
 1. `git pull`
-2. Przeczytaj [`RULES.md`](RULES.md) — zasady współpracy i Git workflow
-3. Sprawdź [`PROGRESS.md`](PROGRESS.md) — co jest w trakcie
-4. Przeczytaj [`docs/PLAN.md`](docs/PLAN.md) — plan etapów
-5. Przeczytaj [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — architektura
+2. Przeczytaj [`CLAUDE.md`](CLAUDE.md) — boot + zasady + sekwencja startowa (**punkt wejścia**)
+3. Sprawdź [`todo.md`](todo.md) — stan „teraz" + otwarte zadania
+4. Reszta wg potrzeby: [`RULES.md`](RULES.md) (szczegółowe zasady, Git workflow), [`PROGRESS.md`](PROGRESS.md) (log sesji), [`DECISIONS.md`](DECISIONS.md) (trwałe decyzje), [`docs/PLAN.md`](docs/PLAN.md) / [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 
 ## Zespół
 
@@ -28,12 +27,16 @@ Działa przez AccessibilityService — zero ryzyka bana, bez API.
 ```
 OrderPilot-App/
 ├── README.md
-├── RULES.md             ← zasady współpracy (PRZECZYTAJ)
-├── PROGRESS.md          ← aktualny status
+├── CLAUDE.md            ← boot + zasady + sekwencja startowa (punkt wejścia)
+├── todo.md              ← stan „teraz" + otwarte zadania
+├── PROGRESS.md          ← log sesji (newest-first) + PROGRESS_ARCHIVE.md
+├── DECISIONS.md         ← trwałe decyzje (ADR-lite)
+├── RULES.md             ← szczegółowe zasady współpracy + Git workflow
 ├── docs/
-│   ├── PLAN.md          ← aktywny plan + otwarte zadania
+│   ├── PLAN.md          ← plan etapów (14 epiców)
 │   ├── ARCHITECTURE.md  ← architektura modułowa
-│   └── PRODUCT_SPEC.md  ← specyfikacja produktu
-├── OrderPilot/       ← projekt Android (app/)
-└── FakeUberDriver/     ← aplikacja testowa (symuluje popupy Uber)
+│   ├── PRODUCT_SPEC.md  ← specyfikacja produktu
+│   └── future_polish_fixes.md ← backlog drobnych bugów/pomysłów (#N)
+├── OrderPilot/          ← projekt Android (app/)
+└── FakeUberDriver/      ← aplikacja testowa (symuluje popupy Uber)
 ```

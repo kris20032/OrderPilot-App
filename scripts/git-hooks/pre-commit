@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# pre-commit — trigger higieny pamieci (Zasada 5: brak triggera = brak reguly).
+# OSTRZEGA, nie blokuje: drukuje raport memory-check przy kazdym commicie, niezaleznie od tego,
+# ktore AI (czy czlowiek) commituje. Zawsze exit 0 — nie wstrzymuje commita.
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+if [ -f "$ROOT/scripts/memory-check.sh" ]; then
+  bash "$ROOT/scripts/memory-check.sh" || true
+fi
+exit 0
