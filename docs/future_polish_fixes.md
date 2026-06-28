@@ -465,7 +465,7 @@
 
 ### 🔴 Najważniejsze OTWARTE (do decyzji/kolejnych sprintów) — szczegóły w `docs/AUDYT-2026-06-28.md`
 - **H2** Latin-only ML Kit OCR + bramy cyryliczne → oferty UA/RU po cichu odrzucane (cały segment). Wymaga decyzji biznesowej (inwestycja w rynek UA) + roboty (bramka agnostyczna pisma / transliteracje / tree-read dla cyrylicy). `OcrEngine.kt`, parsery.
-- **M7** Bolt nie filtruje kwoty gotówki przed `max` → możliwy fałszywy GREEN (kurier bierze nieopłacalne zlecenie). Wymaga potwierdzenia realnym zrzutem oferty Bolta. `BoltFoodOcrParser.kt`.
+- ~~**M7** Bolt fałszywy GREEN z gotówki~~ → **ZWERYFIKOWANE 28.06 (research): bezprzedmiotowy dla PL.** Bolt Food w Polsce wycofał dostawy gotówkowe (kurierpedia.pl) → scenariusz nie zachodzi; dla UA moot (OCR ślepy na cyrylicę = H2). NIE ruszać parsera Bolt (ślepy fix = ryzyko). Wracać tylko gdyby Bolt PL wrócił do gotówki. `BoltFoodOcrParser.kt`.
 - **#29 (insety)** naprawione w 3 Activity, ale POMINIĘTE w `MainActivity` (L1). **#33** ryzyko `accessibilityDataSensitive` od API 34 (Android 14), nie 16 (korekta L35).
 - **Niezawodność/przeżywalność:** M10 (fałszywy status po reboocie), M11 (crash przy restarcie FGS z tła), M12 (odmowa POST_NOTIFICATIONS wycisza watchdoga), M13 (Vivo bez karty setupu), M16 (Oppo zła instrukcja autostartu).
 - **Dokładność:** M4 (Xiaomi crop 0.40 na głównej ścieżce), M9 (Glovo dedup tłumi oferty), M14 (Glovo sumuje za dużo km). **Inne:** L6 (martwy `UberParser`), L8 (Wolt bez normalizacji OCR), L30 (tymczasowy przycisk „Zapisz logi" na produkcji — zostawiony, bo po M1 działa; do decyzji czy schować).
