@@ -10,6 +10,10 @@ class WoltOcrParserTest {
 
     private val parser = WoltOcrParser()
 
+    // Layer-4 gate (#36): parse() wymaga markera popupu Wolta ("Spodziewany zarobek",
+    // "Odbiór za", "Dostawa od", "Wolt" ...). Fixtury realnych ofert zawierają taki marker
+    // (tu zwykle "Wolt"). Commit 15c131d dodał bramkę bez aktualizacji testów → były czerwone.
+
     @Test
     fun `parses full offer with time range - takes max`() {
         val lines = listOf("11,73 zł", "Spodziewany zarobek za pełną dostawę", "1.7 km", "16 - 19 min")
@@ -43,7 +47,7 @@ class WoltOcrParserTest {
 
     @Test
     fun `parses amount with dot separator`() {
-        val lines = listOf("14.50 zł", "26 - 29 min")
+        val lines = listOf("14.50 zł", "26 - 29 min", "Wolt")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(14.5, offer!!.amount, 0.01)
@@ -51,7 +55,7 @@ class WoltOcrParserTest {
 
     @Test
     fun `parses amount with comma separator`() {
-        val lines = listOf("11,73 zł", "16 - 19 min")
+        val lines = listOf("11,73 zł", "16 - 19 min", "Wolt")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(11.73, offer!!.amount, 0.01)
@@ -59,7 +63,7 @@ class WoltOcrParserTest {
 
     @Test
     fun `parses distance with comma`() {
-        val lines = listOf("11,73 zł", "1,7 km", "16 - 19 min")
+        val lines = listOf("11,73 zł", "1,7 km", "16 - 19 min", "Wolt")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(1.7, offer!!.distanceKm!!, 0.01)
@@ -67,7 +71,7 @@ class WoltOcrParserTest {
 
     @Test
     fun `parses offer without distance`() {
-        val lines = listOf("11,73 zł", "16 - 19 min")
+        val lines = listOf("11,73 zł", "16 - 19 min", "Wolt")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertNull(offer!!.distanceKm)
@@ -75,7 +79,7 @@ class WoltOcrParserTest {
 
     @Test
     fun `parses single time without range`() {
-        val lines = listOf("11,73 zł", "19 min")
+        val lines = listOf("11,73 zł", "19 min", "Wolt")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(19, offer!!.estimatedMinutes)
@@ -83,7 +87,7 @@ class WoltOcrParserTest {
 
     @Test
     fun `time range with en-dash`() {
-        val lines = listOf("11,73 zł", "16 \u2013 19 min") // en-dash
+        val lines = listOf("11,73 zł", "16 \u2013 19 min", "Wolt") // en-dash
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(19, offer!!.estimatedMinutes)
@@ -91,7 +95,7 @@ class WoltOcrParserTest {
 
     @Test
     fun `time range with em-dash`() {
-        val lines = listOf("11,73 zł", "16\u201419 min") // em-dash
+        val lines = listOf("11,73 zł", "16\u201419 min", "Wolt") // em-dash
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(19, offer!!.estimatedMinutes)
@@ -106,7 +110,8 @@ class WoltOcrParserTest {
 
     @Test
     fun `returns null when no time`() {
-        val lines = listOf("11,73 zł", "1.7 km")
+        // Marker obecny → bramka przepuszcza; null wynika z BRAKU czasu (nie z bramki).
+        val lines = listOf("11,73 zł", "1.7 km", "Wolt")
         val offer = parser.parse(lines)
         assertNull(offer)
     }
@@ -119,7 +124,7 @@ class WoltOcrParserTest {
 
     @Test
     fun `PLN currency variant`() {
-        val lines = listOf("11,73 PLN", "16 - 19 min")
+        val lines = listOf("11,73 PLN", "16 - 19 min", "Wolt")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(11.73, offer!!.amount, 0.01)
@@ -129,7 +134,7 @@ class WoltOcrParserTest {
 
     @Test
     fun `EN - PLN before amount no space`() {
-        val lines = listOf("PLN14.50", "26 - 29 min")
+        val lines = listOf("PLN14.50", "26 - 29 min", "Wolt")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(14.50, offer!!.amount, 0.01)
@@ -138,7 +143,7 @@ class WoltOcrParserTest {
 
     @Test
     fun `EN - PLN before amount with space`() {
-        val lines = listOf("PLN 14.50", "26 - 29 min")
+        val lines = listOf("PLN 14.50", "26 - 29 min", "Wolt")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(14.50, offer!!.amount, 0.01)
@@ -146,10 +151,19 @@ class WoltOcrParserTest {
 
     @Test
     fun `fallback - amount without currency`() {
-        val lines = listOf("14.50", "26 - 29 min")
+        val lines = listOf("14.50", "26 - 29 min", "Wolt")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(14.50, offer!!.amount, 0.01)
+    }
+
+    // --- Layer-4 gate (#36) ---
+
+    @Test
+    fun `gate - rejects offer-like text without Wolt marker`() {
+        // Treść jak oferta ale BEZ markera popupu Wolta → odrzucone (obrona z #36).
+        val lines = listOf("14.50 zł", "26 - 29 min", "1.7 km")
+        assertNull(parser.parse(lines))
     }
 
     // --- ParserRegistry ---

@@ -3,9 +3,9 @@ package com.orderpilot.app.di
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.os.Environment
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
+import com.orderpilot.app.R
 import com.orderpilot.app.domain.AppLanguage
 import com.orderpilot.app.service.ServiceWatchdog
 import java.io.File
@@ -51,10 +51,11 @@ class OrderPilotApp : Application() {
         val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             try {
-                val file = File(
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                    "OrderPilot_crash_${System.currentTimeMillis()}.txt"
-                )
+                // Zapis do katalogu prywatnego apki (Android/data/.../files) — NIE wymaga
+                // uprawnień storage i działa na całym zakresie API (scoped storage, targetSdk 35).
+                // Wcześniej pisaliśmy do publicznego Downloads → wyjątek połykany → 0 logów crashy.
+                val dir = getExternalFilesDir(null) ?: filesDir
+                val file = File(dir, "OrderPilot_crash_${System.currentTimeMillis()}.txt")
                 file.writeText("${Date()}\nThread: ${thread.name}\n${throwable.stackTraceToString()}")
             } catch (_: Exception) {}
             defaultHandler?.uncaughtException(thread, throwable)
@@ -64,7 +65,7 @@ class OrderPilotApp : Application() {
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "OrderPilot nasłuchuje",
+            getString(R.string.notif_monitoring_title),
             NotificationManager.IMPORTANCE_LOW
         )
         val manager = getSystemService(NotificationManager::class.java)

@@ -10,7 +10,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.Settings
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
@@ -188,6 +187,10 @@ class MainActivity : AppCompatActivity() {
     private fun stopCapture() {
         MonitoringController.stop(this)
         OrderPilotAccessibilityService.cancelActiveJobs()
+        // Schowaj belkę OD RAZU — inaczej zostaje do swojego timeoutu (do 30s) i user
+        // ma wrażenie, że Stop nie zadziałał. Jesteśmy na wątku UI (handler przycisku).
+        // try/catch jak w pozostałych call-site'ach — WindowManager może rzucić gdy widok już odpięty.
+        try { ServiceLocator.overlayManager.hide() } catch (_: Exception) {}
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             ScreenCaptureService.stopCapture(this)
         }
@@ -265,8 +268,10 @@ class MainActivity : AppCompatActivity() {
         try {
             val timestamp = SimpleDateFormat("yyyy-MM-dd_HHmmss", Locale.getDefault()).format(Date())
             val fileName = "OrderPilot_log_$timestamp.txt"
-            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            val file = File(downloadsDir, fileName)
+            // Katalog prywatny apki (Android/data/.../files) — bez uprawnień storage, działa
+            // na całym zakresie API. Plik widoczny przez USB/menedżer plików dla testerów.
+            val dir = getExternalFilesDir(null) ?: filesDir
+            val file = File(dir, fileName)
 
             file.writeText(AppLog.getBufferedLogs())
 

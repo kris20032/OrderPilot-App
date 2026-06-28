@@ -5,8 +5,8 @@
 
 ## 🚨 AKTYWNY BRANCH (source of truth)
 
-**Obecny branch roboczy: `fix/v1.0.5-uber-popup-background`**
-**Ostatnia aktualizacja tego wpisu: 2026-05-13**
+**Obecny branch roboczy: `fix/audit-2026-06-28-batch1`**
+**Ostatnia aktualizacja tego wpisu: 2026-06-28**
 
 > ℹ️ Te dwie linijki są **auto-aktualizowane** przez hook `.git/hooks/post-checkout` przy każdym `git checkout <branch>`. Nie edytuj ich ręcznie. Jeśli hook nie działa (np. świeży klon), uruchom `./scripts/install-hooks.sh` (źródło: `scripts/git-hooks/post-checkout`, bo `.git/hooks/` nie jest wersjonowany).
 

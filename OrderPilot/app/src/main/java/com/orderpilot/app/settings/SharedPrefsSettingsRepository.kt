@@ -2,7 +2,6 @@ package com.orderpilot.app.settings
 
 import android.content.Context
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import java.util.concurrent.CopyOnWriteArrayList
 
 class SharedPrefsSettingsRepository(context: Context) : SettingsRepository {
@@ -13,14 +12,14 @@ class SharedPrefsSettingsRepository(context: Context) : SettingsRepository {
     override fun load(): AppSettings {
         val json = prefs.getString(KEY_SETTINGS, null) ?: return AppSettings()
         return try {
-            Json.decodeFromString(json)
+            SettingsJson.decodeFromString(json)
         } catch (_: Exception) {
             AppSettings()
         }
     }
 
     override fun save(settings: AppSettings) {
-        prefs.edit().putString(KEY_SETTINGS, Json.encodeToString(settings)).apply()
+        prefs.edit().putString(KEY_SETTINGS, SettingsJson.encodeToString(settings)).apply()
         listeners.forEach { it(settings) }
     }
 

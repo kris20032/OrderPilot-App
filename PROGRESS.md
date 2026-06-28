@@ -20,6 +20,12 @@
 
 ---
 
+## 2026-06-28 — 🔍 Wieloagentowy audyt kodu + sprint naprawczy #1
+- **Co:** Pełny statyczny audyt całego kodu apki (27 agentów: 13 podsystemów × recenzja + niezależna weryfikacja każdego znaleziska + synteza; 2,6 mln tokenów). **69 realnych znalezisk** po deduplikacji (3 high, 17 medium, 39 low, 10 nit; **brak „critical"**). Pełny raport utrwalony w repo: **`docs/AUDYT-2026-06-28.md`** (durable backlog; `future_polish_fixes.md` + `todo.md` linkują tam).
+- **Naprawione w branchu `fix/audit-2026-06-28-batch1`** (sprint #1, bez build/test — to po stronie Krzysztofa): **H1** crash pipeline (brak `CoroutineExceptionHandler` → nieobsłużony wyjątek z capture/OCR zabijał proces) + **L20** wyciek bitmapy screenshotu; **M2+M3+L39** persystencja ustawień/języka — wspólny `SettingsJson { encodeDefaults; ignoreUnknownKeys; coerceInputValues }` (domyka PERSYSTENCJĘ #28; część UI `setApplicationLocales` była już ok); **H3** czerwone testy parserów Uber/Wolt (bramka Layer-4 z `15c131d` bez aktualizacji fixtur → dodane markery popupu + jawne testy bramki); **M1** logi crashy/„Zapisz logi" z publicznego Downloads → katalog prywatny apki (były martwe na targetSdk 35); **M5** czas belki per platforma na ścieżce MediaProjection; **L21/L31/L32/L33** drobne (мин, contentDescription/kanały i18n, Stop chowa belkę natychmiast).
+- **Kluczowe weryfikacje znanych:** **#28** był naprawiony tylko w POŁOWIE (UI tak, persystencja nie — domknięte teraz). **#29** insety naprawione w 3 Activity, POMINIĘTE w MainActivity (L1, otwarte). **#33** ryzyko `accessibilityDataSensitive` od API 34 (Android 14), nie 16. R8/minify wyłączone → hipoteza „R8 obcina serializację" wykluczona. Źródło „pustego overlay type=3" na Xiaomi: keepAlive 1x1 w `MonitoringForegroundService`.
+- **Co dalej:** Krzysztof: `./gradlew testDebugUnitTest` (parsery znów zielone) + build + merge `fix/audit-2026-06-28-batch1` → `main`. Otwarte grube tematy: **H2** Latin-only OCR vs cyrylica UA/RU (decyzja biznesowa o rynku UA), **M7** Bolt fałszywy GREEN (do potwierdzenia zrzutem). Reszta backlogu w `docs/AUDYT-2026-06-28.md`.
+
 ## 2026-05-23 — 🚀 Production LIVE w Google Play
 - **Co:** Krzysztof potwierdził, że OrderPilot v1.0.5 jest dostępny w Sklepie Play (177 krajów, dowolny Android). Production track approved między 2026-05-20 (po IARC notice) a 05-23. PrimeTestLab zakończył 20-day testing cycle 05-21 (14 standard + 6 bonus). Pełen flow POC → LIVE w ~3 miesiące (02-24 → 05-23).
 - **Co dalej:** merge git → sesja porządkowa → promocja → monitoring → plan v1.1 (zob. `todo.md`).

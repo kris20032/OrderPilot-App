@@ -10,6 +10,11 @@ class UberOcrParserTest {
 
     private val parser = UberOcrParser()
 
+    // Layer-4 gate (#36): parse() wymaga co najmniej JEDNEGO pozytywnego markera popupu Ubera
+    // ("AKCEPTUJ"/"Accept"/"Прийняти"/"Łącznie"/"Total"/"Uber" ...) — obrona przed false-positive
+    // na portalach/innych apkach. Dlatego fixtury REALNYCH ofert zawierają taki marker.
+    // (Commit 15c131d dodał bramkę bez aktualizacji tych testów → były czerwone.)
+
     // --- PL ---
 
     @Test
@@ -35,7 +40,7 @@ class UberOcrParserTest {
 
     @Test
     fun `PL - amount with dot separator`() {
-        val lines = listOf("15.50 zł", "10 min")
+        val lines = listOf("15.50 zł", "10 min", "AKCEPTUJ")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(15.5, offer!!.amount, 0.01)
@@ -43,7 +48,7 @@ class UberOcrParserTest {
 
     @Test
     fun `PL - case insensitive zl`() {
-        val lines = listOf("18,00 ZŁ", "5 min")
+        val lines = listOf("18,00 ZŁ", "5 min", "AKCEPTUJ")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(18.0, offer!!.amount, 0.01)
@@ -68,7 +73,8 @@ class UberOcrParserTest {
 
     @Test
     fun `PL - returns null when no time`() {
-        val lines = listOf("25,00 zł", "(5,0 km)")
+        // Marker obecny → bramka przepuszcza; null wynika z BRAKU czasu (nie z bramki).
+        val lines = listOf("25,00 zł", "(5,0 km)", "AKCEPTUJ")
         val offer = parser.parse(lines)
         assertNull(offer)
     }
@@ -83,7 +89,7 @@ class UberOcrParserTest {
 
     @Test
     fun `UK - parses full offer with distance`() {
-        val lines = listOf("250,00 грн", "15 хв", "(8,5 км)")
+        val lines = listOf("250,00 грн", "15 хв", "(8,5 км)", "Прийняти")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(250.0, offer!!.amount, 0.01)
@@ -93,7 +99,7 @@ class UberOcrParserTest {
 
     @Test
     fun `UK - parses offer without distance`() {
-        val lines = listOf("180,50 грн", "10 хв")
+        val lines = listOf("180,50 грн", "10 хв", "Прийняти")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(180.5, offer!!.amount, 0.01)
@@ -112,7 +118,7 @@ class UberOcrParserTest {
 
     @Test
     fun `EN - parses offer with zl`() {
-        val lines = listOf("22,50 zł", "14 min", "(6,3 km)")
+        val lines = listOf("22,50 zł", "14 min", "(6,3 km)", "Accept")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(22.5, offer!!.amount, 0.01)
@@ -122,7 +128,7 @@ class UberOcrParserTest {
 
     @Test
     fun `EN - parses offer with PLN`() {
-        val lines = listOf("30,00 PLN", "20 min")
+        val lines = listOf("30,00 PLN", "20 min", "Accept")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(30.0, offer!!.amount, 0.01)
@@ -144,7 +150,7 @@ class UberOcrParserTest {
 
     @Test
     fun `EN - parses PLN before amount with space`() {
-        val lines = listOf("PLN 7.86", "14 min (1.0 km)")
+        val lines = listOf("PLN 7.86", "14 min (1.0 km)", "Accept")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(7.86, offer!!.amount, 0.01)
@@ -152,7 +158,7 @@ class UberOcrParserTest {
 
     @Test
     fun `EN - parses PLN after amount`() {
-        val lines = listOf("7.86 PLN", "14 min")
+        val lines = listOf("7.86 PLN", "14 min", "Accept")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(7.86, offer!!.amount, 0.01)
@@ -160,7 +166,7 @@ class UberOcrParserTest {
 
     @Test
     fun `EN - parses PLN lowercase`() {
-        val lines = listOf("pln7.86", "14 min")
+        val lines = listOf("pln7.86", "14 min", "Accept")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(7.86, offer!!.amount, 0.01)
@@ -169,7 +175,7 @@ class UberOcrParserTest {
     @Test
     fun `fallback - parses amount without currency symbol`() {
         // OCR nie odczytał waluty, ale kwota i czas są widoczne
-        val lines = listOf("7.86", "14 min")
+        val lines = listOf("7.86", "14 min", "Accept")
         val offer = parser.parse(lines)
         assertNotNull(offer)
         assertEquals(7.86, offer!!.amount, 0.01)
@@ -178,9 +184,28 @@ class UberOcrParserTest {
     @Test
     fun `fallback - does not match time as amount`() {
         // "14 min" — 14 nie ma separatora, nie powinno być wzięte jako kwota
-        val lines = listOf("14 min")
+        // (marker obecny → bramka przepuszcza; null wynika z BRAKU kwoty, nie z bramki).
+        val lines = listOf("14 min", "Accept")
         val offer = parser.parse(lines)
         assertNull(offer) // brak kwoty
+    }
+
+    // --- Layer-4 gate (#36) ---
+
+    @Test
+    fun `gate - rejects offer-like text without popup marker`() {
+        // Treść jak oferta (kwota + czas + dystans) ale BEZ markera popupu Ubera
+        // = np. portal/inna apka → musi być odrzucone (obrona z #36).
+        val lines = listOf("15.50 zł", "10 min", "(3,2 km)")
+        assertNull(parser.parse(lines))
+    }
+
+    @Test
+    fun `gate - accepts offer with Total marker`() {
+        val lines = listOf("Total", "15.50 zł", "10 min")
+        val offer = parser.parse(lines)
+        assertNotNull(offer)
+        assertEquals(15.5, offer!!.amount, 0.01)
     }
 
     // --- Statistics screen guard ---
