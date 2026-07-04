@@ -23,10 +23,18 @@ object OfferDuplicateChecker {
         for ((otherPlatform, otherOffer) in activeOffers) {
             if (otherPlatform == offer.platform) continue
 
-            val amountClose = abs(offer.amount - otherOffer.amount) < 0.5
-            val minutesClose = abs(offer.estimatedMinutes - otherOffer.estimatedMinutes) <= 5
+            // M9: gdy któraś strona nie ma czasu (Glovo daje min=0), wymiar czasu jest
+            // NIEZNANY, a nie "różny" — decydują wtedy tylko kwota+dystans, więc zawężamy
+            // ich okna (0.3 zamiast 0.5), by przypadkowo zbliżona oferta nie tłumiła
+            // realnie innego zlecenia.
+            val timeKnown = offer.estimatedMinutes > 0 && otherOffer.estimatedMinutes > 0
+            val tolerance = if (timeKnown) 0.5 else 0.3
+
+            val amountClose = abs(offer.amount - otherOffer.amount) < tolerance
+            val minutesClose = timeKnown &&
+                abs(offer.estimatedMinutes - otherOffer.estimatedMinutes) <= 5
             val distanceClose = if (offer.distanceKm != null && otherOffer.distanceKm != null) {
-                abs(offer.distanceKm - otherOffer.distanceKm) <= 0.5
+                abs(offer.distanceKm - otherOffer.distanceKm) <= tolerance
             } else {
                 false
             }

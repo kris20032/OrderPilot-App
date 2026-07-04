@@ -3,10 +3,11 @@
     <string name="accessibility_service_description">OrderPilot odczytuje zawartość ekranu wyłącznie z aplikacji kurierskich Uber Driver, Wolt Courier, Glovo Courier i Bolt Food, aby wykryć nowe zlecenia i wyświetlić na nakładce wyliczoną stawkę godzinową (zł/h). Dane z ekranu są przetwarzane wyłącznie na Twoim urządzeniu, nigdzie nie są wysyłane ani trwale zapisywane. Możesz wyłączyć usługę w dowolnym momencie w ustawieniach systemowych.</string>
     <string name="btn_start">Start</string>
     <string name="btn_stop">Stop</string>
-    <string name="status_running">Active</string>
-    <string name="status_stopped">Inactive</string>
-    <string name="status_subtitle_running">Wykrywanie zleceń</string>
-    <string name="status_subtitle_stopped">Zatrzymane</string>
+    <string name="status_running">Aktywne</string>
+    <string name="status_stopped">Wyłączone</string>
+    <string name="status_subtitle_running">Nasłuchuje zleceń w tle</string>
+    <string name="status_subtitle_stopped">Kliknij Start, aby nasłuchiwać zleceń</string>
+    <string name="main_platforms_caption" translatable="false">Uber · Wolt · Glovo · Bolt</string>
     <string name="accessibility_hint">Włącz OrderPilot w:\nUstawienia → Dostępność → Zainstalowane aplikacje</string>
     <string name="accessibility_rebind_hint">Wyłącz i włącz ponownie OrderPilot w:\nDostępność → Zainstalowane aplikacje → OrderPilot</string>
     <string name="toast_projection_lost">Nagrywanie ekranu zostało przerwane. Kliknij Start żeby wznowić.</string>

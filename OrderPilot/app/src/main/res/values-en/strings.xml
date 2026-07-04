@@ -4,9 +4,9 @@
     <string name="btn_start">Start</string>
     <string name="btn_stop">Stop</string>
     <string name="status_running">Active</string>
-    <string name="status_stopped">Inactive</string>
-    <string name="status_subtitle_running">Offer detection</string>
-    <string name="status_subtitle_stopped">Stopped</string>
+    <string name="status_stopped">Off</string>
+    <string name="status_subtitle_running">Listening for offers in the background</string>
+    <string name="status_subtitle_stopped">Tap Start to listen for offers</string>
     <string name="accessibility_hint">Enable OrderPilot in:\nSettings → Accessibility → Installed apps</string>
     <string name="accessibility_rebind_hint">Turn OrderPilot OFF and ON again in:\nAccessibility → Installed apps → OrderPilot</string>
     <string name="toast_projection_lost">Screen recording was interrupted. Tap Start to resume.</string>

@@ -3,10 +3,10 @@
     <string name="accessibility_service_description">OrderPilot считывает содержимое экрана исключительно из курьерских приложений Uber Driver, Wolt Courier, Glovo Courier и Bolt Food, чтобы обнаружить новые заказы и показать на оверлее рассчитанную почасовую ставку (zł/час). Данные с экрана обрабатываются только на Вашем устройстве, никуда не отправляются и не сохраняются постоянно. Вы можете отключить сервис в любой момент в системных настройках.</string>
     <string name="btn_start">Старт</string>
     <string name="btn_stop">Стоп</string>
-    <string name="status_running">Активен</string>
-    <string name="status_stopped">Неактивен</string>
-    <string name="status_subtitle_running">Обнаружение заказов</string>
-    <string name="status_subtitle_stopped">Остановлен</string>
+    <string name="status_running">Активно</string>
+    <string name="status_stopped">Выключено</string>
+    <string name="status_subtitle_running">Слушает заказы в фоне</string>
+    <string name="status_subtitle_stopped">Нажмите Start, чтобы слушать заказы</string>
     <string name="accessibility_hint">Включите OrderPilot в:\nНастройки → Специальные возможности → Установленные приложения</string>
     <string name="accessibility_rebind_hint">Выключите и включите OrderPilot заново в:\nСпециальные возможности → Установленные приложения → OrderPilot</string>
     <string name="toast_projection_lost">Запись экрана была прервана. Нажмите Старт чтобы возобновить.</string>

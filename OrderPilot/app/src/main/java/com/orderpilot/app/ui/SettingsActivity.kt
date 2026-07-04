@@ -41,6 +41,13 @@ class SettingsActivity : AppCompatActivity() {
         var displayTime: Float = 30f
     )
     private val tabData = Array(5) { TabValues() }
+
+    /**
+     * M8: suwak czasu belki na tabie platformy tworzy override TYLKO gdy user go
+     * FAKTYCZNIE dotknął (fromUser). Bez tego zmiana samego globalnego czasu
+     * fabrykowała ukryte nadpisania per-platforma ze STARĄ wartością.
+     */
+    private val displayTimeTouched = BooleanArray(5)
     private var currentTab = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,7 +108,8 @@ class SettingsActivity : AppCompatActivity() {
         binding.slOpacity.addOnChangeListener { _, value, _ ->
             binding.tvOpacityLabel.text = getString(R.string.settings_opacity, value.toInt())
         }
-        binding.slDisplayTime.addOnChangeListener { _, value, _ ->
+        binding.slDisplayTime.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) displayTimeTouched[currentTab] = true
             binding.tvDisplayTimeLabel.text = if (currentTab == 0)
                 getString(R.string.settings_display_time, value.toInt())
             else
@@ -274,10 +282,18 @@ class SettingsActivity : AppCompatActivity() {
             val globalDisplayTime = tabData[0].displayTime.toInt()
 
             val existing = current.platformOverrides[platform]
+            // M8: bez dotknięcia suwaka platformy zachowaj DOTYCHCZASOWY stan override'u
+            // (żaden nie powstaje ani nie znika przy zmianie samego globala).
+            // Po dotknięciu: wartość równa globalowi = świadome skasowanie override'u.
+            val displayTimeOverride = if (displayTimeTouched[i]) {
+                if (displayTime != globalDisplayTime) displayTime else null
+            } else {
+                existing?.displayTimeSeconds
+            }
             overrides[platform] = PlatformSettings(
                 thresholds = thresholds,
                 filters = existing?.filters,
-                displayTimeSeconds = if (displayTime != globalDisplayTime) displayTime else null
+                displayTimeSeconds = displayTimeOverride
             )
         }
 
