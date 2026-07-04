@@ -20,6 +20,12 @@
 
 ---
 
+## 2026-07-04 (wieczór) — 🎨 Redesign ekranu głównego + fix M8/M9 (Fable 5)
+- **Co:** Decyzja K.: „redesign całej apki + audyt — zacznij od większej wartości". Wybrane: redesign (widzi każdy user, trafia na screenshoty Play) + domknięcie realnych bugów z backlogu audytu. Ekran główny w języku wizarda v2.1 (karta statusu z platformami, Start pełną szerokością, czytelne statusy PL/EN/UK/RU zamiast Active/Inactive, „Zapisz logi" zdyskretniony). **M8 naprawiony** (zmiana globalnego czasu belki fabrykowała ukryte nadpisania per-platforma — teraz flaga fromUser) i **M9** (dedup przy Glovo min=0: czas=NIEZNANY + węższe okna 0.3) + `OfferDuplicateCheckerTest` (8 przypadków). **Disclosure celowo nietknięty** — układ (parity przycisków, pełna treść) wymusza polityka Play. Ustawienia: tylko fix M8, bez redesignu (gęsty, działa).
+- **Weryfikacja:** emulator (Main przed/po Start, Settings), testy **156/156**.
+- **Backlog audytu po tej sesji:** OTWARTE jeszcze: M14 (Glovo 3-ci dystans — wymaga realnych zrzutów), M17 reszta (testy Bolt parsera — wymagają realnych fixture'ów), L-drobiazgi. Wszystkie H i M naprawialne bez urządzenia = ZROBIONE.
+- **Co dalej:** K.: test `feat/wizard-v2` na telefonie + merge (gałąź = sprint #1 + wizard v2.1 + sprint #2 + main-redesign + M8/M9).
+
 ## 2026-07-04 (po poł.) — 🎨 Wizard v2.1: redesign UI + pełna weryfikacja na emulatorze (Fable 5)
 - **Co:** Na życzenie K. („najwyższe standardy, jak najlepsze wizardy, zero niedociągnięć") — research wzorców (Uber/Mobbin/Revolut/Duolingo, permission priming) i redesign: powitanie = belka na MAKIECIE zlecenia (produkt tłumaczy się jednym spojrzeniem), ikona w tonalnym kółku + wyśrodkowana hierarchia na każdym kroku, karty instrukcji, finał z animowanym zielonym checkiem. Po drodze złapany i naprawiony ODWIECZNY bug: Android zjada gołe ASCII `"` w zasobach (znikające cudzysłowy, też w starych kartach OEM).
 - **Weryfikacja BEZ Krzysztofa (nowa zdolność, patrz pamięć `reference_android_testy_bez_studio`):** emulator headless `oppilot` + adb — pełne przejście wizarda E2E (uprawnienia nadawane z konsoli, auto-przeskoki, demo belki na żywo), font_scale 1.3, dark mode (apka celowo trzyma jasny motyw), świeża instalacja ×3. Testy 148/148. Screenshoty w sesji.
