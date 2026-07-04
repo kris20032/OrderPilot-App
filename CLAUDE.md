@@ -5,8 +5,8 @@
 
 ## 🚨 AKTYWNY BRANCH (source of truth)
 
-**Obecny branch roboczy: `fix/audit-2026-06-28-batch1`**
-**Ostatnia aktualizacja tego wpisu: 2026-06-28**
+**Obecny branch roboczy: `feat/wizard-v2`**
+**Ostatnia aktualizacja tego wpisu: 2026-07-04**
 
 > ℹ️ Te dwie linijki są **auto-aktualizowane** przez hook `.git/hooks/post-checkout` przy każdym `git checkout <branch>`. Nie edytuj ich ręcznie. Jeśli hook nie działa (np. świeży klon), uruchom `./scripts/install-hooks.sh` (źródło: `scripts/git-hooks/post-checkout`, bo `.git/hooks/` nie jest wersjonowany).
 

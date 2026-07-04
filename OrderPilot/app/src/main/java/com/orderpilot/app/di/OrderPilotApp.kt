@@ -77,10 +77,7 @@ class OrderPilotApp : Application() {
 
         /**
          * Privacy Policy URL — pokazywany w DisclosureActivity i SettingsActivity (M4, KD5).
-         *
-         * TODO(Phase 4, Task 4.3): zastąpić docelowym URL po wgraniu privacy-policy.html
-         * na GitHub Pages. Obecnie placeholder — jeśli user kliknie link przed Phase 4
-         * uploadem, zobaczy 404, ale DisclosureActivity nadal działa.
+         * Strona LIVE na GitHub Pages (zweryfikowane HTTP 200, 2026-07-04).
          */
         const val PRIVACY_POLICY_URL = "https://kris20032.github.io/OrderPilot-App/legal/privacy-policy.html"
     }

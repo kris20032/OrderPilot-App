@@ -20,6 +20,12 @@
 
 ---
 
+## 2026-07-04 (wieczór 3) — 🔬 Przegląd całości kodu: błędy/wydajność/jakość (Fable 5)
+- **Co:** Na pytanie K. „czy sprawdziłeś dokładnie cały kod" — dedykowany pass: (a) świeże oko na kod napisany dziś, (b) pierwszy DEDYKOWANY przegląd wydajnościowy gorącej ścieżki (event→throttle→zrzut→OCR→parser→belka).
+- **Werdykt gorącej ścieżki: SOLIDNA.** Cała ciężka robota poza wątkiem UI (Dispatchers.Default/IO), timeouty na pipeline (10 s) i OCR (5 s), bitmapy konsekwentnie recyklowane z ochroną przy wyjątkach, CoroutineExceptionHandler łapie niespodzianki, throttler 1 zrzut/1,6 s, bufor logów ograniczony (2000 wpisów, @Synchronized). Znalezione i naprawione dziś wcześniej: przebudowa podglądu belki na tick suwaka (→ View.alpha).
+- **Zweryfikowane twardo:** link Polityki Prywatności ŻYJE (HTTP 200) — komentarz w kodzie straszył „placeholder/404", był NIEAKTUALNY (usunięty). Testy 156/156.
+- **Odnotowane, świadomie NIE ruszone:** (1) teoretyczne okno race przy timeoucie OCR >5 s (ML Kit może jeszcze czytać bitmapę przy recycle; w praktyce ML Kit kończy <500 ms, ścieżka wymaga ekstremalnych warunków — ślepy fix groźniejszy od ryzyka); (2) logi diagnostyczne w hot-path zostają (koszt ~µs, a „Zapisz logi" to jedyny kanał diagnostyki przy zero-telemetrii).
+
 ## 2026-07-04 (wieczór 2) — 🎛️ Redesign ustawień + podgląd belki na żywo (Fable 5)
 - **Co:** K. docisnął „cały frontend ma być mega" — dociągnięte USTAWIENIA do języka nowego designu (karty 24dp z obwódką, nagłówki 17sp medium, toolbar zlany z tłem) + nowość UX: **podgląd belki NA ŻYWO** w sekcji „Wygląd belki" (produkcyjny `OverlayViewFactory`; reaguje natychmiast na suwak przezroczystości i przełączniki metryk — user widzi też, że 5 metryk łamie belkę na 2 linie). Tym samym redesign objął CAŁY frontend: wizard (v2.1) + ekran główny + ustawienia. Świadomie NIE ruszone: belka (czytelność zerknięciem w słońcu — sprawdzona w boju) i disclosure (układ wymuszony polityką Play).
 - **Weryfikacja:** emulator (scroll ustawień, przełączanie metryk odświeża podgląd), testy 156/156.
