@@ -20,6 +20,11 @@
 
 ---
 
+## 2026-07-04 (wieczór 4) — 🚀 Paczka wzrostu v1.1.0: recenzje, polecanie, release prep (Fable 5)
+- **Co:** Pytanie K. „co jeszcze z Fable bez mojej pomocy" → v1.1 dostała haki wzrostu: **In-App Review** (oficjalne API; prośba RAZ od 3. dnia użycia, logika w czystym `ReviewPolicy`+testy; markAsked po udanym launchu; cicha degradacja bez Play) + **„Poleć kumplowi"** (share intent z linkiem Play, 4 języki, na ekranie głównym). **Release prep:** bump `1.1.0`/vc7, `docs/play-store/RELEASE-NOTES-1.1.0.md` (notki PL/EN/UK/RU <500 zn. + checklista wydania), `docs/play-store/screenshots-v1.1/` (5 świeżych zrzutów listingu z nowego designu). Nowa zależność: `play:review-ktx:2.0.2`.
+- **Weryfikacja:** emulator (share sheet działa, zero FATAL w logcat), testy jednostkowe zielone.
+- **Efekt:** rola K. przy wydaniu = test na telefonie → merge → podpisany AAB → upload (wszystko do wklejenia gotowe).
+
 ## 2026-07-04 (wieczór 3) — 🔬 Przegląd całości kodu: błędy/wydajność/jakość (Fable 5)
 - **Co:** Na pytanie K. „czy sprawdziłeś dokładnie cały kod" — dedykowany pass: (a) świeże oko na kod napisany dziś, (b) pierwszy DEDYKOWANY przegląd wydajnościowy gorącej ścieżki (event→throttle→zrzut→OCR→parser→belka).
 - **Werdykt gorącej ścieżki: SOLIDNA.** Cała ciężka robota poza wątkiem UI (Dispatchers.Default/IO), timeouty na pipeline (10 s) i OCR (5 s), bitmapy konsekwentnie recyklowane z ochroną przy wyjątkach, CoroutineExceptionHandler łapie niespodzianki, throttler 1 zrzut/1,6 s, bufor logów ograniczony (2000 wpisów, @Synchronized). Znalezione i naprawione dziś wcześniej: przebudowa podglądu belki na tick suwaka (→ View.alpha).
