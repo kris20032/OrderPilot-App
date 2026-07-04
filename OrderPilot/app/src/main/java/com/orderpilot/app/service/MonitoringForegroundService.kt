@@ -124,11 +124,45 @@ class MonitoringForegroundService : Service() {
     companion object {
         private const val TAG = "OP_ForegroundService"
         private const val NOTIFICATION_ID = 1
+        private const val START_BLOCKED_NOTIFICATION_ID = 3
         private const val ACTION_STOP = "com.orderpilot.app.STOP_MONITORING"
 
         fun start(context: Context) {
             val intent = Intent(context, MonitoringForegroundService::class.java)
-            context.startForegroundService(intent)
+            try {
+                context.startForegroundService(intent)
+            } catch (e: Exception) {
+                // M11: na API 31+ start FGS z tła rzuca ForegroundServiceStartNotAllowedException,
+                // gdy OEM zerwał wyjątek optymalizacji baterii (ścieżki: watchdog co 15 min,
+                // BootReceiver, OrderPilotApp.onCreate). Zamiast crasha — powiadomienie
+                // "otwórz aplikację" (start z foregroundu zawsze przejdzie).
+                AppLog.w(TAG, "startForegroundService blocked: ${e.message}")
+                notifyStartBlocked(context)
+            }
+        }
+
+        private fun notifyStartBlocked(context: Context) {
+            try {
+                val openIntent = Intent(context, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }
+                val pending = PendingIntent.getActivity(
+                    context, 0, openIntent,
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                )
+                val notification = NotificationCompat.Builder(context, ServiceWatchdog.WATCHDOG_CHANNEL_ID)
+                    .setContentTitle(context.getString(R.string.notif_start_blocked_title))
+                    .setContentText(context.getString(R.string.notif_start_blocked_text))
+                    .setSmallIcon(R.drawable.ic_notification)
+                    .setContentIntent(pending)
+                    .setAutoCancel(true)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .build()
+                val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+                nm.notify(START_BLOCKED_NOTIFICATION_ID, notification)
+            } catch (_: Exception) {
+                // Brak POST_NOTIFICATIONS / inny błąd — nic więcej nie zrobimy z tła.
+            }
         }
 
         fun stop(context: Context) {

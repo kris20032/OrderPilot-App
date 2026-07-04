@@ -43,8 +43,10 @@ class ServiceWatchdog(context: Context, params: WorkerParameters) : Worker(conte
 
         // Grace period: po świeżym start() AccessibilityService potrzebuje kilku sekund na bind.
         // Jeśli monitoring aktywny od mniej niż 30s → za wcześnie na diagnozę, skip.
+        // M10: -1 (brak timestampu) traktujemy TEŻ jak grace — lepiej przemilczeć jeden cykl
+        // niż wysłać fałszywy alert "wykrywanie zatrzymane" w trakcie rebindu po reboocie.
         val activeMs = MonitoringController.msSinceLastStart()
-        if (activeMs in 0..30_000) {
+        if (activeMs < 0L || activeMs <= 30_000L) {
             AppLog.d(TAG, "Watchdog: grace period (${activeMs}ms since start), skipping check")
             return Result.success()
         }

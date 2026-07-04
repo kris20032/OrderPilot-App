@@ -65,6 +65,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        applySystemBarsInsets()
+
         binding.btnToggle.setOnClickListener {
             if (isRunning) stopCapture() else startCapture()
         }
@@ -76,6 +78,24 @@ class MainActivity : AppCompatActivity() {
         }
         binding.btnSaveLogs.setOnClickListener {
             saveLogs()
+        }
+    }
+
+    /**
+     * L1/#29: edge-to-edge (targetSdk 35) — jak w pozostałych Activity, ale DOLICZAMY inset
+     * do istniejącego paddingu z XML (górne ikony wchodziły pod status bar na urządzeniach
+     * z wysokim paskiem/wycięciem na Android 15).
+     */
+    private fun applySystemBarsInsets() {
+        val root = binding.root
+        val baseL = root.paddingLeft
+        val baseT = root.paddingTop
+        val baseR = root.paddingRight
+        val baseB = root.paddingBottom
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
+            val bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            view.setPadding(baseL + bars.left, baseT + bars.top, baseR + bars.right, baseB + bars.bottom)
+            insets
         }
     }
 

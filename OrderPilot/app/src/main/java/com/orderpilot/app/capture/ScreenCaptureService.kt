@@ -48,7 +48,13 @@ class ScreenCaptureService : Service() {
                 putExtra(EXTRA_RESULT_CODE, resultCode)
                 putExtra(EXTRA_RESULT_DATA, data)
             }
-            context.startForegroundService(intent)
+            try {
+                context.startForegroundService(intent)
+            } catch (e: Exception) {
+                // M11: defensywnie — caller jest Activity (foreground), więc wyjątek FGS
+                // praktycznie nie powinien wystąpić; lepszy log niż crash pipeline'u.
+                AppLog.w(AppLog.TAG_CAPTURE, "startForegroundService blocked: ${e.message}")
+            }
         }
 
         fun stopCapture(context: Context) {
@@ -57,8 +63,13 @@ class ScreenCaptureService : Service() {
         }
     }
 
+    // M15: mutowane na Main (onStop callback / onDestroy), czytane na Dispatchers.IO w capture()
+    // — @Volatile gwarantuje widoczność między wątkami (bez niej race → praca na zamkniętym readerze).
+    @Volatile
     private var mediaProjection: MediaProjection? = null
+    @Volatile
     private var virtualDisplay: VirtualDisplay? = null
+    @Volatile
     private var imageReader: ImageReader? = null
     private var wakeLock: PowerManager.WakeLock? = null
 
@@ -134,7 +145,18 @@ class ScreenCaptureService : Service() {
             return@withContext null
         }
         delay(100)
-        val image = imageReader?.acquireLatestImage() ?: run {
+        // M15: lokalny snapshot pola + acquireLatestImage POD try — onDestroy/onStop na Main
+        // może równolegle zamknąć reader (IllegalStateException na zamkniętym readerze).
+        val reader = imageReader ?: run {
+            AppLog.w(AppLog.TAG_CAPTURE, "ImageReader gone, cannot capture")
+            return@withContext null
+        }
+        val image = try {
+            reader.acquireLatestImage()
+        } catch (e: Exception) {
+            AppLog.w(AppLog.TAG_CAPTURE, "acquireLatestImage failed: ${e.message}")
+            null
+        } ?: run {
             AppLog.w(AppLog.TAG_CAPTURE, "No frame available")
             return@withContext null
         }
@@ -238,6 +260,10 @@ class ScreenCaptureService : Service() {
         virtualDisplay?.release()
         mediaProjection?.stop()
         imageReader?.close()
+        // M15: wynulluj po zamknięciu — guard w capture() widzi brak readera zamiast trupa.
+        virtualDisplay = null
+        mediaProjection = null
+        imageReader = null
         releaseWakeLock()
         AppLog.d(AppLog.TAG_CAPTURE, "ScreenCaptureService destroyed")
         super.onDestroy()

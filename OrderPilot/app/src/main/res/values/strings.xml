@@ -158,6 +158,10 @@
     <string name="notif_watchdog_title">Wykrywanie zleceń zatrzymane</string>
     <string name="notif_watchdog_text">Kliknij, aby przywrócić działanie</string>
 
+    <!-- FGS start blocked (M11) -->
+    <string name="notif_start_blocked_title">Monitoring wstrzymany</string>
+    <string name="notif_start_blocked_text">System zablokował start w tle — otwórz OrderPilot, aby wznowić</string>
+
     <!-- Notification permission hint -->
     <string name="hint_notifications_disabled">Powiadomienia wyłączone — wykrywanie działa, ale nie zobaczysz statusu ani alertów o problemach</string>
 

@@ -20,6 +20,7 @@ object MonitoringController {
 
     private const val PREFS_NAME = "order_pilot_settings"
     private const val PREFS_KEY = "monitoring_state"
+    private const val PREFS_KEY_LAST_START = "monitoring_last_start"
     private const val TAG = "OP_MonitoringController"
 
     @Volatile
@@ -36,6 +37,15 @@ object MonitoringController {
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val raw = prefs.getString(PREFS_KEY, State.STOPPED.name) ?: State.STOPPED.name
         cached = runCatching { State.valueOf(raw) }.getOrDefault(State.STOPPED)
+
+        // M10: timestamp startu przeżywa restart procesu/telefonu. Gdy stan=ACTIVE, a klucza
+        // brak (stara wersja / wyczyszczone dane) — przyjmij "teraz": daje świeży grace period
+        // i po 30 s przywraca watchdogowi oraz UI zdolność realnej diagnozy.
+        lastStartTimestamp = prefs.getLong(PREFS_KEY_LAST_START, 0L)
+        if (cached == State.ACTIVE && lastStartTimestamp == 0L) {
+            lastStartTimestamp = System.currentTimeMillis()
+            prefs.edit().putLong(PREFS_KEY_LAST_START, lastStartTimestamp).apply()
+        }
 
         val alreadyInitialized = initialized
         initialized = true
@@ -58,6 +68,7 @@ object MonitoringController {
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(PREFS_KEY, State.ACTIVE.name)
+            .putLong(PREFS_KEY_LAST_START, lastStartTimestamp)
             .commit()
         AppLog.d(TAG, "state → ACTIVE")
 

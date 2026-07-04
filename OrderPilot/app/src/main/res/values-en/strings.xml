@@ -157,6 +157,10 @@
     <string name="notif_watchdog_title">Offer detection stopped</string>
     <string name="notif_watchdog_text">Tap to restore detection</string>
 
+    <!-- FGS start blocked (M11) -->
+    <string name="notif_start_blocked_title">Monitoring paused</string>
+    <string name="notif_start_blocked_text">The system blocked a background start — open OrderPilot to resume</string>
+
     <!-- Notification permission hint -->
     <string name="hint_notifications_disabled">Notifications disabled — detection works, but you won\'t see status or problem alerts</string>
 

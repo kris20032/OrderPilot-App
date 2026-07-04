@@ -157,6 +157,10 @@
     <string name="notif_watchdog_title">Виявлення замовлень зупинено</string>
     <string name="notif_watchdog_text">Натисніть, щоб відновити роботу</string>
 
+    <!-- FGS start blocked (M11) -->
+    <string name="notif_start_blocked_title">Моніторинг призупинено</string>
+    <string name="notif_start_blocked_text">Система заблокувала запуск у фоні — відкрийте OrderPilot, щоб відновити</string>
+
     <!-- Notification permission hint -->
     <string name="hint_notifications_disabled">Сповіщення вимкнено — виявлення працює, але ви не побачите статус чи сповіщення про проблеми</string>
 
