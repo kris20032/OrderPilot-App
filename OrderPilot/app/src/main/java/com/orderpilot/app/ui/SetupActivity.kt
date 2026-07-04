@@ -176,16 +176,19 @@ class SetupActivity : AppCompatActivity() {
 
         if (!advancing && step.isPermissionStep() && SetupFlow.isStepSatisfied(step, status)) {
             advancing = true
+            var delay = ADVANCE_DELAY_MS
             if (step == SetupStep.OVERLAY && !overlayDemoShown) {
                 // Moment „wow": użytkownik właśnie odblokował belkę — pokaż mu ją NAPRAWDĘ.
+                // Dłuższa pauza, żeby zdążył przeczytać podpis i zarejestrować belkę.
                 overlayDemoShown = true
                 binding.tvOverlayGranted.setText(R.string.setup_overlay_demo_caption)
                 showOverlayDemo()
+                delay = ADVANCE_DELAY_DEMO_MS
             }
             handler.postDelayed({
                 advancing = false
                 goTo(SetupFlow.nextStep(step, readStatus()))
-            }, ADVANCE_DELAY_MS)
+            }, delay)
         }
     }
 
@@ -758,6 +761,7 @@ class SetupActivity : AppCompatActivity() {
         private const val PREFS_NAME = "order_pilot_settings"
         private const val KEY_WELCOME_SEEN = "setup_welcome_seen"
         private const val ADVANCE_DELAY_MS = 1600L
+        private const val ADVANCE_DELAY_DEMO_MS = 3000L
         private const val OVERLAY_DEMO_MS = 4500L
 
         // Nieudokumentowane, ale stabilne od lat klucze fragmentu ustawień (AOSP).

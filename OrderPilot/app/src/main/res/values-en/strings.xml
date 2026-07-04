@@ -24,14 +24,14 @@
     <string name="setup_welcome_start">Let\'s go</string>
 
     <string name="setup_step_overlay_title">Bar on top of the courier app</string>
-    <string name="setup_step_overlay_body">OrderPilot needs the "display over other apps" permission — without it the bar can\'t appear above the offer screen.</string>
-    <string name="setup_step_overlay_how">1. Tap the button below\n2. Find "OrderPilot" and turn the switch on\n3. Come back here (back arrow)</string>
+    <string name="setup_step_overlay_body">OrderPilot needs the \"display over other apps\" permission — without it the bar can\'t appear above the offer screen.</string>
+    <string name="setup_step_overlay_how">1. Tap the button below\n2. Find \"OrderPilot\" and turn the switch on\n3. Come back here (back arrow)</string>
     <string name="setup_step_overlay_btn">Enable display</string>
     <string name="setup_overlay_demo_caption">✓ It works! The bar at the top of the screen is a preview — that\'s how it will look over offers.</string>
 
     <string name="setup_step_accessibility_title">Reading offers from the screen</string>
     <string name="setup_step_accessibility_body">This service lets OrderPilot read the offer\'s amount, time and distance. It reads courier apps only, and no data ever leaves your phone.</string>
-    <string name="setup_step_accessibility_how">1. Tap the button below\n2. Find "OrderPilot" (sometimes under "Installed apps" or "Downloaded apps")\n3. Turn it on and confirm "Allow"\n4. Come back here</string>
+    <string name="setup_step_accessibility_how">1. Tap the button below\n2. Find \"OrderPilot\" (sometimes under \"Installed apps\" or \"Downloaded apps\")\n3. Turn it on and confirm \"Allow\"\n4. Come back here</string>
     <string name="setup_step_accessibility_note">Your phone will show a full-control warning — that\'s the standard system message for every accessibility service. OrderPilot uses it only to read offers.</string>
     <string name="setup_step_accessibility_btn">Enable offer reading</string>
 
@@ -43,7 +43,7 @@
 
     <string name="setup_step_battery_title">Background activity</string>
     <string name="setup_step_battery_body">Phones put background apps to sleep by default. Disable battery optimization for OrderPilot so the bar keeps working for the whole shift — even with the screen off.</string>
-    <string name="setup_step_battery_how">1. Tap the button below\n2. Find "OrderPilot" on the list\n3. Choose "Unrestricted" or "Don\'t optimize"\n4. Come back here</string>
+    <string name="setup_step_battery_how">1. Tap the button below\n2. Find \"OrderPilot\" on the list\n3. Choose \"Unrestricted\" or \"Don\'t optimize\"\n4. Come back here</string>
     <string name="setup_step_battery_btn">Disable battery optimization</string>
 
     <string name="setup_step_oem_title">%s: one last step</string>
@@ -59,29 +59,29 @@
     <string name="setup_done_btn">Go to the app</string>
 
     <!-- Samsung -->
-    <string name="setup_samsung_step1">Open app info → tap "Battery" → set "Unrestricted"</string>
+    <string name="setup_samsung_step1">Open app info → tap \"Battery\" → set \"Unrestricted\"</string>
     <string name="setup_samsung_step1_btn">Open app info</string>
-    <string name="setup_samsung_step2">Settings → Device Care → Battery → Background usage limits → remove OrderPilot from "Sleeping apps" and "Deep sleeping apps" lists</string>
+    <string name="setup_samsung_step2">Settings → Device Care → Battery → Background usage limits → remove OrderPilot from \"Sleeping apps\" and \"Deep sleeping apps\" lists</string>
     <string name="setup_samsung_step2_btn">Open battery settings</string>
-    <string name="setup_samsung_step3">Disable "Put unused apps to sleep" on the same screen</string>
+    <string name="setup_samsung_step3">Disable \"Put unused apps to sleep\" on the same screen</string>
 
     <!-- Xiaomi / Redmi / POCO -->
     <string name="setup_xiaomi_step1">Enable Autostart — allows the app to start automatically after phone restart</string>
     <string name="setup_xiaomi_step1_btn">Open Autostart</string>
-    <string name="setup_xiaomi_step2">Settings → Apps → OrderPilot → Battery Saver → set "No restrictions"</string>
+    <string name="setup_xiaomi_step2">Settings → Apps → OrderPilot → Battery Saver → set \"No restrictions\"</string>
     <string name="setup_xiaomi_step2_btn">Open battery settings</string>
     <string name="setup_xiaomi_step3">Open recent apps list (square button at the bottom) → find OrderPilot → swipe down or long-press → tap the lock icon</string>
 
     <!-- Huawei / Honor -->
-    <string name="setup_huawei_step1">Settings → Battery → App Launch → find OrderPilot → turn off "Manage automatically" → enable all 3 toggles manually (auto-launch, secondary launch, run in background)</string>
+    <string name="setup_huawei_step1">Settings → Battery → App Launch → find OrderPilot → turn off \"Manage automatically\" → enable all 3 toggles manually (auto-launch, secondary launch, run in background)</string>
     <string name="setup_huawei_step1_btn">Open battery settings</string>
-    <string name="setup_huawei_step2">Settings → Apps → OrderPilot → Battery → "Don\'t optimize"</string>
+    <string name="setup_huawei_step2">Settings → Apps → OrderPilot → Battery → \"Don\'t optimize\"</string>
     <string name="setup_huawei_step2_btn">Open app info</string>
 
     <!-- Oppo / Realme -->
     <string name="setup_oppo_step_autostart">Enable auto-start for OrderPilot in the startup manager</string>
     <string name="setup_oppo_step_autostart_btn">Open startup manager</string>
-    <string name="setup_oppo_step1">App info → Battery → enable "Allow background activity"</string>
+    <string name="setup_oppo_step1">App info → Battery → enable \"Allow background activity\"</string>
     <string name="setup_oppo_step1_btn">Open app info</string>
     <string name="setup_oppo_step3">Settings → Battery → Battery management → OrderPilot → enable auto-launch and background activity</string>
 
@@ -92,31 +92,31 @@
     <string name="setup_vivo_step3">In the recent apps list, long-press OrderPilot and tap the lock icon</string>
 
     <!-- Other brands (generic card) -->
-    <string name="setup_generic_step1">In the recent apps list, long-press the OrderPilot card and choose the lock / "Lock" option (if your phone has it)</string>
-    <string name="setup_generic_step2">Don\'t close all apps with "Clear all" during your shift — it kills OrderPilot too</string>
+    <string name="setup_generic_step1">In the recent apps list, long-press the OrderPilot card and choose the lock / \"Lock\" option (if your phone has it)</string>
+    <string name="setup_generic_step2">Don\'t close all apps with \"Clear all\" during your shift — it kills OrderPilot too</string>
 
     <!-- OnePlus -->
-    <string name="setup_oneplus_step1">Settings → Apps → Special Access → Battery Optimization → find OrderPilot → set "Don\'t optimize"</string>
+    <string name="setup_oneplus_step1">Settings → Apps → Special Access → Battery Optimization → find OrderPilot → set \"Don\'t optimize\"</string>
     <string name="setup_oneplus_step1_btn">Open battery optimization</string>
-    <string name="setup_oneplus_step2">Settings → Battery → Advanced optimization → disable "Deep optimization"</string>
+    <string name="setup_oneplus_step2">Settings → Battery → Advanced optimization → disable \"Deep optimization\"</string>
     <string name="setup_oneplus_step2_btn">Open battery settings</string>
     <string name="setup_oneplus_step3">Open recent apps list → find OrderPilot → long-press → tap the lock icon</string>
 
     <!-- Toast hints (wizard) -->
-    <string name="toast_hint_overlay">Find "OrderPilot" and enable the toggle</string>
-    <string name="toast_hint_accessibility">Tap "Installed apps" → find OrderPilot → enable</string>
-    <string name="toast_hint_battery_optimization">Find "OrderPilot" in the list and select "Don\'t optimize"</string>
-    <string name="toast_hint_samsung_battery">Tap "Battery" → select "Unrestricted"</string>
-    <string name="toast_hint_samsung_sleeping">Open "Background usage limits" and remove OrderPilot from the lists</string>
-    <string name="toast_hint_xiaomi_autostart">Find "OrderPilot" and enable the toggle</string>
-    <string name="toast_hint_vivo_autostart">Find "OrderPilot" and enable the toggle</string>
-    <string name="toast_hint_xiaomi_battery">Tap "Battery Saver" → select "No restrictions"</string>
-    <string name="toast_hint_huawei_launch">Find "OrderPilot" → disable "Manage automatically" → enable 3 toggles</string>
-    <string name="toast_hint_huawei_optimize">Tap "Battery" → select "Don\'t optimize"</string>
-    <string name="toast_hint_oppo_background">Tap "Battery" → enable "Allow background activity"</string>
-    <string name="toast_hint_oppo_autolaunch">Enable "Auto-launch"</string>
-    <string name="toast_hint_oneplus_optimize">Find "OrderPilot" → select "Don\'t optimize"</string>
-    <string name="toast_hint_oneplus_deep">Disable "Deep optimization" / "Advanced optimization"</string>
+    <string name="toast_hint_overlay">Find \"OrderPilot\" and enable the toggle</string>
+    <string name="toast_hint_accessibility">Tap \"Installed apps\" → find OrderPilot → enable</string>
+    <string name="toast_hint_battery_optimization">Find \"OrderPilot\" in the list and select \"Don\'t optimize\"</string>
+    <string name="toast_hint_samsung_battery">Tap \"Battery\" → select \"Unrestricted\"</string>
+    <string name="toast_hint_samsung_sleeping">Open \"Background usage limits\" and remove OrderPilot from the lists</string>
+    <string name="toast_hint_xiaomi_autostart">Find \"OrderPilot\" and enable the toggle</string>
+    <string name="toast_hint_vivo_autostart">Find \"OrderPilot\" and enable the toggle</string>
+    <string name="toast_hint_xiaomi_battery">Tap \"Battery Saver\" → select \"No restrictions\"</string>
+    <string name="toast_hint_huawei_launch">Find \"OrderPilot\" → disable \"Manage automatically\" → enable 3 toggles</string>
+    <string name="toast_hint_huawei_optimize">Tap \"Battery\" → select \"Don\'t optimize\"</string>
+    <string name="toast_hint_oppo_background">Tap \"Battery\" → enable \"Allow background activity\"</string>
+    <string name="toast_hint_oppo_autolaunch">Enable \"Auto-launch\"</string>
+    <string name="toast_hint_oneplus_optimize">Find \"OrderPilot\" → select \"Don\'t optimize\"</string>
+    <string name="toast_hint_oneplus_deep">Disable \"Deep optimization\" / \"Advanced optimization\"</string>
 
     <!-- SettingsActivity -->
     <string name="settings_open">Settings</string>
