@@ -20,6 +20,7 @@
     <string name="setup_welcome_title">Zobacz, jak działa OrderPilot</string>
     <string name="setup_welcome_body">Gdy w aplikacji kurierskiej pojawi się zlecenie, OrderPilot pokaże nad nią taką belkę z przeliczoną stawką:</string>
     <string name="setup_welcome_legend">zielona = warto · żółta = średnio · czerwona = nie warto</string>
+    <string name="setup_welcome_mock_accept">Akceptuj</string>
     <string name="setup_welcome_footer">Żeby belka mogła działać, włączymy teraz razem kilka ustawień telefonu. Zajmie to około minuty.</string>
     <string name="setup_welcome_start">Zaczynamy</string>
 

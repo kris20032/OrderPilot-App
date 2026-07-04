@@ -20,6 +20,7 @@
     <string name="setup_welcome_title">Подивіться, як працює OrderPilot</string>
     <string name="setup_welcome_body">Коли в кур\'єрському додатку з\'явиться замовлення, OrderPilot покаже над ним таку панель з уже підрахованою ставкою:</string>
     <string name="setup_welcome_legend">зелена = вигідно · жовта = так собі · червона = не варто</string>
+    <string name="setup_welcome_mock_accept">Прийняти</string>
     <string name="setup_welcome_footer">Щоб панель працювала, ми разом увімкнемо кілька налаштувань телефону. Це займе близько хвилини.</string>
     <string name="setup_welcome_start">Почнімо</string>
 

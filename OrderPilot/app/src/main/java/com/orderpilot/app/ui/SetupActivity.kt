@@ -315,6 +315,18 @@ class SetupActivity : AppCompatActivity() {
     // ─── Ekran „Gotowe" ───
 
     private fun renderDoneScreen(status: SetupStatus) {
+        // Celebracja: duży zielony check wskakuje z lekkim odbiciem (lekka animacja View,
+        // zero obciążenia — jeden przebieg przy wejściu na ekran).
+        binding.ivDoneCheck.apply {
+            scaleX = 0.3f
+            scaleY = 0.3f
+            alpha = 0f
+            animate().scaleX(1f).scaleY(1f).alpha(1f)
+                .setDuration(450)
+                .setInterpolator(android.view.animation.OvershootInterpolator(1.4f))
+                .start()
+        }
+
         val container = binding.containerDoneChecklist
         container.removeAllViews()
         val items = buildList {
