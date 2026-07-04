@@ -12,23 +12,51 @@
     <string name="toast_projection_lost">Запис екрану було перервано. Натисніть Старт щоб відновити.</string>
     <string name="toast_service_killed">Сервіс було зупинено системою. Натисніть Старт щоб продовжити.</string>
 
-    <!-- SetupActivity -->
-    <string name="setup_subtitle">Налаштуйте додаток для правильної роботи у фоновому режимі.</string>
-    <string name="setup_overlay_title">Відображення поверх інших додатків</string>
-    <string name="setup_overlay_desc">Необхідно для відображення панелі з результатами поверх додатка Uber.</string>
-    <string name="setup_accessibility_title">Служба спеціальних можливостей</string>
-    <string name="setup_accessibility_desc">Увімкніть OrderPilot у:\nНалаштування → Спеціальні можливості → Встановлені додатки → OrderPilot</string>
-    <string name="setup_battery_title">Робота у фоновому режимі</string>
-    <string name="setup_battery_desc">Вимкніть оптимізацію батареї, щоб додаток працював після вимкнення екрана.</string>
-    <string name="setup_open_settings">Відкрити налаштування</string>
-    <string name="setup_disable_restrictions">Дозволити роботу у фоні</string>
-    <string name="setup_open_app_info">Відкрити інфо про додаток</string>
-    <string name="setup_continue">Продовжити</string>
+    <!-- SetupActivity — wizard v2 -->
     <string name="setup_check_settings">Перевірити налаштування</string>
+    <string name="setup_progress_label">Крок %1$d з %2$d</string>
+    <string name="setup_step_granted">✓ Увімкнено!</string>
 
-    <!-- Manufacturer card -->
-    <string name="setup_manufacturer_title">%s: додаткові налаштування</string>
-    <string name="setup_manufacturer_subtitle">Рекомендовано — запобігає вимкненню додатка у фоновому режимі</string>
+    <string name="setup_welcome_title">Подивіться, як працює OrderPilot</string>
+    <string name="setup_welcome_body">Коли в кур\'єрському додатку з\'явиться замовлення, OrderPilot покаже над ним таку панель з уже підрахованою ставкою:</string>
+    <string name="setup_welcome_legend">зелена = вигідно · жовта = так собі · червона = не варто</string>
+    <string name="setup_welcome_footer">Щоб панель працювала, ми разом увімкнемо кілька налаштувань телефону. Це займе близько хвилини.</string>
+    <string name="setup_welcome_start">Почнімо</string>
+
+    <string name="setup_step_overlay_title">Панель поверх кур\'єрського додатка</string>
+    <string name="setup_step_overlay_body">OrderPilot потребує дозволу «відображення поверх інших додатків» — без нього панель не зможе з\'явитися над екраном замовлення.</string>
+    <string name="setup_step_overlay_how">1. Натисніть кнопку нижче\n2. Знайдіть «OrderPilot» і увімкніть перемикач\n3. Поверніться сюди (стрілка назад)</string>
+    <string name="setup_step_overlay_btn">Увімкнути відображення</string>
+    <string name="setup_overlay_demo_caption">✓ Працює! Панель угорі екрана — це попередній перегляд, саме так вона виглядатиме над замовленнями.</string>
+
+    <string name="setup_step_accessibility_title">Зчитування замовлень з екрана</string>
+    <string name="setup_step_accessibility_body">Ця служба дозволяє OrderPilot зчитувати суму, час і відстань замовлення. Вона читає лише кур\'єрські додатки, а дані не залишають телефон.</string>
+    <string name="setup_step_accessibility_how">1. Натисніть кнопку нижче\n2. Знайдіть «OrderPilot» (іноді у «Встановлені додатки» або «Завантажені додатки»)\n3. Увімкніть і підтвердьте «Дозволити»\n4. Поверніться сюди</string>
+    <string name="setup_step_accessibility_note">Телефон покаже попередження про повний контроль — це стандартне системне повідомлення для кожної служби спеціальних можливостей. OrderPilot використовує її лише для зчитування замовлень.</string>
+    <string name="setup_step_accessibility_btn">Увімкнути зчитування</string>
+
+    <string name="setup_step_notifications_title">Сповіщення</string>
+    <string name="setup_step_notifications_body">Якщо телефон зупинить моніторинг у дорозі, OrderPilot одразу повідомить вас сповіщенням. Без цього дозволу ви можете їхати з вимкненою панеллю і не знати про це.</string>
+    <string name="setup_step_notifications_btn">Дозволити сповіщення</string>
+    <string name="setup_step_notifications_btn_settings">Відкрити налаштування сповіщень</string>
+    <string name="setup_step_notifications_denied_hint">Сповіщення заблоковані. Увімкніть їх у налаштуваннях: Сповіщення → OrderPilot → Дозволити.</string>
+
+    <string name="setup_step_battery_title">Робота у фоновому режимі</string>
+    <string name="setup_step_battery_body">Телефон за замовчуванням присипляє фонові додатки. Вимкніть оптимізацію батареї для OrderPilot, щоб панель працювала всю зміну — навіть із вимкненим екраном.</string>
+    <string name="setup_step_battery_how">1. Натисніть кнопку нижче\n2. Знайдіть «OrderPilot» у списку\n3. Виберіть «Без обмежень» або «Не оптимізувати»\n4. Поверніться сюди</string>
+    <string name="setup_step_battery_btn">Вимкнути оптимізацію батареї</string>
+
+    <string name="setup_step_oem_title">%s: останній крок</string>
+    <string name="setup_step_oem_body">Телефони цієї марки додатково вимикають фонові додатки. Ці налаштування не дадуть панелі зникнути в дорозі — варто зробити їх зараз.</string>
+    <string name="setup_step_oem_done">Готово</string>
+
+    <string name="setup_done_title">Усе готово!</string>
+    <string name="setup_done_body">OrderPilot налаштовано. Увімкніть моніторинг, згорніть додаток і чекайте на замовлення — панель з\'явиться сама.</string>
+    <string name="setup_done_check_row">✓  %s</string>
+    <string name="setup_done_ocr_language_hint">Порада: зчитування замовлень працює найнадійніше, коли кур\'єрський додаток налаштовано польською або англійською мовою.</string>
+    <string name="setup_done_test_overlay_btn">Показати тестову панель</string>
+    <string name="setup_done_oem_hints_btn">Поради для телефону %s</string>
+    <string name="setup_done_btn">Перейти до додатка</string>
 
     <!-- Samsung -->
     <string name="setup_samsung_step1">Відкрийте інфо про додаток → натисніть «Батарея» → встановіть «Без обмежень»</string>
@@ -51,11 +79,21 @@
     <string name="setup_huawei_step2_btn">Відкрити інфо про додаток</string>
 
     <!-- Oppo / Realme -->
+    <string name="setup_oppo_step_autostart">Увімкніть автозапуск OrderPilot у менеджері запуску</string>
+    <string name="setup_oppo_step_autostart_btn">Відкрити менеджер автозапуску</string>
     <string name="setup_oppo_step1">Інфо про додаток → Батарея → увімкніть «Дозволити роботу у фоні»</string>
     <string name="setup_oppo_step1_btn">Відкрити інфо про додаток</string>
-    <string name="setup_oppo_step2">Інфо про додаток → увімкніть «Автоматичний запуск» (Auto-launch)</string>
-    <string name="setup_oppo_step2_btn">Відкрити інфо про додаток</string>
     <string name="setup_oppo_step3">Налаштування → Батарея → Керування батареєю → OrderPilot → увімкніть автозапуск та фонову активність</string>
+
+    <!-- Vivo / iQOO -->
+    <string name="setup_vivo_step1">Увімкніть автозапуск OrderPilot (Менеджер дозволів → Автозапуск)</string>
+    <string name="setup_vivo_step1_btn">Відкрити Автозапуск</string>
+    <string name="setup_vivo_step2">Налаштування → Батарея → Високе фонове енергоспоживання → дозвольте OrderPilot</string>
+    <string name="setup_vivo_step3">У списку останніх додатків утримуйте OrderPilot і натисніть замок (Заблокувати)</string>
+
+    <!-- Інші марки (загальна картка) -->
+    <string name="setup_generic_step1">У списку останніх додатків утримуйте картку OrderPilot і виберіть замок / «Заблокувати» (якщо телефон це підтримує)</string>
+    <string name="setup_generic_step2">Не закривайте всі додатки кнопкою «Очистити все» під час зміни — це вимикає й OrderPilot</string>
 
     <!-- OnePlus -->
     <string name="setup_oneplus_step1">Налаштування → Додатки → Спеціальний доступ → Оптимізація батареї → знайдіть OrderPilot → встановіть «Не оптимізувати»</string>
@@ -71,6 +109,7 @@
     <string name="toast_hint_samsung_battery">Натисніть «Батарея» → виберіть «Без обмежень»</string>
     <string name="toast_hint_samsung_sleeping">Відкрийте «Обмеження фонового використання» і видаліть OrderPilot зі списків</string>
     <string name="toast_hint_xiaomi_autostart">Знайдіть «OrderPilot» і увімкніть перемикач</string>
+    <string name="toast_hint_vivo_autostart">Знайдіть «OrderPilot» і увімкніть перемикач</string>
     <string name="toast_hint_xiaomi_battery">Натисніть «Економія батареї» → виберіть «Без обмежень»</string>
     <string name="toast_hint_huawei_launch">Знайдіть «OrderPilot» → вимкніть «Керувати автоматично» → увімкніть 3 перемикачі</string>
     <string name="toast_hint_huawei_optimize">Натисніть «Батарея» → виберіть «Не оптимізувати»</string>

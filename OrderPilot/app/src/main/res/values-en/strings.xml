@@ -12,23 +12,51 @@
     <string name="toast_projection_lost">Screen recording was interrupted. Tap Start to resume.</string>
     <string name="toast_service_killed">Service was stopped by the system. Tap Start to resume.</string>
 
-    <!-- SetupActivity -->
-    <string name="setup_subtitle">Set up the app to work correctly in the background.</string>
-    <string name="setup_overlay_title">Display over other apps</string>
-    <string name="setup_overlay_desc">Required to show the result overlay on top of the Uber app.</string>
-    <string name="setup_accessibility_title">Accessibility service</string>
-    <string name="setup_accessibility_desc">Enable OrderPilot in:\nSettings → Accessibility → Installed apps → OrderPilot</string>
-    <string name="setup_battery_title">Background activity</string>
-    <string name="setup_battery_desc">Disable battery optimization so the app keeps running when the screen is off.</string>
-    <string name="setup_open_settings">Open settings</string>
-    <string name="setup_disable_restrictions">Allow background activity</string>
-    <string name="setup_open_app_info">Open app info</string>
-    <string name="setup_continue">Continue</string>
+    <!-- SetupActivity — wizard v2 -->
     <string name="setup_check_settings">Check settings</string>
+    <string name="setup_progress_label">Step %1$d of %2$d</string>
+    <string name="setup_step_granted">✓ Enabled!</string>
 
-    <!-- Manufacturer card -->
-    <string name="setup_manufacturer_title">%s: additional settings</string>
-    <string name="setup_manufacturer_subtitle">Recommended — prevents the app from being killed in the background</string>
+    <string name="setup_welcome_title">See how OrderPilot works</string>
+    <string name="setup_welcome_body">When an offer appears in your courier app, OrderPilot shows a bar like this on top of it, with the rate already calculated:</string>
+    <string name="setup_welcome_legend">green = worth it · yellow = so-so · red = skip it</string>
+    <string name="setup_welcome_footer">To make the bar work, we\'ll turn on a few phone settings together. It takes about a minute.</string>
+    <string name="setup_welcome_start">Let\'s go</string>
+
+    <string name="setup_step_overlay_title">Bar on top of the courier app</string>
+    <string name="setup_step_overlay_body">OrderPilot needs the "display over other apps" permission — without it the bar can\'t appear above the offer screen.</string>
+    <string name="setup_step_overlay_how">1. Tap the button below\n2. Find "OrderPilot" and turn the switch on\n3. Come back here (back arrow)</string>
+    <string name="setup_step_overlay_btn">Enable display</string>
+    <string name="setup_overlay_demo_caption">✓ It works! The bar at the top of the screen is a preview — that\'s how it will look over offers.</string>
+
+    <string name="setup_step_accessibility_title">Reading offers from the screen</string>
+    <string name="setup_step_accessibility_body">This service lets OrderPilot read the offer\'s amount, time and distance. It reads courier apps only, and no data ever leaves your phone.</string>
+    <string name="setup_step_accessibility_how">1. Tap the button below\n2. Find "OrderPilot" (sometimes under "Installed apps" or "Downloaded apps")\n3. Turn it on and confirm "Allow"\n4. Come back here</string>
+    <string name="setup_step_accessibility_note">Your phone will show a full-control warning — that\'s the standard system message for every accessibility service. OrderPilot uses it only to read offers.</string>
+    <string name="setup_step_accessibility_btn">Enable offer reading</string>
+
+    <string name="setup_step_notifications_title">Notifications</string>
+    <string name="setup_step_notifications_body">If your phone stops the monitoring mid-shift, OrderPilot will alert you right away with a notification. Without this you could be driving with the bar silently off.</string>
+    <string name="setup_step_notifications_btn">Allow notifications</string>
+    <string name="setup_step_notifications_btn_settings">Open notification settings</string>
+    <string name="setup_step_notifications_denied_hint">Notifications are blocked. Enable them in settings: Notifications → OrderPilot → Allow.</string>
+
+    <string name="setup_step_battery_title">Background activity</string>
+    <string name="setup_step_battery_body">Phones put background apps to sleep by default. Disable battery optimization for OrderPilot so the bar keeps working for the whole shift — even with the screen off.</string>
+    <string name="setup_step_battery_how">1. Tap the button below\n2. Find "OrderPilot" on the list\n3. Choose "Unrestricted" or "Don\'t optimize"\n4. Come back here</string>
+    <string name="setup_step_battery_btn">Disable battery optimization</string>
+
+    <string name="setup_step_oem_title">%s: one last step</string>
+    <string name="setup_step_oem_body">Phones of this brand additionally kill background apps. These settings keep the bar alive during your shift — worth doing now.</string>
+    <string name="setup_step_oem_done">Done</string>
+
+    <string name="setup_done_title">All set!</string>
+    <string name="setup_done_body">OrderPilot is configured. Start monitoring, minimize the app and wait for offers — the bar will appear on its own.</string>
+    <string name="setup_done_check_row">✓  %s</string>
+    <string name="setup_done_ocr_language_hint">Tip: offer reading is most reliable when your courier app is set to Polish or English.</string>
+    <string name="setup_done_test_overlay_btn">Show a test bar</string>
+    <string name="setup_done_oem_hints_btn">Tips for your %s phone</string>
+    <string name="setup_done_btn">Go to the app</string>
 
     <!-- Samsung -->
     <string name="setup_samsung_step1">Open app info → tap "Battery" → set "Unrestricted"</string>
@@ -51,11 +79,21 @@
     <string name="setup_huawei_step2_btn">Open app info</string>
 
     <!-- Oppo / Realme -->
+    <string name="setup_oppo_step_autostart">Enable auto-start for OrderPilot in the startup manager</string>
+    <string name="setup_oppo_step_autostart_btn">Open startup manager</string>
     <string name="setup_oppo_step1">App info → Battery → enable "Allow background activity"</string>
     <string name="setup_oppo_step1_btn">Open app info</string>
-    <string name="setup_oppo_step2">App info → enable "Auto-launch"</string>
-    <string name="setup_oppo_step2_btn">Open app info</string>
     <string name="setup_oppo_step3">Settings → Battery → Battery management → OrderPilot → enable auto-launch and background activity</string>
+
+    <!-- Vivo / iQOO -->
+    <string name="setup_vivo_step1">Enable auto-start for OrderPilot (Permission manager → Autostart)</string>
+    <string name="setup_vivo_step1_btn">Open Autostart</string>
+    <string name="setup_vivo_step2">Settings → Battery → High background power consumption → allow OrderPilot</string>
+    <string name="setup_vivo_step3">In the recent apps list, long-press OrderPilot and tap the lock icon</string>
+
+    <!-- Other brands (generic card) -->
+    <string name="setup_generic_step1">In the recent apps list, long-press the OrderPilot card and choose the lock / "Lock" option (if your phone has it)</string>
+    <string name="setup_generic_step2">Don\'t close all apps with "Clear all" during your shift — it kills OrderPilot too</string>
 
     <!-- OnePlus -->
     <string name="setup_oneplus_step1">Settings → Apps → Special Access → Battery Optimization → find OrderPilot → set "Don\'t optimize"</string>
@@ -71,6 +109,7 @@
     <string name="toast_hint_samsung_battery">Tap "Battery" → select "Unrestricted"</string>
     <string name="toast_hint_samsung_sleeping">Open "Background usage limits" and remove OrderPilot from the lists</string>
     <string name="toast_hint_xiaomi_autostart">Find "OrderPilot" and enable the toggle</string>
+    <string name="toast_hint_vivo_autostart">Find "OrderPilot" and enable the toggle</string>
     <string name="toast_hint_xiaomi_battery">Tap "Battery Saver" → select "No restrictions"</string>
     <string name="toast_hint_huawei_launch">Find "OrderPilot" → disable "Manage automatically" → enable 3 toggles</string>
     <string name="toast_hint_huawei_optimize">Tap "Battery" → select "Don\'t optimize"</string>
