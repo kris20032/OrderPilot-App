@@ -6,16 +6,17 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Toolbar -->
+    <!-- Toolbar — zlewa się z tłem (spójnie z resztą apki), tytuł pogrubiony -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/surface"
+        android:background="@color/background"
         app:title="@string/settings_title"
-        app:titleTextColor="@color/on_surface"
+        app:titleTextAppearance="@style/SettingsToolbarTitle"
+        app:titleTextColor="@color/on_background"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:navigationIconTint="@color/on_surface" />
+        app:navigationIconTint="@color/on_background" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -34,8 +35,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="1dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/outline_variant"
+                app:strokeWidth="1dp"
                 app:cardBackgroundColor="@color/surface">
 
                 <LinearLayout
@@ -48,8 +51,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/settings_thresholds_header"
-                        android:textSize="15sp"
+                        android:textSize="17sp"
                         android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
                         android:textColor="@color/on_surface"
                         android:layout_marginBottom="12dp" />
 
@@ -186,8 +190,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="1dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/outline_variant"
+                app:strokeWidth="1dp"
                 app:cardBackgroundColor="@color/surface">
 
                 <LinearLayout
@@ -200,8 +206,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/settings_metrics_header"
-                        android:textSize="15sp"
+                        android:textSize="17sp"
                         android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
                         android:textColor="@color/on_surface"
                         android:layout_marginBottom="12dp" />
 
@@ -309,8 +316,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="1dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/outline_variant"
+                app:strokeWidth="1dp"
                 app:cardBackgroundColor="@color/surface">
 
                 <LinearLayout
@@ -323,8 +332,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/settings_overlay_header"
-                        android:textSize="15sp"
+                        android:textSize="17sp"
                         android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
                         android:textColor="@color/on_surface"
                         android:layout_marginBottom="16dp" />
 
@@ -344,6 +354,13 @@
                         android:valueTo="100"
                         android:stepSize="5" />
 
+                    <!-- Podgląd belki NA ŻYWO — reaguje na przezroczystość i metryki -->
+                    <FrameLayout
+                        android:id="@+id/fl_settings_belka_preview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp" />
+
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
@@ -353,8 +370,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="1dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/outline_variant"
+                app:strokeWidth="1dp"
                 app:cardBackgroundColor="@color/surface">
 
                 <LinearLayout
@@ -367,8 +386,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/settings_language_header"
-                        android:textSize="15sp"
+                        android:textSize="17sp"
                         android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
                         android:textColor="@color/on_surface"
                         android:layout_marginBottom="12dp" />
 
@@ -424,8 +444,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="1dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/outline_variant"
+                app:strokeWidth="1dp"
                 app:cardBackgroundColor="@color/surface">
 
                 <LinearLayout
@@ -438,8 +460,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/settings_about_header"
-                        android:textSize="15sp"
+                        android:textSize="17sp"
                         android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
                         android:textColor="@color/on_surface"
                         android:layout_marginBottom="12dp" />
 
