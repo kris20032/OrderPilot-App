@@ -20,6 +20,10 @@
 
 ---
 
+## 2026-07-04 (wieczór 2) — 🎛️ Redesign ustawień + podgląd belki na żywo (Fable 5)
+- **Co:** K. docisnął „cały frontend ma być mega" — dociągnięte USTAWIENIA do języka nowego designu (karty 24dp z obwódką, nagłówki 17sp medium, toolbar zlany z tłem) + nowość UX: **podgląd belki NA ŻYWO** w sekcji „Wygląd belki" (produkcyjny `OverlayViewFactory`; reaguje natychmiast na suwak przezroczystości i przełączniki metryk — user widzi też, że 5 metryk łamie belkę na 2 linie). Tym samym redesign objął CAŁY frontend: wizard (v2.1) + ekran główny + ustawienia. Świadomie NIE ruszone: belka (czytelność zerknięciem w słońcu — sprawdzona w boju) i disclosure (układ wymuszony polityką Play).
+- **Weryfikacja:** emulator (scroll ustawień, przełączanie metryk odświeża podgląd), testy 156/156.
+
 ## 2026-07-04 (wieczór) — 🎨 Redesign ekranu głównego + fix M8/M9 (Fable 5)
 - **Co:** Decyzja K.: „redesign całej apki + audyt — zacznij od większej wartości". Wybrane: redesign (widzi każdy user, trafia na screenshoty Play) + domknięcie realnych bugów z backlogu audytu. Ekran główny w języku wizarda v2.1 (karta statusu z platformami, Start pełną szerokością, czytelne statusy PL/EN/UK/RU zamiast Active/Inactive, „Zapisz logi" zdyskretniony). **M8 naprawiony** (zmiana globalnego czasu belki fabrykowała ukryte nadpisania per-platforma — teraz flaga fromUser) i **M9** (dedup przy Glovo min=0: czas=NIEZNANY + węższe okna 0.3) + `OfferDuplicateCheckerTest` (8 przypadków). **Disclosure celowo nietknięty** — układ (parity przycisków, pełna treść) wymusza polityka Play. Ustawienia: tylko fix M8, bez redesignu (gęsty, działa).
 - **Weryfikacja:** emulator (Main przed/po Start, Settings), testy **156/156**.
