@@ -8,6 +8,8 @@
     <string name="status_subtitle_running">Nasłuchuje zleceń w tle</string>
     <string name="status_subtitle_stopped">Kliknij Start, aby nasłuchiwać zleceń</string>
     <string name="main_platforms_caption" translatable="false">Uber · Wolt · Glovo · Bolt</string>
+    <string name="share_app_btn">Poleć kumplowi</string>
+    <string name="share_app_text">Jeżdżę z OrderPilot — belka nad apką kurierską od razu pokazuje, czy zlecenie się opłaca (zł/h, zł/km). Za darmo, bez logowania: https://play.google.com/store/apps/details?id=com.orderpilot.app</string>
     <string name="accessibility_hint">Włącz OrderPilot w:\nUstawienia → Dostępność → Zainstalowane aplikacje</string>
     <string name="accessibility_rebind_hint">Wyłącz i włącz ponownie OrderPilot w:\nDostępność → Zainstalowane aplikacje → OrderPilot</string>
     <string name="toast_projection_lost">Nagrywanie ekranu zostało przerwane. Kliknij Start żeby wznowić.</string>

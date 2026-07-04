@@ -22,6 +22,7 @@ import com.orderpilot.app.databinding.ActivityMainBinding
 import com.orderpilot.app.di.AppLog
 import com.orderpilot.app.di.MonitoringController
 import com.orderpilot.app.di.ServiceLocator
+import com.orderpilot.app.review.ReviewPrompter
 import com.orderpilot.app.service.OrderPilotAccessibilityService
 import java.io.File
 import java.text.SimpleDateFormat
@@ -79,6 +80,20 @@ class MainActivity : AppCompatActivity() {
         binding.btnSaveLogs.setOnClickListener {
             saveLogs()
         }
+        binding.btnShareApp.setOnClickListener {
+            shareApp()
+        }
+    }
+
+    /** „Poleć kumplowi" — kurierzy siedzą razem na strefach; share = najtańszy kanał wzrostu. */
+    private fun shareApp() {
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, getString(R.string.share_app_text))
+        }
+        try {
+            startActivity(Intent.createChooser(intent, getString(R.string.share_app_btn)))
+        } catch (_: Exception) {}
     }
 
     /**
@@ -137,6 +152,12 @@ class MainActivity : AppCompatActivity() {
         }
         updateAccessibilityHint()
         updateNotificationHint()
+
+        // In-App Review: user w apce, monitoring działa, 3+ dni użycia → jedna prośba.
+        // API Google samo decyduje, czy dialog faktycznie pokazać (quota) — zero spamu.
+        if (isRunning && ReviewPrompter.shouldAsk(this)) {
+            ReviewPrompter.ask(this)
+        }
     }
 
     override fun onPause() {
@@ -163,6 +184,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun startCapture() {
         ensureNotificationPermission()
+        // Prośba o recenzję: zliczamy dni realnego użycia (próg w ReviewPolicy).
+        ReviewPrompter.onMonitoringStarted(this)
 
         if (!OrderPilotAccessibilityService.isConnected) {
             if (isAccessibilityEnabled()) {

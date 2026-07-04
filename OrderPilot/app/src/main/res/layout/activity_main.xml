@@ -173,6 +173,17 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
+    <!-- Poleć kumplowi — najtańszy kanał wzrostu (kurierzy siedzą razem na strefach) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_share_app"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="@string/share_app_btn"
+        android:textSize="15sp"
+        android:textAllCaps="false"
+        app:cornerRadius="24dp" />
+
     <!-- Diagnostyka: jedyny kanał logów przy zero-telemetrii — celowo dyskretny -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_save_logs"
@@ -180,6 +191,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="4dp"
         android:text="@string/btn_save_logs"
         android:textSize="13sp"
         android:textAllCaps="false"

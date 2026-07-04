@@ -21,6 +21,8 @@
     <string name="setup_welcome_body">Коли в кур\'єрському додатку з\'явиться замовлення, OrderPilot покаже над ним таку панель з уже підрахованою ставкою:</string>
     <string name="setup_welcome_legend">зелена = вигідно · жовта = так собі · червона = не варто</string>
     <string name="setup_welcome_mock_accept">Прийняти</string>
+    <string name="share_app_btn">Порадити другові</string>
+    <string name="share_app_text">Я їжджу з OrderPilot — панель над кур\'єрським додатком одразу показує, чи вигідне замовлення (zł/год, zł/км). Безкоштовно, без реєстрації: https://play.google.com/store/apps/details?id=com.orderpilot.app</string>
     <string name="setup_welcome_footer">Щоб панель працювала, ми разом увімкнемо кілька налаштувань телефону. Це займе близько хвилини.</string>
     <string name="setup_welcome_start">Почнімо</string>
 

@@ -21,6 +21,8 @@
     <string name="setup_welcome_body">When an offer appears in your courier app, OrderPilot shows a bar like this on top of it, with the rate already calculated:</string>
     <string name="setup_welcome_legend">green = worth it · yellow = so-so · red = skip it</string>
     <string name="setup_welcome_mock_accept">Accept</string>
+    <string name="share_app_btn">Share with a friend</string>
+    <string name="share_app_text">I ride with OrderPilot — a bar over the courier app instantly shows whether an offer is worth it (PLN/h, PLN/km). Free, no sign-in: https://play.google.com/store/apps/details?id=com.orderpilot.app</string>
     <string name="setup_welcome_footer">To make the bar work, we\'ll turn on a few phone settings together. It takes about a minute.</string>
     <string name="setup_welcome_start">Let\'s go</string>
 
