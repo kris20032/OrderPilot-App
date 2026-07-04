@@ -15,11 +15,16 @@ Merge sequence `fix/v1.0.5-uber-popup-background` → … → `main` + tag `v1.0
 > 🔍 **AUDYT KODU 2026-06-28:** wieloagentowy audyt całego kodu → **69 znalezisk** (3 high, 17 medium, 39 low, 10 nit; brak „critical"). Pełna lista: **`docs/AUDYT-2026-06-28.md`**.
 > **Sprint #1 ZROBIONY w kodzie (branch `fix/audit-2026-06-28-batch1`)** — czeka na build+test Krzysztofa + merge. Naprawione: H1 crash pipeline, M2/M3 persystencja języka (#28), H3 czerwone testy parserów, M1 diagnostyka logów, M5 czas belki, L20 wyciek bitmapy, L21/L31/L32/L33 drobne.
 
+> 🧙 **WIZARD v2 + SPRINT #2 (2026-07-04, branch `feat/wizard-v2`, zbudowany NA sprincie #1):**
+> **(1) Wizard konfiguracji v2** — krokowy (1 krok = 1 ekran), podgląd PRAWDZIWEJ belki na powitaniu, auto-wykrycie nadania uprawnienia → ✓ → auto-przejście, demo belki na żywo po nadaniu overlay, deep-link do dostępności z podświetleniem usługi, POST_NOTIFICATIONS jako wymagany krok (M12), ekran OEM nieblokujący (Samsung/Xiaomi/Huawei/OPPO/**Vivo nowość M13**/OnePlus + karta generyczna), OPPO autostart naprawiony (M16), hint językowy OCR dla UI UA/RU (H2 Droga 0). Logika kroków: `ui/setup/SetupFlow.kt` + testy. Tłumaczenia PL/EN/UK/RU.
+> **(2) Sprint niezawodności #2** — M10 (timestamp startu persystowany; watchdog bez fałszywych alertów po reboocie), M11 (FGS start z tła w try/catch + powiadomienie zamiast crasha), M15 (race capture na API<30), M4 (Xiaomi crop 0.30 na głównej ścieżce takeScreenshot), M6 (onDestroy chowa belki), L1/#29 (insety MainActivity).
+> Build + testy jednostkowe (148) zielone lokalnie. **Merge-plan: `main` ← `fix/audit-2026-06-28-batch1` ← `feat/wizard-v2` (jedna linia, jeden test na telefonie).**
+
 ## Otwarte zadania
 
 | Priorytet | Zadanie | Status |
 |-----------|---------|--------|
-| 🔴 **High** | **Audyt: sprint #1** — zbudować + przetestować branch `fix/audit-2026-06-28-batch1` (`./gradlew testDebugUnitTest` — testy parserów znów zielone), potem merge do `main`. Szczegóły: `docs/AUDYT-2026-06-28.md` | Kod GOTOWY, build+test+merge TODO (Krzysztof) |
+| 🔴 **High** | **Merge łańcucha `feat/wizard-v2`** (zawiera sprint #1 + wizard v2 + sprint #2) — test na telefonie (świeża instalacja → przejść wizard; język UA/RU po Save; Stop chowa belkę) + merge do `main`. Build i testy jednostkowe już zielone lokalnie (2026-07-04) | Kod GOTOWY, test na telefonie + merge TODO (Krzysztof) |
 | ⏸️ **PARK** | **Audyt H2** — OCR cyrylicy UA/RU. ✅ Analiza 28.06: ML Kit NIE MA modelu cyrylicy; psuje się głównie jednostka czasu (хв/мин) + bramka. 3 drogi: 0=podpowiedź setup (tania), A=łatki OCR na ML Kit (wymaga REALNYCH logów z urządzenia UA — bez nich nie ruszać), B=Tesseract on-device (armata). **DECYZJA 28.06: na razie NIE robimy nic** (Krzysztof). Odblok Drogi A: log OCR od Andrija (przycisk „Zapisz logi" działa po fixie M1). Pełne: `docs/AUDYT-2026-06-28.md` H2 | ⏸️ PARK (decyzja: nie ruszać) |
 | 🟢 ~~Low~~ | ~~**Audyt M7** — Bolt fałszywy GREEN z gotówki~~ → **ZWERYFIKOWANE 28.06 (research): bezprzedmiotowy dla PL** — Bolt Food w Polsce wycofał dostawy gotówkowe (kurierpedia.pl), scenariusz nie zachodzi; dla UA moot (OCR ślepy na cyrylicę = H2). NIE ruszać parsera. Wracać tylko gdyby Bolt PL wrócił do gotówki | ZAMKNIĘTE (moot) |
 | 🔴 **High** | **Play Store SEO fix** — apka niewidoczna na frazę „order pilot" (ze spacją). Edycja: App name + Short description + pierwsze 250 znaków Full description, żeby „Order Pilot" było explicit. **BLOCKING przed outreachem do grup.** Szczegóły: `docs/promo/LAUNCH_PLAN.md` Etap 1.5 Issue #1 | TODO (30–60 min + 24–48h review) |
