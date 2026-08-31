@@ -17,12 +17,12 @@ val hasReleaseSigning = keystorePropertiesFile.exists()
 
 android {
     namespace = "com.orderpilot.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.orderpilot.app"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 7
         versionName = "1.1.0"
 
