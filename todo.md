@@ -5,12 +5,31 @@
 > `PROGRESS.md` i **usuń stąd** (todo nie jest cmentarzem). Długa lista pomysłów/drobnych bugów → `docs/future_polish_fixes.md`.
 
 ## Stan teraz
-**🚀 v1.0.5 LIVE w Google Play** (177 krajów) od 2026-05-23. Etap: **post-launch ops + promocja + planowanie v1.1.**
-Merge sequence `fix/v1.0.5-uber-popup-background` → … → `main` + tag `v1.0.5` + GitHub Release: zakończone 2026-05-23 (per PROGRESS).
+**🧊 PROJEKT ZAMROŻONY PRODUKTOWO (decyzja Krzysztofa 2026-08-31 — patrz `DECISIONS.md` D9).**
+Nie promujemy, nie rozwijamy, nie kasujemy. Apka zostaje w sklepie jako wizytówka sprzedażowa Impulseo.
+
+**🚀 v1.1.0 (versionCode 7) LIVE w Google Play** od 2026-08-31, 100% użytkowników, 177 krajów.
+Zawiera: wizard v2.1, redesign całej apki, sprint niezawodności #1+#2, In-App Review, „Poleć kumplowi",
+`targetSdk 36` (wymóg Google od 31.08.2026). Wszystko zmergowane do `main`.
+
+**Powód zamrożenia — twarde dane z 31.08.2026:** 13 instalacji, ale **~1 aktywny użytkownik dziennie**,
+a po 21.08 zero otwarć. To rodzina i płatni testerzy, nie kurierzy. Brak konta sprzedawcy = brak monetyzacji.
+
+**JEDYNE, co robimy dalej (raz w roku, ~godzina):** Google co roku ok. 31 sierpnia wymaga podbicia
+`targetSdk` na poprzednią wersję Androida, inaczej nie da się wypuścić aktualizacji. Przepis:
+podbij `compileSdk`/`targetSdk` w `OrderPilot/app/build.gradle.kts` → `./gradlew :app:testDebugUnitTest`
+→ `./gradlew :app:bundleRelease` → `.venv-play/bin/python tools/wydaj.py --aab <plik> --wydaj`
+(`JAVA_HOME` = JBR z Android Studio; szczegóły i pułapki: pamięć `reference_play_api_wydawanie`).
+
+**⛔ Czego NIE robimy:** promocji w grupach kurierskich, podmiany listingu, screenshotów v1.1, ASO,
+backlogu z audytu 2026-06-28 (M14/M17, `docs/future_polish_fixes.md`), testów na fizycznym telefonie.
+Wszystko poniżej zostaje jako ARCHIWALNY kontekst — nie jest listą zadań.
+
+---
 
 > 📈 **PLAN ROZWOJU / GROWTH (deep research 2026-06-28):** pełny plan „jak sprawić, by kurierzy pobierali i używali apki" →
 > **`docs/promo/PLAN_ROZWOJU_DEEP_RESEARCH_2026-06-28.md`** (diagnoza + ASO gotowiec + listy grup/twórców + roadmapa + plan 4 tyg).
-> TL;DR: problem = dystrybucja, nie produkt. Najpierw niezawodność odczytu, potem promocja w społecznościach kurierów. Zostać przy PL (nie Hiszpania). Pamięć: `project_orderpilot_growth_plan`. **Gdy Krzysztof pyta „następny krok w OrderPilot" — zacznij od tego pliku.**
+> TL;DR: problem = dystrybucja, nie produkt. Najpierw niezawodność odczytu, potem promocja w społecznościach kurierów. Zostać przy PL (nie Hiszpania). Pamięć: `project_orderpilot_growth_plan`. ⛔ **NIEAKTUALNE od 2026-08-31 (D9):** to już NIE jest „następny krok" — plan leży na półce, promocji nie robimy.
 
 > 🔍 **AUDYT KODU 2026-06-28:** wieloagentowy audyt całego kodu → **69 znalezisk** (3 high, 17 medium, 39 low, 10 nit; brak „critical"). Pełna lista: **`docs/AUDYT-2026-06-28.md`**.
 > **Sprint #1 ZROBIONY w kodzie (branch `fix/audit-2026-06-28-batch1`)** — czeka na build+test Krzysztofa + merge. Naprawione: H1 crash pipeline, M2/M3 persystencja języka (#28), H3 czerwone testy parserów, M1 diagnostyka logów, M5 czas belki, L20 wyciek bitmapy, L21/L31/L32/L33 drobne.

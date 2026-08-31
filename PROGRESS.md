@@ -20,6 +20,33 @@
 
 ---
 
+## 2026-08-31 — wydanie v1.1.0 + DECYZJA o zamrożeniu projektu
+
+**Kontekst:** mail z Google Play („[Final reminder] … developer verification before Sep 30, 2026") okazał się masówką
+— apka była zarejestrowana automatycznie. Przy okazji wyszło POWAŻNIEJSZE, przeoczone ostrzeżenie z 21.07 z terminem
+na 31.08.2026: apka celowała w `targetSdk 35`, co od tej daty BLOKUJE wypuszczanie aktualizacji.
+
+**Zrobione:**
+- `compileSdk`/`targetSdk` 35 → 36 (Android 16). 159/159 testów zielone. Prześwietlone zmiany zachowań API 36:
+  edge-to-edge (wszystkie 4 aktywności mają `setOnApplyWindowInsetsListener` ✅), predictive back
+  (`DisclosureActivity` na `OnBackPressedDispatcher` ✅), brak `android:screenOrientation` ✅.
+- **v1.1.0 (versionCode 7) WYDANE na 100%** — bez testu na telefonie, świadoma decyzja Krzysztofa.
+- Zbudowana **droga wydawania przez API** zamiast klikania w konsoli: projekt GCP `orderpilot-publisher-97848`,
+  konto techniczne `orderpilot-release@…`, klucz w `keystore/play-api.json` (poza gitem), skrypt `tools/wydaj.py`
+  (wgrywa AAB, ustawia ścieżkę, zaciąga notki wydania z `RELEASE-NOTES-<wersja>.md` w 4 językach).
+  Powód: `file_upload` w narzędziach przeglądarkowych ma limit 10 MB, a AAB waży 23 MB.
+- `feat/wizard-v2` (z całym sprintem #1, #2, redesignem i paczką wzrostu) **zmergowany do `main`**.
+
+**Pomiar realnego użycia (Play Console → Zaangażowanie → aktywni dziennie, lip–sie):** ~**1 osoba dziennie**,
+dwa pojedyncze skoki (2 os. 18.07, 4 os. 12.08), a po 21.08 zero otwarć — przy 13 instalacjach.
+Wniosek: install base to rodzina i płatni testerzy. Vitals w Reporting API zwracają pusto (próg prywatności Google).
+
+**DECYZJA (Krzysztof): projekt ZAMROŻONY produktowo — `DECISIONS.md` D9.** Nie promujemy, nie rozwijamy,
+nie kasujemy. Utrzymanie = coroczne podbicie `targetSdk`. Uzasadnienie: brak monetyzacji (nie ma konta sprzedawcy),
+niski sufit rynku, stały koszt utrzymania parserów czytających cudze ekrany, a przede wszystkim — godzina Krzysztofa
+jest dziś warta znacznie więcej w telefonach Impulseo niż w promowaniu darmowej apki.
+
+
 ## 2026-07-04 (wieczór 4) — 🚀 Paczka wzrostu v1.1.0: recenzje, polecanie, release prep (Fable 5)
 - **Co:** Pytanie K. „co jeszcze z Fable bez mojej pomocy" → v1.1 dostała haki wzrostu: **In-App Review** (oficjalne API; prośba RAZ od 3. dnia użycia, logika w czystym `ReviewPolicy`+testy; markAsked po udanym launchu; cicha degradacja bez Play) + **„Poleć kumplowi"** (share intent z linkiem Play, 4 języki, na ekranie głównym). **Release prep:** bump `1.1.0`/vc7, `docs/play-store/RELEASE-NOTES-1.1.0.md` (notki PL/EN/UK/RU <500 zn. + checklista wydania), `docs/play-store/screenshots-v1.1/` (5 świeżych zrzutów listingu z nowego designu). Nowa zależność: `play:review-ktx:2.0.2`.
 - **Weryfikacja:** emulator (share sheet działa, zero FATAL w logcat), testy jednostkowe zielone.
