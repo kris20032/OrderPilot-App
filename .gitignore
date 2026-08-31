@@ -37,3 +37,6 @@ keystore.properties
 
 # Wirtualne srodowisko do wydawania przez Play API
 .venv-play/
+
+# Cache Pythona
+__pycache__/
