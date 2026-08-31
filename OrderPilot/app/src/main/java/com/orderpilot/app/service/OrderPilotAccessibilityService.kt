@@ -571,9 +571,9 @@ class OrderPilotAccessibilityService : AccessibilityService() {
 
             AppLog.d(AppLog.TAG_SERVICE, "Screenshot bitmap: ${bitmap.width}x${bitmap.height} (retry=$retryIndex)")
 
-            // Crop dolne 60% — belka jest na górze, popup zlecenia na dole
-            val startY = (bitmap.height * CROP_TOP_RATIO).toInt()
-            croppedBitmap = Bitmap.createBitmap(bitmap, 0, startY, bitmap.width, bitmap.height - startY)
+            // M4: wspólny PopupCropper (crop od 30%) — wcześniej ta ścieżka (takeScreenshot,
+            // API 30+ = większość userów) miała zduplikowane 0.40 i ucinała górę popupu Xiaomi.
+            croppedBitmap = ServiceLocator.popupCropper.crop(bitmap)
 
             val lines = ServiceLocator.ocrEngine.recognize(croppedBitmap)
             AppLog.d(AppLog.TAG_SERVICE, "Screenshot OCR: ${lines.size} lines (retry=$retryIndex)")
@@ -776,6 +776,11 @@ class OrderPilotAccessibilityService : AccessibilityService() {
     override fun onDestroy() {
         isConnected = false
         if (serviceInstance === this) serviceInstance = null
+        // M6: schowaj belki PRZED scope.cancel() — okna overlay żyją na applicationContext
+        // i przetrwałyby usługę, a cancel zabija oczekujące auto-hide (osierocona belka).
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            try { ServiceLocator.overlayManager.hide() } catch (_: Exception) {}
+        }
         scope.cancel()
         super.onDestroy()
     }
@@ -807,7 +812,6 @@ class OrderPilotAccessibilityService : AccessibilityService() {
         private const val DIAG_THROTTLE_MS = 10_000L   // diagnostyka okien max raz na 10s
         private const val UBER_MAX_RETRIES = 4         // Uber React Native: wolny rendering
         private const val WOLT_MAX_RETRIES = 2          // Wolt natywne UI: szybki rendering
-        private const val CROP_TOP_RATIO = 0.4f         // crop dolne 60% screenshota
         private const val SCREENSHOT_FAILURE_ALERT_THRESHOLD = 10  // alert po 10 porażkach z rzędu
     }
 }

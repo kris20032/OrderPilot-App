@@ -5,6 +5,22 @@ import com.orderpilot.app.domain.MetricType
 import com.orderpilot.app.domain.Platform
 import com.orderpilot.app.domain.ThemeMode
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+
+/**
+ * Wspólny format JSON dla (de)serializacji ustawień w SharedPreferences.
+ *
+ * - encodeDefaults = true: pole [AppSettings.language] ma DYNAMICZNY default
+ *   (fromSystemLocale()), więc bez tego klucz bywał pomijany przy zapisie i wybór
+ *   języka nie przeżywał „Zapisz" (#28 — połowa persystencji). Z true jest zawsze zapisany.
+ * - ignoreUnknownKeys + coerceInputValues: forward-compat — nieznany klucz albo zły enum
+ *   z przyszłej/uszkodzonej wersji nie wywala dekodowania i NIE kasuje ustawień do defaultów.
+ */
+val SettingsJson: Json = Json {
+    encodeDefaults = true
+    ignoreUnknownKeys = true
+    coerceInputValues = true
+}
 
 @Serializable
 data class ThresholdConfig(

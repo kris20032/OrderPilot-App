@@ -3,81 +3,124 @@
     <string name="accessibility_service_description">OrderPilot odczytuje zawartość ekranu wyłącznie z aplikacji kurierskich Uber Driver, Wolt Courier, Glovo Courier i Bolt Food, aby wykryć nowe zlecenia i wyświetlić na nakładce wyliczoną stawkę godzinową (zł/h). Dane z ekranu są przetwarzane wyłącznie na Twoim urządzeniu, nigdzie nie są wysyłane ani trwale zapisywane. Możesz wyłączyć usługę w dowolnym momencie w ustawieniach systemowych.</string>
     <string name="btn_start">Start</string>
     <string name="btn_stop">Stop</string>
-    <string name="status_running">Active</string>
-    <string name="status_stopped">Inactive</string>
-    <string name="status_subtitle_running">Wykrywanie zleceń</string>
-    <string name="status_subtitle_stopped">Zatrzymane</string>
+    <string name="status_running">Aktywne</string>
+    <string name="status_stopped">Wyłączone</string>
+    <string name="status_subtitle_running">Nasłuchuje zleceń w tle</string>
+    <string name="status_subtitle_stopped">Kliknij Start, aby nasłuchiwać zleceń</string>
+    <string name="main_platforms_caption" translatable="false">Uber · Wolt · Glovo · Bolt</string>
+    <string name="share_app_btn">Poleć kumplowi</string>
+    <string name="share_app_text">Jeżdżę z OrderPilot — belka nad apką kurierską od razu pokazuje, czy zlecenie się opłaca (zł/h, zł/km). Za darmo, bez logowania: https://play.google.com/store/apps/details?id=com.orderpilot.app</string>
     <string name="accessibility_hint">Włącz OrderPilot w:\nUstawienia → Dostępność → Zainstalowane aplikacje</string>
     <string name="accessibility_rebind_hint">Wyłącz i włącz ponownie OrderPilot w:\nDostępność → Zainstalowane aplikacje → OrderPilot</string>
     <string name="toast_projection_lost">Nagrywanie ekranu zostało przerwane. Kliknij Start żeby wznowić.</string>
     <string name="toast_service_killed">Serwis został zatrzymany przez system. Kliknij Start żeby wznowić.</string>
 
-    <!-- SetupActivity -->
-    <string name="setup_subtitle">Skonfiguruj aplikację, aby działała poprawnie w tle.</string>
-    <string name="setup_overlay_title">Wyświetlanie nad innymi aplikacjami</string>
-    <string name="setup_overlay_desc">Wymagane do wyświetlania belki z wynikami nad aplikacją Uber.</string>
-    <string name="setup_accessibility_title">Usługa dostępności</string>
-    <string name="setup_accessibility_desc">Włącz OrderPilot w:\nUstawienia → Dostępność → Zainstalowane aplikacje → OrderPilot</string>
-    <string name="setup_battery_title">Działanie w tle</string>
-    <string name="setup_battery_desc">Wyłącz optymalizację baterii, aby aplikacja działała po wygaszeniu ekranu.</string>
-    <string name="setup_open_app_info">Otwórz info o aplikacji</string>
-    <string name="setup_open_settings">Otwórz ustawienia</string>
-    <string name="setup_disable_restrictions">Zezwól na działanie w tle</string>
-    <string name="setup_continue">Kontynuuj</string>
+    <!-- SetupActivity — wizard v2 -->
     <string name="setup_check_settings">Sprawdź ustawienia</string>
+    <string name="setup_progress_label">Krok %1$d z %2$d</string>
+    <string name="setup_step_granted">✓ Włączone!</string>
 
-    <!-- Manufacturer card -->
-    <string name="setup_manufacturer_title">%s: dodatkowe ustawienia</string>
-    <string name="setup_manufacturer_subtitle">Zalecane — zapobiega wyłączeniu aplikacji w tle</string>
+    <string name="setup_welcome_title">Zobacz, jak działa OrderPilot</string>
+    <string name="setup_welcome_body">Gdy w aplikacji kurierskiej pojawi się zlecenie, OrderPilot pokaże nad nią taką belkę z przeliczoną stawką:</string>
+    <string name="setup_welcome_legend">zielona = warto · żółta = średnio · czerwona = nie warto</string>
+    <string name="setup_welcome_mock_accept">Akceptuj</string>
+    <string name="setup_welcome_footer">Żeby belka mogła działać, włączymy teraz razem kilka ustawień telefonu. Zajmie to około minuty.</string>
+    <string name="setup_welcome_start">Zaczynamy</string>
+
+    <string name="setup_step_overlay_title">Belka nad aplikacją kurierską</string>
+    <string name="setup_step_overlay_body">OrderPilot potrzebuje zgody na „wyświetlanie nad innymi aplikacjami” — bez niej belka nie może pojawić się nad ekranem zleceń.</string>
+    <string name="setup_step_overlay_how">1. Kliknij przycisk poniżej\n2. Znajdź „OrderPilot” i włącz przełącznik\n3. Wróć tutaj (strzałka wstecz)</string>
+    <string name="setup_step_overlay_btn">Włącz wyświetlanie</string>
+    <string name="setup_overlay_demo_caption">✓ Działa! Belka u góry ekranu to podgląd — tak będzie wyglądać nad zleceniami.</string>
+
+    <string name="setup_step_accessibility_title">Odczyt zleceń z ekranu</string>
+    <string name="setup_step_accessibility_body">Ta usługa pozwala OrderPilotowi odczytać kwotę, czas i dystans zlecenia. Czyta wyłącznie aplikacje kurierskie, a dane nie opuszczają telefonu.</string>
+    <string name="setup_step_accessibility_how">1. Kliknij przycisk poniżej\n2. Znajdź „OrderPilot” (czasem w „Zainstalowane aplikacje” albo „Pobrane aplikacje”)\n3. Włącz i potwierdź „Zezwól”\n4. Wróć tutaj</string>
+    <string name="setup_step_accessibility_note">Telefon pokaże ostrzeżenie o pełnej kontroli — to standardowy komunikat systemu przy każdej usłudze dostępności. OrderPilot używa jej wyłącznie do odczytu zleceń.</string>
+    <string name="setup_step_accessibility_btn">Włącz odczyt zleceń</string>
+
+    <string name="setup_step_notifications_title">Powiadomienia</string>
+    <string name="setup_step_notifications_body">Jeżeli telefon zatrzyma monitorowanie w trasie, OrderPilot natychmiast da Ci znać powiadomieniem. Bez tej zgody możesz jechać z wyłączoną belką i o tym nie wiedzieć.</string>
+    <string name="setup_step_notifications_btn">Zezwól na powiadomienia</string>
+    <string name="setup_step_notifications_btn_settings">Otwórz ustawienia powiadomień</string>
+    <string name="setup_step_notifications_denied_hint">Powiadomienia są zablokowane. Włącz je w ustawieniach: Powiadomienia → OrderPilot → Zezwól.</string>
+
+    <string name="setup_step_battery_title">Działanie w tle</string>
+    <string name="setup_step_battery_body">Telefon domyślnie usypia aplikacje w tle. Wyłącz optymalizację baterii dla OrderPilota, żeby belka działała przez całą trasę — także przy wygaszonym ekranie.</string>
+    <string name="setup_step_battery_how">1. Kliknij przycisk poniżej\n2. Znajdź „OrderPilot” na liście\n3. Wybierz „Bez ograniczeń” lub „Nie optymalizuj”\n4. Wróć tutaj</string>
+    <string name="setup_step_battery_btn">Wyłącz optymalizację baterii</string>
+
+    <string name="setup_step_oem_title">%s: ostatni krok</string>
+    <string name="setup_step_oem_body">Telefony tej marki dodatkowo wyłączają aplikacje w tle. Te ustawienia zapobiegają zniknięciu belki w trasie — warto zrobić je teraz.</string>
+    <string name="setup_step_oem_done">Gotowe</string>
+
+    <string name="setup_done_title">Wszystko gotowe!</string>
+    <string name="setup_done_body">OrderPilot jest skonfigurowany. Włącz monitorowanie, zwiń aplikację i czekaj na zlecenia — belka pojawi się sama.</string>
+    <string name="setup_done_check_row">✓  %s</string>
+    <string name="setup_done_ocr_language_hint">Wskazówka: odczyt zleceń działa najpewniej, gdy aplikacja kurierska jest ustawiona na język polski lub angielski.</string>
+    <string name="setup_done_test_overlay_btn">Pokaż belkę testowo</string>
+    <string name="setup_done_oem_hints_btn">Wskazówki dla telefonu %s</string>
+    <string name="setup_done_btn">Przejdź do aplikacji</string>
 
     <!-- Samsung -->
-    <string name="setup_samsung_step1">Otwórz info o aplikacji → kliknij „Bateria" → ustaw „Bez ograniczeń"</string>
+    <string name="setup_samsung_step1">Otwórz info o aplikacji → kliknij „Bateria” → ustaw „Bez ograniczeń”</string>
     <string name="setup_samsung_step1_btn">Otwórz info o aplikacji</string>
-    <string name="setup_samsung_step2">Ustawienia → Pielęgnacja urządzenia → Bateria → Limity użycia w tle → usuń OrderPilot z list „Aplikacje usypiane" i „Głęboko usypiane"</string>
+    <string name="setup_samsung_step2">Ustawienia → Pielęgnacja urządzenia → Bateria → Limity użycia w tle → usuń OrderPilot z list „Aplikacje usypiane” i „Głęboko usypiane”</string>
     <string name="setup_samsung_step2_btn">Otwórz ustawienia baterii</string>
-    <string name="setup_samsung_step3">Wyłącz „Usypiaj nieużywane aplikacje" w tym samym ekranie</string>
+    <string name="setup_samsung_step3">Wyłącz „Usypiaj nieużywane aplikacje” w tym samym ekranie</string>
 
     <!-- Xiaomi / Redmi / POCO -->
     <string name="setup_xiaomi_step1">Włącz Autostart — pozwala aplikacji uruchomić się automatycznie po restarcie telefonu</string>
     <string name="setup_xiaomi_step1_btn">Otwórz Autostart</string>
-    <string name="setup_xiaomi_step2">Ustawienia → Aplikacje → OrderPilot → Oszczędzanie baterii → ustaw „Bez ograniczeń"</string>
+    <string name="setup_xiaomi_step2">Ustawienia → Aplikacje → OrderPilot → Oszczędzanie baterii → ustaw „Bez ograniczeń”</string>
     <string name="setup_xiaomi_step2_btn">Otwórz ustawienia baterii</string>
     <string name="setup_xiaomi_step3">Otwórz listę ostatnich aplikacji (kwadratowy przycisk na dole) → znajdź OrderPilot → przesuń w dół lub przytrzymaj → kliknij kłódkę</string>
 
     <!-- Huawei / Honor -->
-    <string name="setup_huawei_step1">Ustawienia → Bateria → Uruchamianie aplikacji → znajdź OrderPilot → wyłącz „Zarządzaj automatycznie" → włącz wszystkie 3 przełączniki ręcznie (autostart, działanie w tle, aktywność w tle)</string>
+    <string name="setup_huawei_step1">Ustawienia → Bateria → Uruchamianie aplikacji → znajdź OrderPilot → wyłącz „Zarządzaj automatycznie” → włącz wszystkie 3 przełączniki ręcznie (autostart, działanie w tle, aktywność w tle)</string>
     <string name="setup_huawei_step1_btn">Otwórz ustawienia baterii</string>
-    <string name="setup_huawei_step2">Ustawienia → Aplikacje → OrderPilot → Bateria → „Nie optymalizuj"</string>
+    <string name="setup_huawei_step2">Ustawienia → Aplikacje → OrderPilot → Bateria → „Nie optymalizuj”</string>
     <string name="setup_huawei_step2_btn">Otwórz info o aplikacji</string>
 
     <!-- Oppo / Realme -->
-    <string name="setup_oppo_step1">Info o aplikacji → Bateria → włącz „Zezwalaj na działanie w tle"</string>
+    <string name="setup_oppo_step_autostart">Włącz autostart OrderPilota w menedżerze uruchamiania</string>
+    <string name="setup_oppo_step_autostart_btn">Otwórz menedżer autostartu</string>
+    <string name="setup_oppo_step1">Info o aplikacji → Bateria → włącz „Zezwalaj na działanie w tle”</string>
     <string name="setup_oppo_step1_btn">Otwórz info o aplikacji</string>
-    <string name="setup_oppo_step2">Info o aplikacji → włącz „Automatyczne uruchamianie" (Auto-launch)</string>
-    <string name="setup_oppo_step2_btn">Otwórz info o aplikacji</string>
     <string name="setup_oppo_step3">Ustawienia → Bateria → Zarządzanie baterią → OrderPilot → włącz autostart i aktywność w tle</string>
 
+    <!-- Vivo / iQOO -->
+    <string name="setup_vivo_step1">Włącz autostart OrderPilota (Menedżer uprawnień → Autostart)</string>
+    <string name="setup_vivo_step1_btn">Otwórz Autostart</string>
+    <string name="setup_vivo_step2">Ustawienia → Bateria → Wysokie zużycie energii w tle → zezwól na OrderPilot</string>
+    <string name="setup_vivo_step3">Na liście ostatnich aplikacji przytrzymaj OrderPilot i wybierz kłódkę (Zablokuj)</string>
+
+    <!-- Pozostałe marki (karta generyczna) -->
+    <string name="setup_generic_step1">Na liście ostatnich aplikacji przytrzymaj kartę OrderPilota i wybierz kłódkę / „Zablokuj” (jeśli telefon to ma)</string>
+    <string name="setup_generic_step2">Nie zamykaj wszystkich aplikacji przyciskiem „Wyczyść” w trakcie trasy — to wyłącza też OrderPilota</string>
+
     <!-- OnePlus -->
-    <string name="setup_oneplus_step1">Ustawienia → Aplikacje → Specjalny dostęp → Optymalizacja baterii → znajdź OrderPilot → ustaw „Nie optymalizuj"</string>
+    <string name="setup_oneplus_step1">Ustawienia → Aplikacje → Specjalny dostęp → Optymalizacja baterii → znajdź OrderPilot → ustaw „Nie optymalizuj”</string>
     <string name="setup_oneplus_step1_btn">Otwórz optymalizację baterii</string>
-    <string name="setup_oneplus_step2">Ustawienia → Bateria → Zaawansowana optymalizacja → wyłącz „Głęboka optymalizacja"</string>
+    <string name="setup_oneplus_step2">Ustawienia → Bateria → Zaawansowana optymalizacja → wyłącz „Głęboka optymalizacja”</string>
     <string name="setup_oneplus_step2_btn">Otwórz ustawienia baterii</string>
     <string name="setup_oneplus_step3">Otwórz listę ostatnich aplikacji → znajdź OrderPilot → przytrzymaj → kliknij kłódkę</string>
 
     <!-- Toast hints (wizard) -->
-    <string name="toast_hint_overlay">Znajdź „OrderPilot" i włącz przełącznik</string>
-    <string name="toast_hint_accessibility">Wejdź w „Zainstalowane aplikacje" → znajdź OrderPilot → włącz</string>
-    <string name="toast_hint_battery_optimization">Znajdź „OrderPilot" na liście i wybierz „Bez ograniczeń"</string>
-    <string name="toast_hint_samsung_battery">Kliknij „Bateria" → wybierz „Bez ograniczeń"</string>
-    <string name="toast_hint_samsung_sleeping">Otwórz „Limity użycia w tle" i usuń OrderPilot z list</string>
-    <string name="toast_hint_xiaomi_autostart">Znajdź „OrderPilot" i włącz przełącznik</string>
-    <string name="toast_hint_xiaomi_battery">Kliknij „Oszczędzanie baterii" → wybierz „Bez ograniczeń"</string>
-    <string name="toast_hint_huawei_launch">Znajdź „OrderPilot" → wyłącz „Zarządzaj automatycznie" → włącz 3 przełączniki</string>
-    <string name="toast_hint_huawei_optimize">Kliknij „Bateria" → wybierz „Nie optymalizuj"</string>
-    <string name="toast_hint_oppo_background">Kliknij „Bateria" → włącz „Zezwalaj na działanie w tle"</string>
-    <string name="toast_hint_oppo_autolaunch">Włącz „Automatyczne uruchamianie" (Auto-launch)</string>
-    <string name="toast_hint_oneplus_optimize">Znajdź „OrderPilot" → wybierz „Nie optymalizuj"</string>
-    <string name="toast_hint_oneplus_deep">Wyłącz „Głęboka optymalizacja" / „Zaawansowana optymalizacja"</string>
+    <string name="toast_hint_overlay">Znajdź „OrderPilot” i włącz przełącznik</string>
+    <string name="toast_hint_accessibility">Wejdź w „Zainstalowane aplikacje” → znajdź OrderPilot → włącz</string>
+    <string name="toast_hint_battery_optimization">Znajdź „OrderPilot” na liście i wybierz „Bez ograniczeń”</string>
+    <string name="toast_hint_samsung_battery">Kliknij „Bateria” → wybierz „Bez ograniczeń”</string>
+    <string name="toast_hint_samsung_sleeping">Otwórz „Limity użycia w tle” i usuń OrderPilot z list</string>
+    <string name="toast_hint_xiaomi_autostart">Znajdź „OrderPilot” i włącz przełącznik</string>
+    <string name="toast_hint_vivo_autostart">Znajdź „OrderPilot” i włącz przełącznik</string>
+    <string name="toast_hint_xiaomi_battery">Kliknij „Oszczędzanie baterii” → wybierz „Bez ograniczeń”</string>
+    <string name="toast_hint_huawei_launch">Znajdź „OrderPilot” → wyłącz „Zarządzaj automatycznie” → włącz 3 przełączniki</string>
+    <string name="toast_hint_huawei_optimize">Kliknij „Bateria” → wybierz „Nie optymalizuj”</string>
+    <string name="toast_hint_oppo_background">Kliknij „Bateria” → włącz „Zezwalaj na działanie w tle”</string>
+    <string name="toast_hint_oppo_autolaunch">Włącz „Automatyczne uruchamianie” (Auto-launch)</string>
+    <string name="toast_hint_oneplus_optimize">Znajdź „OrderPilot” → wybierz „Nie optymalizuj”</string>
+    <string name="toast_hint_oneplus_deep">Wyłącz „Głęboka optymalizacja” / „Zaawansowana optymalizacja”</string>
 
     <!-- SettingsActivity -->
     <string name="settings_open">Ustawienia</string>
@@ -119,13 +162,17 @@
     <string name="notif_watchdog_title">Wykrywanie zleceń zatrzymane</string>
     <string name="notif_watchdog_text">Kliknij, aby przywrócić działanie</string>
 
+    <!-- FGS start blocked (M11) -->
+    <string name="notif_start_blocked_title">Monitoring wstrzymany</string>
+    <string name="notif_start_blocked_text">System zablokował start w tle — otwórz OrderPilot, aby wznowić</string>
+
     <!-- Notification permission hint -->
     <string name="hint_notifications_disabled">Powiadomienia wyłączone — wykrywanie działa, ale nie zobaczysz statusu ani alertów o problemach</string>
 
     <!-- Prominent Disclosure (KD4, Task 3.4) -->
     <string name="disclosure_title">OrderPilot potrzebuje dostępu do ekranu</string>
     <string name="disclosure_subtitle">Zanim włączysz usługę dostępności, przeczytaj do czego będzie używana.</string>
-    <string name="disclosure_body">OrderPilot to narzędzie dla kurierów. Do działania potrzebuje dwóch uprawnień: „Usługa dostępności" oraz „Wyświetlanie nad innymi aplikacjami".\n\n<b>Jakie aplikacje OrderPilot czyta:</b>\nwyłącznie Uber Driver, Uber Eats Courier, Wolt Courier, Glovo Courier i Bolt Food. Żadne inne aplikacje nie są obserwowane.\n\n<b>Co dokładnie odczytuje z ekranu:</b>\n• kwotę oferty (zł)\n• szacowany czas dostawy (min)\n• dystans (km)\n• informację, czy zlecenie jest gotówkowe\n\n<b>Do czego używa tych danych:</b>\ndo obliczenia stawki godzinowej (zł/h) i wyświetlenia kolorowej belki nad ekranem aplikacji kurierskiej, żebyś mógł szybko zdecydować, czy opłaca Ci się przyjąć zlecenie.\n\n<b>Co NIE jest robione:</b>\n• dane nie są wysyłane do żadnego serwera\n• nie są zapisywane na dysku (zostają w pamięci maksymalnie ~30 sekund)\n• nie są udostępniane osobom trzecim\n• nie są wykorzystywane do reklam ani profilowania\n\n<b>Uprawnienia systemowe:</b>\nJeśli teraz zaakceptujesz, przejdziesz przez krótki kreator, który poprosi o włączenie kilku ustawień systemowych. Wszystko dzieje się ręcznie — OrderPilot nic nie włączy za Ciebie.\n\n<b>Możesz wyłączyć usługę w dowolnym momencie</b> w Ustawieniach systemu → Dostępność → Zainstalowane aplikacje → OrderPilot. Odinstalowanie aplikacji usuwa wszystkie lokalne dane.\n\nPełna treść polityki prywatności dostępna pod linkiem poniżej.</string>
+    <string name="disclosure_body">OrderPilot to narzędzie dla kurierów. Do działania potrzebuje dwóch uprawnień: „Usługa dostępności” oraz „Wyświetlanie nad innymi aplikacjami”.\n\n<b>Jakie aplikacje OrderPilot czyta:</b>\nwyłącznie Uber Driver, Uber Eats Courier, Wolt Courier, Glovo Courier i Bolt Food. Żadne inne aplikacje nie są obserwowane.\n\n<b>Co dokładnie odczytuje z ekranu:</b>\n• kwotę oferty (zł)\n• szacowany czas dostawy (min)\n• dystans (km)\n• informację, czy zlecenie jest gotówkowe\n\n<b>Do czego używa tych danych:</b>\ndo obliczenia stawki godzinowej (zł/h) i wyświetlenia kolorowej belki nad ekranem aplikacji kurierskiej, żebyś mógł szybko zdecydować, czy opłaca Ci się przyjąć zlecenie.\n\n<b>Co NIE jest robione:</b>\n• dane nie są wysyłane do żadnego serwera\n• nie są zapisywane na dysku (zostają w pamięci maksymalnie ~30 sekund)\n• nie są udostępniane osobom trzecim\n• nie są wykorzystywane do reklam ani profilowania\n\n<b>Uprawnienia systemowe:</b>\nJeśli teraz zaakceptujesz, przejdziesz przez krótki kreator, który poprosi o włączenie kilku ustawień systemowych. Wszystko dzieje się ręcznie — OrderPilot nic nie włączy za Ciebie.\n\n<b>Możesz wyłączyć usługę w dowolnym momencie</b> w Ustawieniach systemu → Dostępność → Zainstalowane aplikacje → OrderPilot. Odinstalowanie aplikacji usuwa wszystkie lokalne dane.\n\nPełna treść polityki prywatności dostępna pod linkiem poniżej.</string>
     <string name="disclosure_button_accept">Rozumiem</string>
     <string name="disclosure_button_cancel">Anuluj</string>
     <string name="disclosure_pp_link">Polityka prywatności</string>

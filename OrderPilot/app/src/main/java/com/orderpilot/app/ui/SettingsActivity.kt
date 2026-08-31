@@ -16,9 +16,13 @@ import com.orderpilot.app.R
 import com.orderpilot.app.databinding.ActivitySettingsBinding
 import com.orderpilot.app.di.OrderPilotApp
 import com.orderpilot.app.di.ServiceLocator
+import com.orderpilot.app.domain.AnalysisResult
 import com.orderpilot.app.domain.AppLanguage
 import com.orderpilot.app.domain.MetricType
+import com.orderpilot.app.domain.Offer
 import com.orderpilot.app.domain.Platform
+import com.orderpilot.app.domain.ProfitLevel
+import com.orderpilot.app.overlay.OverlayViewFactory
 import com.orderpilot.app.settings.DisplayConfig
 import com.orderpilot.app.settings.PlatformSettings
 import com.orderpilot.app.settings.ThresholdConfig
@@ -41,6 +45,13 @@ class SettingsActivity : AppCompatActivity() {
         var displayTime: Float = 30f
     )
     private val tabData = Array(5) { TabValues() }
+
+    /**
+     * M8: suwak czasu belki na tabie platformy tworzy override TYLKO gdy user go
+     * FAKTYCZNIE dotknął (fromUser). Bez tego zmiana samego globalnego czasu
+     * fabrykowała ukryte nadpisania per-platforma ze STARĄ wartością.
+     */
+    private val displayTimeTouched = BooleanArray(5)
     private var currentTab = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,8 +66,45 @@ class SettingsActivity : AppCompatActivity() {
         setupTabs()
         loadSettings()
         setupSliders()
+        setupBelkaPreview()
         binding.btnSave.setOnClickListener { saveSettings() }
         binding.tvPpLink.setOnClickListener { openPrivacyPolicy() }
+    }
+
+    // ─── Podgląd belki na żywo (sekcja „Wygląd belki") ───
+
+    /** Podgląd reaguje na przezroczystość ORAZ wybór metryk — user od razu widzi efekt. */
+    private fun setupBelkaPreview() {
+        listOf(
+            binding.swMetricZlPerHour, binding.swMetricZlPerKm, binding.swMetricAmount,
+            binding.swMetricTime, binding.swMetricDistance
+        ).forEach { sw ->
+            sw.setOnCheckedChangeListener { _, _ -> renderBelkaPreview() }
+        }
+        renderBelkaPreview()
+    }
+
+    private fun renderBelkaPreview() {
+        val metrics = mutableSetOf<MetricType>()
+        if (binding.swMetricZlPerHour.isChecked) metrics += MetricType.ZL_PER_HOUR
+        if (binding.swMetricZlPerKm.isChecked) metrics += MetricType.ZL_PER_KM
+        if (binding.swMetricAmount.isChecked) metrics += MetricType.AMOUNT
+        if (binding.swMetricTime.isChecked) metrics += MetricType.TIME
+        if (binding.swMetricDistance.isChecked) metrics += MetricType.DISTANCE
+        if (metrics.isEmpty()) metrics += MetricType.ZL_PER_HOUR // pusta belka = bezużyteczny podgląd
+
+        // Krycie 100% w drawable — realną przezroczystość symuluje View.alpha (patrz
+        // listener suwaka): dzięki temu przeciąganie suwaka nie przebudowuje widoku.
+        val config = DisplayConfig(visibleMetrics = metrics, overlayOpacity = 100)
+        val sample = AnalysisResult(
+            offer = Offer(Platform.UBER, amount = 24.00, estimatedMinutes = 30, distanceKm = 8.0),
+            zlPerHour = 48.0, zlPerKm = 3.0, level = ProfitLevel.GREEN
+        )
+        val language = ServiceLocator.settingsRepository.load().language
+        binding.flSettingsBelkaPreview.removeAllViews()
+        val view = OverlayViewFactory.create(this, sample, config, language)
+        view.alpha = binding.slOpacity.value / 100f
+        binding.flSettingsBelkaPreview.addView(view)
     }
 
     /**
@@ -100,8 +148,12 @@ class SettingsActivity : AppCompatActivity() {
     private fun setupSliders() {
         binding.slOpacity.addOnChangeListener { _, value, _ ->
             binding.tvOpacityLabel.text = getString(R.string.settings_opacity, value.toInt())
+            // Płynność: podgląd zbudowany raz przy kryciu 100%, a suwak steruje tanim
+            // View.alpha — zero przebudowy widoku w trakcie przeciągania, dokładny efekt.
+            binding.flSettingsBelkaPreview.getChildAt(0)?.alpha = value / 100f
         }
-        binding.slDisplayTime.addOnChangeListener { _, value, _ ->
+        binding.slDisplayTime.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) displayTimeTouched[currentTab] = true
             binding.tvDisplayTimeLabel.text = if (currentTab == 0)
                 getString(R.string.settings_display_time, value.toInt())
             else
@@ -274,10 +326,18 @@ class SettingsActivity : AppCompatActivity() {
             val globalDisplayTime = tabData[0].displayTime.toInt()
 
             val existing = current.platformOverrides[platform]
+            // M8: bez dotknięcia suwaka platformy zachowaj DOTYCHCZASOWY stan override'u
+            // (żaden nie powstaje ani nie znika przy zmianie samego globala).
+            // Po dotknięciu: wartość równa globalowi = świadome skasowanie override'u.
+            val displayTimeOverride = if (displayTimeTouched[i]) {
+                if (displayTime != globalDisplayTime) displayTime else null
+            } else {
+                existing?.displayTimeSeconds
+            }
             overrides[platform] = PlatformSettings(
                 thresholds = thresholds,
                 filters = existing?.filters,
-                displayTimeSeconds = if (displayTime != globalDisplayTime) displayTime else null
+                displayTimeSeconds = displayTimeOverride
             )
         }
 

@@ -34,3 +34,6 @@ mockup_*.html
 # Release signing — NIGDY nie commitować keystore ani haseł
 keystore/
 keystore.properties
+
+# Wirtualne srodowisko do wydawania przez Play API
+.venv-play/

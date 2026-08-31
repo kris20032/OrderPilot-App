@@ -13,6 +13,7 @@ import com.orderpilot.app.overlay.OverlayManager
 import com.orderpilot.app.overlay.OverlayAutoHider
 import com.orderpilot.app.parser.ParserRegistry
 import com.orderpilot.app.settings.SettingsRepository
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -33,7 +34,14 @@ class PipelineOrchestrator(
     private val overlayAutoHider: OverlayAutoHider,
     private val settingsRepository: SettingsRepository
 ) {
-    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    // CoroutineExceptionHandler: bez tego nieobsłużony wyjątek z capture/OCR/cropper
+    // (np. OOM przy createBitmap, IllegalState na zamkniętym ImageReader, błąd ML Kit)
+    // propaguje do domyślnego handlera wątku i ZABIJA cały proces — monitoring milknie
+    // w środku zmiany. Tu logujemy i jedziemy dalej (następny event zrobi nowy screenshot).
+    private val exceptionHandler = CoroutineExceptionHandler { _, e ->
+        AppLog.w(AppLog.TAG_PIPELINE, "Pipeline uncaught exception: ${e.message}")
+    }
+    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob() + exceptionHandler)
     private val lastResults = ConcurrentHashMap<Platform, AnalysisResult>()
     private val lastResultTimes = ConcurrentHashMap<Platform, Long>()
     private val resultExpiryMs = 60_000L // reset po 60s bez zlecenia
@@ -65,8 +73,17 @@ class PipelineOrchestrator(
         val tCapture = System.currentTimeMillis()
         AppLog.d(AppLog.TAG_PIPELINE, "Screenshot captured [${tCapture - t0}ms]")
 
-        val cropped = popupCropper.crop(screenshot)
-        screenshot.recycle()
+        // crop() może rzucić (OOM/createBitmap) — wtedy zwolnij screenshot zanim wyjątek
+        // poleci do exceptionHandler, inaczej po dodaniu handlera mielibyśmy wyciek ~8-10 MB
+        // na ofertę → OOM. Gdy crop zwróci TEN SAM bitmap (invalid dims) — nie zwalniaj tu,
+        // bo recykluje go finally OCR poniżej.
+        val cropped = try {
+            popupCropper.crop(screenshot)
+        } catch (e: Throwable) {
+            screenshot.recycle()
+            throw e
+        }
+        if (cropped !== screenshot) screenshot.recycle()
 
         val ocrLines: List<String>
         try {
@@ -114,7 +131,9 @@ class PipelineOrchestrator(
 
         withContext(Dispatchers.Main) {
             overlayManager.show(result, settings.display, settings.language)
-            overlayAutoHider.onOverlayShown(scope, settings.display.displayTimeSeconds * 1000L, result.offer.platform)
+            // Czas wyświetlania belki per platforma (spójnie ze ścieżką accessibility);
+            // wcześniej brano tylko czas globalny → override per platforma był gubiony.
+            overlayAutoHider.onOverlayShown(scope, settings.displayTimeFor(result.offer.platform) * 1000L, result.offer.platform)
         }
     }
 

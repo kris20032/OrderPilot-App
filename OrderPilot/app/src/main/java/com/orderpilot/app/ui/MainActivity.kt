@@ -10,7 +10,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.Settings
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
@@ -23,6 +22,7 @@ import com.orderpilot.app.databinding.ActivityMainBinding
 import com.orderpilot.app.di.AppLog
 import com.orderpilot.app.di.MonitoringController
 import com.orderpilot.app.di.ServiceLocator
+import com.orderpilot.app.review.ReviewPrompter
 import com.orderpilot.app.service.OrderPilotAccessibilityService
 import java.io.File
 import java.text.SimpleDateFormat
@@ -66,6 +66,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        applySystemBarsInsets()
+
         binding.btnToggle.setOnClickListener {
             if (isRunning) stopCapture() else startCapture()
         }
@@ -77,6 +79,38 @@ class MainActivity : AppCompatActivity() {
         }
         binding.btnSaveLogs.setOnClickListener {
             saveLogs()
+        }
+        binding.btnShareApp.setOnClickListener {
+            shareApp()
+        }
+    }
+
+    /** „Poleć kumplowi" — kurierzy siedzą razem na strefach; share = najtańszy kanał wzrostu. */
+    private fun shareApp() {
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, getString(R.string.share_app_text))
+        }
+        try {
+            startActivity(Intent.createChooser(intent, getString(R.string.share_app_btn)))
+        } catch (_: Exception) {}
+    }
+
+    /**
+     * L1/#29: edge-to-edge (targetSdk 35) — jak w pozostałych Activity, ale DOLICZAMY inset
+     * do istniejącego paddingu z XML (górne ikony wchodziły pod status bar na urządzeniach
+     * z wysokim paskiem/wycięciem na Android 15).
+     */
+    private fun applySystemBarsInsets() {
+        val root = binding.root
+        val baseL = root.paddingLeft
+        val baseT = root.paddingTop
+        val baseR = root.paddingRight
+        val baseB = root.paddingBottom
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
+            val bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            view.setPadding(baseL + bars.left, baseT + bars.top, baseR + bars.right, baseB + bars.bottom)
+            insets
         }
     }
 
@@ -118,6 +152,12 @@ class MainActivity : AppCompatActivity() {
         }
         updateAccessibilityHint()
         updateNotificationHint()
+
+        // In-App Review: user w apce, monitoring działa, 3+ dni użycia → jedna prośba.
+        // API Google samo decyduje, czy dialog faktycznie pokazać (quota) — zero spamu.
+        if (isRunning && ReviewPrompter.shouldAsk(this)) {
+            ReviewPrompter.ask(this)
+        }
     }
 
     override fun onPause() {
@@ -144,6 +184,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun startCapture() {
         ensureNotificationPermission()
+        // Prośba o recenzję: zliczamy dni realnego użycia (próg w ReviewPolicy).
+        ReviewPrompter.onMonitoringStarted(this)
 
         if (!OrderPilotAccessibilityService.isConnected) {
             if (isAccessibilityEnabled()) {
@@ -188,6 +230,10 @@ class MainActivity : AppCompatActivity() {
     private fun stopCapture() {
         MonitoringController.stop(this)
         OrderPilotAccessibilityService.cancelActiveJobs()
+        // Schowaj belkę OD RAZU — inaczej zostaje do swojego timeoutu (do 30s) i user
+        // ma wrażenie, że Stop nie zadziałał. Jesteśmy na wątku UI (handler przycisku).
+        // try/catch jak w pozostałych call-site'ach — WindowManager może rzucić gdy widok już odpięty.
+        try { ServiceLocator.overlayManager.hide() } catch (_: Exception) {}
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             ScreenCaptureService.stopCapture(this)
         }
@@ -265,8 +311,10 @@ class MainActivity : AppCompatActivity() {
         try {
             val timestamp = SimpleDateFormat("yyyy-MM-dd_HHmmss", Locale.getDefault()).format(Date())
             val fileName = "OrderPilot_log_$timestamp.txt"
-            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            val file = File(downloadsDir, fileName)
+            // Katalog prywatny apki (Android/data/.../files) — bez uprawnień storage, działa
+            // na całym zakresie API. Plik widoczny przez USB/menedżer plików dla testerów.
+            val dir = getExternalFilesDir(null) ?: filesDir
+            val file = File(dir, fileName)
 
             file.writeText(AppLog.getBufferedLogs())
 

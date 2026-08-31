@@ -1,9 +1,10 @@
 package com.orderpilot.app.settings
 
+import com.orderpilot.app.domain.AppLanguage
 import com.orderpilot.app.domain.Platform
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class AppSettingsTest {
@@ -64,8 +65,31 @@ class AppSettingsTest {
                 )
             )
         )
-        val json = Json.encodeToString(original)
-        val decoded = Json.decodeFromString<AppSettings>(json)
+        val json = SettingsJson.encodeToString(original)
+        val decoded = SettingsJson.decodeFromString<AppSettings>(json)
         assertEquals(original, decoded)
+    }
+
+    // --- #28: wybór języka MUSI przetrwać zapis, niezależnie od locale systemu ---
+
+    @Test
+    fun `language is always written to json (encodeDefaults)`() {
+        // Sedno #28: przy domyślnym Json (encodeDefaults=false) klucz language bywał pomijany
+        // gdy == fromSystemLocale() → po „Zapisz" wracał do systemowego (objaw „reset do PL").
+        val original = AppSettings(language = AppLanguage.RU)
+        val json = SettingsJson.encodeToString(original)
+        assertTrue("Brak klucza language w JSON: $json", json.contains("\"language\""))
+        assertTrue("Brak wartości RU w JSON: $json", json.contains("RU"))
+        val decoded = SettingsJson.decodeFromString<AppSettings>(json)
+        assertEquals(AppLanguage.RU, decoded.language)
+    }
+
+    @Test
+    fun `unknown json keys do not wipe settings`() {
+        // Forward-compat (M2): nieznany klucz z przyszłej/uszkodzonej wersji nie może wywalić
+        // dekodowania — inaczej load() łapie wyjątek i resetuje WSZYSTKIE ustawienia do defaultów.
+        val json = """{"language":"EN","someFutureKey":123}"""
+        val decoded = SettingsJson.decodeFromString<AppSettings>(json)
+        assertEquals(AppLanguage.EN, decoded.language)
     }
 }

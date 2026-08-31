@@ -448,3 +448,25 @@
 - **Materiały:** `test-data/closed-testing/logs/2026-05-13_marcin_uber-popup-over-other-app_accessibility-log.txt` (1999 linii)
 - **Priorytet:** ~~KRYTYCZNY~~ → ZAMKNIĘTE.
 - **Status:** ✅ **NAPRAWIONE w v1.0.5** (commit `e17860c` na branchu `fix/v1.0.5-uber-popup-background`, 2026-05-13 19:41). Same-day hotfix — 9h od bug report rano do LIVE wieczorem. versionCode 5→6, versionName 1.0.4→1.0.5. **LIVE w Closed Testing od 2026-05-13 20:39** (Play Console: „1.0.5 - Uber popup fix", Google auto-approved within minutes). Czwarty iteracyjny AAB update w 14-day Closed Testing window (4/3 minimum DONE). Lesson learned: belt-and-suspenders Layer 2 hardening v1.0.2 założył że Uber popup zawsze eksponuje tekst → assumption violated by RN Uber Driver na większości urządzeń → 7-day regression. Zob. `feedback_avoid_belt_suspenders.md` w memory.
+
+---
+
+## 🔍 AUDYT KODU 2026-06-28 (69 znalezisk) → pełna lista: `docs/AUDYT-2026-06-28.md`
+
+> Wieloagentowy audyt całego kodu (27 agentów, niezależna weryfikacja każdego znaleziska). **69 realnych znalezisk** (3 high, 17 medium, 39 low, 10 nit; brak „critical"). **Pełna, ponumerowana lista z plikami/liniami/fixami jest w `docs/AUDYT-2026-06-28.md`** — tu tylko skrót i status sprintu #1, żeby nie duplikować (konwencja repo).
+
+### ✅ Naprawione w sprincie #1 (branch `fix/audit-2026-06-28-batch1`, 2026-06-28) — czeka na build+test Krzysztofa
+- **H1** crash całej apki z pipeline (brak `CoroutineExceptionHandler`) — `PipelineOrchestrator.kt`. + **L20** wyciek bitmapy screenshotu (try/catch wokół crop).
+- **M2+M3+L39** persystencja ustawień/języka (część #28): wspólny `SettingsJson { encodeDefaults; ignoreUnknownKeys; coerceInputValues }` w `AppSettings.kt` + użycie w `SharedPrefsSettingsRepository`; testy w `AppSettingsTest`. **Uwaga #28:** część UI (`setApplicationLocales`) była już naprawiona; ta zmiana domyka PERSYSTENCJĘ (objaw „reset do PL po Save").
+- **H3** czerwone testy parserów Uber/Wolt (bramka Layer-4 z commitu `15c131d` bez aktualizacji fixtur) — dodane realne markery popupu do fixtur + jawne testy bramki.
+- **M1** logi crashy + „Zapisz logi" pisały do publicznego `Downloads` (martwe na targetSdk 35) → katalog prywatny apki (`getExternalFilesDir`/`filesDir`).
+- **M5** czas belki per platforma gubiony na ścieżce MediaProjection → `displayTimeFor(platform)`.
+- **L21** rosyjska jednostka minut `мін`→`мин`. **L31** `contentDescription` zębatki → `@string/settings_open`. **L32** nazwy kanałów powiadomień → `getString`. **L33** Stop chowa belkę natychmiast (`ServiceLocator.overlayManager.hide()`).
+
+### 🔴 Najważniejsze OTWARTE (do decyzji/kolejnych sprintów) — szczegóły w `docs/AUDYT-2026-06-28.md`
+- **H2 ⏸️ PARK (decyzja 28.06: na razie nie ruszać)** — Latin-only ML Kit OCR vs cyrylica UA/RU. Analiza 28.06: ML Kit NIE MA modelu cyrylicy (potwierdzone); psuje się głównie jednostka czasu (хв/мин) → brak belki. 3 drogi: 0=podpowiedź w setupie (tania, zero ryzyka), A=łatki translit+bramka agnostyczna pisma na ML Kit (**wymaga realnych logów OCR z urządzenia UA** — bez nich nie ruszać, ryzyko #36), B=Tesseract on-device ukr/rus (armata, +waga). Chmurowe OCR odrzucone (zero-network). Odblok A: log OCR od Andrija (przycisk „Zapisz logi" działa po M1). Pełne: `docs/AUDYT-2026-06-28.md` H2. `OcrEngine.kt`, parsery.
+- ~~**M7** Bolt fałszywy GREEN z gotówki~~ → **ZWERYFIKOWANE 28.06 (research): bezprzedmiotowy dla PL.** Bolt Food w Polsce wycofał dostawy gotówkowe (kurierpedia.pl) → scenariusz nie zachodzi; dla UA moot (OCR ślepy na cyrylicę = H2). NIE ruszać parsera Bolt (ślepy fix = ryzyko). Wracać tylko gdyby Bolt PL wrócił do gotówki. `BoltFoodOcrParser.kt`.
+- **#29 (insety)** naprawione w 3 Activity, ale POMINIĘTE w `MainActivity` (L1). **#33** ryzyko `accessibilityDataSensitive` od API 34 (Android 14), nie 16 (korekta L35).
+- **Niezawodność/przeżywalność:** M10 (fałszywy status po reboocie), M11 (crash przy restarcie FGS z tła), M12 (odmowa POST_NOTIFICATIONS wycisza watchdoga), M13 (Vivo bez karty setupu), M16 (Oppo zła instrukcja autostartu).
+- **Dokładność:** M4 (Xiaomi crop 0.40 na głównej ścieżce), M9 (Glovo dedup tłumi oferty), M14 (Glovo sumuje za dużo km). **Inne:** L6 (martwy `UberParser`), L8 (Wolt bez normalizacji OCR), L30 (tymczasowy przycisk „Zapisz logi" na produkcji — zostawiony, bo po M1 działa; do decyzji czy schować).
+- Pełna lista LOW/NIT i sekcja „pewne vs do potwierdzenia testem na urządzeniu" → `docs/AUDYT-2026-06-28.md`.

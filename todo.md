@@ -8,10 +8,25 @@
 **🚀 v1.0.5 LIVE w Google Play** (177 krajów) od 2026-05-23. Etap: **post-launch ops + promocja + planowanie v1.1.**
 Merge sequence `fix/v1.0.5-uber-popup-background` → … → `main` + tag `v1.0.5` + GitHub Release: zakończone 2026-05-23 (per PROGRESS).
 
+> 📈 **PLAN ROZWOJU / GROWTH (deep research 2026-06-28):** pełny plan „jak sprawić, by kurierzy pobierali i używali apki" →
+> **`docs/promo/PLAN_ROZWOJU_DEEP_RESEARCH_2026-06-28.md`** (diagnoza + ASO gotowiec + listy grup/twórców + roadmapa + plan 4 tyg).
+> TL;DR: problem = dystrybucja, nie produkt. Najpierw niezawodność odczytu, potem promocja w społecznościach kurierów. Zostać przy PL (nie Hiszpania). Pamięć: `project_orderpilot_growth_plan`. **Gdy Krzysztof pyta „następny krok w OrderPilot" — zacznij od tego pliku.**
+
+> 🔍 **AUDYT KODU 2026-06-28:** wieloagentowy audyt całego kodu → **69 znalezisk** (3 high, 17 medium, 39 low, 10 nit; brak „critical"). Pełna lista: **`docs/AUDYT-2026-06-28.md`**.
+> **Sprint #1 ZROBIONY w kodzie (branch `fix/audit-2026-06-28-batch1`)** — czeka na build+test Krzysztofa + merge. Naprawione: H1 crash pipeline, M2/M3 persystencja języka (#28), H3 czerwone testy parserów, M1 diagnostyka logów, M5 czas belki, L20 wyciek bitmapy, L21/L31/L32/L33 drobne.
+
+> 🧙 **WIZARD v2 + SPRINT #2 (2026-07-04, branch `feat/wizard-v2`, zbudowany NA sprincie #1):**
+> **(1) Wizard konfiguracji v2** — krokowy (1 krok = 1 ekran), podgląd PRAWDZIWEJ belki na powitaniu, auto-wykrycie nadania uprawnienia → ✓ → auto-przejście, demo belki na żywo po nadaniu overlay, deep-link do dostępności z podświetleniem usługi, POST_NOTIFICATIONS jako wymagany krok (M12), ekran OEM nieblokujący (Samsung/Xiaomi/Huawei/OPPO/**Vivo nowość M13**/OnePlus + karta generyczna), OPPO autostart naprawiony (M16), hint językowy OCR dla UI UA/RU (H2 Droga 0). Logika kroków: `ui/setup/SetupFlow.kt` + testy. Tłumaczenia PL/EN/UK/RU.
+> **(2) Sprint niezawodności #2** — M10 (timestamp startu persystowany; watchdog bez fałszywych alertów po reboocie), M11 (FGS start z tła w try/catch + powiadomienie zamiast crasha), M15 (race capture na API<30), M4 (Xiaomi crop 0.30 na głównej ścieżce takeScreenshot), M6 (onDestroy chowa belki), L1/#29 (insety MainActivity).
+> Build + testy jednostkowe (148) zielone lokalnie. **Merge-plan: `main` ← `fix/audit-2026-06-28-batch1` ← `feat/wizard-v2` (jedna linia, jeden test na telefonie).**
+
 ## Otwarte zadania
 
 | Priorytet | Zadanie | Status |
 |-----------|---------|--------|
+| 🔴 **High** | **WYDANIE v1.1.0** — gałąź `feat/wizard-v2` = komplet: sprint #1 + wizard v2.1 + sprint #2 + redesign całej apki + fixy M8/M9 + In-App Review + „Poleć kumplowi" + bump vc7. Ścieżka: test na telefonie (świeża instalacja → wizard; Start → belka; „Poleć kumplowi") → merge → podpisany AAB → Play Console (notki+screenshoty GOTOWE: `docs/play-store/RELEASE-NOTES-1.1.0.md` + `screenshots-v1.1/`). 159 testów + emulator zielone (2026-07-04) | Kod+materiały GOTOWE, wydanie TODO (Krzysztof) |
+| ⏸️ **PARK** | **Audyt H2** — OCR cyrylicy UA/RU. ✅ Analiza 28.06: ML Kit NIE MA modelu cyrylicy; psuje się głównie jednostka czasu (хв/мин) + bramka. 3 drogi: 0=podpowiedź setup (tania), A=łatki OCR na ML Kit (wymaga REALNYCH logów z urządzenia UA — bez nich nie ruszać), B=Tesseract on-device (armata). **DECYZJA 28.06: na razie NIE robimy nic** (Krzysztof). Odblok Drogi A: log OCR od Andrija (przycisk „Zapisz logi" działa po fixie M1). Pełne: `docs/AUDYT-2026-06-28.md` H2 | ⏸️ PARK (decyzja: nie ruszać) |
+| 🟢 ~~Low~~ | ~~**Audyt M7** — Bolt fałszywy GREEN z gotówki~~ → **ZWERYFIKOWANE 28.06 (research): bezprzedmiotowy dla PL** — Bolt Food w Polsce wycofał dostawy gotówkowe (kurierpedia.pl), scenariusz nie zachodzi; dla UA moot (OCR ślepy na cyrylicę = H2). NIE ruszać parsera. Wracać tylko gdyby Bolt PL wrócił do gotówki | ZAMKNIĘTE (moot) |
 | 🔴 **High** | **Play Store SEO fix** — apka niewidoczna na frazę „order pilot" (ze spacją). Edycja: App name + Short description + pierwsze 250 znaków Full description, żeby „Order Pilot" było explicit. **BLOCKING przed outreachem do grup.** Szczegóły: `docs/promo/LAUNCH_PLAN.md` Etap 1.5 Issue #1 | TODO (30–60 min + 24–48h review) |
 | 🟡 **High** | **Grafiki FB** — nowa cover 1640×924 + profile pic + 3–4 screeny do postów (obecna cover słaba, brak showcase belki). Szczegóły: `LAUNCH_PLAN.md` Etap 1.5 Issue #2 | Materiały TODO (1–2h DIY / 24–48h outsourcing) |
 | 🟡 **High** | **Promocja launch — execution** — plan + drafty gotowe (`docs/promo/`: LAUNCH_PLAN.md + 3 drafty FB + 12 grup kurierów PL/UA + 3 szablony outreach). User publikuje 1–2 grupy/dzień przez tydzień | Materiały gotowe 05-23, execution TODO (user) |

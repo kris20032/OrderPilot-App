@@ -149,7 +149,7 @@ object OverlayViewFactory {
                 hourSuffix = "год"; kmUnit = "км"; minUnit = "хв"
             }
             "₽", "руб" -> {
-                hourSuffix = "ч"; kmUnit = "км"; minUnit = "мін"
+                hourSuffix = "ч"; kmUnit = "км"; minUnit = "мин"
             }
             else -> {
                 // zł, €, $, £ i każda inna — uniwersalne łacińskie jednostki
